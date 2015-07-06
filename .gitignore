@@ -1,0 +1,14 @@
+*.obj
+*.a
+*.o
+Release/bitengine.tlog/
+*.log
+Debug/bitengine.tlog/
+*.user
+*.suo
+*.pdb
+*.sdf
+ProjectFiles/BitEngine.layout
+ProjectFiles/CppCheckResults.xml
+ProjectFiles/BitEngine_build_log.html
+Debug/vc120.idb
