@@ -131,6 +131,9 @@
     <ClInclude Include="include\bitengine\DefaultShaders\Sprite2DShader.h">
       <Filter>Header Files\DefaultShaders</Filter>
     </ClInclude>
+    <ClInclude Include="include\bitengine\ErrorCodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="projectfiles\BitEngine_build_log.html" />

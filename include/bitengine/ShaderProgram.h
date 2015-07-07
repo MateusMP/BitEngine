@@ -6,6 +6,8 @@
 #include "TypeDefinition.h"
 
 #include "Graphics.h"
+#include "ErrorCodes.h"
+
 
 namespace BitEngine{
 
@@ -34,14 +36,15 @@ public:
 
 };
 
-
 class ShaderProgram
 {
     public:
+
         ShaderProgram();
         virtual ~ShaderProgram();
 
-        int compileShaders(const std::string& vertexFile, const std::string& fragmentFile);
+		int CompileShadersFiles(const std::string& vertexFile, const std::string& fragmentFile);
+		int CompileShadersSources(const char* vertexSource, const char* fragmentSource);
 
         void Bind();
         void Unbind();
@@ -89,11 +92,12 @@ class ShaderProgram
         GLuint m_vertexID;
         GLuint m_fragmentID;
 
-        std::vector<std::string> m_shaderFiles;
-
 		// Functions
 
-        GLuint compileSource(GLuint &hdl, GLenum type, const std::string& file);
+		/// \param errorLog, pointer to char* where to store compilation errors
+		///			Should be freed with delete[] after use.
+		int compile(GLuint &hdl, GLenum type, const char* data, char** errorLog);
+		int retrieveSourceFromFile(const std::string& file, std::string& out) const;
 
 		void linkShaders();
 

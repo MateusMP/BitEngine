@@ -12,9 +12,8 @@ namespace BitEngine{
 	Sprite2DShader::~Sprite2DShader()
 	{
 	}
-
 	int Sprite2DShader::init(){
-		return compileShaders("Shaders/vertex.glsl", "Shaders/fragment.glsl");
+		return CompileShadersFiles("Shaders/vertex.glsl", "Shaders/fragment.glsl");
 	}
 
 	Sprite2DShader::Sprite2DBatch* Sprite2DShader::Create2DBatchRenderer(IBatchRenderer::BATCH_MODE mode)

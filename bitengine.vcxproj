@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="include\bitengine\Color.h" />
     <ClInclude Include="include\bitengine\DefaultShaders\Sprite2DShader.h" />
+    <ClInclude Include="include\bitengine\ErrorCodes.h" />
     <ClInclude Include="include\bitengine\GameEngine.h" />
     <ClInclude Include="include\bitengine\glSystem.h" />
     <ClInclude Include="include\bitengine\Graphics.h" />

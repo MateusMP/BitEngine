@@ -12,7 +12,6 @@ namespace BitEngine{
 ShaderProgram::ShaderProgram()
     : m_programID(0), m_vertexID(0), m_fragmentID(0)
 {
-    m_shaderFiles.resize(2);
 }
 
 ShaderProgram::~ShaderProgram()
@@ -30,35 +29,53 @@ void ShaderProgram::Unbind()
     glUseProgram(0);
 }
 
-int ShaderProgram::compileShaders(const std::string& vertexFile, const std::string& fragmentFile)
+int ShaderProgram::CompileShadersFiles(const std::string& vertexFile, const std::string& fragmentFile)
 {
-    m_shaderFiles[0] = vertexFile;
-    m_shaderFiles[1] = fragmentFile;
+	std::string vertexSource;
+	std::string fragmentSource;
+	if (retrieveSourceFromFile(vertexFile, vertexSource) != NO_ERROR){
+		return FAILED_TO_READ_VERTEX;
+	}
 
-    int error = compileSource(m_vertexID, GL_VERTEX_SHADER, vertexFile);
-    if (error < 0){
-        Logger::LogErrorToConsole("ShaderProgram: Failed to create VertexShader [error: %d - %s]\n", m_vertexID, vertexFile.c_str());
-        Logger::ABORT(2);
-    }
+	if (retrieveSourceFromFile(fragmentFile, fragmentSource) != NO_ERROR){
+		return FAILED_TO_READ_FRAGMENT;
+	}
 
-    error = compileSource(m_fragmentID , GL_FRAGMENT_SHADER, fragmentFile);
-    if (error < 0){
-        Logger::LogErrorToConsole("ShaderProgram: Failed to create FragmentShader [error: %d - %s]\n", m_fragmentID, fragmentFile.c_str());
-        Logger::ABORT(2);
-    }
+	const char* vertex = vertexSource.c_str();
+	const char* fragment = fragmentSource.c_str();
 
-    // Vertex and fragment shaders are successfully compiled.
-    // Now time to link them together into a program.
-    // Get a program object.
-    m_programID = glCreateProgram();
+	return CompileShadersSources(vertex, fragment);
+}
 
-    BindAttributes();
+int ShaderProgram::CompileShadersSources(const char* vertexSource, const char* fragmentSource)
+{
+	char* errorlog;
+	int error = compile(m_vertexID, GL_VERTEX_SHADER, vertexSource, &errorlog);
+	if (error != NO_ERROR){
+		Logger::LogErrorToConsole("ShaderProgram: Vertex shader compile Error!\n%s\n====\n", errorlog);
+		delete[] errorlog;
+		return FAILED_TO_COMPILE_VERTEX;
+	}
 
-    linkShaders();
+	error = compile(m_fragmentID, GL_FRAGMENT_SHADER, fragmentSource, &errorlog);
+	if (error != NO_ERROR){
+		Logger::LogErrorToConsole("ShaderProgram: Fragment shader compile Error!\n%s\n====\n", errorlog);
+		delete[] errorlog;
+		return FAILED_TO_COMPILE_FRAGMENT;
+	}
 
-    RegisterUniforms();
+	// Vertex and fragment shaders are successfully compiled.
+	// Now time to link them together into a program.
+	// Get a program object.
+	m_programID = glCreateProgram();
 
-    return 1;
+	BindAttributes();
+
+	linkShaders();
+
+	RegisterUniforms();
+
+	return NO_ERROR;
 }
 
 void ShaderProgram::BindAttribute(int attrib, const std::string& name)
@@ -115,53 +132,63 @@ void ShaderProgram::linkShaders()
     glDeleteShader(m_fragmentID);
 }
 
-GLuint ShaderProgram::compileSource(GLuint &hdl, GLenum type, const std::string& file)
+int ShaderProgram::retrieveSourceFromFile(const std::string& file, std::string& out) const
 {
+	out.clear();
+
+	std::ifstream fdata(file);
+	if (fdata.fail()){
+		return -1;
+	}
+
+	std::string linedata;
+
+	while (std::getline(fdata, linedata))
+	{
+		out += linedata + "\n";
+	}
+
+	fdata.close();
+
+	return NO_ERROR;
+}
+
+int ShaderProgram::compile(GLuint &hdl, GLenum type, const char* data, char** errorLog)
+{
+	if (errorLog != nullptr){
+		*errorLog = nullptr;
+	}
+
     GLuint shdhdl = glCreateShader(type);
     if (shdhdl == 0){
-        return -1;
+		return FAILED_TO_CREATE_SHADER;
     }
 
-    std::ifstream fdata(file);
-    if (fdata.fail()){
-        return -2;
-    }
+	glShaderSource(shdhdl, 1, &data, nullptr);
+	glCompileShader(shdhdl);
 
-    std::string filedata;
-    std::string linedata;
+	GLint status = 0;
+	glGetShaderiv(shdhdl, GL_COMPILE_STATUS, &status);
 
-    while(std::getline(fdata, linedata))
-    {
-        filedata += linedata + "\n";
-    }
+	if (status == GL_FALSE){
 
-    fdata.close();
+		if (errorLog != nullptr){
+			GLint maxlogsize;
+			glGetShaderiv(shdhdl, GL_INFO_LOG_LENGTH, &maxlogsize);
 
-    const char* data = filedata.c_str();
-    glShaderSource(shdhdl, 1, &data, nullptr);
-    glCompileShader(shdhdl);
+			*errorLog = new char[maxlogsize + 1];
 
-    GLint status = 0;
-    glGetShaderiv(shdhdl, GL_COMPILE_STATUS, &status);
+			glGetShaderInfoLog(shdhdl, maxlogsize, &maxlogsize, *errorLog);
+		}
 
-    if (status == GL_FALSE)
-    {
-        GLint maxlogsize;
-        glGetShaderiv(shdhdl, GL_INFO_LOG_LENGTH, &maxlogsize);
-
-        std::vector<char> log(maxlogsize);
-        glGetShaderInfoLog(shdhdl, maxlogsize, &maxlogsize, &log[0]);
-
-        // Free shader handle
-        glDeleteShader(shdhdl);
-
-        Logger::LogErrorToConsole("Shader %s compile Error!\n%s\n====\n", file.c_str(), &(log[0]) );
-
-        return -3;
-    }
+		// Free shader handle
+		glDeleteShader(shdhdl);
+		
+		return FAILED_TO_COMPILE;
+	}
 
     hdl = shdhdl;
-    return 0;
+    return NO_ERROR;
 }
 
 
