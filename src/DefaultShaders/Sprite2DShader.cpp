@@ -2,6 +2,41 @@
 
 #include <algorithm>
 
+#define GLSL(version, shader)  "#version " #version "\n" #shader
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static const char* sprite2DshaderVertex = GLSL(150,
+
+	in vec2 a_vertexPosition;												
+	in vec2 a_textureCoord;													
+																			
+	out vec2 fragTextureCoord;												
+																			
+	void main()																
+	{																		
+		gl_Position.xy = a_vertexPosition;									
+		gl_Position.z = 0.0;												
+		gl_Position.w = 1.0;												
+																			
+		fragTextureCoord = a_textureCoord;									
+	}												
+);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static const char* sprite2DshaderFragment = GLSL(150,							
+	in vec2 fragTextureCoord;													
+																				
+	out vec4 finalColor;														
+																				
+	uniform sampler2D u_texDiffuse;												
+																				
+	void main()																	
+	{																			
+		finalColor = texture(u_texDiffuse, fragTextureCoord);					
+	}
+);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace BitEngine{
 
 	Sprite2DShader::Sprite2DShader()
@@ -12,8 +47,10 @@ namespace BitEngine{
 	Sprite2DShader::~Sprite2DShader()
 	{
 	}
+
 	int Sprite2DShader::init(){
-		return CompileShadersFiles("Shaders/vertex.glsl", "Shaders/fragment.glsl");
+		// return CompileShadersFiles("Shaders/vertex.glsl", "Shaders/fragment.glsl");
+		return CompileShadersSources(sprite2DshaderVertex, sprite2DshaderFragment);
 	}
 
 	Sprite2DShader::Sprite2DBatch* Sprite2DShader::Create2DBatchRenderer(IBatchRenderer::BATCH_MODE mode)

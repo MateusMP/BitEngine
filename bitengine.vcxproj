@@ -74,6 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Camera2D.cpp" />
     <ClCompile Include="src\DefaultShaders\Sprite2DShader.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\glSystem.cpp" />
@@ -90,6 +91,8 @@
     <ClCompile Include="src\VideoSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\bitengine\Camera.h" />
+    <ClInclude Include="include\bitengine\Camera2D.h" />
     <ClInclude Include="include\bitengine\Color.h" />
     <ClInclude Include="include\bitengine\DefaultShaders\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\ErrorCodes.h" />

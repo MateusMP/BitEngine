@@ -60,6 +60,9 @@
     <ClCompile Include="src\DefaultShaders\Sprite2DShader.cpp">
       <Filter>Header Files\DefaultShaders</Filter>
     </ClCompile>
+    <ClCompile Include="src\Camera2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Color.h">
@@ -132,6 +135,12 @@
       <Filter>Header Files\DefaultShaders</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\ErrorCodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Camera2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
