@@ -10,11 +10,13 @@ static const char* sprite2DshaderVertex = GLSL(150,
 	in vec2 a_vertexPosition;												
 	in vec2 a_textureCoord;													
 																			
-	out vec2 fragTextureCoord;												
+	out vec2 fragTextureCoord;
+
+	uniform mat4 u_viewMatrix;
 																			
 	void main()																
 	{																		
-		gl_Position.xy = a_vertexPosition;									
+		gl_Position.xy = (u_viewMatrix * vec4(a_vertexPosition, 0, 1.0f)).xy;
 		gl_Position.z = 0.0;												
 		gl_Position.w = 1.0;												
 																			
@@ -53,6 +55,11 @@ namespace BitEngine{
 		return CompileShadersSources(sprite2DshaderVertex, sprite2DshaderFragment);
 	}
 
+	void Sprite2DShader::LoadViewMatrix(glm::mat4& matrix)
+	{
+		u_viewMatrix = matrix;
+	}
+
 	Sprite2DShader::Sprite2DBatch* Sprite2DShader::Create2DBatchRenderer(IBatchRenderer::BATCH_MODE mode)
 	{
 		Sprite2DBatch* batch = new Sprite2DBatch(mode);
@@ -70,11 +77,14 @@ namespace BitEngine{
 	}
 
 	void Sprite2DShader::RegisterUniforms() {
-		LOAD_UNIFORM(u_texDiffuse, "u_texDiffuse");
+		LOAD_UNIFORM(u_texDiffuseHdl, "u_texDiffuse");
+		LOAD_UNIFORM(u_viewMatrixHdl, "u_viewMatrix");
 	}
 
 	void Sprite2DShader::OnBind() {
-		connectTexture(u_texDiffuse, GL_TEXTURE0);
+		connectTexture(u_texDiffuseHdl, TEXTURE_DIFFUSE);
+
+		loadMatrix(u_viewMatrixHdl, &(u_viewMatrix[0][0]) );
 	}
 
 	GLuint Sprite2DShader::CreateVAO(GLuint* outVBO) {
@@ -111,6 +121,37 @@ namespace BitEngine{
 	/// ===============================================================================================
 	///										Sprite2DBatch
 	/// ===============================================================================================
+
+	Sprite2DShader::Sprite2DBatch::Glyph::Glyph(const glm::vec2& _pos, const Sprite& _sprite, int width, int height, float _depth)
+		: textureID(_sprite.textureID), depth(_depth)
+	{
+		/**
+		xw--zw (w,h)
+		|    |
+		xy--zy
+		(0,0)
+		*/
+
+		topleft.position.x = _pos.x;
+		topleft.position.y = _pos.y + height;
+		topleft.uv.u = _sprite.uvrect.x;
+		topleft.uv.v = _sprite.uvrect.w;
+
+		bottomleft.position.x = _pos.x;
+		bottomleft.position.y = _pos.y;
+		bottomleft.uv.u = _sprite.uvrect.x;
+		bottomleft.uv.v = _sprite.uvrect.y;
+
+		topright.position.x = _pos.x + width;
+		topright.position.y = _pos.y + height;
+		topright.uv.u = _sprite.uvrect.z;
+		topright.uv.v = _sprite.uvrect.w;
+
+		bottomright.position.x = _pos.x + width;
+		bottomright.position.y = _pos.y;
+		bottomright.uv.u = _sprite.uvrect.z;
+		bottomright.uv.v = _sprite.uvrect.y;
+	}
 
 	Sprite2DShader::Sprite2DBatch::Glyph::Glyph(const glm::vec2& _pos, const Sprite& _sprite, float _depth)
 		: textureID(_sprite.textureID), depth(_depth)
@@ -174,9 +215,9 @@ namespace BitEngine{
 		m_sort = type;
 	}
 
-	void Sprite2DShader::Sprite2DBatch::DrawSprite(const glm::vec2& pos, const Sprite& sprite, float depth){
+	void Sprite2DShader::Sprite2DBatch::DrawSprite(const glm::vec2& pos, const Sprite& sprite, int width, int height, float depth){
 
-		m_glyphsData.emplace_back(pos, sprite, depth);
+		m_glyphsData.emplace_back(pos, sprite, width, height, depth);
 		m_glyphs.push_back(&m_glyphsData[m_glyphsData.size() - 1]);
 
 	}
@@ -209,6 +250,7 @@ namespace BitEngine{
 	{
 		glBindVertexArray(m_vao);
 
+		glActiveTexture(GL_TEXTURE0 + TEXTURE_DIFFUSE);
 		for (const Renderer& r : batchRenderers)
 		{
 			glBindTexture(GL_TEXTURE_2D, r.texture);

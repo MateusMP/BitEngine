@@ -22,6 +22,7 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::Bind()
 {
     glUseProgram(m_programID);
+	OnBind();
 }
 
 void ShaderProgram::Unbind()

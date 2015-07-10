@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/common.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "..\ShaderProgram.h"
 #include "..\VertexData.h"
@@ -24,12 +25,16 @@ namespace BitEngine
 
 			static const uint32 NUM_VBOS = 1;
 
+			static const uint32 TEXTURE_DIFFUSE = 0;
+
 		public:
 			Sprite2DShader();
 			~Sprite2DShader();
 
 			// Compile shaders
 			int init();
+
+			void LoadViewMatrix(glm::mat4& matrix);
 
 			Sprite2DBatch* Create2DBatchRenderer(IBatchRenderer::BATCH_MODE mode);
 
@@ -45,7 +50,8 @@ namespace BitEngine
 		
 		protected:
 			// Locations
-			int32 u_texDiffuse;
+			int32 u_texDiffuseHdl;
+			int32 u_viewMatrixHdl;
 
 			///
 			/// @brief Vertex with only position and texture data
@@ -64,6 +70,9 @@ namespace BitEngine
 				VertexData::Position position;
 				VertexData::UV uv;
 			};
+
+		private:
+			glm::mat4 u_viewMatrix;
 
 		/// ============================ RENDERERS ============================
 
@@ -88,7 +97,7 @@ namespace BitEngine
 
 					/** @param Draws sprite on 2D world coordinates
 					*/
-					void DrawSprite(const glm::vec2& pos, const Sprite& sprite, float depth = 0);
+					void DrawSprite(const glm::vec2& pos, const Sprite& sprite, int width, int height, float depth = 0);
 
 					void begin() override;
 					void end() override;
@@ -99,6 +108,7 @@ namespace BitEngine
 				private:
 					class Glyph{
 					public:
+						Glyph(const glm::vec2& _pos, const Sprite& _sprite, int width, int height, float _depth);
 						Glyph(const glm::vec2& _pos, const Sprite& _sprite, float _depth);
 
 						Vertex topleft;

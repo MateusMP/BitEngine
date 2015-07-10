@@ -37,11 +37,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\resources\stb-master;C:\resources\glfw-3.1.1\install\include;include\bitengine;C:\resources\glm-0.9.6.3\install\include;C:\resources\glew-1.11.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>include\bitengine;$(STB_HOME)\;$(GLFW_HOME)\include;$(GLM_HOME)\include;$(GLEW_HOME)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\resources\stb-master;C:\resources\glfw-3.1.1\install\include;include\bitengine;C:\resources\glm-0.9.6.3\install\include;C:\resources\glew-1.11.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>include\bitengine;$(STB_HOME)\;$(GLFW_HOME)\include;$(GLM_HOME)\include;$(GLEW_HOME)\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

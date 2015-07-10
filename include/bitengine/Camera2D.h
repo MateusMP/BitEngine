@@ -10,9 +10,15 @@ namespace BitEngine {
 		: public Camera
 	{
 		public:
+			Camera2D();
+
+			// Camera position in world coordinates
 			void setPosition(const glm::vec3& pos) override;
 			glm::vec3 getPosition() const override;
 
+			// Set camera focus position
+			// This position will be at the center of the camera bounding view
+			// To zoom on the center of the screen, use (screen_width/2, screen_height/2)
 			void setLookAt(const glm::vec3& pos) override;
 			glm::vec3 getLookAt() const override;
 
@@ -26,7 +32,7 @@ namespace BitEngine {
 
 			void Update() override;
 
-		private:
+		protected:
 			int m_width;
 			int m_height;
 
@@ -36,6 +42,8 @@ namespace BitEngine {
 			
 			glm::mat4 m_cameraMatrix;
 			glm::mat4 m_orthoMatrix;
+
+			bool changed;
 	};
 
 

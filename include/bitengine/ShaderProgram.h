@@ -13,7 +13,7 @@
 #define LOAD_UNIFORM(var, name)																					\
 				var = getUniformLocation(name);																	\
 				if (var < 0)																					\
-					BitEngine::Logger::LogErrorToConsole("Failed to load "#var" [\""name"\"] uniform.\n");		\
+					BitEngine::Logger::LogErrorToConsole("WARNING: Failed to load "#var" [\""name"\"] uniform.\n");		\
 				else																							\
 					BitEngine::Logger::LogErrorToConsole("Uniform "#var" loaded with id: %d.\n", var)
 #else
