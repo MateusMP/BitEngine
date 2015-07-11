@@ -7,6 +7,14 @@
 #include "VideoSystem.h"
 #include "InputSystem.h"
 
+#include "EngineLoggers.h"
+
+NEW_CONSOLE_LOG(General, "General");
+NEW_CONSOLE_LOG(Input, "Input");
+NEW_CONSOLE_LOG(Video, "Video");
+NEW_CONSOLE_LOG(OpenGL, "OpenGL");
+NEW_CONSOLE_LOG(Shader, "Shader");
+
 namespace BitEngine{
 
 void GameEngine::GLFW_ErrorCallback(int error, const char* description)

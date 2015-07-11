@@ -2,7 +2,7 @@
 #include <fstream>
 
 #include "ShaderProgram.h"
-#include "Logger.h"
+#include "EngineLoggers.h"
 
 #include "glSystem.h"
 
@@ -53,14 +53,14 @@ int ShaderProgram::CompileShadersSources(const char* vertexSource, const char* f
 	char* errorlog;
 	int error = compile(m_vertexID, GL_VERTEX_SHADER, vertexSource, &errorlog);
 	if (error != NO_ERROR){
-		Logger::LogErrorToConsole("ShaderProgram: Vertex shader compile Error!\n%s\n====\n", errorlog);
+		LOGTO(Shader) << "ShaderProgram: Vertex shader compile Error!\n " << errorlog << endlog;
 		delete[] errorlog;
 		return FAILED_TO_COMPILE_VERTEX;
 	}
 
 	error = compile(m_fragmentID, GL_FRAGMENT_SHADER, fragmentSource, &errorlog);
 	if (error != NO_ERROR){
-		Logger::LogErrorToConsole("ShaderProgram: Fragment shader compile Error!\n%s\n====\n", errorlog);
+		LOGTO(Shader) << "ShaderProgram: Fragment shader compile Error!\n" << errorlog << endlog;
 		delete[] errorlog;
 		return FAILED_TO_COMPILE_FRAGMENT;
 	}
@@ -118,7 +118,7 @@ void ShaderProgram::linkShaders()
         glDeleteShader(m_fragmentID);
 
         // Use the infoLog as you see fit.
-        Logger::LogErrorToConsole("Linking error: %s", &infoLog[0]);
+		LOGTO(Shader) << "Linking error: " << &infoLog[0] << endlog;
 
         // In this simple program, we'll just leave
         return;

@@ -6,6 +6,7 @@
 #include "TypeDefinition.h"
 
 #include "Graphics.h"
+#include "EngineLoggers.h"
 #include "ErrorCodes.h"
 
 
@@ -13,9 +14,9 @@
 #define LOAD_UNIFORM(var, name)																					\
 				var = getUniformLocation(name);																	\
 				if (var < 0)																					\
-					BitEngine::Logger::LogErrorToConsole("WARNING: Failed to load "#var" [\""name"\"] uniform.\n");		\
+					LOGTO(Shader) << "WARNING: Failed to load "#var" [\""name"\"] uniform." << endlog;			\
 				else																							\
-					BitEngine::Logger::LogErrorToConsole("Uniform "#var" loaded with id: %d.\n", var)
+					LOGTO(Shader) << "Uniform "#var" loaded with id: "<< var << "." << endlog
 #else
 #define LOAD_UNIFORM(var, name)	\
 					var = getUniformLocation(name)

@@ -93,14 +93,14 @@ namespace BitEngine{
 		// VAO
 		glGenVertexArrays(1, &vao);
 		if (vao == 0){
-			BitEngine::Logger::LogErrorToConsole("Sprite2DBatch: Could not create VAO.");
+			LOGTO(Shader) << "Sprite2DBatch: Could not create VAO." << endlog;
 		}
 		glBindVertexArray(vao);
 
 		// VBO
 		glGenBuffers(NUM_VBOS, outVBO);
 		if (outVBO[0] == 0){
-			BitEngine::Logger::LogErrorToConsole("Sprite2DBatch: Could not create VBO.");
+			LOGTO(Shader) << "Sprite2DBatch: Could not create VBO." << endlog;
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, outVBO[0]);
 
@@ -224,7 +224,7 @@ namespace BitEngine{
 
 	void Sprite2DShader::Sprite2DBatch::begin(){
 		if (m_mode == BATCH_MODE::STATIC_DEFINED){
-			Logger::LogErrorToConsole("Trying to modify STATIC batch!");
+			LOGTO(Shader) << "Trying to modify STATIC batch!" << endlog;
 			return;
 		}
 
@@ -234,7 +234,7 @@ namespace BitEngine{
 
 	void Sprite2DShader::Sprite2DBatch::end(){
 		if (m_mode == BATCH_MODE::STATIC_DEFINED){
-			Logger::LogErrorToConsole("Trying to modify STATIC batch!");
+			LOGTO(Shader) << "Trying to modify STATIC batch!" << endlog;
 			return;
 		}
 

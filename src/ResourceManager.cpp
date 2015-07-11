@@ -35,7 +35,7 @@ Texture* ResourceManager::LoadTexture2D(const std::string& path)
     unsigned char* image = stbi_load(path.c_str(), &w, &h, &c, 0);
 
     if (image == NULL){
-        Logger::LogErrorToConsole("LoadTexture: failed to open texture.");
+		LOG() << "LoadTexture: failed to open texture." << endlog;
         return nullptr;
     }
 
@@ -70,7 +70,7 @@ Texture* ResourceManager::LoadTexture2D(const std::string& path)
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     else{
-        Logger::LogErrorToConsole("LoadTexture: Unknow color ", 2);
+        LOG() << "LoadTexture: Unknow color " << c << endlog;
     }
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

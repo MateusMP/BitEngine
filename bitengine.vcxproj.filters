@@ -146,6 +146,9 @@
     <ClInclude Include="include\bitengine\InputSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
+    <ClInclude Include="include\bitengine\EngineLoggers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="projectfiles\BitEngine_build_log.html" />

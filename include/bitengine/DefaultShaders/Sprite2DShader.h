@@ -5,7 +5,6 @@
 
 #include "..\ShaderProgram.h"
 #include "..\VertexData.h"
-#include "..\Logger.h"
 #include "..\glSystem.h"
 
 #include "..\Sprite.h"
