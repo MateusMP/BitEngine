@@ -15,7 +15,7 @@ void VideoSystem::GlfwFrameResizeCallback(GLFWwindow* window, int width, int hei
 }
 
 VideoSystem::VideoSystem()
-    : m_glfwWindow(nullptr), m_name("Video")
+	: System("Video"), m_glfwWindow(nullptr)
 {
     m_Window.m_Title = "WINDOW";
     m_Window.m_Width = 1280;
@@ -33,10 +33,6 @@ VideoSystem::VideoSystem()
 }
 
 VideoSystem::~VideoSystem(){
-}
-
-const std::string& VideoSystem::getName() const{
-    return m_name;
 }
 
 void VideoSystem::Shutdown()

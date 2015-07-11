@@ -7,13 +7,9 @@ namespace BitEngine{
 
 
 InputSystem::InputSystem()
-    : m_name("Input")
+    : System("Input")
 {
     Channel::AddListener<WindowCreated>(this);
-}
-
-const std::string& InputSystem::getName() const{
-    return m_name;
 }
 
 InputSystem::~InputSystem(){

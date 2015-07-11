@@ -14,9 +14,7 @@ class InputSystem
     public:
         InputSystem();
         ~InputSystem();
-
-        const std::string& getName() const override;
-
+		
         bool Init() override;
         void Shutdown() override;
         void Update() override;
@@ -26,8 +24,6 @@ class InputSystem
     private:
         static void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-
-        std::string m_name;
 };
 
 

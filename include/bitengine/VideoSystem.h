@@ -12,9 +12,7 @@ class VideoSystem : public System
     public:
         VideoSystem();
         ~VideoSystem();
-
-        const std::string& getName() const override;
-
+		
         bool Init() override;
         void Shutdown() override;
         void Update() override;
