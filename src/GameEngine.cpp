@@ -9,28 +9,33 @@
 
 #include "EngineLoggers.h"
 
-NEW_CONSOLE_LOG(General, "General");
-NEW_CONSOLE_LOG(Input, "Input");
-NEW_CONSOLE_LOG(Video, "Video");
-NEW_CONSOLE_LOG(OpenGL, "OpenGL");
-NEW_CONSOLE_LOG(Shader, "Shader");
+#ifdef _DEBUG
+	#define MIN_SEVERITY LOG_SEVERITY_VERBOSE
+#else
+	#undef _LOG_SEVERITY_
+#define MIN_SEVERITY LOG_SEVERITY_ERROR
+#endif
+
+// to hide logs: LOG_SEVERITY_NO_LOGS
+NEW_CONSOLE_LOG(General, "General", LOG_SEVERITY_INFORMATION,	MIN_SEVERITY);
+NEW_CONSOLE_LOG(Error, "Error",		LOG_SEVERITY_ERROR,			MIN_SEVERITY);
+NEW_CONSOLE_LOG(Input, "Input",		LOG_SEVERITY_INFORMATION,	MIN_SEVERITY);
+NEW_CONSOLE_LOG(Video, "Video",		LOG_SEVERITY_INFORMATION,	MIN_SEVERITY);
+NEW_CONSOLE_LOG(Shader, "Shader",	LOG_SEVERITY_INFORMATION,	MIN_SEVERITY);
 
 namespace BitEngine{
 
 void GameEngine::GLFW_ErrorCallback(int error, const char* description)
 {
-    printf("GLFW Error %d: %s\n", error, description);
+    LOGTO(Error) << "GLFW Error: " << error << ": " << description << endlog;
 }
 
 GameEngine::GameEngine()
 {
-    printf("GameEngine");
     Channel::AddListener<WindowClose>(this);
 
     AddSystem(new VideoSystem());
     AddSystem(new InputSystem());
-
-    printf("GameEngine();\n");
 }
 
 GameEngine::~GameEngine()
@@ -50,31 +55,35 @@ void GameEngine::AddSystem(System *sys)
 
 bool GameEngine::InitSystems()
 {
-    printf("Initializing systems [%d]...\n", systems.size());
+	LOG() << "Initializing " << systems.size() << " systems " << endlog;
     for ( System* s : systems )
     {
         if (!s->Init())
         {
-            printf("System %s failed to initialize!\n", s->getName().c_str());
+
+            LOG() << "System " << s->getName().c_str() << " failed to initialize!\n" << endlog;
             return false;
         }
+
+		systemsToShutdown.push_back(s);
     }
 
-    printf("All systems set!\n");
+	LOG() << "All systems set!\n" << endlog;
 
     return true;
 }
 
 void GameEngine::ShutdownSystems()
 {
-    for ( System* s : systems ){
+	LOG() << "Shutitng down systems..." << endlog;
+	for (System* s : systemsToShutdown){
         s->Shutdown();
     }
 }
 
 bool GameEngine::Run()
 {
-    printf("GameEngine::Run");
+    LOG() << "GameEngine::Run" << endlog;
     glfwSetErrorCallback(GLFW_ErrorCallback);
 
     running = true;

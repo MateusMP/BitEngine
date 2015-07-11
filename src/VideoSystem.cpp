@@ -4,6 +4,8 @@
 #include "MessageChannel.h"
 #include "MessageType.h"
 
+#include "EngineLoggers.h"
+
 #include <stdio.h>
 
 namespace BitEngine{
@@ -42,17 +44,19 @@ void VideoSystem::Shutdown()
 
 bool VideoSystem::Init()
 {
-    printf("Init video...\n");
+	LOGTO(Video) << "Init video..." << endlog;
     if (!glfwInit()){
+		LOGTO(Error) << "Failed to initialize glfw!" << endlog;
         return false;
     }
 
-    printf("Creating window...\n");
+	LOGTO(Video) << "Creating window..." << endlog;
     if (!CreateGLFWWindow()){
+		LOGTO(Error) << "Failed to initialize video!" << endlog;
         glfwTerminate();
         return false;
     }
-    printf("Video initialized!\n");
+	LOGTO(Video) << "Video initialized!" << endlog;
 
     glewExperimental = GL_TRUE;
     glewInit();
@@ -85,10 +89,10 @@ bool VideoSystem::CreateGLFWWindow()
     m_glfwWindow = glfwCreateWindow(m_Window.m_Width, m_Window.m_Height, m_Window.m_Title.c_str(), NULL, NULL);
     if (!m_glfwWindow)
     {
+		LOGTO(Error) << "Failed to create window!" << endlog;
         return false;
     }
 
-    printf("Setting callback...\n");
     glfwSetFramebufferSizeCallback(m_glfwWindow, GlfwFrameResizeCallback);
 
     glfwMakeContextCurrent(m_glfwWindow);

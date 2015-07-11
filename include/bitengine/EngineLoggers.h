@@ -5,9 +5,9 @@
 enum EngineLoggers{
 
 	General = 0,
+	Error,
 	Input,
 	Video,
-	OpenGL,
 	Shader,
 
 };

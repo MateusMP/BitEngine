@@ -27,6 +27,7 @@ class GameEngine
         void ShutdownSystems();
 
         std::vector<System*> systems;
+		std::vector<System*> systemsToShutdown;
         bool running;
 };
 
