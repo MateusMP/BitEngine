@@ -66,6 +66,9 @@
     <ClCompile Include="src\VideoSystem.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
+    <ClCompile Include="src\CommandSystem.cpp">
+      <Filter>Systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Color.h">
@@ -148,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\EngineLoggers.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\CommandSystem.h">
+      <Filter>Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

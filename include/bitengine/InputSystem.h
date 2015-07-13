@@ -14,6 +14,7 @@ class InputReceiver
 {
 	public:
 		enum class KeyMod : unsigned char{
+			NONE = 0x0,
 			FALSE = 0x0,
 
 			SHIFT = 0x0001,
@@ -36,6 +37,28 @@ class InputReceiver
 			// if (x & (KeyMod::TRUE | KeyMod::CTRL | KeyMod::ALT) ) --> Check for key + CTRL + ALT
 		};
 
+		enum class KeyAction{
+			NONE = 0x0,
+			RELEASE = 0x1,
+			PRESS = 0x2,
+			REPEAT = 0x4,
+
+			BASIC = RELEASE | PRESS,
+			ALL = RELEASE | PRESS | REPEAT
+		};
+
+		// Message
+		struct KeyboardInput{
+			KeyboardInput() : key(0), keyAction(KeyAction::NONE), keyMod(KeyMod::FALSE){}
+			KeyboardInput(int k, KeyAction ka, KeyMod km)
+			: key(k), keyAction(ka), keyMod(km){}
+
+			int key;
+			KeyAction keyAction;
+			KeyMod keyMod;
+		};
+
+	public:
 		void keyboardInput(int key, int scancode, int action, int mods);
 
 		KeyMod isKeyPressed(int key);

@@ -58,6 +58,17 @@ void GameEngine::AddSystem(System *sys)
     systems.push_back(sys);
 }
 
+System* GameEngine::getSystem(const std::string& name) const
+{
+	for (System* s : systems){
+		if (s->getName().compare(name) == 0){
+			return s;
+		}
+	}
+
+	return nullptr;
+}
+
 bool GameEngine::InitSystems()
 {
 	LOG() << "Initializing " << systems.size() << " systems " << endlog;

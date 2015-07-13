@@ -41,7 +41,7 @@ void InputSystem::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int
 
 	}
 
-	LOGTO(Verbose) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods << endlog;
+	// LOGTO(Verbose) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods << endlog;
 
 	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()){
@@ -81,27 +81,34 @@ InputReceiver::KeyMod InputSystem::keyReleased(int key)
 
 void InputReceiver::keyboardInput(int key, int scancode, int action, int mods)
 {
+	KeyAction act = KeyAction::NONE;
 	switch (action){
 
 		case GLFW_REPEAT:
 			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyReleased[key] = KeyMod::FALSE;
+			act = KeyAction::REPEAT;
 		break;
 
 		case GLFW_PRESS:
 			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyReleased[key] = KeyMod::FALSE;
+			act = KeyAction::PRESS;
 		break;
 
 		case GLFW_RELEASE:
 			m_keyReleased[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyDown[key] = KeyMod::FALSE;
+			act = KeyAction::RELEASE;
 		break;
 
 		default:
 			LOGTO(Warning) << "Invalid key action: " << action << endlog;
+			return;
 		break;
 	}
+
+	Channel::Broadcast<KeyboardInput>(KeyboardInput(key, act, (KeyMod)mods));
 }
 
 InputReceiver::KeyMod InputReceiver::isKeyPressed(int key)

@@ -21,6 +21,7 @@ class GameEngine
 
     protected:
         void AddSystem(System *sys);
+		System* getSystem(const std::string& name) const;
 
     private:
         bool InitSystems();
