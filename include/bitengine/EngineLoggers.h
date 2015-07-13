@@ -4,10 +4,8 @@
 
 enum EngineLoggers{
 
-	General = 0,
+	Verbose = 0,
+	Warning,
 	Error,
-	Input,
-	Video,
-	Shader,
 
 };

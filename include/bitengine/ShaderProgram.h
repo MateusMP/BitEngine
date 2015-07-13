@@ -14,41 +14,16 @@
 #define LOAD_UNIFORM(var, name)																					\
 				var = getUniformLocation(name);																	\
 				if (var < 0)																					\
-					LOGTO(Shader) << "WARNING: Failed to load "#var" [\""name"\"] uniform." << endlog;			\
+					LOGTO(Warning) << "Shader: Failed to load "#var" [\""name"\"] uniform." << endlog;			\
 				else																							\
-					LOGTO(Shader) << "Uniform "#var" loaded with id: "<< var << "." << endlog
+					LOGTO(Verbose) << "Uniform "#var" loaded with id: "<< var << "." << endlog
 #else
 #define LOAD_UNIFORM(var, name)	\
 					var = getUniformLocation(name)
 #endif
 
 namespace BitEngine{
-
-
-template<typename... Ts>
-class IInstancedRenderer{
-	virtual void begin() = 0;
-	virtual void end() = 0;
-	virtual void Render() = 0;
-
-	virtual void AddInstance(Ts&&... t) = 0;
-
-};
-
-class IBatchRenderer{
-public:
-	enum class BATCH_MODE{
-		STATIC, STATIC_DEFINED,
-		DYNAMIC,
-		STREAM,
-	};
-
-	virtual void begin() = 0;
-	virtual void end() = 0;
-	virtual void Render() = 0;
-
-};
-
+	
 class ShaderProgram
 {
     public:
@@ -116,6 +91,31 @@ class ShaderProgram
 
 };
 
+template<typename... Ts>
+class IInstancedRenderer{
+	virtual void begin() = 0;
+	virtual void end() = 0;
+	virtual void Render() = 0;
+
+	virtual void AddInstance(Ts&&... t) = 0;
+
+	virtual ShaderProgram* getShader() = 0;
+};
+
+class IBatchRenderer{
+public:
+	enum class BATCH_MODE{
+		STATIC, STATIC_DEFINED,
+		DYNAMIC,
+		STREAM,
+	};
+
+	virtual void begin() = 0;
+	virtual void end() = 0;
+	virtual void Render() = 0;
+
+	virtual ShaderProgram* getShader() = 0;
+};
 
 
 }

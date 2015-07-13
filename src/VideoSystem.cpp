@@ -44,19 +44,19 @@ void VideoSystem::Shutdown()
 
 bool VideoSystem::Init()
 {
-	LOGTO(Video) << "Init video..." << endlog;
+	LOGTO(Verbose) << "Video: Init video..." << endlog;
     if (!glfwInit()){
-		LOGTO(Error) << "Failed to initialize glfw!" << endlog;
+		LOGTO(Error) << "Video: Failed to initialize glfw!" << endlog;
         return false;
     }
 
-	LOGTO(Video) << "Creating window..." << endlog;
+	LOGTO(Verbose) << "Video: Creating window..." << endlog;
     if (!CreateGLFWWindow()){
-		LOGTO(Error) << "Failed to initialize video!" << endlog;
+		LOGTO(Error) << "Video: Failed to initialize video!" << endlog;
         glfwTerminate();
         return false;
     }
-	LOGTO(Video) << "Video initialized!" << endlog;
+	LOGTO(Verbose) << "Video initialized!" << endlog;
 
     glewExperimental = GL_TRUE;
     glewInit();

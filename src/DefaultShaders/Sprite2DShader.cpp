@@ -62,8 +62,11 @@ namespace BitEngine{
 
 	Sprite2DShader::Sprite2DBatch* Sprite2DShader::Create2DBatchRenderer(IBatchRenderer::BATCH_MODE mode)
 	{
-		Sprite2DBatch* batch = new Sprite2DBatch(mode);
-		batch->m_vao = CreateVAO(batch->m_vbo);
+		GLuint newVao;
+		GLuint newVbos[NUM_VBOS];
+
+		newVao = CreateVAO(newVbos);
+		Sprite2DBatch* batch = new Sprite2DBatch(newVao, newVbos, mode, this);
 
 		return batch;
 	}
@@ -93,14 +96,14 @@ namespace BitEngine{
 		// VAO
 		glGenVertexArrays(1, &vao);
 		if (vao == 0){
-			LOGTO(Shader) << "Sprite2DBatch: Could not create VAO." << endlog;
+			LOGTO(Error) << "Sprite2DBatch: Could not create VAO." << endlog;
 		}
 		glBindVertexArray(vao);
 
 		// VBO
 		glGenBuffers(NUM_VBOS, outVBO);
 		if (outVBO[0] == 0){
-			LOGTO(Shader) << "Sprite2DBatch: Could not create VBO." << endlog;
+			LOGTO(Error) << "Sprite2DBatch: Could not create VBO." << endlog;
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, outVBO[0]);
 
@@ -184,10 +187,12 @@ namespace BitEngine{
 		bottomright.uv.v = _sprite.uvrect.y;
 	}
 
-	Sprite2DShader::Sprite2DBatch::Sprite2DBatch(BATCH_MODE _mode)
-		: m_vao(0), m_sort(SORT_TYPE::BY_TEXTURE_ONLY), m_mode(_mode)
+	Sprite2DShader::Sprite2DBatch::Sprite2DBatch(GLuint _vao, GLuint _vbos[NUM_VBOS], BATCH_MODE _mode, ShaderProgram* _shader)
+		: m_vao(_vao), m_sort(SORT_TYPE::BY_TEXTURE_ONLY), m_mode(_mode), shader(_shader)
 	{
-		m_vbo[0] = 0;
+		// Copy vbos IDs
+		for (int i = 0; i < NUM_VBOS; ++i)
+			m_vbo[i] = _vbos[i];
 
 		if (m_mode == BATCH_MODE::DYNAMIC){
 			glMODE = GL_DYNAMIC_DRAW;
@@ -224,7 +229,7 @@ namespace BitEngine{
 
 	void Sprite2DShader::Sprite2DBatch::begin(){
 		if (m_mode == BATCH_MODE::STATIC_DEFINED){
-			LOGTO(Shader) << "Trying to modify STATIC batch!" << endlog;
+			LOGTO(Warning) << "Shader: Trying to modify STATIC batch!" << endlog;
 			return;
 		}
 
@@ -234,7 +239,7 @@ namespace BitEngine{
 
 	void Sprite2DShader::Sprite2DBatch::end(){
 		if (m_mode == BATCH_MODE::STATIC_DEFINED){
-			LOGTO(Shader) << "Trying to modify STATIC batch!" << endlog;
+			LOGTO(Warning) << "Shader: Trying to modify STATIC batch!" << endlog;
 			return;
 		}
 
@@ -258,6 +263,11 @@ namespace BitEngine{
 		}
 
 		glBindVertexArray(0);
+	}
+
+	ShaderProgram* Sprite2DShader::Sprite2DBatch::getShader()
+	{
+		return shader;
 	}
 
 	void Sprite2DShader::Sprite2DBatch::createRenderers()

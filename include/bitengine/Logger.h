@@ -6,7 +6,7 @@
 // TODO: thread safe with std::recursive_mutex
 
 #define LOG_SEVERITY_VERBOSE		0		// Show ALL
-#define LOG_SEVERITY_INFORMATION	1
+#define LOG_SEVERITY_WARNING		1
 #define LOG_SEVERITY_ERROR			2
 #define LOG_SEVERITY_NO_LOGS		100
 

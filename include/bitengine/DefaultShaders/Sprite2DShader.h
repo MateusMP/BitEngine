@@ -79,7 +79,7 @@ namespace BitEngine
 			class Sprite2DBatch : IBatchRenderer
 			{
 				public:
-					friend class Sprite2DShader;
+
 					enum class SORT_TYPE{
 						NOONE,
 						BY_TEXTURE_ONLY,
@@ -89,9 +89,9 @@ namespace BitEngine
 						BY_DEPTH_TEXTURE
 					};
 
-					Sprite2DBatch(BATCH_MODE _mode);
+					Sprite2DBatch(GLuint _vao, GLuint _vbos[NUM_VBOS], BATCH_MODE _mode, ShaderProgram* _shader);
 					~Sprite2DBatch();
-
+					
 					void setSortingType(SORT_TYPE type);
 
 					/** @param Draws sprite on 2D world coordinates
@@ -103,6 +103,7 @@ namespace BitEngine
 
 					void Render() override;
 
+					ShaderProgram* getShader() override;
 
 				private:
 					class Glyph{
@@ -130,8 +131,7 @@ namespace BitEngine
 						int nVertices;
 						uint32 texture;
 					};
-
-
+					
 				private:
 					GLuint m_vao;
 					GLuint m_vbo[NUM_VBOS];
@@ -143,6 +143,8 @@ namespace BitEngine
 					SORT_TYPE m_sort;
 					BATCH_MODE m_mode;
 					GLenum glMODE;
+
+					ShaderProgram* shader;
 
 					void sortGlyphs();
 					void createRenderers();
