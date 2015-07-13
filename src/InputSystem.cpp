@@ -86,31 +86,22 @@ void InputReceiver::keyboardInput(int key, int scancode, int action, int mods)
 		case GLFW_REPEAT:
 			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyReleased[key] = KeyMod::FALSE;
-
-			LOGTO(Verbose) << "Key repeat" << endlog;
 		break;
 
 		case GLFW_PRESS:
 			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyReleased[key] = KeyMod::FALSE;
-
-			LOGTO(Verbose) << "Key down" << endlog;
 		break;
 
 		case GLFW_RELEASE:
 			m_keyReleased[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyDown[key] = KeyMod::FALSE;
-
-			LOGTO(Verbose) << "Key Release" << endlog;
 		break;
 
 		default:
 			LOGTO(Warning) << "Invalid key action: " << action << endlog;
 		break;
 	}
-
-	LOGTO(Verbose) << "State down: " << (unsigned int)m_keyDown[key] << endlog;
-	LOGTO(Verbose) << "State up: " << (unsigned int)m_keyReleased[key] << endlog;
 }
 
 InputReceiver::KeyMod InputReceiver::isKeyPressed(int key)
