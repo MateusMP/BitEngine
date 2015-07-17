@@ -1,28 +1,30 @@
+#pragma once
 
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
-#include "Camera.h"
+#include "Component.h"
+#include "EntitySystem.h"
 
 namespace BitEngine {
 
-	class Camera2D
-		: public Camera
+	class Camera2DComponent
+		: public Component
 	{
 		public:
-			Camera2D();
+			Camera2DComponent();
 
 			// Camera position in world coordinates
-			void setPosition(const glm::vec3& pos) override;
-			glm::vec3 getPosition() const override;
+			void setPosition(const glm::vec3& pos);
+			glm::vec3 getPosition() const;
 
 			// Set camera focus position
 			// This position will be at the center of the camera bounding view
 			// To zoom on the center of the screen, use (screen_width/2, screen_height/2)
-			void setLookAt(const glm::vec3& pos) override;
-			glm::vec3 getLookAt() const override;
+			void setLookAt(const glm::vec3& pos);
+			glm::vec3 getLookAt() const;
 
-			glm::mat4 getMatrix() const override;
+			const glm::mat4& getMatrix() const;
 
 			// Usually the screen resolution
 			void setView(int width, int height);
@@ -30,8 +32,12 @@ namespace BitEngine {
 			void setZoom(float z);
 			float getZoom() const;
 
-			void Update() override;
+			static ComponentType getComponentType(){
+				return COMPONENT_TYPE_CAMERA2D;
+			}
 
+			void setActive(bool a);
+			
 		protected:
 			int m_width;
 			int m_height;
@@ -44,6 +50,12 @@ namespace BitEngine {
 			glm::mat4 m_orthoMatrix;
 
 			bool changed;
+
+			bool m_active;
+
+		private:
+			friend class Camera2DProcessor;
+			void recalculateMatrix();
 	};
 
 

@@ -6,6 +6,12 @@
 #include "GameEngine.h"
 #include "VideoSystem.h"
 #include "InputSystem.h"
+#include "EntitySystem.h"
+#include "CommandSystem.h"
+
+// Entity System Processors
+#include "Camera2DProcessor.h"
+#include "Sprite2DRenderer.h"
 
 #include "EngineLoggers.h"
 
@@ -26,6 +32,8 @@
 	NEW_LOG(Error,	"Error",	"BE_Error.log",	LOG_SEVERITY_ERROR,		  MIN_SEVERITY);
 #endif
 
+#define PRIORITY_ESP_CAMERA2D		1
+#define PRIORITY_ESP_SPR2DRENDER	2
 
 
 namespace BitEngine{
@@ -39,8 +47,19 @@ GameEngine::GameEngine()
 {
     Channel::AddListener<WindowClose>(this);
 
-    AddSystem(new VideoSystem());
+	EntitySystem* es = new EntitySystem();
+
     AddSystem(new InputSystem());
+	AddSystem(new CommandSystem());
+    AddSystem(new VideoSystem());
+	AddSystem( es );
+
+	// Create entity system processors:
+	Camera2DProcessor *c2p = new Camera2DProcessor();
+	Sprite2DRenderer *spr2d = new Sprite2DRenderer(c2p);
+
+	es->RegisterProcessor<Camera2DComponent>(c2p, PRIORITY_ESP_CAMERA2D);
+	es->RegisterProcessor<Sprite2DComponent>(spr2d, PRIORITY_ESP_SPR2DRENDER);
 }
 
 GameEngine::~GameEngine()
@@ -92,8 +111,10 @@ bool GameEngine::InitSystems()
 void GameEngine::ShutdownSystems()
 {
 	LOG() << "Shutitng down systems..." << endlog;
-	for (System* s : systemsToShutdown){
-        s->Shutdown();
+
+	// Shutdown in reverse order
+	for (auto it = systemsToShutdown.rbegin(); it != systemsToShutdown.rend(); ++it){
+        (*it)->Shutdown();
     }
 }
 

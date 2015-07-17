@@ -13,11 +13,20 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Header Files\DefaultShaders">
-      <UniqueIdentifier>{823ccd63-3176-46ae-b3cc-d199b2d891ca}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Systems">
       <UniqueIdentifier>{ad5f49a9-fd47-4518-82ab-fb0335d1c663}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EntitySystem">
+      <UniqueIdentifier>{3154d8cf-c5ae-47f3-9de2-fc6a4e21da03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{b27994f4-0ab6-42d9-9dc3-e58b021be420}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EntitySystem\Components">
+      <UniqueIdentifier>{2b7e48e2-12fc-4f66-92a4-dc4e0e6e0f44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EntitySystem\Processors">
+      <UniqueIdentifier>{b2f00c10-1b33-4ddd-8e86-f0a4dc114ae1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -36,9 +45,6 @@
     <ClCompile Include="src\SceneNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ShaderProgram.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Task.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -49,12 +55,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\glSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DefaultShaders\Sprite2DShader.cpp">
-      <Filter>Header Files\DefaultShaders</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Camera2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\InputSystem.cpp">
@@ -68,6 +68,21 @@
     </ClCompile>
     <ClCompile Include="src\CommandSystem.cpp">
       <Filter>Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShaderProgram.cpp">
+      <Filter>Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera2DProcessor.cpp">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sprite2DShader.cpp">
+      <Filter>Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera2DComponent.cpp">
+      <Filter>EntitySystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sprite2DRenderer.cpp">
+      <Filter>EntitySystem\Processors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,9 +113,6 @@
     <ClInclude Include="include\bitengine\SceneNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\ShaderProgram.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\Sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -128,16 +140,7 @@
     <ClInclude Include="include\bitengine\glSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\DefaultShaders\Sprite2DShader.h">
-      <Filter>Header Files\DefaultShaders</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\ErrorCodes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Camera2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\VideoSystem.h">
@@ -155,8 +158,41 @@
     <ClInclude Include="include\bitengine\CommandSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="projectfiles\BitEngine_build_log.html" />
+    <ClInclude Include="include\bitengine\RenderSystem.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\EntitySystem.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\ShaderProgram.h">
+      <Filter>Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite2DComponent.h">
+      <Filter>EntitySystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Component.h">
+      <Filter>EntitySystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\ComponentProcess.h">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Camera2DProcessor.h">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Camera2DComponent.h">
+      <Filter>EntitySystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite2DRenderer.h">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\ComponentCollection.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Components.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite2DShader.h">
+      <Filter>Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

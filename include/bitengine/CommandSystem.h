@@ -12,31 +12,20 @@ namespace BitEngine{
 	class CommandSystem : public System {
 		public:
 			struct CommandInput{
-				CommandInput(int _id, float _intensity, int _other)
-					: commandID(_id), intensity(_intensity)
-				{
-					other.other = _other;
-				}
-
-				CommandInput(int _id, float _intensity, InputReceiver::KeyAction _other)
-					: commandID(_id), intensity(_intensity)
-				{
-					other.fromButton = _other;
-				}
-
-				CommandInput(int _id, float _intensity) 
-					: commandID(_id), intensity(_intensity)
-				{
-					other.other = 0;
-				}
+				CommandInput(int _id, float _intensity, int _other);
+				CommandInput(int _id, float _intensity, InputReceiver::KeyAction _other);
+				CommandInput(int _id, float _intensity);
 
 				const int commandID;
 				const float intensity;
+				int mouse_x; // Invalid unless Mouse input was used
+				int mouse_y; // Invalid unless Mouse input was used
 
 				union {
 					InputReceiver::KeyAction fromButton; // keyboard / mouse / joystick buttons
 					int other;
 				} other;
+
 			};
 
 			CommandSystem();
@@ -59,7 +48,7 @@ namespace BitEngine{
 			/// \key keyboard key needed
 			/// \action key state needed
 			/// \mod key modifiers (Shift, Alt, Ctrl, Super)
-			bool RegisterKeyboardCommand(int commandID, int commandState, int key, InputReceiver::KeyAction action, InputReceiver::KeyMod mod);
+			bool RegisterKeyboardCommand(int commandID, int commandState, int key, InputReceiver::KeyAction action, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE);
 
 
 			void Message(const InputReceiver::KeyboardInput& msg);

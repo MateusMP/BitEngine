@@ -30,8 +30,7 @@ void InputSystem::Update()
 
 void InputSystem::Shutdown()
 {
-	for (auto it : inputReceivers)
-		glfwSetKeyCallback(it.first, nullptr);
+
 }
 
 void InputSystem::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

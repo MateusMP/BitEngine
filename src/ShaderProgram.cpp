@@ -30,8 +30,19 @@ void ShaderProgram::Unbind()
     glUseProgram(0);
 }
 
+void ShaderProgram::FreeShaders()
+{
+	if (m_programID != 0){
+		Unbind();
+		glDeleteProgram(m_programID);
+		m_programID = 0;
+	}
+}
+
 int ShaderProgram::CompileShadersFiles(const std::string& vertexFile, const std::string& fragmentFile)
 {
+	FreeShaders();
+
 	std::string vertexSource;
 	std::string fragmentSource;
 	if (retrieveSourceFromFile(vertexFile, vertexSource) != NO_ERROR){
@@ -50,6 +61,8 @@ int ShaderProgram::CompileShadersFiles(const std::string& vertexFile, const std:
 
 int ShaderProgram::CompileShadersSources(const char* vertexSource, const char* fragmentSource)
 {
+	FreeShaders();
+
 	char* errorlog;
 	int error = compile(m_vertexID, GL_VERTEX_SHADER, vertexSource, &errorlog);
 	if (error != NO_ERROR){

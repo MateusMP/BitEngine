@@ -2,7 +2,26 @@
 #include "CommandSystem.h"
 #include "EngineLoggers.h"
 
-namespace BitEngine{
+namespace BitEngine
+{
+	CommandSystem::CommandInput::CommandInput(int _id, float _intensity, int _other)
+		: commandID(_id), intensity(_intensity)
+	{
+		other.other = _other;
+	}
+
+	CommandSystem::CommandInput::CommandInput(int _id, float _intensity, InputReceiver::KeyAction _other)
+		: commandID(_id), intensity(_intensity)
+	{
+		other.fromButton = _other;
+	}
+
+	CommandSystem::CommandInput::CommandInput(int _id, float _intensity)
+		: commandID(_id), intensity(_intensity)
+	{
+		other.other = 0;
+	}
+
 
 	CommandSystem::CommandSystem()
 		: System("Command")
@@ -64,7 +83,7 @@ namespace BitEngine{
 		return false;
 	}
 
-	bool CommandSystem::RegisterKeyboardCommand(int commandID, int commandState, int key, InputReceiver::KeyAction action, InputReceiver::KeyMod mod)
+	bool CommandSystem::RegisterKeyboardCommand(int commandID, int commandState, int key, InputReceiver::KeyAction action, InputReceiver::KeyMod mod /*= KeyMod::NONE*/)
 	{
 		CommandIdentifier idtf(commandState, InputType::keyboard);
 		idtf.keyboard.key = key;

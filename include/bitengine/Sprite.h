@@ -7,7 +7,11 @@ namespace BitEngine{
 class Sprite{
 
     public:
-        Sprite(glm::vec4 _uvrect, uint32 texture)
+		Sprite()
+			: uvrect(0,0,1,1), textureID(0)
+		{}
+
+        Sprite(const glm::vec4& _uvrect, uint32 texture)
             : uvrect(_uvrect), textureID(texture)
         {}
 

@@ -89,33 +89,20 @@ class ShaderProgram
 
 		void linkShaders();
 
+	private:
+		/// Destroy shaders
+		void FreeShaders();
+
 };
 
-template<typename... Ts>
-class IInstancedRenderer{
-	virtual void begin() = 0;
-	virtual void end() = 0;
-	virtual void Render() = 0;
+class IShaderRenderer
+{
+	public:
+		virtual void begin() = 0;
+		virtual void end() = 0;
+		virtual void Render() = 0;
 
-	virtual void AddInstance(Ts&&... t) = 0;
-
-	virtual ShaderProgram* getShader() = 0;
+		virtual ShaderProgram* getShader() = 0;
 };
-
-class IBatchRenderer{
-public:
-	enum class BATCH_MODE{
-		STATIC, STATIC_DEFINED,
-		DYNAMIC,
-		STREAM,
-	};
-
-	virtual void begin() = 0;
-	virtual void end() = 0;
-	virtual void Render() = 0;
-
-	virtual ShaderProgram* getShader() = 0;
-};
-
 
 }

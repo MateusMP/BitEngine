@@ -74,9 +74,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Camera2D.cpp" />
+    <ClCompile Include="src\Camera2DComponent.cpp" />
+    <ClCompile Include="src\Camera2DProcessor.cpp" />
     <ClCompile Include="src\CommandSystem.cpp" />
-    <ClCompile Include="src\DefaultShaders\Sprite2DShader.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\glSystem.cpp" />
     <ClCompile Include="src\InputSystem.cpp" />
@@ -85,6 +85,8 @@
     <ClCompile Include="src\SceneGraph.cpp" />
     <ClCompile Include="src\SceneNode.cpp" />
     <ClCompile Include="src\ShaderProgram.cpp" />
+    <ClCompile Include="src\Sprite2DRenderer.cpp" />
+    <ClCompile Include="src\Sprite2DShader.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\Task.cpp" />
     <ClCompile Include="src\Texture.cpp" />
@@ -92,12 +94,15 @@
     <ClCompile Include="src\VideoSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\bitengine\Camera.h" />
-    <ClInclude Include="include\bitengine\Camera2D.h" />
+    <ClInclude Include="include\bitengine\Camera2DComponent.h" />
+    <ClInclude Include="include\bitengine\Camera2DProcessor.h" />
     <ClInclude Include="include\bitengine\Color.h" />
     <ClInclude Include="include\bitengine\CommandSystem.h" />
-    <ClInclude Include="include\bitengine\DefaultShaders\Sprite2DShader.h" />
+    <ClInclude Include="include\bitengine\Component.h" />
+    <ClInclude Include="include\bitengine\ComponentProcess.h" />
+    <ClInclude Include="include\bitengine\DefaultShaders\Sprite2DRenderer.h" />
     <ClInclude Include="include\bitengine\EngineLoggers.h" />
+    <ClInclude Include="include\bitengine\EntitySystem.h" />
     <ClInclude Include="include\bitengine\ErrorCodes.h" />
     <ClInclude Include="include\bitengine\GameEngine.h" />
     <ClInclude Include="include\bitengine\glSystem.h" />
@@ -106,11 +111,13 @@
     <ClInclude Include="include\bitengine\Logger.h" />
     <ClInclude Include="include\bitengine\MessageChannel.h" />
     <ClInclude Include="include\bitengine\MessageType.h" />
+    <ClInclude Include="include\bitengine\RenderSystem.h" />
     <ClInclude Include="include\bitengine\ResourceManager.h" />
     <ClInclude Include="include\bitengine\SceneGraph.h" />
     <ClInclude Include="include\bitengine\SceneNode.h" />
     <ClInclude Include="include\bitengine\ShaderProgram.h" />
     <ClInclude Include="include\bitengine\Sprite.h" />
+    <ClInclude Include="include\bitengine\Sprite2DComponent.h" />
     <ClInclude Include="include\bitengine\System.h" />
     <ClInclude Include="include\bitengine\Task.h" />
     <ClInclude Include="include\bitengine\TaskManager.h" />
@@ -120,9 +127,6 @@
     <ClInclude Include="include\bitengine\VertexData.h" />
     <ClInclude Include="include\bitengine\VideoSystem.h" />
     <ClInclude Include="include\bitengine\Window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="projectfiles\BitEngine_build_log.html" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
