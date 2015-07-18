@@ -72,9 +72,6 @@
     <ClCompile Include="src\ShaderProgram.cpp">
       <Filter>Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="src\Camera2DProcessor.cpp">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClCompile>
     <ClCompile Include="src\Sprite2DShader.cpp">
       <Filter>Shaders</Filter>
     </ClCompile>
@@ -83,6 +80,18 @@
     </ClCompile>
     <ClCompile Include="src\Sprite2DRenderer.cpp">
       <Filter>EntitySystem\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Transform2DComponent.cpp">
+      <Filter>EntitySystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera2DProcessor.cpp">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Transform2DProcessor.cpp">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EntitySystem.cpp">
+      <Filter>EntitySystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -173,12 +182,6 @@
     <ClInclude Include="include\bitengine\Component.h">
       <Filter>EntitySystem\Components</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\ComponentProcess.h">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Camera2DProcessor.h">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\Camera2DComponent.h">
       <Filter>EntitySystem\Components</Filter>
     </ClInclude>
@@ -193,6 +196,18 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\Sprite2DShader.h">
       <Filter>Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Transform2DComponent.h">
+      <Filter>EntitySystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Camera2DProcessor.h">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\ComponentProcessor.h">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Transform2DProcessor.h">
+      <Filter>EntitySystem\Processors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

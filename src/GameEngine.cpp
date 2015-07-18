@@ -10,6 +10,7 @@
 #include "CommandSystem.h"
 
 // Entity System Processors
+#include "Transform2DProcessor.h"
 #include "Camera2DProcessor.h"
 #include "Sprite2DRenderer.h"
 
@@ -32,8 +33,9 @@
 	NEW_LOG(Error,	"Error",	"BE_Error.log",	LOG_SEVERITY_ERROR,		  MIN_SEVERITY);
 #endif
 
-#define PRIORITY_ESP_CAMERA2D		1
-#define PRIORITY_ESP_SPR2DRENDER	2
+#define PRIORITY_ESP_TRANSFORM2D	0
+#define PRIORITY_ESP_CAMERA2D		5
+#define PRIORITY_ESP_SPR2DRENDER	10
 
 
 namespace BitEngine{
@@ -55,11 +57,13 @@ GameEngine::GameEngine()
 	AddSystem( es );
 
 	// Create entity system processors:
-	Camera2DProcessor *c2p = new Camera2DProcessor();
+	Transform2DProcessor *t2p = new Transform2DProcessor();
+	Camera2DProcessor *c2p = new Camera2DProcessor(es, t2p);
 	Sprite2DRenderer *spr2d = new Sprite2DRenderer(c2p);
 
-	es->RegisterProcessor<Camera2DComponent>(c2p, PRIORITY_ESP_CAMERA2D);
-	es->RegisterProcessor<Sprite2DComponent>(spr2d, PRIORITY_ESP_SPR2DRENDER);
+	es->RegisterComponentHolderProcessor<Transform2DComponent>(t2p, PRIORITY_ESP_TRANSFORM2D);
+	es->RegisterComponentHolderProcessor<Camera2DComponent>(c2p, PRIORITY_ESP_CAMERA2D);
+	es->RegisterComponentHolderProcessor<Sprite2DComponent>(spr2d, PRIORITY_ESP_SPR2DRENDER);
 }
 
 GameEngine::~GameEngine()

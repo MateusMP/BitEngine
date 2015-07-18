@@ -5,20 +5,35 @@
 #include "TypeDefinition.h"
 typedef uint32 ComponentHandle;
 
-template <typename T>
-class ComponentCollection
-{
+namespace BitEngine{
+
+	template <typename T>
+	class ComponentCollection
+	{
 	public:
-		ComponentCollection(){
+		ComponentCollection() :validRef(true){
 			components.emplace_back(); // element 0 is invalid
 		}
 
 		ComponentHandle newComponent(){
 			if (freeHandles.empty()){
 				ComponentHandle hdl = components.size();
-				components.emplace_back();
+				if (validRef){ // Needs to guarantee if the final vector address did not change
+					T* _reallocTest = &components[0];
+					components.emplace_back();
+					T* _reallocTestEnd = &components[0];
+				
+					validComponents.push_back(hdl);
+					if (_reallocTest != _reallocTestEnd){ // Vector realloc! Invalid references!
+						validRef = false;
+					} else { // Add reference if the vector continues at the same address
+						validComponentsRef.push_back(&components[hdl]);
+					}
+				} else { // References are invalid, so just ignore them for now
+					components.emplace_back();
+					validComponents.push_back(hdl);
+				}
 
-				validComponents.push_back(&components[hdl]);
 				return hdl;
 			}
 			else {
@@ -26,26 +41,56 @@ class ComponentCollection
 				components.emplace(components.begin() + hdl);
 				freeHandles.pop_back();
 
-				validComponents.push_back(&components[hdl]);
+				validComponents.push_back(hdl);
+				validComponentsRef.push_back(&components[hdl]);
 				return hdl;
 			}
 		}
 
 		void removeComponent(ComponentHandle hdl){
-			freeHandles.push_back(hdl);
-			auto it = std::find(validComponents.begin(), validComponents.end(), &components[hdl]);
-
-			if (validComponents.size() > 1){
-				*it = validComponents.back();
-				validComponents.pop_back();
+			unsigned int index;
+			for (index = 0; index < validComponents.size(); ++index){
+				if (validComponents[index] == hdl){
+					break;
+				}
 			}
-			else {
-				validComponents.clear();
+
+			// Not found? Should not happen.
+			if (index == validComponents.size())
+				return;
+
+			freeHandles.push_back(hdl);
+
+			// Put something on the cleaned space to mantain a sequential order
+			if (index < validComponents.size() - 1)
+			{
+				// NOTE: THE REAL COMPONENT DATA DO NOT CHANGE POSITION
+				// Last valid index now ocuppy the freed index
+				ComponentHandle substBy = validComponents.back();
+
+				// components[hdl] = components[substBy];
+				validComponents[index] = substBy;
+				validComponentsRef[index] = &components[substBy];
+
+				validComponents.pop_back();
+				validComponentsRef.pop_back();
 			}
 		}
 
-		std::vector<T*>& getValidComponents(){
+		std::vector<ComponentHandle>& getValidComponents(){
 			return validComponents;
+		}
+
+		std::vector<T*>& getValidComponentsRef(){
+			if (!validRef){
+				validComponentsRef.clear();
+				for (ComponentHandle h : validComponents){
+					validComponentsRef.emplace_back( &components[h] );
+				}
+				validRef = true;
+			}
+
+			return validComponentsRef;
 		}
 
 		T* getComponent(ComponentHandle hdl){
@@ -54,6 +99,11 @@ class ComponentCollection
 
 	private:
 		std::vector<T> components;
-		std::vector<T*> validComponents;
+		std::vector<T*> validComponentsRef;
+		std::vector<ComponentHandle> validComponents;
 		std::vector<ComponentHandle> freeHandles;
-};
+
+		bool validRef;
+	};
+
+}

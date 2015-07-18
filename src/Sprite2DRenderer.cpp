@@ -22,7 +22,7 @@ Sprite2DShader* Sprite2DRenderer::getShader()
 	return shader;
 }
 
-std::vector<Sprite2DComponent*>& Sprite2DRenderer::getComponents()
+std::vector<ComponentHandle>& Sprite2DRenderer::getComponents()
 {
 	return components.getValidComponents();
 }
@@ -46,16 +46,16 @@ void Sprite2DRenderer::Process()
 	for (BatchRenderer* r : m_batchRenderers)
 		r->begin();
 
-	const std::vector<Sprite2DComponent*>& validComponents = components.getValidComponents();
+	const std::vector<Sprite2DComponent*>& validComponents = components.getValidComponentsRef();
 	const Camera2DComponent* activeCamera = camera2Dprocessor->getActiveCamera();
 
 	if (!activeCamera){
 		LOGTO(Warning) << "Sprite2DRenderer: No active camera2D!" << endlog;
 		return;
 	}
-
-	shader->Bind();
+	
 	shader->LoadViewMatrix(activeCamera->getMatrix());
+	shader->Bind();
 
 	for (Sprite2DComponent* s2c : validComponents)
 	{

@@ -12,12 +12,12 @@ namespace BitEngine {
 		: public Component
 	{
 		public:
+			static ComponentType getComponentType(){
+				return COMPONENT_TYPE_CAMERA2D;
+			}
+
 			Camera2DComponent();
-
-			// Camera position in world coordinates
-			void setPosition(const glm::vec3& pos);
-			glm::vec3 getPosition() const;
-
+			
 			// Set camera focus position
 			// This position will be at the center of the camera bounding view
 			// To zoom on the center of the screen, use (screen_width/2, screen_height/2)
@@ -32,17 +32,12 @@ namespace BitEngine {
 			void setZoom(float z);
 			float getZoom() const;
 
-			static ComponentType getComponentType(){
-				return COMPONENT_TYPE_CAMERA2D;
-			}
-
 			void setActive(bool a);
 			
-		protected:
+		private:
 			int m_width;
 			int m_height;
 
-			glm::vec3 m_position;
 			glm::vec3 m_lookAt;
 			float m_zoom;
 			
@@ -55,7 +50,6 @@ namespace BitEngine {
 
 		private:
 			friend class Camera2DProcessor;
-			void recalculateMatrix();
 	};
 
 

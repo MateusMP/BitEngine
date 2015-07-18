@@ -8,19 +8,7 @@ namespace BitEngine{
 	{
 		
 	}
-
-	void Camera2DComponent::setPosition(const glm::vec3& pos)
-	{
-		m_position = pos;
-
-		changed = true;
-	}
-
-	glm::vec3 Camera2DComponent::getPosition() const
-	{
-		return m_position;
-	}
-
+	
 	void Camera2DComponent::setLookAt(const glm::vec3& pos)
 	{
 		m_lookAt = pos;
@@ -65,20 +53,5 @@ namespace BitEngine{
 	{
 		return m_cameraMatrix;
 	}
-
-	void Camera2DComponent::recalculateMatrix()
-	{
-		changed = false;
-
-		// Uses look at as focal point
-		glm::vec3 translation = -m_position + glm::vec3(m_width / 2 - m_lookAt.x, m_height / 2 - m_lookAt.y, 0.0f);
-		glm::vec3 scale(m_zoom, m_zoom, 0.0f);
-
-		m_cameraMatrix = glm::translate(m_orthoMatrix, translation);
-
-		// View * T * [R] * S
-		m_cameraMatrix = glm::scale(glm::mat4(1.0f), scale) * m_cameraMatrix;
-	}
-
 
 }

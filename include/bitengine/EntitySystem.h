@@ -3,13 +3,18 @@
 #include <map>
 #include <unordered_map>
 
+#include <algorithm>
+
+#include "EngineLoggers.h"
 #include "TypeDefinition.h"
 #include "System.h"
 
-#include "ComponentProcess.h"
+#include "ComponentProcessor.h"
 
-#define COMPONENT_TYPE_CAMERA2D	0
-#define COMPONENT_TYPE_SPRITE2D	1
+#define COMPONENT_TYPE_INVALID		0
+#define COMPONENT_TYPE_TRANSFORM2D	1
+#define COMPONENT_TYPE_CAMERA2D		2
+#define COMPONENT_TYPE_SPRITE2D		3
 
 
 namespace BitEngine{
@@ -17,119 +22,145 @@ namespace BitEngine{
 typedef uint32 EntityHandle;
 
 /**
-* Entity Handle is fixed and won't change at anytime after creation.
-* Component Handle is NOT guaranteed to be fixed during entity life
-* and may change it's handle during execution.
-* A valid entity component may be acquired with an EntitySystem.getComponentOf() call
-* Note that the component returned by EntitySystem.getComponentOf is only guaranteed to be valid
-* until a component of the same type is destroyed OR an entity that contains a component of the same
-* type is destroyed.
+* Entity Handle and Component Handle are fixed and won't change at anytime after creation.
+* 
 */
 class EntitySystem : public System
 {
 	public:
-		EntitySystem()
-			: System("Entity"), unique_id(0)
-		{
-		}
+		EntitySystem();
 
-		bool Init() {
-			for (auto& it : process_order){
-				if (!it.second->Init()){
-					return false;
-				}
-			}
-			return true;
-		}
-
-		void Update(){
-			for (auto& it : process_order){
-				it.second->Process();
-			}
-		}
-
-		void Shutdown(){
-			for (auto& it : process_order){
-				delete it.second;
-			}
-		}
+		bool Init();
+		void Update();
+		void Shutdown();
 
 		// Register
 
-		template<typename CompType>
-		bool RegisterProcessor(IComponentProcess* cs, int priority)
+		template<typename CompClass>
+		bool RegisterComponentHolderProcessor(ComponentHolderProcessor* cs, int priority)
 		{
-			ComponentType type = CompType::getComponentType();
-			auto it = m_processors.find(type);
-			if (it != m_processors.end()){
+			ComponentType type = CompClass::getComponentType();
+			if (m_dataHolderProcessors.size() <= (uint32)type)
+			{
+				m_dataHolderProcessors.resize((uint32)type + 1, nullDHP);
+			}
+			else if (m_dataHolderProcessors[type].processor != nullptr)
+			{
+				LOGTO(Warning) << "EntitySystem: Trying to register two main processors for the component type: " << type << endlog;
 				return false;
 			}
 
-			m_processors[type] = cs;
-			process_order.insert( std::pair<int, IComponentProcess*>(priority,cs) );
+			m_dataHolderProcessors[type] = DHP(cs, type);
+			process_order.emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+			ordered = false;
+
+			return true;
+		}
+
+		bool RegisterDataProcessor(ComponentProcessor* cp, int priority)
+		{
+			process_order.emplace_back(std::pair<int, ComponentProcessor*>(priority, cp));
+			ordered = false;
+
 			return true;
 		}
 
 
 		// Get
-
-		template<typename CompType>
-		void getComponents(std::vector<CompType>& v){
-			auto it = m_processors.find(CompType::getComponentType());
-			if (it != m_processors.end()){
-				it.second->getComponents(v);
-			}
+		bool isComponentOfTypeValid(ComponentType type){
+			return m_dataHolderProcessors.size() > type;
 		}
 
+		bool hasEntity(EntityHandle entity){
+			return m_entities.size() > entity && m_entities[entity] == entity;
+		}
+		
 		template<typename CompType>
 		CompType* getComponentOf(EntityHandle entity)
 		{
-			auto it = entity_components.find(entity);
-			if (it == entity_components.end()){
-				LOGTO(Warning) << "Entity not found: " << entity << endlog;
+			// Verify if component type is valid
+			ComponentType type = CompType::getComponentType();
+			if (!isComponentOfTypeValid(type)){
+				LOGTO(Warning) << "EntitySystem: Unregistered type: " << type << endlog;
 				return nullptr;
 			}
 
-			ComponentType type = CompType::getComponentType();
+			DHP& dhp = m_dataHolderProcessors[type];
 
-			const EntityComponents& ec = it->second;
-			auto it2 = ec.find(type);
-			if (it2 != ec.end()){
-				return static_cast<CompType*>(m_processors[type]->getComponent(it2->second));
+			// Verify if such entity exists for given system
+			return (CompType*) dhp.getComponentRefFor(entity);
+		}
+
+
+		// Search
+		template<typename BaseSearchCompClass, typename... Having>
+		void findAllTuples(std::vector<ComponentHandle> &search, std::vector<ComponentHandle>& answer, std::vector<uint32>& matchSearchIndices)
+		{
+			int nTypes = sizeof...(Having);
+			ComponentType typeSearch = BaseSearchCompClass::getComponentType();
+
+			if (!isComponentOfTypeValid(typeSearch)){
+				matchSearchIndices.clear(); // nothing found!
+				LOGTO(Warning) << "EntitySystem: Trying to search for invalid type: " << typeSearch << endlog;
+				return;
 			}
 
-			LOGTO(Warning) << "Entity " << entity << " does not contain a component of type " << type << endlog;
-			return nullptr;
+			// Find all entities IDs of search
+			int i;
+			for (size_t k = 0; k < search.size(); ++k)
+			{
+				const ComponentHandle hdl = search[k];
+				EntityHandle entity = m_dataHolderProcessors[typeSearch].getEntityFor(hdl);
+				ComponentHandle componentsFound[] = { getComponentFromEntity<Having>(entity)... };
+
+				// printf("Entity: %d\n", entity);
+
+				for (i = 0; i < nTypes; ++i){
+					// printf("%d ; ", componentsFound[i]);
+					if (componentsFound[i] == 0) break;
+				}
+				// printf("\n");
+				if (i == nTypes){
+					// printf("Match found: ");
+					for (i = 0; i < nTypes; ++i){
+						answer.push_back(componentsFound[i]);
+						// printf("%d, ", componentsFound[i]);
+					}
+					// printf("\n");
+					matchSearchIndices.push_back(k);
+				}
+				else{
+					// printf("jumping hdl: [%d]%d\n", k, hdl);
+				}
+
+				/*ComponentHandle x = getComponentFromEntity<Having>(entity);
+				if ((x != 0))
+				{
+					printf("X: %d\n", x);
+					// answer.push_back(x)...;
+				}*/
+			}
+
 		}
 
 
 		// Add
 
 		template<typename CompType>
-		bool addComponent(EntityHandle entity)
+		CompType* addComponent(EntityHandle entity)
 		{
-			std::unordered_map<ComponentType, IComponentProcess*>::iterator it = m_processors.find(CompType::getComponentType());
-			if (it != m_processors.end()) // Component System found
-			{
-				auto ec = entity_components.find(entity);
-				if (ec != entity_components.end()) // Entity Found
-				{
-					EntityComponents& components = ec->second;
-					auto comp = components.find(CompType::getComponentType());
-					if (comp != components.end()) // Already have this component
-						return false;
-
-					// Create new component
-					ComponentHandle hdl = it->second->CreateComponent();
-					if (hdl == 0) // Failed to create component
-						return false;
-
-					components[CompType::getComponentType()] = hdl;
-					return true;
-				}
+			ComponentType type = CompType::getComponentType();
+			if (!isComponentOfTypeValid(type)){
+				LOGTO(Warning) << "EntitySystem: Trying to attach component unknown type " << type << " to entity: " << entity << "!" << endlog;
+				return nullptr;
 			}
 
-			return false;
+			if (!hasEntity(entity)){
+				LOGTO(Warning) << "EntitySystem: Trying to attach component of type " << type << " to unknown entity: " << entity << "!" << endlog;
+				return nullptr;
+			}
+
+			return (CompType*)m_dataHolderProcessors[type].createComponentFor(entity);
 		}
 
 
@@ -137,35 +168,122 @@ class EntitySystem : public System
 
 		EntityHandle CreateEntity()
 		{
-			EntityHandle newHandle = ++unique_id;
+			if (m_freeEntities.empty()){
+				EntityHandle newHandle = m_entities.size();
+				m_entities.emplace_back(newHandle);
 
-			// Create entity with no components
-			entity_components[newHandle];
+				return newHandle;
+			}
+			
+			EntityHandle newHandle = m_freeEntities.back();
+			m_entities[newHandle] = newHandle;
 
 			return newHandle;
 		}
 
 		void DestroyEntity(EntityHandle entity)
 		{
-			auto it = entity_components.find(entity);
-			if (it == entity_components.end())
+			if (!hasEntity(entity))
 				return;
 
-			EntityComponents& ec = it->second;
-			for (auto cp : ec)
-			{
-				m_processors[cp.first]->DestroyComponent(cp.second);
+			m_freeEntities.emplace_back(entity);
+			m_entities[entity] = 0;
+
+			for (DHP& dhp : m_dataHolderProcessors){
+				dhp.destroyComponentFor(entity);
 			}
 		}
 
 	private:
-		typedef std::map<ComponentType, ComponentHandle> EntityComponents;
+		template<typename CompType>
+		ComponentHandle getComponentFromEntity(EntityHandle entity)
+		{
+			ComponentType type = CompType::getComponentType();
+			return m_dataHolderProcessors[type].getComponentFor(entity);
+		}
 
-		std::unordered_map<ComponentType, IComponentProcess*> m_processors;
-		std::unordered_map<EntityHandle, EntityComponents> entity_components;
-		EntityHandle unique_id;
+		// Data Holder Processor
+		struct DHP{
+			DHP(ComponentHolderProcessor* p, ComponentType t)
+				: processor(p), type(t)
+			{}
 
-		std::multimap<int, IComponentProcess*> process_order;
+			EntityHandle getEntityFor(ComponentHandle component){
+				if (entitiesHandles.size() > component)
+					return entitiesHandles[component];
+				return 0;
+			}
+
+			ComponentHandle getComponentFor(EntityHandle entity){
+				if (componentsHandles.size() > entity)
+					return componentsHandles[entity];
+				return 0;
+			}
+
+			void* getComponentRefFor(EntityHandle entity){
+				if (hasEntity(entity)){
+					return processor->getComponent(componentsHandles[entity]);
+				}
+
+				return nullptr;
+			}
+
+			void* createComponentFor(EntityHandle entity){
+				if (hasEntity(entity)){
+					return nullptr;
+				}
+
+				ComponentHandle component = processor->CreateComponent();
+				if (component == 0)
+					return nullptr;
+
+				if (entitiesHandles.size() <= component){
+					entitiesHandles.resize(component+1, 0);
+				}
+				if (componentsHandles.size() <= entity){
+					componentsHandles.resize(entity + 1, 0);
+				}
+
+				entitiesHandles[component] = entity;
+				componentsHandles[entity] = component;
+				LOGTO(Verbose) << "Added component " << component << " of type " << type << " to entity " << entity << endlog;
+
+				return processor->getComponent(component);
+			}
+
+			void destroyComponentFor(EntityHandle entity){
+				if (!hasEntity(entity))
+					return;
+
+				const ComponentHandle component = componentsHandles[entity];
+				processor->DestroyComponent(component);
+				entitiesHandles[component] = 0;
+				componentsHandles[entity] = 0;
+			}
+
+			// True if there is an entity with this component type
+			bool hasEntity(EntityHandle entity){
+				return componentsHandles.size() > entity && componentsHandles[entity] != 0;
+			}
+
+			// True if there is a component with this handle
+			bool hasComponent(ComponentHandle handle){
+				return entitiesHandles.size() > handle && entitiesHandles[handle] != 0;
+			}
+			
+			ComponentHolderProcessor* processor;
+			ComponentType type;
+
+			std::vector<EntityHandle> entitiesHandles; // By componentHdl
+			std::vector<ComponentHandle> componentsHandles; // By entityHdl
+		};
+		DHP nullDHP;
+		std::vector< DHP > m_dataHolderProcessors;
+		std::vector< EntityHandle > m_entities;
+		std::vector< EntityHandle > m_freeEntities;
+
+		bool ordered;
+		std::vector< std::pair<int, ComponentProcessor*> > process_order;
 };
 
 }

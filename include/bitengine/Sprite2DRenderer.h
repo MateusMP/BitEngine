@@ -11,7 +11,7 @@
 
 namespace BitEngine{
 
-class Sprite2DRenderer : public ComponentHolderProcess<Sprite2DComponent>
+class Sprite2DRenderer : public ComponentHolderProcessor
 {
 	public:
 		Sprite2DRenderer(Camera2DProcessor* camera2Dprocessor);
@@ -28,7 +28,7 @@ class Sprite2DRenderer : public ComponentHolderProcess<Sprite2DComponent>
 
 		Component* getComponent(ComponentHandle hdl) override;
 
-		std::vector<Sprite2DComponent*>& getComponents() override;
+		std::vector<ComponentHandle>& getComponents() override;
 
 	private:
 		class BatchRenderer

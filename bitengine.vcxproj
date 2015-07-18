@@ -77,6 +77,7 @@
     <ClCompile Include="src\Camera2DComponent.cpp" />
     <ClCompile Include="src\Camera2DProcessor.cpp" />
     <ClCompile Include="src\CommandSystem.cpp" />
+    <ClCompile Include="src\EntitySystem.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\glSystem.cpp" />
     <ClCompile Include="src\InputSystem.cpp" />
@@ -91,6 +92,8 @@
     <ClCompile Include="src\Task.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\Transform.cpp" />
+    <ClCompile Include="src\Transform2DComponent.cpp" />
+    <ClCompile Include="src\Transform2DProcessor.cpp" />
     <ClCompile Include="src\VideoSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -99,8 +102,9 @@
     <ClInclude Include="include\bitengine\Color.h" />
     <ClInclude Include="include\bitengine\CommandSystem.h" />
     <ClInclude Include="include\bitengine\Component.h" />
-    <ClInclude Include="include\bitengine\ComponentProcess.h" />
-    <ClInclude Include="include\bitengine\DefaultShaders\Sprite2DRenderer.h" />
+    <ClInclude Include="include\bitengine\ComponentCollection.h" />
+    <ClInclude Include="include\bitengine\ComponentProcessor.h" />
+    <ClInclude Include="include\bitengine\Components.h" />
     <ClInclude Include="include\bitengine\EngineLoggers.h" />
     <ClInclude Include="include\bitengine\EntitySystem.h" />
     <ClInclude Include="include\bitengine\ErrorCodes.h" />
@@ -118,11 +122,15 @@
     <ClInclude Include="include\bitengine\ShaderProgram.h" />
     <ClInclude Include="include\bitengine\Sprite.h" />
     <ClInclude Include="include\bitengine\Sprite2DComponent.h" />
+    <ClInclude Include="include\bitengine\Sprite2DRenderer.h" />
+    <ClInclude Include="include\bitengine\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\System.h" />
     <ClInclude Include="include\bitengine\Task.h" />
     <ClInclude Include="include\bitengine\TaskManager.h" />
     <ClInclude Include="include\bitengine\Texture.h" />
     <ClInclude Include="include\bitengine\Transform.h" />
+    <ClInclude Include="include\bitengine\Transform2DComponent.h" />
+    <ClInclude Include="include\bitengine\Transform2DProcessor.h" />
     <ClInclude Include="include\bitengine\TypeDefinition.h" />
     <ClInclude Include="include\bitengine\VertexData.h" />
     <ClInclude Include="include\bitengine\VideoSystem.h" />

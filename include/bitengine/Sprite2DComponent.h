@@ -22,6 +22,10 @@ public:
 		TOTAL
 	};
 
+	static ComponentType getComponentType(){
+		return COMPONENT_TYPE_SPRITE2D;
+	}
+
 	Sprite2DComponent()
 		: x(0), y(0), depth(0), width(8), height(8), sortMode(SORT_TYPE::BY_DEPTH_TEXTURE)
 	{}
@@ -33,9 +37,6 @@ public:
 	Sprite sprite;
 	SORT_TYPE sortMode;
 
-	static ComponentType getComponentType(){
-		return COMPONENT_TYPE_SPRITE2D;
-	}
 };
 
 }
