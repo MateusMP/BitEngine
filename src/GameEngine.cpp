@@ -25,12 +25,20 @@
 	NEW_CONSOLE_LOG(Error,	 "Error",		LOG_SEVERITY_ERROR,		MIN_SEVERITY);
 #else
 	#undef _LOG_SEVERITY_
-	#define MIN_SEVERITY LOG_SEVERITY_ERROR
+	#define MIN_SEVERITY LOG_SEVERITY_VERBOSE
+//LOG_SEVERITY_ERROR
 
 	// to hide logs: LOG_SEVERITY_NO_LOGS
-	NEW_LOG(General, "Verbose", "BE_Info.log",	LOG_SEVERITY_INFORMATION, MIN_SEVERITY);
-	NEW_LOG(Input,	"Warning",	"BE_Warning.log",	LOG_SEVERITY_INFORMATION, MIN_SEVERITY);
-	NEW_LOG(Error,	"Error",	"BE_Error.log",	LOG_SEVERITY_ERROR,		  MIN_SEVERITY);
+	// file log
+	NEW_LOG(Verbose, "Verbose", "BE_Info.log", LOG_SEVERITY_VERBOSE, MIN_SEVERITY);
+	NEW_LOG(Warning, "Warning", "BE_Warning.log", LOG_SEVERITY_WARNING, MIN_SEVERITY);
+	NEW_LOG(Error, "Error", "BE_Error.log", LOG_SEVERITY_ERROR, MIN_SEVERITY);
+
+	// console log
+	// NEW_CONSOLE_LOG(Verbose, "Verbose", LOG_SEVERITY_VERBOSE, MIN_SEVERITY);
+	// NEW_CONSOLE_LOG(Warning, "Warning", LOG_SEVERITY_WARNING, MIN_SEVERITY);
+	// NEW_CONSOLE_LOG(Error, "Error", LOG_SEVERITY_ERROR, MIN_SEVERITY);
+	
 #endif
 
 #define PRIORITY_ESP_TRANSFORM2D	0
@@ -59,7 +67,7 @@ GameEngine::GameEngine()
 	// Create entity system processors:
 	Transform2DProcessor *t2p = new Transform2DProcessor();
 	Camera2DProcessor *c2p = new Camera2DProcessor(es, t2p);
-	Sprite2DRenderer *spr2d = new Sprite2DRenderer(c2p);
+	Sprite2DRenderer *spr2d = new Sprite2DRenderer(es, t2p, c2p);
 
 	es->RegisterComponentHolderProcessor<Transform2DComponent>(t2p, PRIORITY_ESP_TRANSFORM2D);
 	es->RegisterComponentHolderProcessor<Camera2DComponent>(c2p, PRIORITY_ESP_CAMERA2D);

@@ -10,8 +10,8 @@
 #define LOG_SEVERITY_ERROR			2
 #define LOG_SEVERITY_NO_LOGS		100
 
-#define NEW_LOG(id, output, name, severity, minServ) \
-	BitEngine::Logger<id> BitEngine::Logger<id>::self(output, name, severity, minServ)
+#define NEW_LOG(id, name, output, severity, minServ) \
+	BitEngine::Logger<id> BitEngine::Logger<id>::self(name, output, severity, minServ)
 
 #define NEW_CONSOLE_LOG(id, name, severity, minServ) \
 		BitEngine::Logger<id> BitEngine::Logger<id>::self(name, severity, minServ)
@@ -63,8 +63,8 @@ public:
 		}
 	}
 
-	Logger(const char* file, const char* _name, int _serv, int minSev)
-		: out(nullptr), m_begining(true), severity(_sev), logLimit(minSev)
+	Logger(const char* _name, const char* file, int _serv, int minSev)
+		: out(nullptr), m_begining(true), severity(_serv), logLimit(minSev)
 	{
 		if (SHOULD_LOG(severity, logLimit)){
 			name = _name;

@@ -6,10 +6,9 @@
 namespace BitEngine{
 
 
-Sprite2DRenderer::Sprite2DRenderer(Camera2DProcessor* c2p)
-	: camera2Dprocessor(c2p)
+Sprite2DRenderer::Sprite2DRenderer(EntitySystem *sys, Transform2DProcessor* t2p, Camera2DProcessor* c2p)
+	: es(sys), transform2Dprocessor(t2p), camera2Dprocessor(c2p)
 {
-	
 }
 
 Sprite2DRenderer::~Sprite2DRenderer()
@@ -43,25 +42,38 @@ bool Sprite2DRenderer::Init()
 
 void Sprite2DRenderer::Process()
 {
-	for (BatchRenderer* r : m_batchRenderers)
-		r->begin();
-
-	const std::vector<Sprite2DComponent*>& validComponents = components.getValidComponentsRef();
+	// Find camera
 	const Camera2DComponent* activeCamera = camera2Dprocessor->getActiveCamera();
-
 	if (!activeCamera){
 		LOGTO(Warning) << "Sprite2DRenderer: No active camera2D!" << endlog;
 		return;
 	}
-	
-	shader->LoadViewMatrix(activeCamera->getMatrix());
-	shader->Bind();
 
-	for (Sprite2DComponent* s2c : validComponents)
-	{
-		m_batchRenderers[(int)s2c->sortMode]->addComponent(s2c);
+	// Clear al batches
+	for (BatchRenderer* r : m_batchRenderers){
+		r->begin();
+	}
+	
+	// Get all information needed -> Transform2DComponents
+	const std::vector<ComponentHandle>& validComponents = components.getValidComponents();
+	std::vector<ComponentHandle> search;
+	std::vector<ComponentHandle> answer;
+	std::vector<uint32> indices;
+	es->findAllTuples<Sprite2DComponent, Transform2DComponent>(validComponents, answer, indices);
+
+	// Culling
+	for (uint32 i = 0; i < indices.size(); ++i){
+		Transform2DComponent* t = (Transform2DComponent*)transform2Dprocessor->getComponent(answer[i]);
+		Sprite2DComponent* spr = components.getComponent(validComponents[indices[i]]);
+
+		if (insideScreen(t, spr)){
+			m_batchRenderers[(int)spr->sortMode]->addComponent(t, spr);
+		}
 	}
 
+	// Render
+	shader->LoadViewMatrix(activeCamera->getMatrix());
+	shader->Bind();
 	for (BatchRenderer* b : m_batchRenderers)
 	{
 		b->render();
@@ -81,6 +93,13 @@ void Sprite2DRenderer::DestroyComponent(ComponentHandle component)
 Component* Sprite2DRenderer::getComponent(ComponentHandle hdl)
 {
 	return components.getComponent(hdl);
+}
+
+/// LOGIC
+
+bool Sprite2DRenderer::insideScreen(const Transform2DComponent* t, const Sprite2DComponent* spr){
+
+	return true;
 }
 
 /// ===============================================================================================
@@ -112,9 +131,9 @@ void Sprite2DRenderer::BatchRenderer::begin()
 	m_components.clear();
 }
 
-void Sprite2DRenderer::BatchRenderer::addComponent(Sprite2DComponent* c)
+void Sprite2DRenderer::BatchRenderer::addComponent(Transform2DComponent *t, Sprite2DComponent* c)
 {
-	m_components.push_back(c);
+	m_components.emplace_back(t, c);
 }
 
 void Sprite2DRenderer::BatchRenderer::render()
@@ -154,27 +173,32 @@ void Sprite2DRenderer::BatchRenderer::sortComponents()
 void Sprite2DRenderer::BatchRenderer::createRenderers()
 {
 	std::vector<Sprite2DShader::Vertex> vertices;
+	std::vector<glm::mat3> modelMatrices;
 
 	vertices.reserve(m_components.size() * 6); // 6 vertices per glyph
 	batches.clear();
 
 	int offset = 0;
 	int cv = 0;
-	Sprite2DComponent* c = m_components[0];
+	const Transform2DComponent* t = m_components[0].transform;
+	const Sprite2DComponent* c = m_components[0].spr;
 	batches.emplace_back(offset, 6, c->sprite.textureID);
-	vertices.emplace_back(c->x,				c->y + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
-	vertices.emplace_back(c->x,				c->y,				c->sprite.uvrect.x, c->sprite.uvrect.y);
-	vertices.emplace_back(c->x+c->width,	c->y,				c->sprite.uvrect.z, c->sprite.uvrect.y);
-	vertices.emplace_back(c->x + c->width,	c->y,				c->sprite.uvrect.z, c->sprite.uvrect.y);
-	vertices.emplace_back(c->x + c->width,	c->y + c->height,	c->sprite.uvrect.z, c->sprite.uvrect.w);
-	vertices.emplace_back(c->x,				c->y + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
+	vertices.emplace_back(0,			0 + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
+	vertices.emplace_back(0,			0,				c->sprite.uvrect.x, c->sprite.uvrect.y);
+	vertices.emplace_back(0 + c->width,	0,				c->sprite.uvrect.z, c->sprite.uvrect.y);
+	vertices.emplace_back(0 + c->width,	0,				c->sprite.uvrect.z, c->sprite.uvrect.y);
+	vertices.emplace_back(0 + c->width,	0 + c->height,	c->sprite.uvrect.z, c->sprite.uvrect.w);
+	vertices.emplace_back(0,			0 + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
+	modelMatrices.emplace_back(t->getMatrix());
 	offset += 6;
 	cv += 6;
-	
+
 	for (uint32 cg = 1; cg < m_components.size(); cg++)
 	{
-		Sprite2DComponent* c = m_components[cg];
-		if (c->sprite.textureID != m_components[cg - 1]->sprite.textureID)
+		const Transform2DComponent* t = m_components[cg].transform;
+		const Sprite2DComponent* c = m_components[cg].spr;
+
+		if (c->sprite.textureID != m_components[cg - 1].spr->sprite.textureID)
 		{
 			batches.emplace_back(offset, 6, c->sprite.textureID);
 		}
@@ -182,18 +206,24 @@ void Sprite2DRenderer::BatchRenderer::createRenderers()
 			batches.back().nVertices += 6;
 		}
 
-		vertices.emplace_back(c->x, c->y + c->height, c->sprite.uvrect.x, c->sprite.uvrect.w);
-		vertices.emplace_back(c->x, c->y, c->sprite.uvrect.x, c->sprite.uvrect.y);
-		vertices.emplace_back(c->x + c->width, c->y, c->sprite.uvrect.z, c->sprite.uvrect.y);
-		vertices.emplace_back(c->x + c->width, c->y, c->sprite.uvrect.z, c->sprite.uvrect.y);
-		vertices.emplace_back(c->x + c->width, c->y + c->height, c->sprite.uvrect.z, c->sprite.uvrect.w);
-		vertices.emplace_back(c->x, c->y + c->height, c->sprite.uvrect.x, c->sprite.uvrect.w);
+		vertices.emplace_back(0,			0 + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
+		vertices.emplace_back(0,			0,				c->sprite.uvrect.x,	c->sprite.uvrect.y);
+		vertices.emplace_back(0 + c->width, 0,				c->sprite.uvrect.z,	c->sprite.uvrect.y);
+		vertices.emplace_back(0 + c->width, 0,				c->sprite.uvrect.z,	c->sprite.uvrect.y);
+		vertices.emplace_back(0 + c->width, 0 + c->height,	c->sprite.uvrect.z, c->sprite.uvrect.w);
+		vertices.emplace_back(0,			0 + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
+		modelMatrices.emplace_back(t->getMatrix());
 		offset += 6;
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[Sprite2DShader::VBO_VERTEX]);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Sprite2DShader::Vertex), nullptr, GL_DYNAMIC_DRAW); // TODO: verify best mode to use
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Sprite2DShader::Vertex), vertices.data());
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[Sprite2DShader::VBO_MODELMAT]);
+	glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), nullptr, GL_DYNAMIC_DRAW); // TODO: verify best mode to use
+	glBufferSubData(GL_ARRAY_BUFFER, 0, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data());
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -206,30 +236,35 @@ void Sprite2DRenderer::BatchRenderer::renderBatches()
 	for (const Batch& r : batches)
 	{
 		glBindTexture(GL_TEXTURE_2D, r.texture);
-		glDrawArrays(GL_TRIANGLES, r.offset, r.nVertices);
+		// glDrawArrays(GL_TRIANGLES, r.offset, r.nVertices);
+		// glDrawElements(GL_TRIANGLES, 36, )
+		// glDrawElementsInstanced(GL_TRIANGLES, r.nVertices, GL_UNSIGNED_INT, 0, m_components.size());
+		glDrawArraysInstanced(GL_TRIANGLES, r.offset, 6, m_components.size());
 	}
+
+	check_gl_error();
 
 	glBindVertexArray(0);
 }
 
-bool Sprite2DRenderer::BatchRenderer::compare_Texture(Sprite2DComponent* a, Sprite2DComponent* b){
-	return a->sprite.textureID < b->sprite.textureID;
+bool Sprite2DRenderer::BatchRenderer::compare_Texture(const RenderingComponent& a, const RenderingComponent& b){
+	return a.spr->sprite.textureID < b.spr->sprite.textureID;
 }
 
-bool Sprite2DRenderer::BatchRenderer::compare_Depth(Sprite2DComponent* a, Sprite2DComponent* b){
-	return a->depth < b->depth;
+bool Sprite2DRenderer::BatchRenderer::compare_Depth(const RenderingComponent& a, const RenderingComponent& b){
+	return a.spr->depth < b.spr->depth;
 }
 
-bool Sprite2DRenderer::BatchRenderer::compare_InvDepth(Sprite2DComponent* a, Sprite2DComponent* b){
-	return a->depth > b->depth;
+bool Sprite2DRenderer::BatchRenderer::compare_InvDepth(const RenderingComponent& a, const RenderingComponent& b){
+	return a.spr->depth > b.spr->depth;
 }
 
-bool Sprite2DRenderer::BatchRenderer::compare_TextureDepth(Sprite2DComponent* a, Sprite2DComponent* b){
-	return a->sprite.textureID <= b->sprite.textureID && a->depth < b->depth;
+bool Sprite2DRenderer::BatchRenderer::compare_TextureDepth(const RenderingComponent& a, const RenderingComponent& b){
+	return a.spr->sprite.textureID <= b.spr->sprite.textureID && a.spr->depth < b.spr->depth;
 }
 
-bool Sprite2DRenderer::BatchRenderer::compare_DepthTexture(Sprite2DComponent* a, Sprite2DComponent* b){
-	return a->depth <= b->depth && a->sprite.textureID < b->sprite.textureID;
+bool Sprite2DRenderer::BatchRenderer::compare_DepthTexture(const RenderingComponent& a, const RenderingComponent& b){
+	return a.spr->depth <= b.spr->depth && a.spr->sprite.textureID < b.spr->sprite.textureID;
 }
 
 

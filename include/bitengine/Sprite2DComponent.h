@@ -27,10 +27,9 @@ public:
 	}
 
 	Sprite2DComponent()
-		: x(0), y(0), depth(0), width(8), height(8), sortMode(SORT_TYPE::BY_DEPTH_TEXTURE)
+		: depth(0), width(8), height(8), sortMode(SORT_TYPE::BY_DEPTH_TEXTURE)
 	{}
-	int x;
-	int y;
+
 	int depth;
 	int width;
 	int height;

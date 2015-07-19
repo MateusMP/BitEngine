@@ -21,6 +21,35 @@ namespace BitEngine{
 
 typedef uint32 EntityHandle;
 
+template<typename CompClass>
+class ComponentRef
+{
+	public:
+		ComponentRef() 
+			: handle(0), holder(nullptr)
+		{}
+
+		ComponentRef(ComponentHandle h, ComponentHolderProcessor* p)
+			: handle(h), holder(p)
+		{}
+		/*
+		const CompClass* operator -> () const{
+			printf("Calling CONST operator\n");
+			return (const CompClass*)holder->getComponent(handle);
+		}
+		*/
+		CompClass* operator -> () {
+			// printf("Calling NORMAL operator\n");
+			return (CompClass*) holder->getComponent(handle);
+		}
+		
+
+	private:
+		friend class EntitySystem;
+		ComponentHandle handle;
+		ComponentHolderProcessor* holder;
+};
+
 /**
 * Entity Handle and Component Handle are fixed and won't change at anytime after creation.
 * 
@@ -94,7 +123,7 @@ class EntitySystem : public System
 
 		// Search
 		template<typename BaseSearchCompClass, typename... Having>
-		void findAllTuples(std::vector<ComponentHandle> &search, std::vector<ComponentHandle>& answer, std::vector<uint32>& matchSearchIndices)
+		void findAllTuples(const std::vector<ComponentHandle> &search, std::vector<ComponentHandle>& answer, std::vector<uint32>& matchSearchIndices)
 		{
 			int nTypes = sizeof...(Having);
 			ComponentType typeSearch = BaseSearchCompClass::getComponentType();
@@ -146,21 +175,31 @@ class EntitySystem : public System
 
 		// Add
 
-		template<typename CompType>
-		CompType* addComponent(EntityHandle entity)
+		template<typename CompClass>
+		bool addComponent(EntityHandle entity, ComponentRef<CompClass>& ref)
 		{
-			ComponentType type = CompType::getComponentType();
+			ComponentType type = CompClass::getComponentType();
 			if (!isComponentOfTypeValid(type)){
 				LOGTO(Warning) << "EntitySystem: Trying to attach component unknown type " << type << " to entity: " << entity << "!" << endlog;
-				return nullptr;
+				return false;
 			}
 
 			if (!hasEntity(entity)){
 				LOGTO(Warning) << "EntitySystem: Trying to attach component of type " << type << " to unknown entity: " << entity << "!" << endlog;
-				return nullptr;
+				return false;
 			}
 
-			return (CompType*)m_dataHolderProcessors[type].createComponentFor(entity);
+			DHP& p = m_dataHolderProcessors[type];
+			ComponentHandle hdl = p.createComponentFor(entity);
+			if (hdl == 0){
+				LOGTO(Warning) << "EntitySystem: Entity " << entity << " already has a component of type: " << type << "!" << endlog;
+				return false;
+			}
+
+			ref.handle = hdl;
+			ref.holder = p.processor;
+
+			return true;
 		}
 
 
@@ -228,14 +267,14 @@ class EntitySystem : public System
 				return nullptr;
 			}
 
-			void* createComponentFor(EntityHandle entity){
+			ComponentHandle createComponentFor(EntityHandle entity){
 				if (hasEntity(entity)){
-					return nullptr;
+					return 0;
 				}
 
 				ComponentHandle component = processor->CreateComponent();
 				if (component == 0)
-					return nullptr;
+					return 0;
 
 				if (entitiesHandles.size() <= component){
 					entitiesHandles.resize(component+1, 0);
@@ -248,7 +287,7 @@ class EntitySystem : public System
 				componentsHandles[entity] = component;
 				LOGTO(Verbose) << "Added component " << component << " of type " << type << " to entity " << entity << endlog;
 
-				return processor->getComponent(component);
+				return component;
 			}
 
 			void destroyComponentFor(EntityHandle entity){

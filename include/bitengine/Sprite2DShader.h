@@ -21,8 +21,11 @@ namespace BitEngine
 
 			static const uint32 ATTR_VERTEX_POS = 0;
 			static const uint32 ATTR_VERTEX_TEX = 1;
+			static const uint32 ATTR_MODEL_MAT = 2;
 
-			static const uint32 NUM_VBOS = 1;
+			static const uint32 NUM_VBOS = 2;
+			static const uint32 VBO_VERTEX = 0;
+			static const uint32 VBO_MODELMAT = 1;
 
 			static const uint32 TEXTURE_DIFFUSE = 0;
 
