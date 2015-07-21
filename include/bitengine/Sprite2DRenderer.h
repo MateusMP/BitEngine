@@ -45,13 +45,14 @@ class Sprite2DRenderer : public ComponentHolderProcessor
 
 			public:
 				struct Batch{
-					Batch(uint32 _offset, int _nI, uint32 _texture)
-						: offset(_offset), nItems(_nI), texture(_texture)
+					Batch(uint32 _offset, int _nI, uint32 _texture, bool tr)
+						: offset(_offset), nItems(_nI), texture(_texture), transparent(tr)
 					{}
 
 					uint32 offset;
 					int nItems;
 					uint32 texture;
+					bool transparent;
 				};
 
 				struct RenderingComponent{

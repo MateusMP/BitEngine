@@ -178,7 +178,7 @@ void Sprite2DRenderer::BatchRenderer::createRenderers()
 	const Transform2DComponent* t = m_components[0].transform;
 	const Sprite2DComponent* c = m_components[0].spr;
 	const Sprite* spr = m_spriteManager->getSprite(c->sprite);
-	batches.emplace_back(0, 1, spr->textureID);
+	batches.emplace_back(0, 1, spr->textureID, spr->transparent);
 	texAtexB.emplace_back(spr->uvrect.x, spr->uvrect.y); // BL  xw   zw
 	texAtexB.emplace_back(spr->uvrect.x, spr->uvrect.w); // TL  
 	texAtexB.emplace_back(spr->uvrect.z, spr->uvrect.y); // BR  
@@ -196,9 +196,9 @@ void Sprite2DRenderer::BatchRenderer::createRenderers()
 
 		offset += 1;
 
-		if (spr->textureID != lastSpr->textureID)
+		if (spr->textureID != lastSpr->textureID || spr->transparent != lastSpr->transparent)
 		{
-			batches.emplace_back(offset, 0, spr->textureID);
+			batches.emplace_back(offset, 0, spr->textureID, spr->transparent);
 		}
 		batches.back().nItems += 1;
 		lastSpr = spr;
@@ -207,7 +207,7 @@ void Sprite2DRenderer::BatchRenderer::createRenderers()
 		texAtexB.emplace_back(spr->uvrect.x, spr->uvrect.w); // TL  
 		texAtexB.emplace_back(spr->uvrect.z, spr->uvrect.y); // BR  
 		texAtexB.emplace_back(spr->uvrect.z, spr->uvrect.w); // TR  xy   zy
-		texAtexB.emplace_back(-spr->offsetX, spr->offsetY);
+		texAtexB.emplace_back(-spr->offsetX, -spr->offsetY);
 		texAtexB.emplace_back(spr->width, spr->height);
 		modelMatrices.emplace_back(t->getMatrix());
 
@@ -233,9 +233,17 @@ void Sprite2DRenderer::BatchRenderer::renderBatches()
 	glActiveTexture(GL_TEXTURE0 + Sprite2DShader::TEXTURE_DIFFUSE);
 	for (const Batch& r : batches)
 	{
+		if (r.transparent){
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
 		glBindTexture(GL_TEXTURE_2D, r.texture);
 
 		glDrawArraysInstancedBaseInstance(GL_TRIANGLE_STRIP, 0, 4, r.nItems, r.offset);
+
+		if (r.transparent){
+			glDisable(GL_BLEND);
+		}
 	}
 
 	glBindVertexArray(0);
