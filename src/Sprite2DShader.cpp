@@ -2,6 +2,7 @@
 
 
 #define GLSL(version, shader)  "#version " #version "\n" shader
+#define GLSL_(version, shader)  "#version " #version "\n" #shader
 
 // NO TRANSFORM_SHADER
 /*
@@ -30,49 +31,48 @@ static const char* sprite2DshaderVertex = GLSL(150,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static const char* sprite2DshaderVertex_transform = GLSL(150, "										 \
-	in vec2 a_textureCoord[4];																		 \
-	in vec4 a_offset;																				 \
-	in mat3 a_modelMatrix;																			 \
-																									 \
-	out vec2 fragTextureCoord;																		 \
-																									 \
-	uniform mat4 u_viewMatrix;																		 \
-																									 \
-	const vec3 vertex_pos[4] = vec3[4](																 \
-			vec3(0.0f, 0.0f, 1.0f),																	 \
-			vec3(0.0f, 1.0f, 1.0f),																	 \
-			vec3(1.0f, 0.0f, 1.0f),																	 \
-			vec3(1.0f, 1.0f, 1.0f)																	 \
-			);																						 \
-																									 \
-	void main()																						 \
-	{																								 \
-		vec2 vertexPos = vertex_pos[gl_VertexID].xy * a_offset.zw;									 \
-																									 \
-																									 \
-		vec3 vertexWorldPos = a_modelMatrix * vec3(vertexPos + a_offset.xy*a_offset.zw, 1);			 \
-		gl_Position.xy = (u_viewMatrix * vec4(vertexWorldPos.xy, 0, 1.0f)).xy;						 \
-		gl_Position.z = 0.0;																		 \
-		gl_Position.w = 1.0;																		 \
-																									 \
-		fragTextureCoord = a_textureCoord[gl_VertexID];												 \
-	}																								 \
-");
+static const char* sprite2DshaderVertex_transform = GLSL_(150,
+	in vec2 a_textureCoord[4];
+	in vec4 a_offset;
+	in mat3 a_modelMatrix;
+
+	out vec2 fragTextureCoord;
+
+	uniform mat4 u_viewMatrix;																		 
+																									 
+	const vec3 vertex_pos[4] = vec3[4](																 
+			vec3(0.0f, 0.0f, 1.0f),
+			vec3(0.0f, 1.0f, 1.0f),																	 
+			vec3(1.0f, 0.0f, 1.0f),
+			vec3(1.0f, 1.0f, 1.0f)																	 
+			);																						 
+
+	void main()																						 
+	{																								 
+		vec2 vertexPos = vertex_pos[gl_VertexID].xy * a_offset.zw;									 
+																									 
+		vec3 vertexWorldPos = a_modelMatrix * vec3(vertexPos + a_offset.xy*a_offset.zw, 1);			 
+		gl_Position.xy = (u_viewMatrix * vec4(vertexWorldPos.xy, 0, 1.0f)).xy;						 
+		gl_Position.z = 0.0;
+		gl_Position.w = 1.0;
+
+		fragTextureCoord = a_textureCoord[gl_VertexID];
+	}
+);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static const char* sprite2DshaderFragment = GLSL(150,"												 \
-	in vec2 fragTextureCoord;																		 \
-																									 \
-	out vec4 finalColor;																			 \
-																									 \
-	uniform sampler2D u_texDiffuse;																	 \
-																									 \
-	void main()																						 \
-	{																								 \
-			finalColor = texture(u_texDiffuse, fragTextureCoord);						 \
-	}																								 \
-");
+static const char* sprite2DshaderFragment = GLSL_(150,
+	in vec2 fragTextureCoord;
+
+	out vec4 finalColor;
+
+	uniform sampler2D u_texDiffuse;
+
+	void main()
+	{
+		finalColor = texture(u_texDiffuse, fragTextureCoord);
+	}
+);
 // 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace BitEngine{
