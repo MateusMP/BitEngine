@@ -25,6 +25,16 @@ void Transform2DComponent::setPosition(const glm::vec2& p)
 	m_dirty |= DIRTY_DATA;
 }
 
+float Transform2DComponent::getRotation() const
+{
+	return rotation;
+}
+
+void Transform2DComponent::setRotation(float rad)
+{
+	rotation = rad;
+}
+
 const glm::mat3& Transform2DComponent::getMatrix() const{
 	return m_modelMatrix;
 }

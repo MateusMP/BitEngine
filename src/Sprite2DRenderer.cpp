@@ -1,4 +1,4 @@
-#include "Sprite2DRenderer.h"
+﻿#include "Sprite2DRenderer.h"
 
 
 #include <algorithm>
@@ -33,8 +33,10 @@ bool Sprite2DRenderer::Init()
 	shader = new Sprite2DShader();
 	shader->init();
 
+	m_spriteManager = es->getResourceSystem()->getSpriteManager();
+
 	for (int i = 0; i < (int)Sprite2DComponent::SORT_TYPE::TOTAL; ++i){
-		m_batchRenderers.push_back(new BatchRenderer((Sprite2DComponent::SORT_TYPE)i, shader->CreateVAO(vbo), vbo));
+		m_batchRenderers.push_back(new BatchRenderer(m_spriteManager, (Sprite2DComponent::SORT_TYPE)i, shader->CreateVAO(vbo), vbo));
 	}
 
 	return true;
@@ -107,12 +109,17 @@ bool Sprite2DRenderer::insideScreen(const Transform2DComponent* t, const Sprite2
 ///										GLYPH
 /// ===============================================================================================
 
-Sprite2DRenderer::BatchRenderer::BatchRenderer(Sprite2DComponent::SORT_TYPE s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS])
-	: m_sorting(s), m_vao(vao)
+Sprite2DRenderer::BatchRenderer::BatchRenderer(SpriteManager* sprMng, Sprite2DComponent::SORT_TYPE s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS])
+	: m_spriteManager(sprMng), m_sorting(s), m_vao(vao)
 {
 	for (int i = 0; i < Sprite2DShader::NUM_VBOS; ++i){
 		m_vbo[i] = vbo[i];
 	}
+
+	unsigned char INDEX_BUFFER[] = {
+		0, 1, 2, // Bottom left triangle
+		3		 // top right triangle
+	};
 }
 
 Sprite2DRenderer::BatchRenderer::~BatchRenderer()
@@ -149,18 +156,6 @@ void Sprite2DRenderer::BatchRenderer::render()
 void Sprite2DRenderer::BatchRenderer::sortComponents()
 {
 	switch (m_sorting){
-		case Sprite2DComponent::SORT_TYPE::BY_TEXTURE_ONLY:
-			std::stable_sort(m_components.begin(), m_components.end(), compare_Texture);
-			break;
-		case Sprite2DComponent::SORT_TYPE::BY_DEPTH_ONLY:
-			std::stable_sort(m_components.begin(), m_components.end(), compare_Depth);
-			break;
-		case Sprite2DComponent::SORT_TYPE::BY_INVDEPTH_ONLY:
-			std::stable_sort(m_components.begin(), m_components.end(), compare_InvDepth);
-			break;
-		case Sprite2DComponent::SORT_TYPE::BY_TEXTURE_DEPTH:
-			std::stable_sort(m_components.begin(), m_components.end(), compare_TextureDepth);
-			break;
 		case Sprite2DComponent::SORT_TYPE::BY_DEPTH_TEXTURE:
 			std::stable_sort(m_components.begin(), m_components.end(), compare_DepthTexture);
 			break;
@@ -170,61 +165,64 @@ void Sprite2DRenderer::BatchRenderer::sortComponents()
 	}
 }
 
+static int totalitems = 0;
 void Sprite2DRenderer::BatchRenderer::createRenderers()
 {
-	std::vector<Sprite2DShader::Vertex> vertices;
+	std::vector<glm::vec2> texAtexB;
 	std::vector<glm::mat3> modelMatrices;
 
-	vertices.reserve(m_components.size() * 6); // 6 vertices per glyph
+	texAtexB.reserve(m_components.size() * 4); // 4 texcoord (x,y) per glyph
 	batches.clear();
 
 	int offset = 0;
-	int cv = 0;
 	const Transform2DComponent* t = m_components[0].transform;
 	const Sprite2DComponent* c = m_components[0].spr;
-	batches.emplace_back(offset, 6, c->sprite.textureID);
-	vertices.emplace_back(0,			0 + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
-	vertices.emplace_back(0,			0,				c->sprite.uvrect.x, c->sprite.uvrect.y);
-	vertices.emplace_back(0 + c->width,	0,				c->sprite.uvrect.z, c->sprite.uvrect.y);
-	vertices.emplace_back(0 + c->width,	0,				c->sprite.uvrect.z, c->sprite.uvrect.y);
-	vertices.emplace_back(0 + c->width,	0 + c->height,	c->sprite.uvrect.z, c->sprite.uvrect.w);
-	vertices.emplace_back(0,			0 + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
+	const Sprite* spr = m_spriteManager->getSprite(c->sprite);
+	batches.emplace_back(0, 1, spr->textureID);
+	texAtexB.emplace_back(spr->uvrect.x, spr->uvrect.y); // BL  xw   zw
+	texAtexB.emplace_back(spr->uvrect.x, spr->uvrect.w); // TL  
+	texAtexB.emplace_back(spr->uvrect.z, spr->uvrect.y); // BR  
+	texAtexB.emplace_back(spr->uvrect.z, spr->uvrect.w); // TR  xy   zy
+	texAtexB.emplace_back(-spr->offsetX, -spr->offsetY);
+	texAtexB.emplace_back(spr->width, spr->height);
 	modelMatrices.emplace_back(t->getMatrix());
-	offset += 6;
-	cv += 6;
-
+	totalitems = 1;
+	const Sprite* lastSpr = spr;
 	for (uint32 cg = 1; cg < m_components.size(); cg++)
 	{
 		const Transform2DComponent* t = m_components[cg].transform;
 		const Sprite2DComponent* c = m_components[cg].spr;
+		const Sprite* spr = m_spriteManager->getSprite(c->sprite);
 
-		if (c->sprite.textureID != m_components[cg - 1].spr->sprite.textureID)
+		offset += 1;
+
+		if (spr->textureID != lastSpr->textureID)
 		{
-			batches.emplace_back(offset, 6, c->sprite.textureID);
+			batches.emplace_back(offset, 0, spr->textureID);
 		}
-		else {
-			batches.back().nVertices += 6;
-		}
+		batches.back().nItems += 1;
+		lastSpr = spr;
 
-		vertices.emplace_back(0,			0 + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
-		vertices.emplace_back(0,			0,				c->sprite.uvrect.x,	c->sprite.uvrect.y);
-		vertices.emplace_back(0 + c->width, 0,				c->sprite.uvrect.z,	c->sprite.uvrect.y);
-		vertices.emplace_back(0 + c->width, 0,				c->sprite.uvrect.z,	c->sprite.uvrect.y);
-		vertices.emplace_back(0 + c->width, 0 + c->height,	c->sprite.uvrect.z, c->sprite.uvrect.w);
-		vertices.emplace_back(0,			0 + c->height,	c->sprite.uvrect.x, c->sprite.uvrect.w);
+		texAtexB.emplace_back(spr->uvrect.x, spr->uvrect.y); // BL  xw   zw
+		texAtexB.emplace_back(spr->uvrect.x, spr->uvrect.w); // TL  
+		texAtexB.emplace_back(spr->uvrect.z, spr->uvrect.y); // BR  
+		texAtexB.emplace_back(spr->uvrect.z, spr->uvrect.w); // TR  xy   zy
+		texAtexB.emplace_back(-spr->offsetX, spr->offsetY);
+		texAtexB.emplace_back(spr->width, spr->height);
 		modelMatrices.emplace_back(t->getMatrix());
-		offset += 6;
+
+		++totalitems;
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[Sprite2DShader::VBO_VERTEX]);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Sprite2DShader::Vertex), nullptr, GL_DYNAMIC_DRAW); // TODO: verify best mode to use
-	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Sprite2DShader::Vertex), vertices.data());
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[Sprite2DShader::VBO_VERTEXDATA]);
+	glBufferData(GL_ARRAY_BUFFER, texAtexB.size() * sizeof(glm::vec2), texAtexB.data(), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[Sprite2DShader::VBO_MODELMAT]);
-	glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), nullptr, GL_DYNAMIC_DRAW); // TODO: verify best mode to use
-	glBufferSubData(GL_ARRAY_BUFFER, 0, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data());
+	glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data(), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	check_gl_error();
 }
 
 
@@ -236,35 +234,18 @@ void Sprite2DRenderer::BatchRenderer::renderBatches()
 	for (const Batch& r : batches)
 	{
 		glBindTexture(GL_TEXTURE_2D, r.texture);
-		// glDrawArrays(GL_TRIANGLES, r.offset, r.nVertices);
-		// glDrawElements(GL_TRIANGLES, 36, )
-		// glDrawElementsInstanced(GL_TRIANGLES, r.nVertices, GL_UNSIGNED_INT, 0, m_components.size());
-		glDrawArraysInstanced(GL_TRIANGLES, r.offset, 6, m_components.size());
+
+		glDrawArraysInstancedBaseInstance(GL_TRIANGLE_STRIP, 0, 4, r.nItems, r.offset);
 	}
 
-	check_gl_error();
-
 	glBindVertexArray(0);
-}
 
-bool Sprite2DRenderer::BatchRenderer::compare_Texture(const RenderingComponent& a, const RenderingComponent& b){
-	return a.spr->sprite.textureID < b.spr->sprite.textureID;
-}
-
-bool Sprite2DRenderer::BatchRenderer::compare_Depth(const RenderingComponent& a, const RenderingComponent& b){
-	return a.spr->depth < b.spr->depth;
-}
-
-bool Sprite2DRenderer::BatchRenderer::compare_InvDepth(const RenderingComponent& a, const RenderingComponent& b){
-	return a.spr->depth > b.spr->depth;
-}
-
-bool Sprite2DRenderer::BatchRenderer::compare_TextureDepth(const RenderingComponent& a, const RenderingComponent& b){
-	return a.spr->sprite.textureID <= b.spr->sprite.textureID && a.spr->depth < b.spr->depth;
+	check_gl_error();
 }
 
 bool Sprite2DRenderer::BatchRenderer::compare_DepthTexture(const RenderingComponent& a, const RenderingComponent& b){
-	return a.spr->depth <= b.spr->depth && a.spr->sprite.textureID < b.spr->sprite.textureID;
+	return a.spr->depth < b.spr->depth
+		|| (a.spr->depth == b.spr->depth && (a.spr->sprite < b.spr->sprite));
 }
 
 

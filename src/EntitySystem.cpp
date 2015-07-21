@@ -5,8 +5,8 @@
 
 namespace BitEngine{
 
-	EntitySystem::EntitySystem()
-		: System("Entity"), nullDHP(nullptr, COMPONENT_TYPE_INVALID), ordered(false)
+	EntitySystem::EntitySystem(ResourceSystem *resource)
+		: System("Entity"), nullDHP(nullptr, COMPONENT_TYPE_INVALID), ordered(false), m_resources(resource)
 	{
 		m_entities.emplace_back(0); // First entity is invalid.
 	}
@@ -51,4 +51,8 @@ namespace BitEngine{
 		}
 	}
 
+	ResourceSystem* EntitySystem::getResourceSystem()
+	{
+		return m_resources;
+	}
 }

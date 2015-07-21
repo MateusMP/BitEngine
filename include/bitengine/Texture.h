@@ -8,7 +8,7 @@ namespace BitEngine
 class Texture
 {
     public:
-        friend class ResourceManager;
+		friend class ResourceSystem;
 
         GLuint getID() const;
 

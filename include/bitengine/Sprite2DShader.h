@@ -19,12 +19,13 @@ namespace BitEngine
 		public:
 			class Sprite2DBatch;
 
-			static const uint32 ATTR_VERTEX_POS = 0;
-			static const uint32 ATTR_VERTEX_TEX = 1;
-			static const uint32 ATTR_MODEL_MAT = 2;
+			// static const uint32 ATTR_VERTEX_POS = 0;
+			static const uint32 ATTR_VERTEX_TEX = 0; // 0, 1, 2, 3
+			static const uint32 ATTR_SPRITE_OFF = 4; // offset and size
+			static const uint32 ATTR_MODEL_MAT = 5;
 
 			static const uint32 NUM_VBOS = 2;
-			static const uint32 VBO_VERTEX = 0;
+			static const uint32 VBO_VERTEXDATA = 0;
 			static const uint32 VBO_MODELMAT = 1;
 
 			static const uint32 TEXTURE_DIFFUSE = 0;
@@ -41,38 +42,6 @@ namespace BitEngine
 			// Overrides
 
 			GLuint CreateVAO(GLuint* outVBO) override;
-
-		public:
-			/// @brief Vertex with position and texture data only
-			/// 
-			class Vertex{
-			public:
-				Vertex(){}
-				Vertex(int x, int y, float u, float v)
-				{
-					position.x = (float)x;
-					position.y = (float)y;
-					uv.u = u;
-					uv.v = v;
-				}
-				Vertex(float x, float y, float u, float v)
-				{
-					position.x = x;
-					position.y = y;
-					uv.u = u;
-					uv.v = v;
-				}
-				Vertex(const glm::vec2& _pos, const glm::vec2& _uv)
-				{
-					position.x = _pos.x;
-					position.y = _pos.y;
-					uv.u = _uv.x;
-					uv.v = _uv.y;
-				}
-
-				VertexData::Position position;
-				VertexData::UV uv;
-			};
 
 		protected:
 			void BindAttributes() override;

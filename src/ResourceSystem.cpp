@@ -2,29 +2,49 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "ResourceManager.h"
+#include "ResourceSystem.h"
 
 #include "Graphics.h"
 #include "Logger.h"
 
 namespace BitEngine{
 
-ResourceManager::ResourceManager(){
-	
+ResourceSystem::ResourceSystem()
+	: System("Resource"){
+}
+
+ResourceSystem::~ResourceSystem(){
+}
+
+bool ResourceSystem::Init()
+{
 	stbi_set_flip_vertically_on_load(true);
+	m_spriteManager = new SpriteManager();
+
+	return true;
+}
+
+void ResourceSystem::Update()
+{
 
 }
 
-ResourceManager::~ResourceManager(){
+void ResourceSystem::Shutdown()
+{
+	delete m_spriteManager;
 
-    for ( TextureMap::iterator it = m_textures.begin(); it != m_textures.end(); ++it ){
-        Texture *tex = it->second;
+	for (TextureMap::iterator it = m_textures.begin(); it != m_textures.end(); ++it){
+		Texture *tex = it->second;
 
-        glDeleteTextures(1, &tex->m_textureID);
-    }
+		glDeleteTextures(1, &tex->m_textureID);
+	}
 }
 
-Texture* ResourceManager::LoadTexture2D(const std::string& path)
+SpriteManager* ResourceSystem::getSpriteManager(){
+	return m_spriteManager;
+}
+
+Texture* ResourceSystem::LoadTexture2D(const std::string& path)
 {
     auto texfound = m_textures.find(path);
     if ( texfound != m_textures.end() ){

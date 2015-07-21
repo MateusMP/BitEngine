@@ -57,11 +57,14 @@ GameEngine::GameEngine()
 {
     Channel::AddListener<WindowClose>(this);
 
-	EntitySystem* es = new EntitySystem();
+	ResourceSystem* rsrc = new ResourceSystem();
+
+	EntitySystem* es = new EntitySystem(rsrc);
 
     AddSystem(new InputSystem());
 	AddSystem(new CommandSystem());
     AddSystem(new VideoSystem());
+	AddSystem(rsrc);
 	AddSystem( es );
 
 	// Create entity system processors:

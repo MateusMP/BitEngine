@@ -27,6 +27,7 @@ public:
 	Transform2DComponent();
 	~Transform2DComponent();
 
+	// Position
 	const glm::vec2& getPosition() const;
 	template<typename T>
 	void setPosition(T x, T y)
@@ -36,6 +37,10 @@ public:
 		m_dirty |= DIRTY_DATA;
 	}
 	void setPosition(const glm::vec2& p);
+
+	// Rotation
+	float getRotation() const;
+	void setRotation(float rad);
 
 	const glm::mat3& getMatrix() const;
 

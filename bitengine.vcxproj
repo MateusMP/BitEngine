@@ -82,12 +82,13 @@
     <ClCompile Include="src\glSystem.cpp" />
     <ClCompile Include="src\InputSystem.cpp" />
     <ClCompile Include="src\MessageChannel.cpp" />
-    <ClCompile Include="src\ResourceManager.cpp" />
+    <ClCompile Include="src\ResourceSystem.cpp" />
     <ClCompile Include="src\SceneGraph.cpp" />
     <ClCompile Include="src\SceneNode.cpp" />
     <ClCompile Include="src\ShaderProgram.cpp" />
     <ClCompile Include="src\Sprite2DRenderer.cpp" />
     <ClCompile Include="src\Sprite2DShader.cpp" />
+    <ClCompile Include="src\SpriteManager.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\Task.cpp" />
     <ClCompile Include="src\Texture.cpp" />
@@ -116,7 +117,7 @@
     <ClInclude Include="include\bitengine\MessageChannel.h" />
     <ClInclude Include="include\bitengine\MessageType.h" />
     <ClInclude Include="include\bitengine\RenderSystem.h" />
-    <ClInclude Include="include\bitengine\ResourceManager.h" />
+    <ClInclude Include="include\bitengine\ResourceSystem.h" />
     <ClInclude Include="include\bitengine\SceneGraph.h" />
     <ClInclude Include="include\bitengine\SceneNode.h" />
     <ClInclude Include="include\bitengine\ShaderProgram.h" />
@@ -124,6 +125,7 @@
     <ClInclude Include="include\bitengine\Sprite2DComponent.h" />
     <ClInclude Include="include\bitengine\Sprite2DRenderer.h" />
     <ClInclude Include="include\bitengine\Sprite2DShader.h" />
+    <ClInclude Include="include\bitengine\SpriteManager.h" />
     <ClInclude Include="include\bitengine\System.h" />
     <ClInclude Include="include\bitengine\Task.h" />
     <ClInclude Include="include\bitengine\TaskManager.h" />

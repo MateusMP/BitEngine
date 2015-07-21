@@ -1,20 +1,32 @@
 #pragma once
 
+#include <glm/common.hpp>
+
 #include "TypeDefinition.h"
 
 namespace BitEngine{
+
+typedef unsigned short SpriteHandle;
 
 class Sprite{
 
     public:
 		Sprite()
-			: uvrect(0,0,1,1), textureID(0)
+			: textureID(0), width(16), height(16), 
+			  offsetX(0), offsetY(0), uvrect(0.0f, 0.0f, 1.0f, 1.0f)
 		{}
 
-        Sprite(const glm::vec4& _uvrect, uint32 texture)
-            : uvrect(_uvrect), textureID(texture)
+		Sprite(uint32 texture, int w, int h, float oX, float oY, const glm::vec4& _uvrect)
+			: textureID(texture), width(w), height(h), offsetX(oX), offsetY(oY), uvrect(_uvrect)
         {}
 
+
+        uint32 textureID;
+
+		int width;
+		int height;
+		float offsetX;
+		float offsetY;
 
         /**
             xw--zw (1,1)
@@ -24,7 +36,6 @@ class Sprite{
         */
         glm::vec4 uvrect;
 
-        uint32 textureID;
 };
 
 }

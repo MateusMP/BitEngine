@@ -10,6 +10,7 @@
 #include "System.h"
 
 #include "ComponentProcessor.h"
+#include "ResourceSystem.h"
 
 #define COMPONENT_TYPE_INVALID		0
 #define COMPONENT_TYPE_TRANSFORM2D	1
@@ -57,7 +58,7 @@ class ComponentRef
 class EntitySystem : public System
 {
 	public:
-		EntitySystem();
+		EntitySystem(ResourceSystem* resources);
 
 		bool Init();
 		void Update();
@@ -202,6 +203,7 @@ class EntitySystem : public System
 			return true;
 		}
 
+		ResourceSystem* getResourceSystem();
 
 		// Create
 
@@ -323,6 +325,8 @@ class EntitySystem : public System
 
 		bool ordered;
 		std::vector< std::pair<int, ComponentProcessor*> > process_order;
+
+		ResourceSystem* m_resources;
 };
 
 }

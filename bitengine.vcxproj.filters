@@ -28,15 +28,15 @@
     <Filter Include="EntitySystem\Processors">
       <UniqueIdentifier>{b2f00c10-1b33-4ddd-8e86-f0a4dc114ae1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ResourceSystem">
+      <UniqueIdentifier>{6d5d36a7-4ce0-445b-9cf9-78508df503fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GameEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\MessageChannel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SceneGraph.cpp">
@@ -93,6 +93,12 @@
     <ClCompile Include="src\EntitySystem.cpp">
       <Filter>EntitySystem</Filter>
     </ClCompile>
+    <ClCompile Include="src\SpriteManager.cpp">
+      <Filter>ResourceSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ResourceSystem.cpp">
+      <Filter>ResourceSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Color.h">
@@ -111,9 +117,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\MessageType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\SceneGraph.h">
@@ -208,6 +211,12 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\Transform2DProcessor.h">
       <Filter>EntitySystem\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\ResourceSystem.h">
+      <Filter>ResourceSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\SpriteManager.h">
+      <Filter>ResourceSystem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

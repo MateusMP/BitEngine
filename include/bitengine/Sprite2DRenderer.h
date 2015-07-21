@@ -34,7 +34,7 @@ class Sprite2DRenderer : public ComponentHolderProcessor
 		class BatchRenderer
 		{
 			public:
-				BatchRenderer(Sprite2DComponent::SORT_TYPE s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS]);
+				BatchRenderer(SpriteManager* sprMng, Sprite2DComponent::SORT_TYPE s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS]);
 				~BatchRenderer();
 
 				void begin();
@@ -45,12 +45,12 @@ class Sprite2DRenderer : public ComponentHolderProcessor
 
 			public:
 				struct Batch{
-					Batch(uint32 _offset, int _nVertices, uint32 _texture)
-						: offset(_offset), nVertices(_nVertices), texture(_texture)
+					Batch(uint32 _offset, int _nI, uint32 _texture)
+						: offset(_offset), nItems(_nI), texture(_texture)
 					{}
 
 					uint32 offset;
-					int nVertices;
+					int nItems;
 					uint32 texture;
 				};
 
@@ -74,6 +74,8 @@ class Sprite2DRenderer : public ComponentHolderProcessor
 				static bool compare_DepthTexture(const RenderingComponent& a, const RenderingComponent& b);
 
 			private:
+				SpriteManager* m_spriteManager;
+
 				Sprite2DComponent::SORT_TYPE m_sorting;
 
 				GLuint m_vao;
@@ -93,6 +95,8 @@ class Sprite2DRenderer : public ComponentHolderProcessor
 		EntitySystem *es;
 		Transform2DProcessor* transform2Dprocessor;
 		Camera2DProcessor* camera2Dprocessor;
+
+		SpriteManager* m_spriteManager;
 
 		std::vector<BatchRenderer*> m_batchRenderers; // Sorted by draw order
 
