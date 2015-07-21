@@ -28,7 +28,7 @@ void Camera2DProcessor::recalculateMatrix(Camera2DComponent* c, Transform2DCompo
 	c->m_cameraMatrix = glm::scale(glm::mat4(1.0f), scale) * c->m_cameraMatrix;
 }
 
-void Camera2DProcessor::Process()
+void Camera2DProcessor::FrameEnd()
 {
 	std::vector<ComponentHandle>& cameras = components.getValidComponents();
 
@@ -55,7 +55,7 @@ void Camera2DProcessor::Process()
 	}
 }
 
-ComponentHandle Camera2DProcessor::CreateComponent()
+ComponentHandle Camera2DProcessor::CreateComponent(EntityHandle entity)
 {
 	return components.newComponent();
 }

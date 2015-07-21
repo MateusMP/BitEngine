@@ -79,6 +79,7 @@
     <ClCompile Include="src\CommandSystem.cpp" />
     <ClCompile Include="src\EntitySystem.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
+    <ClCompile Include="src\GameLogicProcessor.cpp" />
     <ClCompile Include="src\glSystem.cpp" />
     <ClCompile Include="src\InputSystem.cpp" />
     <ClCompile Include="src\MessageChannel.cpp" />
@@ -106,14 +107,17 @@
     <ClInclude Include="include\bitengine\ComponentCollection.h" />
     <ClInclude Include="include\bitengine\ComponentProcessor.h" />
     <ClInclude Include="include\bitengine\Components.h" />
+    <ClInclude Include="include\bitengine\ComponentsType.h" />
     <ClInclude Include="include\bitengine\EngineLoggers.h" />
     <ClInclude Include="include\bitengine\EntitySystem.h" />
     <ClInclude Include="include\bitengine\ErrorCodes.h" />
     <ClInclude Include="include\bitengine\GameEngine.h" />
+    <ClInclude Include="include\bitengine\GameLogicProcessor.h" />
     <ClInclude Include="include\bitengine\glSystem.h" />
     <ClInclude Include="include\bitengine\Graphics.h" />
     <ClInclude Include="include\bitengine\InputSystem.h" />
     <ClInclude Include="include\bitengine\Logger.h" />
+    <ClInclude Include="include\bitengine\LogicScript.h" />
     <ClInclude Include="include\bitengine\MessageChannel.h" />
     <ClInclude Include="include\bitengine\MessageType.h" />
     <ClInclude Include="include\bitengine\RenderSystem.h" />

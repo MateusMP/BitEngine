@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Component.h"
-
 #include <glm\common.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
-#include "EntitySystem.h"
+#include "Component.h"
+#include "ComponentsType.h"
 
 namespace BitEngine{
 

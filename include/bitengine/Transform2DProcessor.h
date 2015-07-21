@@ -16,9 +16,11 @@ namespace BitEngine{
 
 		private:
 			bool Init() override;
-			void Process() override;
+			void FrameStart() override {};
+			void FrameMiddle() override {};
+			void FrameEnd() override;
 
-			ComponentHandle CreateComponent() override;
+			ComponentHandle CreateComponent(EntityHandle entity) override;
 			void DestroyComponent(ComponentHandle component) override;
 
 

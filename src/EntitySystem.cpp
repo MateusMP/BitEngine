@@ -13,18 +13,15 @@ namespace BitEngine{
 
 	bool EntitySystem::Init()
 	{
-		std::sort(process_order.begin(), process_order.end(),
-			[](std::pair<int, ComponentProcessor*>& a, std::pair<int, ComponentProcessor*>& b)
-		{
-			return a.first < b.first;
-		});
+		sortProcess();
 		ordered = true;
 
-		for (auto& it : process_order){
+		for (auto& it : process_order[0]){
 			if (!it.second->Init()){
 				return false;
 			}
 		}
+	
 		return true;
 	}
 
@@ -32,21 +29,27 @@ namespace BitEngine{
 
 		if (!ordered)
 		{
-			std::sort(process_order.begin(), process_order.end(),
-				[](std::pair<int, ComponentProcessor*>& a, std::pair<int, ComponentProcessor*>& b)
-			{
-				return a.first < b.first;
-			});
+			sortProcess();
 			ordered = true;
 		}
 		
-		for (auto& it : process_order){
-			it.second->Process();
+		
+		for (auto& it : process_order[1]){
+			it.second->FrameStart();
 		}
+
+		for (auto& it : process_order[2]){
+			it.second->FrameMiddle();
+		}
+
+		for (auto& it : process_order[3]){
+			it.second->FrameEnd();
+		}
+		
 	}
 
 	void EntitySystem::Shutdown(){
-		for (auto& it : process_order){
+		for (auto& it : process_order[0]){
 			delete it.second;
 		}
 	}
@@ -54,5 +57,17 @@ namespace BitEngine{
 	ResourceSystem* EntitySystem::getResourceSystem()
 	{
 		return m_resources;
+	}
+
+	void EntitySystem::sortProcess()
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			std::sort(process_order[i].begin(), process_order[i].end(),
+				[](std::pair<int, ComponentProcessor*>& a, std::pair<int, ComponentProcessor*>& b)
+			{
+				return a.first < b.first;
+			});
+		}
 	}
 }

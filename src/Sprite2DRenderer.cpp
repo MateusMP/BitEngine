@@ -42,7 +42,7 @@ bool Sprite2DRenderer::Init()
 	return true;
 }
 
-void Sprite2DRenderer::Process()
+void Sprite2DRenderer::FrameEnd()
 {
 	// Find camera
 	const Camera2DComponent* activeCamera = camera2Dprocessor->getActiveCamera();
@@ -82,7 +82,7 @@ void Sprite2DRenderer::Process()
 	}
 }
 
-ComponentHandle Sprite2DRenderer::CreateComponent()
+ComponentHandle Sprite2DRenderer::CreateComponent(EntityHandle entity)
 {
 	return components.newComponent();
 }

@@ -4,7 +4,8 @@
 #include <glm\gtc\matrix_transform.hpp>
 
 #include "Component.h"
-#include "EntitySystem.h"
+
+#include "ComponentsType.h"
 
 namespace BitEngine {
 

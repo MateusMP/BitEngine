@@ -15,12 +15,13 @@ namespace BitEngine{
 			components.emplace_back(); // element 0 is invalid
 		}
 
-		ComponentHandle newComponent(){
+		template<typename... Args>
+		ComponentHandle newComponent(Args ... args){
 			if (freeHandles.empty()){
 				ComponentHandle hdl = components.size();
 				if (validRef){ // Needs to guarantee if the final vector address did not change
 					T* _reallocTest = &components[0];
-					components.emplace_back();
+					components.emplace_back(args...);
 					T* _reallocTestEnd = &components[0];
 				
 					validComponents.push_back(hdl);
@@ -30,7 +31,7 @@ namespace BitEngine{
 						validComponentsRef.push_back(&components[hdl]);
 					}
 				} else { // References are invalid, so just ignore them for now
-					components.emplace_back();
+					components.emplace_back(args...);
 					validComponents.push_back(hdl);
 				}
 

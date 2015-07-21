@@ -21,9 +21,11 @@ class Sprite2DRenderer : public ComponentHolderProcessor
 				
 	private:
 		bool Init() override;
-		void Process() override;
+		void FrameStart() override {};
+		void FrameMiddle() override {};
+		void FrameEnd() override;
 
-		ComponentHandle CreateComponent() override;
+		ComponentHandle CreateComponent(EntityHandle entity) override;
 		void DestroyComponent(ComponentHandle component) override;
 
 		Component* getComponent(ComponentHandle hdl) override;
@@ -106,9 +108,6 @@ class Sprite2DRenderer : public ComponentHolderProcessor
 		Sprite2DShader *shader;
 
 		ComponentCollection<Sprite2DComponent> components;
-
-
-	public:
 };
 
 }

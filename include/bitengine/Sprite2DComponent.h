@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Component.h"
-#include "EntitySystem.h"
+#include "ComponentsType.h"
 #include "SpriteManager.h"
 
 #include "Sprite.h"

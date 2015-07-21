@@ -38,7 +38,7 @@ namespace BitEngine{
 		return k;
 	}
 
-	void Transform2DProcessor::Process() {
+	void Transform2DProcessor::FrameEnd() {
 
 		// Recalculate distance to root
 		for (Transform2DComponent* t : components.getValidComponentsRef())
@@ -71,7 +71,7 @@ namespace BitEngine{
 
 	}
 
-	ComponentHandle Transform2DProcessor::CreateComponent() {
+	ComponentHandle Transform2DProcessor::CreateComponent(EntityHandle entity) {
 		return components.newComponent();
 	}
 

@@ -12,15 +12,17 @@
 #include "ComponentProcessor.h"
 #include "ResourceSystem.h"
 
-#define COMPONENT_TYPE_INVALID		0
-#define COMPONENT_TYPE_TRANSFORM2D	1
-#define COMPONENT_TYPE_CAMERA2D		2
-#define COMPONENT_TYPE_SPRITE2D		3
-
-
 namespace BitEngine{
 
-typedef uint32 EntityHandle;
+enum UpdateEvent : uint16{
+	BeginFrame = 0x01,
+	MidFrame = 0x02,
+	EndFrame = 0x04,
+
+	TOTAL = 3,
+
+	ALL = BeginFrame | MidFrame | EndFrame
+};
 
 template<typename CompClass>
 class ComponentRef
@@ -67,7 +69,7 @@ class EntitySystem : public System
 		// Register
 
 		template<typename CompClass>
-		bool RegisterComponentHolderProcessor(ComponentHolderProcessor* cs, int priority)
+		bool RegisterComponentHolderProcessor(ComponentHolderProcessor* cs, int priority, UpdateEvent updateEvent)
 		{
 			ComponentType type = CompClass::getComponentType();
 			if (m_dataHolderProcessors.size() <= (uint32)type)
@@ -81,22 +83,36 @@ class EntitySystem : public System
 			}
 
 			m_dataHolderProcessors[type] = DHP(cs, type);
-			process_order.emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+
+			process_order[0].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+			if (updateEvent & UpdateEvent::BeginFrame)
+				process_order[1].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+			if (updateEvent & UpdateEvent::MidFrame)
+				process_order[2].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+			if (updateEvent & UpdateEvent::EndFrame)
+				process_order[3].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+
 			ordered = false;
 
 			return true;
 		}
 
-		bool RegisterDataProcessor(ComponentProcessor* cp, int priority)
+		bool RegisterDataProcessor(ComponentProcessor* cs, int priority, UpdateEvent updateEvent)
 		{
-			process_order.emplace_back(std::pair<int, ComponentProcessor*>(priority, cp));
+			process_order[0].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+			if (updateEvent & UpdateEvent::BeginFrame)
+				process_order[1].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+			if (updateEvent & UpdateEvent::MidFrame)
+				process_order[2].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+			if (updateEvent & UpdateEvent::EndFrame)
+				process_order[3].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+
 			ordered = false;
 
 			return true;
 		}
 
 
-		// Get
 		bool isComponentOfTypeValid(ComponentType type){
 			return m_dataHolderProcessors.size() > type;
 		}
@@ -105,8 +121,10 @@ class EntitySystem : public System
 			return m_entities.size() > entity && m_entities[entity] == entity;
 		}
 		
+		// Get
+		
 		template<typename CompType>
-		CompType* getComponentOf(EntityHandle entity)
+		CompType* getComponentUnsafe(EntityHandle entity)
 		{
 			// Verify if component type is valid
 			ComponentType type = CompType::getComponentType();
@@ -121,6 +139,27 @@ class EntitySystem : public System
 			return (CompType*) dhp.getComponentRefFor(entity);
 		}
 
+		template<typename CompClass>
+		bool getComponentRef(EntityHandle entity, ComponentRef<CompClass>& ref)
+		{
+			// Verify if component type is valid
+			ComponentType type = CompClass::getComponentType();
+			if (!isComponentOfTypeValid(type)){
+				LOGTO(Warning) << "EntitySystem: Unregistered type: " << type << endlog;
+				return nullptr;
+			}
+
+			DHP& dhp = m_dataHolderProcessors[type];
+
+			if (dhp.hasEntity(entity))
+			{
+				ref.holder = dhp.processor;
+				ref.handle = dhp.getComponentFor(entity);
+				return true;
+			}
+
+			return false;
+		}
 
 		// Search
 		template<typename BaseSearchCompClass, typename... Having>
@@ -235,6 +274,7 @@ class EntitySystem : public System
 			}
 		}
 
+
 	private:
 		template<typename CompType>
 		ComponentHandle getComponentFromEntity(EntityHandle entity)
@@ -242,6 +282,8 @@ class EntitySystem : public System
 			ComponentType type = CompType::getComponentType();
 			return m_dataHolderProcessors[type].getComponentFor(entity);
 		}
+
+		void sortProcess();
 
 		// Data Holder Processor
 		struct DHP{
@@ -274,7 +316,7 @@ class EntitySystem : public System
 					return 0;
 				}
 
-				ComponentHandle component = processor->CreateComponent();
+				ComponentHandle component = processor->CreateComponent(entity);
 				if (component == 0)
 					return 0;
 
@@ -324,7 +366,7 @@ class EntitySystem : public System
 		std::vector< EntityHandle > m_freeEntities;
 
 		bool ordered;
-		std::vector< std::pair<int, ComponentProcessor*> > process_order;
+		std::vector< std::pair<int, ComponentProcessor*> > process_order[4];
 
 		ResourceSystem* m_resources;
 };

@@ -99,6 +99,9 @@
     <ClCompile Include="src\ResourceSystem.cpp">
       <Filter>ResourceSystem</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameLogicProcessor.cpp">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Color.h">
@@ -217,6 +220,15 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\SpriteManager.h">
       <Filter>ResourceSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\LogicScript.h">
+      <Filter>EntitySystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\GameLogicProcessor.h">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\ComponentsType.h">
+      <Filter>EntitySystem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
