@@ -27,6 +27,7 @@ namespace BitEngine{
 			std::vector<ComponentHandle>& getComponents() override;
 
 		private:
+			void calculateModelMatrix(Transform2DComponent* comp, glm::mat3& mat);
 			int calculateParentRootDistance(Transform2DComponent* t);
 
 			ComponentCollection<Transform2DComponent> components;

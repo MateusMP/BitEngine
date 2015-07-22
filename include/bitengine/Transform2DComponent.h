@@ -43,13 +43,12 @@ public:
 
 	const glm::mat3& getMatrix() const;
 
-	void setParent(Transform2DComponent* p);
-	Transform2DComponent* getParent() const;
+	void setParent(ComponentHandle p);
+	ComponentHandle getParent() const;
 
 
 private:
 	friend class Transform2DProcessor;
-	void recalculateMatrix();
 
 	glm::vec2 position;
 	glm::vec2 scale;
@@ -57,7 +56,7 @@ private:
 
 	char m_dirty;
 	int m_nParents;
-	Transform2DComponent* parent;
+	ComponentHandle parent;
 
 	glm::mat3 m_modelMatrix;
 };

@@ -45,6 +45,10 @@ class ComponentRef
 			// printf("Calling NORMAL operator\n");
 			return (CompClass*) holder->getComponent(handle);
 		}
+
+		ComponentHandle getComponentHandle(){
+			return handle;
+		}
 		
 
 	private:

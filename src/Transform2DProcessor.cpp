@@ -17,14 +17,30 @@ namespace BitEngine{
 		return true;
 	}
 
+	void Transform2DProcessor::calculateModelMatrix(Transform2DComponent* comp, glm::mat3& mat)
+	{
+		// T R S
+		float cosx = cos(comp->rotation);
+		float sinx = sin(comp->rotation);
+		mat = glm::transpose(glm::mat3(comp->scale.x*cosx, comp->scale.y*sinx, comp->position.x,
+										-comp->scale.x*sinx, comp->scale.y*cosx, comp->position.y,
+												 0.0f, 0.0f, 1.0f));
+
+		if (comp->parent)
+		{
+			Transform2DComponent* parentT = components.getComponent(comp->parent);
+			mat = parentT->getMatrix() * mat;
+		}
+	}
+
 	int Transform2DProcessor::calculateParentRootDistance(Transform2DComponent* t){
 		
-		if (t->parent == nullptr)
+		if (t->parent == 0)
 			return 0;
 
 		// TODO: Remove recursion
 		int k = 0;
-		t = t->parent;
+		t = components.getComponent(t->parent);
 		if (t->m_dirty){
 			int x = calculateParentRootDistance(t);
 			t->m_nParents = x;
@@ -65,7 +81,7 @@ namespace BitEngine{
 			// printf("Ordered T2C: %p parent: %p, nParents: %d\n", t, t->parent, t->m_nParents);
 
 			if (t->m_dirty & Transform2DComponent::DIRTY_DATA){
-				t->recalculateMatrix();
+				calculateModelMatrix(t, t->m_modelMatrix);
 			}
 		}
 

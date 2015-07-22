@@ -5,7 +5,7 @@
 namespace BitEngine{
 
 Transform2DComponent::Transform2DComponent()
-	: m_dirty(DIRTY_ALL), m_nParents(0), parent(nullptr), scale(1.0f, 1.0f), rotation(0.0f)
+	: m_dirty(DIRTY_ALL), m_nParents(0), parent(0), scale(1.0f, 1.0f), rotation(0.0f)
 {
 }
 
@@ -39,29 +39,15 @@ const glm::mat3& Transform2DComponent::getMatrix() const{
 	return m_modelMatrix;
 }
 
-Transform2DComponent* Transform2DComponent::getParent() const
+ComponentHandle Transform2DComponent::getParent() const
 { 
 	return parent; 
 }
 
-void Transform2DComponent::setParent(Transform2DComponent* p){
-	parent = p;
+void Transform2DComponent::setParent(ComponentHandle h){
+	parent = h;
 	m_dirty |= DIRTY_PARENT | DIRTY_DATA;
 }
-
-void Transform2DComponent::recalculateMatrix()
-{
-	// T R S
-	float cosx = cos(rotation);
-	float sinx = sin(rotation);
-	m_modelMatrix = glm::transpose( glm::mat3(scale.x*cosx, scale.y*sinx, position.x,
-								   -scale.x*sinx, scale.y*cosx, position.y,
-								    0.0f, 0.0f, 1.0f));
-	if (parent){
-		m_modelMatrix = m_modelMatrix * parent->getMatrix();
-	}
-}
-
 
 
 }

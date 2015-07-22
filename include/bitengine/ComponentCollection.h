@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "TypeDefinition.h"
-typedef uint32 ComponentHandle;
 
 namespace BitEngine{
 
