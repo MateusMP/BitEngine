@@ -24,7 +24,7 @@ namespace BitEngine{
 	}
 
 	void GameLogicProcessor::FrameStart(){
-		printf("GameLogicProcessor::FrameStart\n");
+		// LOGTO(Verbose) << "GameLogicProcessor::FrameStart\n" << endlog;
 
 		for (ComponentHandle hdl : m_notInitialized)
 		{
@@ -56,14 +56,16 @@ namespace BitEngine{
 	}
 
 	void GameLogicProcessor::FrameMiddle(){
-		printf("GameLogicProcessor::FrameMiddle\n");
+		// LOGTO(Verbose) << "GameLogicProcessor::FrameMiddle\n" << endlog;
+
 		for (GameLogic* l : m_onFrameMiddle){
 			l->FrameMiddle();
 		}
 	}
 
 	void GameLogicProcessor::FrameEnd(){
-		printf("GameLogicProcessor::FrameEnd\n");
+		// LOGTO(Verbose) << "GameLogicProcessor::FrameEnd\n" << endlog;
+
 		for (GameLogic* l : m_onFrameEnd){
 			l->FrameEnd();
 		}

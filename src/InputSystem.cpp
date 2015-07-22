@@ -37,7 +37,6 @@ void InputSystem::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int
 {
 	if (key == GLFW_KEY_UNKNOWN){
 		LOGTO(Warning) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods << endlog;
-
 	}
 
 	// LOGTO(Verbose) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods << endlog;
@@ -50,13 +49,35 @@ void InputSystem::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int
 	}
 }
 
+void InputSystem::GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods)
+{
+	auto it = inputReceivers.find(window);
+	if (it != inputReceivers.end()){
+		it->second.mouseInput(button, action, mods);
+	} else {
+		LOGTO(Error) << "Invalid window input!" << endlog;
+	}
+}
+
+void InputSystem::GlfwMousePosCallback(GLFWwindow* window, double x, double y){
+
+	auto it = inputReceivers.find(window);
+	if (it != inputReceivers.end()){
+		it->second.mouseInput(x, y);
+	}
+	else {
+		LOGTO(Error) << "Invalid window input!" << endlog;
+	}
+}
+
 void InputSystem::Message(const WindowCreated& wndcr)
 {
-    glfwSetKeyCallback(wndcr.window, GlfwKeyCallback);
-    printf("MENSAGEM RECEBIDA: WindowCreated\n");
-
 	// Creates instance for this window
 	inputReceivers[wndcr.window];
+
+    glfwSetKeyCallback(wndcr.window, GlfwKeyCallback);
+	glfwSetMouseButtonCallback(wndcr.window, GlfwMouseCallback);
+	glfwSetCursorPosCallback(wndcr.window, GlfwMousePosCallback);
 }
 
 InputReceiver::KeyMod InputSystem::isKeyPressed(int key)
@@ -77,12 +98,28 @@ InputReceiver::KeyMod InputSystem::keyReleased(int key)
 	return w->second.keyReleased(key);
 }
 
+double InputSystem::getMouseX() const
+{
+	auto w = inputReceivers.begin();
+	if (w == inputReceivers.end())
+		return -1;
+
+	return w->second.getMouseX();
+}
+
+double InputSystem::getMouseY() const
+{
+	auto w = inputReceivers.begin();
+	if (w == inputReceivers.end())
+		return -1;
+
+	return w->second.getMouseY();
+}
 
 void InputReceiver::keyboardInput(int key, int scancode, int action, int mods)
 {
 	KeyAction act = KeyAction::NONE;
 	switch (action){
-
 		case GLFW_REPEAT:
 			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyReleased[key] = KeyMod::FALSE;
@@ -104,10 +141,41 @@ void InputReceiver::keyboardInput(int key, int scancode, int action, int mods)
 		default:
 			LOGTO(Warning) << "Invalid key action: " << action << endlog;
 			return;
-		break;
 	}
 
 	Channel::Broadcast<KeyboardInput>(KeyboardInput(key, act, (KeyMod)mods));
+}
+
+void InputReceiver::mouseInput(int button, int action, int mods)
+{
+	MouseAction act = MouseAction::NONE;
+	switch (action){
+		case GLFW_PRESS:
+			m_mouseDown[button] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
+			m_mouseReleased[button] = KeyMod::FALSE;
+			act = MouseAction::PRESS;
+			break;
+
+		case GLFW_RELEASE:
+			m_mouseReleased[button] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
+			m_mouseDown[button] = KeyMod::FALSE;
+			act = MouseAction::RELEASE;
+			break;
+
+		default:
+			LOGTO(Warning) << "Invalid mouse action: " << action << endlog;
+			return;
+	}
+
+	Channel::Broadcast<MouseInput>(MouseInput(button, act, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
+}
+
+void InputReceiver::mouseInput(double x, double y)
+{
+	cursorInScreenX = x;
+	cursorInScreenY = y;
+
+	Channel::Broadcast<MouseInput>(MouseInput(cursorInScreenX, cursorInScreenY));
 }
 
 InputReceiver::KeyMod InputReceiver::isKeyPressed(int key)
@@ -126,6 +194,16 @@ InputReceiver::KeyMod InputReceiver::keyReleased(int key)
 		return k->second;
 
 	return KeyMod::FALSE;
+}
+
+double InputReceiver::getMouseX() const
+{
+	return cursorInScreenX;
+}
+
+double InputReceiver::getMouseY() const
+{
+	return cursorInScreenY;
 }
 
 }
