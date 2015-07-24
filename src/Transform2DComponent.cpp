@@ -25,6 +25,16 @@ void Transform2DComponent::setPosition(const glm::vec2& p)
 	m_dirty |= DIRTY_DATA;
 }
 
+const glm::vec2& Transform2DComponent::getScale() const
+{
+	return scale;
+}
+
+void Transform2DComponent::setScale(const glm::vec2& s)
+{
+	scale = s;
+}
+
 float Transform2DComponent::getRotation() const
 {
 	return rotation;

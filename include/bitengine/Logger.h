@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 #include <fstream>
 
 // TODO: thread safe with std::recursive_mutex

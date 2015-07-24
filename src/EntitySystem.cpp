@@ -33,7 +33,6 @@ namespace BitEngine{
 			ordered = true;
 		}
 		
-		
 		for (auto& it : process_order[1]){
 			it.second->FrameStart();
 		}

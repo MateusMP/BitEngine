@@ -78,9 +78,6 @@
     <ClCompile Include="src\Camera2DComponent.cpp">
       <Filter>EntitySystem\Components</Filter>
     </ClCompile>
-    <ClCompile Include="src\Sprite2DRenderer.cpp">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClCompile>
     <ClCompile Include="src\Transform2DComponent.cpp">
       <Filter>EntitySystem\Components</Filter>
     </ClCompile>
@@ -100,6 +97,12 @@
       <Filter>ResourceSystem</Filter>
     </ClCompile>
     <ClCompile Include="src\GameLogicProcessor.cpp">
+      <Filter>EntitySystem\Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextureManager.cpp">
+      <Filter>ResourceSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sprite2DProcessor.cpp">
       <Filter>EntitySystem\Processors</Filter>
     </ClCompile>
   </ItemGroup>
@@ -191,9 +194,6 @@
     <ClInclude Include="include\bitengine\Camera2DComponent.h">
       <Filter>EntitySystem\Components</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite2DRenderer.h">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\ComponentCollection.h">
       <Filter>EntitySystem</Filter>
     </ClInclude>
@@ -229,6 +229,12 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\ComponentsType.h">
       <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\TextureManager.h">
+      <Filter>ResourceSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite2DProcessor.h">
+      <Filter>EntitySystem\Processors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

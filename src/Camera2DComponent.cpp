@@ -49,9 +49,14 @@ namespace BitEngine{
 		m_active = a;
 	}
 
-	const glm::mat4& Camera2DComponent::getMatrix() const
-	{
+	const glm::mat4& Camera2DComponent::getMatrix() const {
 		return m_cameraMatrix;
+	}
+
+	glm::vec4 Camera2DComponent::getWorldViewArea() const{
+
+		return glm::vec4(m_lookAt.x - m_width / 2,	m_lookAt.y - m_height / 2,
+						 m_lookAt.x + m_width / 2,	m_lookAt.y + m_height / 2);
 	}
 
 }

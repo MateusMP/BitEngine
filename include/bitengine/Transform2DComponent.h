@@ -37,6 +37,10 @@ public:
 	}
 	void setPosition(const glm::vec2& p);
 
+	// Scale
+	const glm::vec2& getScale() const;
+	void setScale(const glm::vec2& s);
+
 	// Rotation
 	float getRotation() const;
 	void setRotation(float rad);

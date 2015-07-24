@@ -13,7 +13,7 @@
 #include "GameLogicProcessor.h"
 #include "Transform2DProcessor.h"
 #include "Camera2DProcessor.h"
-#include "Sprite2DRenderer.h"
+#include "Sprite2DProcessor.h"
 
 #include "EngineLoggers.h"
 
@@ -61,7 +61,7 @@ GameEngine::GameEngine()
 
 	ResourceSystem* rsrc = new ResourceSystem();
 
-	EntitySystem* es = new EntitySystem(rsrc);
+	EntitySystem* es = new EntitySystem(rsrc, nullptr);
 
     AddSystem(new InputSystem());
 	AddSystem(new CommandSystem());
@@ -72,7 +72,7 @@ GameEngine::GameEngine()
 	// Create entity system processors:
 	Transform2DProcessor *t2p = new Transform2DProcessor();
 	Camera2DProcessor *c2p = new Camera2DProcessor(es, t2p);
-	Sprite2DRenderer *spr2d = new Sprite2DRenderer(es, t2p, c2p);
+	Sprite2DProcessor *spr2d = new Sprite2DProcessor(es, t2p, c2p);
 	GameLogicProcessor *glp = new GameLogicProcessor(es);
 
 	es->RegisterComponentHolderProcessor<GameLogicComponent>(glp, PRIORITY_ESP_GAMELOGIC, UpdateEvent::ALL);

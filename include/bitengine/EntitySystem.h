@@ -15,6 +15,8 @@
 namespace BitEngine{
 
 enum UpdateEvent : uint16{
+	NEVER = 0x0,
+
 	BeginFrame = 0x01,
 	MidFrame = 0x02,
 	EndFrame = 0x04,
@@ -86,9 +88,14 @@ class EntitySystem : public System
 				return false;
 			}
 
+			// Save on DHP vcector
 			m_dataHolderProcessors[type] = DHP(cs, type);
 
+			// Save on "All-Processors" vector
+			// This will be used to delete the processor later
 			process_order[0].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
+
+			// Save on specific process event vectors
 			if (updateEvent & UpdateEvent::BeginFrame)
 				process_order[1].emplace_back(std::pair<int, ComponentProcessor*>(priority, cs));
 			if (updateEvent & UpdateEvent::MidFrame)
@@ -116,7 +123,6 @@ class EntitySystem : public System
 			return true;
 		}
 
-
 		bool isComponentOfTypeValid(ComponentType type){
 			return m_dataHolderProcessors.size() > type;
 		}
@@ -127,6 +133,12 @@ class EntitySystem : public System
 		
 		// Get
 		
+		/**
+		 * Component adress may change during execution
+		 * Use the ComponentHandle for long living references.
+		 * See getComponentRef
+		 * @param entity Entity to get the component from
+		 */
 		template<typename CompType>
 		CompType* getComponentUnsafe(EntityHandle entity)
 		{
@@ -143,6 +155,12 @@ class EntitySystem : public System
 			return (CompType*) dhp.getComponentRefFor(entity);
 		}
 
+		/**
+		 * Get a ComponentRef for given entity
+		 * 
+		 * @param entity Entity to get the component from
+		 * @return Returns true when a component reference was found (and returned in ref).
+		 */
 		template<typename CompClass>
 		bool getComponentRef(EntityHandle entity, ComponentRef<CompClass>& ref)
 		{
@@ -265,6 +283,12 @@ class EntitySystem : public System
 			return newHandle;
 		}
 
+		/**
+		 * Destroy the entity
+		 * All components inside this entity will be destroyed too
+		 * 
+		 * @param entity Entity to be destroyed
+		 */
 		void DestroyEntity(EntityHandle entity)
 		{
 			if (!hasEntity(entity))

@@ -11,11 +11,11 @@
 
 namespace BitEngine{
 
-class Sprite2DRenderer : public ComponentHolderProcessor
+class Sprite2DProcessor : public ComponentHolderProcessor
 {
 	public:
-		Sprite2DRenderer(EntitySystem *sys, Transform2DProcessor* t2p, Camera2DProcessor* camera2Dprocessor);
-		~Sprite2DRenderer();
+		Sprite2DProcessor(EntitySystem *sys, Transform2DProcessor* t2p, Camera2DProcessor* camera2Dprocessor);
+		~Sprite2DProcessor();
 		
 		Sprite2DShader* getShader();
 				
@@ -91,7 +91,13 @@ class Sprite2DRenderer : public ComponentHolderProcessor
 		};
 
 	private:
-		bool insideScreen(const Transform2DComponent* t, const Sprite2DComponent* spr);
+		/*
+		* @param screen Screen expected to be a 2D box with bottom left coordinates to top right coordinates
+		* @param t Transform2D to be used on calculation
+		* @param s Sprite2D to be used on calculation
+		*/
+		bool insideScreen(const glm::vec4& screen, const Transform2DComponent* t, const Sprite2DComponent* s);
+
 		void createRenderers();
 
 	private:

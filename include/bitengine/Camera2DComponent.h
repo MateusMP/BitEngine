@@ -34,6 +34,12 @@ namespace BitEngine {
 			float getZoom() const;
 
 			void setActive(bool a);
+
+			/**
+			 * 
+			 * @return vec4( bottomLeftX, bottomLeftY, topRightX, topRightY )
+			 */
+			glm::vec4 getWorldViewArea() const;
 			
 		private:
 			int m_width;
