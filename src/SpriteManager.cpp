@@ -45,7 +45,18 @@ namespace BitEngine{
 		}
 	}
 
-	SpriteHandle SpriteManager::getSpriteHandle(const std::string& name)
+	bool SpriteManager::replaceSprite(SpriteHandle hdl, const Sprite& spr)
+	{
+		if (m_sprites.size() <= hdl){
+			LOGTO(Warning) << "SpriteManager: replaceSprite Invalid SpriteHandle: " <<  hdl << endlog;
+			return false;
+		}
+
+		m_sprites[hdl] = spr;
+		return true;
+	}
+
+	SpriteHandle SpriteManager::getSpriteHandle(const std::string& name) const
 	{
 		auto it = m_sprLookUp.find(name);
 		if (it != m_sprLookUp.end())
@@ -54,7 +65,7 @@ namespace BitEngine{
 		return 0;
 	}
 
-	const Sprite* SpriteManager::getSprite(SpriteHandle hdl)
+	const Sprite* SpriteManager::getSprite(SpriteHandle hdl) const
 	{
 #ifdef _DEBUG
 		if (m_sprites.size() <= hdl){

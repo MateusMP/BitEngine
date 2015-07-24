@@ -14,78 +14,91 @@ class Sprite{
 
     public:
 		Sprite()
-			: textureID(0), width(16), height(16), 
-				offsetX(0), offsetY(0), uvrect(0.0f, 0.0f, 1.0f, 1.0f), transparent(false)
+			: m_textureID(0), m_width(16), m_height(16),
+			m_offsetX(0), m_offsetY(0), m_uvrect(0.0f, 0.0f, 1.0f, 1.0f), m_transparent(false)
 		{
 			calculateMaxRadius();
 		}
 
 		Sprite(uint32 texture, int w, int h, float oX, float oY, const glm::vec4& _uvrect, bool _transparent=false)
-			: textureID(texture), width(w), height(h), offsetX(oX), offsetY(oY), uvrect(_uvrect), transparent(_transparent)
+			: m_textureID(texture), m_width(w), m_height(h), m_offsetX(oX), m_offsetY(oY), m_uvrect(_uvrect), m_transparent(_transparent)
         {
 			calculateMaxRadius();
 		}
 
 		float getMaxRadius() const {
-			return maxRadius;
+			return m_maxRadius;
 		}
 
 		uint32 getTexture() const {
-			return textureID;
+			return m_textureID;
 		}
 
 		int getWidth() const {
-			return width;
+			return m_width;
 		}
 
 		int getHeight() const {
-			return height;
+			return m_height;
 		}
 
 		float getOffsetX() const {
-			return offsetX;
+			return m_offsetX;
 		}
 
 		float getOffsetY() const {
-			return offsetY;
+			return m_offsetY;
 		}
 
 		bool isTransparent() const {
-			return transparent;
+			return m_transparent;
 		}
 
 		const glm::vec4& getUV() const {
-			return uvrect;
+			return m_uvrect;
+		}
+
+		const Sprite& operator =(const Sprite& spr) {
+			m_textureID = spr.m_textureID;
+			m_width = spr.m_width;
+			m_height = spr.m_height;
+			m_offsetX = spr.m_offsetX;
+			m_offsetY = spr.m_offsetY;
+			m_uvrect = spr.m_uvrect;
+			m_transparent = spr.m_transparent;
+
+			calculateMaxRadius();
+			return *this;
 		}
 
 	private:
 		void calculateMaxRadius()
 		{
-			float maxW = static_cast<float>(width);
-			if (offsetX <= 0){
-				maxW *= 1 - offsetX;
+			float maxW = static_cast<float>(m_width);
+			if (m_offsetX <= 0){
+				maxW *= 1 - m_offsetX;
 			}
 			else {
-				maxW *= std::max(1.0f - offsetX, offsetX);
+				maxW *= std::max(1.0f - m_offsetX, m_offsetX);
 			}
 
-			float maxH = static_cast<float>(height);
-			if (offsetY <= 0){
-				maxH *= 1 - offsetY;
+			float maxH = static_cast<float>(m_height);
+			if (m_offsetY <= 0){
+				maxH *= 1 - m_offsetY;
 			}
 			else {
-				maxH *= std::max(1.0f - offsetY, offsetY);
+				maxH *= std::max(1.0f - m_offsetY, m_offsetY);
 			}
 
 			float max = std::max(maxW, maxH);
-			maxRadius = std::sqrt(maxW*maxW + maxH*maxH);
+			m_maxRadius = std::sqrt(maxW*maxW + maxH*maxH);
 		}
 
-        uint32 textureID;
-		int width;
-		int height;
-		float offsetX;
-		float offsetY;
+        uint32 m_textureID;
+		int m_width;
+		int m_height;
+		float m_offsetX;
+		float m_offsetY;
 
         /**
             xw--zw (1,1)
@@ -93,10 +106,10 @@ class Sprite{
             xy--zy
         (0,0)
         */
-        glm::vec4 uvrect;
-		bool transparent;
+        glm::vec4 m_uvrect;
+		bool m_transparent;
 
-		float maxRadius;
+		float m_maxRadius;
 };
 
 }

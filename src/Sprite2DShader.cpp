@@ -45,7 +45,7 @@ static const char* sprite2DshaderVertex_transform = GLSL_(150,
 			vec3(0.0f, 1.0f, 1.0f),																	 
 			vec3(1.0f, 0.0f, 1.0f),
 			vec3(1.0f, 1.0f, 1.0f)																	 
-			);																						 
+			);																 
 
 	void main()																						 
 	{																								 
@@ -87,8 +87,8 @@ namespace BitEngine{
 	}
 
 	int Sprite2DShader::init(){
-		// return CompileShadersFiles("Shaders/vertex.glsl", "Shaders/fragment.glsl");
-		return CompileShadersSources(sprite2DshaderVertex_transform, sprite2DshaderFragment);
+		return BuildProgramFromMemory(GL_VERTEX_SHADER, sprite2DshaderVertex_transform,
+									  GL_FRAGMENT_SHADER, sprite2DshaderFragment);
 	}
 
 	void Sprite2DShader::LoadViewMatrix(const glm::mat4& matrix)

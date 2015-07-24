@@ -37,12 +37,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>include\bitengine;$(STB_HOME)\;$(GLFW_HOME)\include;$(GLM_HOME)\include;$(GLEW_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>include\bitengine;$(STB_HOME)\;$(GLFW_HOME)\include;$(GLM_HOME)\include;$(GLEW_HOME)\include;$(ASSIMP_HOME)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>include\bitengine;$(STB_HOME)\;$(GLFW_HOME)\include;$(GLM_HOME)\include;$(GLEW_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>include\bitengine;$(STB_HOME)\;$(GLFW_HOME)\include;$(GLM_HOME)\include;$(GLEW_HOME)\include;$(ASSIMP_HOME)\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -87,12 +89,13 @@
     <ClCompile Include="src\SceneGraph.cpp" />
     <ClCompile Include="src\SceneNode.cpp" />
     <ClCompile Include="src\ShaderProgram.cpp" />
-    <ClCompile Include="src\Sprite2DRenderer.cpp" />
+    <ClCompile Include="src\Sprite2DProcessor.cpp" />
     <ClCompile Include="src\Sprite2DShader.cpp" />
     <ClCompile Include="src\SpriteManager.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\Task.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\TextureManager.cpp" />
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\Transform2DComponent.cpp" />
     <ClCompile Include="src\Transform2DProcessor.cpp" />
@@ -127,13 +130,14 @@
     <ClInclude Include="include\bitengine\ShaderProgram.h" />
     <ClInclude Include="include\bitengine\Sprite.h" />
     <ClInclude Include="include\bitengine\Sprite2DComponent.h" />
-    <ClInclude Include="include\bitengine\Sprite2DRenderer.h" />
+    <ClInclude Include="include\bitengine\Sprite2DProcessor.h" />
     <ClInclude Include="include\bitengine\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\SpriteManager.h" />
     <ClInclude Include="include\bitengine\System.h" />
     <ClInclude Include="include\bitengine\Task.h" />
     <ClInclude Include="include\bitengine\TaskManager.h" />
     <ClInclude Include="include\bitengine\Texture.h" />
+    <ClInclude Include="include\bitengine\TextureManager.h" />
     <ClInclude Include="include\bitengine\Transform.h" />
     <ClInclude Include="include\bitengine\Transform2DComponent.h" />
     <ClInclude Include="include\bitengine\Transform2DProcessor.h" />

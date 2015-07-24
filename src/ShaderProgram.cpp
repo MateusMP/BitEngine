@@ -10,7 +10,7 @@ namespace BitEngine{
 
 
 ShaderProgram::ShaderProgram()
-    : m_programID(0), m_vertexID(0), m_fragmentID(0)
+    : m_programID(0)
 {
 }
 
@@ -39,59 +39,6 @@ void ShaderProgram::FreeShaders()
 	}
 }
 
-int ShaderProgram::CompileShadersFiles(const std::string& vertexFile, const std::string& fragmentFile)
-{
-	FreeShaders();
-
-	std::string vertexSource;
-	std::string fragmentSource;
-	if (retrieveSourceFromFile(vertexFile, vertexSource) != NO_ERROR){
-		return FAILED_TO_READ_VERTEX;
-	}
-
-	if (retrieveSourceFromFile(fragmentFile, fragmentSource) != NO_ERROR){
-		return FAILED_TO_READ_FRAGMENT;
-	}
-
-	const char* vertex = vertexSource.c_str();
-	const char* fragment = fragmentSource.c_str();
-
-	return CompileShadersSources(vertex, fragment);
-}
-
-int ShaderProgram::CompileShadersSources(const char* vertexSource, const char* fragmentSource)
-{
-	FreeShaders();
-
-	char* errorlog;
-	int error = compile(m_vertexID, GL_VERTEX_SHADER, vertexSource, &errorlog);
-	if (error != NO_ERROR){
-		LOGTO(Error) << "Shader: Vertex shader compile Error!\n " << errorlog << endlog;
-		delete[] errorlog;
-		return FAILED_TO_COMPILE_VERTEX;
-	}
-
-	error = compile(m_fragmentID, GL_FRAGMENT_SHADER, fragmentSource, &errorlog);
-	if (error != NO_ERROR){
-		LOGTO(Error) << "Shader: Fragment shader compile Error!\n" << errorlog << endlog;
-		delete[] errorlog;
-		return FAILED_TO_COMPILE_FRAGMENT;
-	}
-
-	// Vertex and fragment shaders are successfully compiled.
-	// Now time to link them together into a program.
-	// Get a program object.
-	m_programID = glCreateProgram();
-
-	BindAttributes();
-
-	linkShaders();
-
-	RegisterUniforms();
-
-	return NO_ERROR;
-}
-
 void ShaderProgram::BindAttribute(int attrib, const std::string& name)
 {
     glBindAttribLocation(m_programID, attrib, name.c_str() );
@@ -102,48 +49,85 @@ int32 ShaderProgram::getUniformLocation(const std::string& name) const
 	return glGetUniformLocation(m_programID, name.c_str());
 }
 
-void ShaderProgram::linkShaders()
+int ShaderProgram::BuildFinalProgram(std::vector<GLuint>& shaders){
+	m_programID = glCreateProgram();
+
+	BindAttributes();
+
+	if (linkShaders(shaders) == NO_ERROR){
+		RegisterUniforms();
+		return NO_ERROR;
+	}
+	else {
+		return FAILED_TO_LINK;
+	}
+}
+
+int ShaderProgram::CompileFromMemory(std::vector<GLuint>& shaders, GLint type, const char* source)
 {
-    //Attach our shaders to our program
-    glAttachShader(m_programID, m_vertexID);
-    glAttachShader(m_programID, m_fragmentID);
+	GLuint shaderHDL;
+	std::string errorlog;
 
-    //Link our program
-    glLinkProgram(m_programID);
+	int error = compile(shaderHDL, type, source, errorlog);
+	if (error != NO_ERROR){
+		LOGTO(Error) << "Shader: Shader <m> compile Error!\n " << errorlog << endlog;
+		return FAILED_TO_COMPILE;
+	}
+	else {
+		shaders.push_back(shaderHDL);
+	}
 
-    // Note the different functions here: glGetProgram* instead of glGetShader*.
-    GLint isLinked = 0;
-    glGetProgramiv(m_programID, GL_LINK_STATUS, (int *)&isLinked);
-    if(isLinked == GL_FALSE)
-    {
-        GLint maxLength = 0;
-        glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &maxLength);
+	return NO_ERROR;
+}
 
-        // The maxLength includes the NULL character
-        std::vector<GLchar> infoLog(maxLength);
-        glGetProgramInfoLog(m_programID, maxLength, &maxLength, &infoLog[0]);
+int ShaderProgram::linkShaders(std::vector<GLuint>& shaders)
+{
+	//Attach our shaders to our program
+	for (size_t i = 0; i < shaders.size(); ++i){
+		glAttachShader(m_programID, shaders[i]);
+	}
 
-        // We don't need the program anymore.
-        glDeleteProgram(m_programID);
+	//Link our program
+	glLinkProgram(m_programID);
 
-        // Don't leak shaders
-        glDeleteShader(m_vertexID);
-        glDeleteShader(m_fragmentID);
+	// Note the different functions here: glGetProgram* instead of glGetShader*.
+	GLint isLinked = 0;
+	glGetProgramiv(m_programID, GL_LINK_STATUS, (int *)&isLinked);
+	if (isLinked == GL_FALSE)
+	{
+		GLint maxLength = 0;
+		glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &maxLength);
 
-        // Use the infoLog as you see fit.
+		// The maxLength includes the NULL character
+		std::vector<GLchar> infoLog(maxLength);
+		glGetProgramInfoLog(m_programID, maxLength, &maxLength, &infoLog[0]);
+
+		// We don't need the program anymore.
+		glDeleteProgram(m_programID);
+
+		// Don't leak shaders
+		for (size_t i = 0; i < shaders.size(); ++i){
+			glDeleteShader(shaders[i]);
+		}
+
+		// Use the infoLog as you see fit.
 		LOGTO(Error) << "Shader: Linking error: " << &infoLog[0] << endlog;
 
-        // In this simple program, we'll just leave
-        return;
-    }
+		// In this simple program, we'll just leave
+		return FAILED_TO_LINK;
+	}
 
-    // Always detach shaders after a successful link.
-    glDetachShader(m_programID, m_vertexID);
-    glDetachShader(m_programID, m_fragmentID);
+	// Always detach shaders after a successful link.
+	for (size_t i = 0; i < shaders.size(); ++i){
+		glDetachShader(m_programID, shaders[i]);
+	}
 
-    // Free shaders ids
-    glDeleteShader(m_vertexID);
-    glDeleteShader(m_fragmentID);
+	// Free shaders ids
+	for (size_t i = 0; i < shaders.size(); ++i){
+		glDeleteShader(shaders[i]);
+	}
+
+	return NO_ERROR;
 }
 
 int ShaderProgram::retrieveSourceFromFile(const std::string& file, std::string& out) const
@@ -152,7 +136,7 @@ int ShaderProgram::retrieveSourceFromFile(const std::string& file, std::string& 
 
 	std::ifstream fdata(file);
 	if (fdata.fail()){
-		return -1;
+		return FAILED_TO_READ;
 	}
 
 	std::string linedata;
@@ -167,12 +151,8 @@ int ShaderProgram::retrieveSourceFromFile(const std::string& file, std::string& 
 	return NO_ERROR;
 }
 
-int ShaderProgram::compile(GLuint &hdl, GLenum type, const char* data, char** errorLog)
+int ShaderProgram::compile(GLuint &hdl, GLenum type, const char* data, std::string& errorLog)
 {
-	if (errorLog != nullptr){
-		*errorLog = nullptr;
-	}
-
     GLuint shdhdl = glCreateShader(type);
     if (shdhdl == 0){
 		return FAILED_TO_CREATE_SHADER;
@@ -186,14 +166,13 @@ int ShaderProgram::compile(GLuint &hdl, GLenum type, const char* data, char** er
 
 	if (status == GL_FALSE){
 
-		if (errorLog != nullptr){
-			GLint maxlogsize;
-			glGetShaderiv(shdhdl, GL_INFO_LOG_LENGTH, &maxlogsize);
+		GLint maxlogsize;
+		glGetShaderiv(shdhdl, GL_INFO_LOG_LENGTH, &maxlogsize);
 
-			*errorLog = new char[maxlogsize + 1];
+		errorLog.clear();
+		errorLog.resize(maxlogsize + 1);
 
-			glGetShaderInfoLog(shdhdl, maxlogsize, &maxlogsize, *errorLog);
-		}
+		glGetShaderInfoLog(shdhdl, maxlogsize, &maxlogsize, (GLchar*)errorLog.data());
 
 		// Free shader handle
 		glDeleteShader(shdhdl);

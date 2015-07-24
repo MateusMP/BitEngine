@@ -30,14 +30,18 @@ namespace BitEngine{
 class ShaderProgram
 {
     public:
-
         ShaderProgram();
         virtual ~ShaderProgram();
 
-		int CompileShadersFiles(const std::string& vertexFile, const std::string& fragmentFile);
-		int CompileShadersSources(const char* vertexSource, const char* fragmentSource);
-
+		/**
+		 * Binds the shader
+		 * Calls OnBind();
+		 */
         void Bind();
+
+		/**
+		 * Unbinds the shader
+		 */
         void Unbind();
 
 		/// VIRTUAL
@@ -78,34 +82,91 @@ class ShaderProgram
 		/// \param textureID GL flag to indicate texture unit (GL_TEXTURE0 ... )
 		void connectTexture(int location, int unitID);
 
+		/**
+		* Build and link a set of sources from file to create a final Shader Program
+		* @return Returns NO_ERROR in case of success
+		*/
+		template <typename ...Args>
+		int BuildProgramFromFile(GLint type, const std::string& file, Args... args){
+			std::vector<GLuint> shaders;
+
+			if (CompileFromFile(shaders, type, file, args...) == NO_ERROR){
+				return BuildFinalProgram(shaders);
+			}
+
+			return FAILED_TO_COMPILE;
+		}
+
+		/**
+		 * Build and link a set of sources from memory to create a final Shader Program
+		 * @return Returns NO_ERROR in case of success
+		 */
+		template <typename ...Args>
+		int BuildProgramFromMemory(GLint type, const char* source, Args... args){
+			std::vector<GLuint> shaders;
+
+			if (CompileFromMemory(shaders, type, source, args...) == NO_ERROR){
+				return BuildFinalProgram(shaders);
+			}
+
+			return FAILED_TO_COMPILE;
+		}
+
 	protected:
         GLuint m_programID;
-        GLuint m_vertexID;
-        GLuint m_fragmentID;
 
 		// Functions
 
-		/// \param errorLog, pointer to char* where to store compilation errors
-		///			Should be freed with delete[] after use.
-		int compile(GLuint &hdl, GLenum type, const char* data, char** errorLog);
+		/**
+		 * @param errorLog If any error is encountered during shader compilation
+		 *		A log will be generated inside errorLog
+		 */
+		int compile(GLuint &hdl, GLenum type, const char* data, std::string& errorLog);
 		int retrieveSourceFromFile(const std::string& file, std::string& out) const;
 
 		void linkShaders();
+		int linkShaders(std::vector<GLuint>& shaders);
 
 	private:
+		template <typename ...Args>
+		int CompileFromFile(std::vector<GLuint>& shaders){ return NO_ERROR; }
+		template <typename ...Args>
+		int CompileFromMemory(std::vector<GLuint>& shaders){ return NO_ERROR; }
+
+		int BuildFinalProgram(std::vector<GLuint>& shaders);
+
+		template <typename ...Args>
+		int CompileFromFile(std::vector<GLuint>& shaders, GLint type, const std::string& file, Args... args)
+		{
+			LOGTO(Verbose) << "Compiling shader (type: " << type << ") file " << file << endlog;
+			std::string source;
+			if (retrieveSourceFromFile(file, source) != NO_ERROR){
+				LOGTO(Error) << "Failed to read shader file: " << file << endlog;
+				return FAILED_TO_READ;
+			}
+
+			if (CompileFromMemory(shaders, type, source.data()) != NO_ERROR){
+				return FAILED_TO_COMPILE;
+			}
+
+			return CompileFromFile(shaders, args...);
+		}
+
+		template <typename ...Args>
+		int CompileFromMemory(std::vector<GLuint>& shaders, GLint type, const char* source, Args... args)
+		{
+			if (CompileFromMemory(shaders, type, source) != NO_ERROR){
+				return FAILED_TO_COMPILE;
+			}
+
+			return CompileFromMemory(shaders, args...);
+		}
+
+		int CompileFromMemory(std::vector<GLuint>& shaders, GLint type, const char* source);
+
 		/// Destroy shaders
 		void FreeShaders();
 
-};
-
-class IShaderRenderer
-{
-	public:
-		virtual void begin() = 0;
-		virtual void end() = 0;
-		virtual void Render() = 0;
-
-		virtual ShaderProgram* getShader() = 0;
 };
 
 }
