@@ -42,8 +42,8 @@ static const char* sprite2DshaderVertex_transform = GLSL_(150,
 																									 
 	const vec3 vertex_pos[4] = vec3[4](																 
 			vec3(0.0f, 0.0f, 1.0f),
-			vec3(0.0f, 1.0f, 1.0f),																	 
 			vec3(1.0f, 0.0f, 1.0f),
+			vec3(0.0f, 1.0f, 1.0f),																	 
 			vec3(1.0f, 1.0f, 1.0f)																	 
 			);																 
 

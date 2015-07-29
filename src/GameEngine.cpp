@@ -1,20 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Graphics.h"
-
 #include "GameEngine.h"
-#include "VideoSystem.h"
-#include "InputSystem.h"
-#include "EntitySystem.h"
-#include "CommandSystem.h"
-
-// Entity System Processors
-#include "GameLogicProcessor.h"
-#include "Transform2DProcessor.h"
-#include "Camera2DProcessor.h"
-#include "Sprite2DProcessor.h"
-
 #include "EngineLoggers.h"
 
 #ifdef _DEBUG
@@ -42,11 +29,6 @@
 	
 #endif
 
-#define PRIORITY_ESP_GAMELOGIC		0
-#define PRIORITY_ESP_TRANSFORM2D	1
-#define PRIORITY_ESP_CAMERA2D		5
-#define PRIORITY_ESP_SPR2DRENDER	10
-
 
 namespace BitEngine{
 
@@ -58,27 +40,6 @@ void GameEngine::GLFW_ErrorCallback(int error, const char* description)
 GameEngine::GameEngine()
 {
     Channel::AddListener<WindowClose>(this);
-
-	ResourceSystem* rsrc = new ResourceSystem();
-
-	EntitySystem* es = new EntitySystem(rsrc, nullptr);
-
-    AddSystem(new InputSystem());
-	AddSystem(new CommandSystem());
-    AddSystem(new VideoSystem());
-	AddSystem(rsrc);
-	AddSystem( es );
-
-	// Create entity system processors:
-	Transform2DProcessor *t2p = new Transform2DProcessor();
-	Camera2DProcessor *c2p = new Camera2DProcessor(es, t2p);
-	Sprite2DProcessor *spr2d = new Sprite2DProcessor(es, t2p, c2p);
-	GameLogicProcessor *glp = new GameLogicProcessor(es);
-
-	es->RegisterComponentHolderProcessor<GameLogicComponent>(glp, PRIORITY_ESP_GAMELOGIC, UpdateEvent::ALL);
-	es->RegisterComponentHolderProcessor<Transform2DComponent>(t2p, PRIORITY_ESP_TRANSFORM2D, UpdateEvent::EndFrame);
-	es->RegisterComponentHolderProcessor<Camera2DComponent>(c2p, PRIORITY_ESP_CAMERA2D, UpdateEvent::EndFrame);
-	es->RegisterComponentHolderProcessor<Sprite2DComponent>(spr2d, PRIORITY_ESP_SPR2DRENDER, UpdateEvent::EndFrame);
 }
 
 GameEngine::~GameEngine()
@@ -114,7 +75,6 @@ bool GameEngine::InitSystems()
     {
         if (!s->Init())
         {
-
             LOG() << "System " << s->getName().c_str() << " failed to initialize!\n" << endlog;
             return false;
         }
@@ -139,6 +99,8 @@ void GameEngine::ShutdownSystems()
 
 bool GameEngine::Run()
 {
+	CreateSystems();
+
     LOG() << "GameEngine::Run" << endlog;
     glfwSetErrorCallback(GLFW_ErrorCallback);
 

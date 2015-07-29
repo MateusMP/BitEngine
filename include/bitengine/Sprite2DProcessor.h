@@ -11,14 +11,91 @@
 
 namespace BitEngine{
 
+class Sprite2DRenderer{
+public:
+	Sprite2DRenderer(const EntitySystem* _es);
+
+	bool Init();
+	
+	Sprite2DShader* getShader();
+
+	void clearRenderer();
+
+	void addToRender(const Sprite2DComponent* sprite, const Transform2DComponent* transform);
+
+	void Render();
+
+private:
+	class BatchRenderer
+	{
+	public:
+		BatchRenderer(SpriteManager* sprMng, Sprite2DComponent::SORT_TYPE s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS]);
+		~BatchRenderer();
+
+		void begin();
+
+		void addComponent(const Transform2DComponent *t, const Sprite2DComponent* c);
+
+		void render();
+
+	public:
+		struct Batch{
+			Batch(uint32 _offset, int _nI, uint32 _texture, bool tr)
+				: offset(_offset), nItems(_nI), texture(_texture), transparent(tr)
+			{}
+
+			uint32 offset;
+			int nItems;
+			uint32 texture;
+			bool transparent;
+		};
+
+		struct RenderingComponent{
+			RenderingComponent(const Transform2DComponent* t, const Sprite2DComponent* s)
+				: transform(t), spr(s) {}
+			const Transform2DComponent* transform;
+			const Sprite2DComponent* spr;
+		};
+
+	private:
+
+		void sortComponents();
+		void createRenderers();
+		void renderBatches();
+
+		static bool compare_DepthTexture(const RenderingComponent& a, const RenderingComponent& b);
+
+	private:
+		SpriteManager* m_spriteManager;
+
+		Sprite2DComponent::SORT_TYPE m_sorting;
+
+		GLuint m_vao;
+		GLuint m_vbo[Sprite2DShader::NUM_VBOS];
+
+		std::vector<RenderingComponent> m_components; // Components used by this batch - sorted
+
+		// Batches
+		std::vector<Batch> batches;
+	};
+
+private:
+	void createRenderers();
+
+	std::vector<BatchRenderer*> m_batchRenderers; // Sorted by draw order
+
+	Sprite2DShader *shader;
+	const EntitySystem *m_es;
+
+	SpriteManager* m_spriteManager;
+};
+
 class Sprite2DProcessor : public ComponentHolderProcessor
 {
 	public:
-		Sprite2DProcessor(EntitySystem *sys, Transform2DProcessor* t2p, Camera2DProcessor* camera2Dprocessor);
+		Sprite2DProcessor();
 		~Sprite2DProcessor();
 		
-		Sprite2DShader* getShader();
-				
 	private:
 		bool Init() override;
 		void FrameStart() override {};
@@ -30,65 +107,7 @@ class Sprite2DProcessor : public ComponentHolderProcessor
 
 		Component* getComponent(ComponentHandle hdl) override;
 
-		std::vector<ComponentHandle>& getComponents() override;
-
-	private:
-		class BatchRenderer
-		{
-			public:
-				BatchRenderer(SpriteManager* sprMng, Sprite2DComponent::SORT_TYPE s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS]);
-				~BatchRenderer();
-
-				void begin();
-
-				void addComponent(Transform2DComponent *t, Sprite2DComponent* c);
-			
-				void render();
-
-			public:
-				struct Batch{
-					Batch(uint32 _offset, int _nI, uint32 _texture, bool tr)
-						: offset(_offset), nItems(_nI), texture(_texture), transparent(tr)
-					{}
-
-					uint32 offset;
-					int nItems;
-					uint32 texture;
-					bool transparent;
-				};
-
-				struct RenderingComponent{
-					RenderingComponent(const Transform2DComponent* t, const Sprite2DComponent* s)
-						: transform(t), spr(s) {}
-					const Transform2DComponent* transform;
-					const Sprite2DComponent* spr;
-				};
-
-			private:
-
-				void sortComponents();
-				void createRenderers();
-				void renderBatches();
-
-				static bool compare_Texture(const RenderingComponent& a, const RenderingComponent& b);
-				static bool compare_Depth(const RenderingComponent& a, const RenderingComponent& b);
-				static bool compare_InvDepth(const RenderingComponent& a, const RenderingComponent& b);
-				static bool compare_TextureDepth(const RenderingComponent& a, const RenderingComponent& b);
-				static bool compare_DepthTexture(const RenderingComponent& a, const RenderingComponent& b);
-
-			private:
-				SpriteManager* m_spriteManager;
-
-				Sprite2DComponent::SORT_TYPE m_sorting;
-
-				GLuint m_vao;
-				GLuint m_vbo[Sprite2DShader::NUM_VBOS];
-
-				std::vector<RenderingComponent> m_components; // Components used by this batch - sorted
-				
-				// Batches
-				std::vector<Batch> batches;
-		};
+		const std::vector<ComponentHandle>& getComponents() const override;
 
 	private:
 		/*
@@ -98,21 +117,7 @@ class Sprite2DProcessor : public ComponentHolderProcessor
 		*/
 		bool insideScreen(const glm::vec4& screen, const Transform2DComponent* t, const Sprite2DComponent* s);
 
-		void createRenderers();
-
 	private:
-		EntitySystem *es;
-		Transform2DProcessor* transform2Dprocessor;
-		Camera2DProcessor* camera2Dprocessor;
-
-		SpriteManager* m_spriteManager;
-
-		std::vector<BatchRenderer*> m_batchRenderers; // Sorted by draw order
-
-		GLenum glMODE;
-
-		Sprite2DShader *shader;
-
 		ComponentCollection<Sprite2DComponent> components;
 };
 

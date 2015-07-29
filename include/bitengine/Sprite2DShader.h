@@ -41,7 +41,7 @@ namespace BitEngine
 
 			// Overrides
 
-			GLuint CreateVAO(GLuint* outVBO) override;
+			GLuint CreateVAO(GLuint* outVBO);
 
 		protected:
 			void BindAttributes() override;

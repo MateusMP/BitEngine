@@ -78,13 +78,16 @@
   <ItemGroup>
     <ClCompile Include="src\Camera2DComponent.cpp" />
     <ClCompile Include="src\Camera2DProcessor.cpp" />
+    <ClCompile Include="src\Camera3DProcessor.cpp" />
     <ClCompile Include="src\CommandSystem.cpp" />
     <ClCompile Include="src\EntitySystem.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\GameLogicProcessor.cpp" />
     <ClCompile Include="src\glSystem.cpp" />
     <ClCompile Include="src\InputSystem.cpp" />
+    <ClCompile Include="src\ModelManager.cpp" />
     <ClCompile Include="src\MessageChannel.cpp" />
+    <ClCompile Include="src\RenderableMeshProcessor.cpp" />
     <ClCompile Include="src\ResourceSystem.cpp" />
     <ClCompile Include="src\SceneGraph.cpp" />
     <ClCompile Include="src\SceneNode.cpp" />
@@ -99,11 +102,15 @@
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\Transform2DComponent.cpp" />
     <ClCompile Include="src\Transform2DProcessor.cpp" />
+    <ClCompile Include="src\Transform3DComponent.cpp" />
+    <ClCompile Include="src\Transform3DProcessor.cpp" />
     <ClCompile Include="src\VideoSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Camera2DComponent.h" />
     <ClInclude Include="include\bitengine\Camera2DProcessor.h" />
+    <ClInclude Include="include\bitengine\Camera3DComponent.h" />
+    <ClInclude Include="include\bitengine\Camera3DProcessor.h" />
     <ClInclude Include="include\bitengine\Color.h" />
     <ClInclude Include="include\bitengine\CommandSystem.h" />
     <ClInclude Include="include\bitengine\Component.h" />
@@ -121,9 +128,13 @@
     <ClInclude Include="include\bitengine\InputSystem.h" />
     <ClInclude Include="include\bitengine\Logger.h" />
     <ClInclude Include="include\bitengine\LogicScript.h" />
+    <ClInclude Include="include\bitengine\MathUtils.h" />
+    <ClInclude Include="include\bitengine\Mesh.h" />
+    <ClInclude Include="include\bitengine\ModelManager.h" />
     <ClInclude Include="include\bitengine\MessageChannel.h" />
     <ClInclude Include="include\bitengine\MessageType.h" />
-    <ClInclude Include="include\bitengine\RenderSystem.h" />
+    <ClInclude Include="include\bitengine\RenderableMeshComponent.h" />
+    <ClInclude Include="include\bitengine\RenderableMeshProcessor.h" />
     <ClInclude Include="include\bitengine\ResourceSystem.h" />
     <ClInclude Include="include\bitengine\SceneGraph.h" />
     <ClInclude Include="include\bitengine\SceneNode.h" />
@@ -141,6 +152,8 @@
     <ClInclude Include="include\bitengine\Transform.h" />
     <ClInclude Include="include\bitengine\Transform2DComponent.h" />
     <ClInclude Include="include\bitengine\Transform2DProcessor.h" />
+    <ClInclude Include="include\bitengine\Transform3DComponent.h" />
+    <ClInclude Include="include\bitengine\Transform3DProcessor.h" />
     <ClInclude Include="include\bitengine\TypeDefinition.h" />
     <ClInclude Include="include\bitengine\VertexData.h" />
     <ClInclude Include="include\bitengine\VideoSystem.h" />

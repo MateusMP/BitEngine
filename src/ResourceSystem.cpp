@@ -17,6 +17,7 @@ bool ResourceSystem::Init()
 {
 	m_textureManager = new TextureManager();
 	m_spriteManager = new SpriteManager();
+	m_modelManager = new ModelManager(m_textureManager);
 
 	return true;
 }
@@ -38,6 +39,10 @@ SpriteManager* ResourceSystem::getSpriteManager() const{
 
 TextureManager* ResourceSystem::getTextureManager() const{
 	return m_textureManager;
+}
+
+ModelManager* ResourceSystem::getModelManager() const{
+	return m_modelManager;
 }
 
 }

@@ -5,6 +5,7 @@
 #include "ComponentsType.h"
 
 #include "EntitySystem.h"
+#include "MathUtils.h"
 
 namespace BitEngine{
 

@@ -6,7 +6,7 @@
 #include "System.h"
 #include "TextureManager.h"
 #include "SpriteManager.h"
-
+#include "ModelManager.h"
 
 namespace BitEngine{
 
@@ -22,10 +22,12 @@ class ResourceSystem : public System
 		
 		SpriteManager* getSpriteManager() const;
 		TextureManager* getTextureManager() const;
+		ModelManager* getModelManager() const;
 
     private:
 		TextureManager* m_textureManager;
 		SpriteManager* m_spriteManager;
+		ModelManager* m_modelManager;
 
 };
 

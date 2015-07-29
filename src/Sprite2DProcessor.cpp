@@ -5,82 +5,28 @@
 namespace BitEngine{
 
 
-Sprite2DProcessor::Sprite2DProcessor(EntitySystem *sys, Transform2DProcessor* t2p, Camera2DProcessor* c2p)
-	: es(sys), transform2Dprocessor(t2p), camera2Dprocessor(c2p)
+Sprite2DProcessor::Sprite2DProcessor()
 {
 }
 
 Sprite2DProcessor::~Sprite2DProcessor()
 {
-	delete shader;
 }
 
-Sprite2DShader* Sprite2DProcessor::getShader()
-{
-	return shader;
-}
-
-std::vector<ComponentHandle>& Sprite2DProcessor::getComponents()
+const std::vector<ComponentHandle>& Sprite2DProcessor::getComponents() const
 {
 	return components.getValidComponents();
 }
 
 bool Sprite2DProcessor::Init()
 {
-	GLuint vbo[Sprite2DShader::NUM_VBOS];
-
-	shader = new Sprite2DShader();
-	shader->init();
-
-	m_spriteManager = es->getResourceSystem()->getSpriteManager();
-
-	for (int i = 0; i < (int)Sprite2DComponent::SORT_TYPE::TOTAL; ++i){
-		m_batchRenderers.push_back(new BatchRenderer(m_spriteManager, (Sprite2DComponent::SORT_TYPE)i, shader->CreateVAO(vbo), vbo));
-	}
-
 	return true;
 }
 
 void Sprite2DProcessor::FrameEnd()
 {
-	// Find camera
-	const Camera2DComponent* activeCamera = camera2Dprocessor->getActiveCamera();
-	if (!activeCamera){
-		LOGTO(Warning) << "Sprite2DProcessor: No active camera2D!" << endlog;
-		return;
-	}
-
-	// Clear all batches
-	for (BatchRenderer* r : m_batchRenderers){
-		r->begin();
-	}
-	
-	// Get all information needed -> Transform2DComponents
-	const std::vector<ComponentHandle>& validComponents = components.getValidComponents();
-	std::vector<ComponentHandle> search;
-	std::vector<ComponentHandle> answer;
-	std::vector<uint32> indices;
-	es->findAllTuples<Sprite2DComponent, Transform2DComponent>(validComponents, answer, indices);
-
-	const glm::vec4& viewScreen =activeCamera->getWorldViewArea();
-
-	// Culling out of screen
-	for (uint32 i = 0; i < indices.size(); ++i){
-		Transform2DComponent* t = (Transform2DComponent*)transform2Dprocessor->getComponent(answer[i]);
-		Sprite2DComponent* spr = components.getComponent(validComponents[indices[i]]);
-
-		if (insideScreen(viewScreen, t, spr)){
-			m_batchRenderers[(int)spr->sortMode]->addComponent(t, spr);
-		}
-	}
-
-	// Render
-	shader->LoadViewMatrix(activeCamera->getMatrix());
-	shader->Bind();
-	for (BatchRenderer* b : m_batchRenderers)
-	{
-		b->render();
-	}
+	// Do nothing.
+	return;
 }
 
 ComponentHandle Sprite2DProcessor::CreateComponent(EntityHandle entity)
@@ -100,55 +46,71 @@ Component* Sprite2DProcessor::getComponent(ComponentHandle hdl)
 
 ///
 
-bool Sprite2DProcessor::insideScreen(const glm::vec4& screen, const Transform2DComponent* t, const Sprite2DComponent* s)
-{
-	const float radius = m_spriteManager->getSprite(s->sprite)->getMaxRadius();
-	const glm::mat3& matrix = t->getMatrix();
-	
-	const float kX = matrix[2][0]	+ radius;
-	const float kX_r = matrix[2][0] - radius;
-	const float kY = matrix[2][1]	+ radius;
-	const float kY_b = matrix[2][1] - radius;
+/// ===============================================================================================
+/// ===============================================================================================
+///										BATCH
+/// ===============================================================================================
 
-	if (kX < screen.x){
-		// printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE left %p - %f | %f\n", t, kX, screen.x);
+Sprite2DRenderer::Sprite2DRenderer(const EntitySystem* _es)
+	: m_es(_es)
+{
+}
+
+bool Sprite2DRenderer::Init()
+{
+	GLuint vbo[Sprite2DShader::NUM_VBOS];
+
+	shader = new Sprite2DShader();
+	if (shader->Init() <= 0)
 		return false;
-	}
-	if (kX_r > screen.z){
-		//printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE right %p - %f | %f\n", t, kX_r, screen.z);
-		return false;
-	}
-	if (kY < screen.y){
-		//printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE bot %p - %f | %f\n", t, kY, screen.y);
-		return false;
-	}
-	if (kY_b > screen.w){
-		//printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE top %p - %f | %f\n", t, kY_b, screen.w);
-		return false;
+
+	m_spriteManager = m_es->getResourceSystem()->getSpriteManager();
+
+	for (int i = 0; i < (int)Sprite2DComponent::SORT_TYPE::TOTAL; ++i){
+		m_batchRenderers.push_back(new BatchRenderer(m_spriteManager, (Sprite2DComponent::SORT_TYPE)i, shader->CreateVAO(vbo), vbo));
 	}
 
 	return true;
 }
 
-/// ===============================================================================================
-/// ===============================================================================================
-///										GLYPH
-/// ===============================================================================================
+Sprite2DShader* Sprite2DRenderer::getShader()
+{
+	return shader;
+}
 
-Sprite2DProcessor::BatchRenderer::BatchRenderer(SpriteManager* sprMng, Sprite2DComponent::SORT_TYPE s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS])
+void Sprite2DRenderer::clearRenderer()
+{
+	// Clear all batches
+	for (BatchRenderer* r : m_batchRenderers){
+		r->begin();
+	}
+}
+
+void Sprite2DRenderer::addToRender(const Sprite2DComponent* sprite, const Transform2DComponent* transform)
+{
+	m_batchRenderers[(int)sprite->sortMode]->addComponent(transform, sprite);
+}
+
+void Sprite2DRenderer::Render()
+{
+	// Render
+	// shader->LoadViewMatrix(activeCamera->getMatrix());
+	shader->Bind();
+	for (BatchRenderer* b : m_batchRenderers)
+	{
+		b->render();
+	}
+}
+
+Sprite2DRenderer::BatchRenderer::BatchRenderer(SpriteManager* sprMng, Sprite2DComponent::SORT_TYPE s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS])
 	: m_spriteManager(sprMng), m_sorting(s), m_vao(vao)
 {
 	for (int i = 0; i < Sprite2DShader::NUM_VBOS; ++i){
 		m_vbo[i] = vbo[i];
 	}
-
-	unsigned char INDEX_BUFFER[] = {
-		0, 1, 2, // Bottom left triangle
-		3		 // top right triangle
-	};
 }
 
-Sprite2DProcessor::BatchRenderer::~BatchRenderer()
+Sprite2DRenderer::BatchRenderer::~BatchRenderer()
 {
 	if (m_vao != 0){
 		glDeleteVertexArrays(1, &m_vao);
@@ -159,17 +121,17 @@ Sprite2DProcessor::BatchRenderer::~BatchRenderer()
 	}
 }
 
-void Sprite2DProcessor::BatchRenderer::begin()
+void Sprite2DRenderer::BatchRenderer::begin()
 {
 	m_components.clear();
 }
 
-void Sprite2DProcessor::BatchRenderer::addComponent(Transform2DComponent *t, Sprite2DComponent* c)
+void Sprite2DRenderer::BatchRenderer::addComponent(const Transform2DComponent *t, const Sprite2DComponent* c)
 {
 	m_components.emplace_back(t, c);
 }
 
-void Sprite2DProcessor::BatchRenderer::render()
+void Sprite2DRenderer::BatchRenderer::render()
 {
 	if (m_components.empty())
 		return;
@@ -179,7 +141,7 @@ void Sprite2DProcessor::BatchRenderer::render()
 	renderBatches();
 }
 
-void Sprite2DProcessor::BatchRenderer::sortComponents()
+void Sprite2DRenderer::BatchRenderer::sortComponents()
 {
 	switch (m_sorting){
 		case Sprite2DComponent::SORT_TYPE::BY_DEPTH_TEXTURE:
@@ -191,8 +153,7 @@ void Sprite2DProcessor::BatchRenderer::sortComponents()
 	}
 }
 
-static int totalitems = 0;
-void Sprite2DProcessor::BatchRenderer::createRenderers()
+void Sprite2DRenderer::BatchRenderer::createRenderers()
 {
 	std::vector<glm::vec2> texAtexB;
 	std::vector<glm::mat3> modelMatrices;
@@ -207,13 +168,13 @@ void Sprite2DProcessor::BatchRenderer::createRenderers()
 	const glm::vec4& uvrect = spr->getUV();
 	batches.emplace_back(0, 1, spr->getTexture(), spr->isTransparent());
 	texAtexB.emplace_back(uvrect.x, uvrect.y); // BL  xw   zw
-	texAtexB.emplace_back(uvrect.x, uvrect.w); // TL  
 	texAtexB.emplace_back(uvrect.z, uvrect.y); // BR  
+	texAtexB.emplace_back(uvrect.x, uvrect.w); // TL  
 	texAtexB.emplace_back(uvrect.z, uvrect.w); // TR  xy   zy
 	texAtexB.emplace_back(-spr->getOffsetX(), -spr->getOffsetY());
 	texAtexB.emplace_back(spr->getWidth(), spr->getHeight());
 	modelMatrices.emplace_back(t->getMatrix());
-	totalitems = 1;
+
 	const Sprite* lastSpr = spr;
 	for (uint32 cg = 1; cg < m_components.size(); cg++)
 	{
@@ -232,14 +193,12 @@ void Sprite2DProcessor::BatchRenderer::createRenderers()
 		lastSpr = spr;
 
 		texAtexB.emplace_back(uvrect.x, uvrect.y); // BL  xw   zw
-		texAtexB.emplace_back(uvrect.x, uvrect.w); // TL  
 		texAtexB.emplace_back(uvrect.z, uvrect.y); // BR  
+		texAtexB.emplace_back(uvrect.x, uvrect.w); // TL  
 		texAtexB.emplace_back(uvrect.z, uvrect.w); // TR  xy   zy
 		texAtexB.emplace_back(-spr->getOffsetX(), -spr->getOffsetY());
 		texAtexB.emplace_back(spr->getWidth(), spr->getHeight());
 		modelMatrices.emplace_back(t->getMatrix());
-
-		++totalitems;
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo[Sprite2DShader::VBO_VERTEXDATA]);
@@ -254,7 +213,7 @@ void Sprite2DProcessor::BatchRenderer::createRenderers()
 }
 
 
-void Sprite2DProcessor::BatchRenderer::renderBatches()
+void Sprite2DRenderer::BatchRenderer::renderBatches()
 {
 	glBindVertexArray(m_vao);
 
@@ -279,7 +238,7 @@ void Sprite2DProcessor::BatchRenderer::renderBatches()
 	check_gl_error();
 }
 
-bool Sprite2DProcessor::BatchRenderer::compare_DepthTexture(const RenderingComponent& a, const RenderingComponent& b){
+bool Sprite2DRenderer::BatchRenderer::compare_DepthTexture(const RenderingComponent& a, const RenderingComponent& b){
 	return a.spr->depth < b.spr->depth
 		|| (a.spr->depth == b.spr->depth && (a.spr->sprite < b.spr->sprite));
 }
