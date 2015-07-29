@@ -35,7 +35,7 @@ class ComponentHolderProcessor : public ComponentProcessor
 		virtual ComponentHandle CreateComponent(EntityHandle entity) = 0;
 		virtual void DestroyComponent(ComponentHandle component) = 0;
 
-		virtual std::vector<ComponentHandle>& getComponents() = 0;
+		virtual const std::vector<ComponentHandle>& getComponents() const = 0;
 };
 
 }

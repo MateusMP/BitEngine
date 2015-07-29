@@ -32,11 +32,11 @@ void ResourceSystem::Shutdown()
 	delete m_textureManager;
 }
 
-SpriteManager* ResourceSystem::getSpriteManager(){
+SpriteManager* ResourceSystem::getSpriteManager() const{
 	return m_spriteManager;
 }
 
-TextureManager* ResourceSystem::getTextureManager(){
+TextureManager* ResourceSystem::getTextureManager() const{
 	return m_textureManager;
 }
 

@@ -45,6 +45,10 @@ public:
 	float getRotation() const;
 	void setRotation(float rad);
 
+	/**
+	 * Retrieves the last calculated model matrix
+	 * This is updated by Transform2DProcessor
+	 */
 	const glm::mat3& getMatrix() const;
 
 	void setParent(ComponentHandle p);

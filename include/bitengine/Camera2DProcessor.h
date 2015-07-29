@@ -13,7 +13,7 @@ class Camera2DProcessor : public ComponentHolderProcessor
 	public:
 		Camera2DProcessor(EntitySystem* es, Transform2DProcessor* t2p);
 
-		Camera2DComponent* getActiveCamera();
+		Camera2DComponent* getActiveCamera() const;
 
 		Component* getComponent(ComponentHandle component) override;
 
@@ -26,7 +26,7 @@ class Camera2DProcessor : public ComponentHolderProcessor
 		ComponentHandle CreateComponent(EntityHandle entity) override;
 		void DestroyComponent(ComponentHandle component) override;
 
-		std::vector<ComponentHandle>& getComponents() override;
+		const std::vector<ComponentHandle>& getComponents() const override;
 
 		//
 		void recalculateMatrix(Camera2DComponent* c, Transform2DComponent* t);

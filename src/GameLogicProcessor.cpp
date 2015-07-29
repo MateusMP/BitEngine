@@ -106,7 +106,7 @@ namespace BitEngine{
 		return components.getComponent(hdl);
 	}
 
-	std::vector<ComponentHandle>& GameLogicProcessor::getComponents()
+	const std::vector<ComponentHandle>& GameLogicProcessor::getComponents() const
 	{
 		return components.getValidComponents();
 	}

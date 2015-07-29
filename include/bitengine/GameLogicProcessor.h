@@ -21,7 +21,7 @@ namespace BitEngine{
 
 		Component* getComponent(ComponentHandle hdl) override;
 
-		std::vector<ComponentHandle>& getComponents() override;
+		const std::vector<ComponentHandle>& getComponents() const override;
 
 	private:
 		ComponentCollection<GameLogicComponent> components;

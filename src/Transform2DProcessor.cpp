@@ -99,7 +99,7 @@ namespace BitEngine{
 		return components.getComponent(component);
 	}
 
-	std::vector<ComponentHandle>& Transform2DProcessor::getComponents() {
+	const std::vector<ComponentHandle>& Transform2DProcessor::getComponents() const {
 		return components.getValidComponents();
 	}
 

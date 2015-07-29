@@ -35,7 +35,7 @@ namespace BitEngine
 			~Sprite2DShader();
 
 			// Compile shaders
-			int init();
+			int Init() override;
 
 			void LoadViewMatrix(const glm::mat4& matrix);
 

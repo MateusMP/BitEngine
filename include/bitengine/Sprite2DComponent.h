@@ -24,7 +24,7 @@ public:
 	}
 
 	Sprite2DComponent()
-		: depth(0), sortMode(SORT_TYPE::BY_DEPTH_TEXTURE)
+		: depth(0), sortMode(SORT_TYPE::BY_DEPTH_TEXTURE), sprite(0)
 	{}
 
 	int depth;

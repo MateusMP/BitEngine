@@ -1,7 +1,8 @@
 
 #include "EntitySystem.h"
 
-#include "Transform2DComponent.h"
+#include "ComponentsType.h"
+
 
 namespace BitEngine{
 
@@ -44,7 +45,6 @@ namespace BitEngine{
 		for (auto& it : process_order[3]){
 			it.second->FrameEnd();
 		}
-		
 	}
 
 	void EntitySystem::Shutdown(){
@@ -53,7 +53,7 @@ namespace BitEngine{
 		}
 	}
 
-	ResourceSystem* EntitySystem::getResourceSystem()
+	ResourceSystem* EntitySystem::getResourceSystem() const
 	{
 		return m_resources;
 	}

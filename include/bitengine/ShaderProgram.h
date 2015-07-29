@@ -11,12 +11,12 @@
 
 
 #ifdef _DEBUG
-#define LOAD_UNIFORM(var, name)																					\
-				var = getUniformLocation(name);																	\
-				if (var < 0)																					\
-					LOGTO(Warning) << "Shader: Failed to load "#var" [\""name"\"] uniform." << endlog;			\
-				else																							\
-					LOGTO(Verbose) << "Uniform "#var" loaded with id: "<< var << "." << endlog
+#define LOAD_UNIFORM(var, name)																						\
+				var = getUniformLocation(name);																		\
+				if (var < 0)																						\
+					LOGTO(Warning) << "Shader: Failed to load "#var" [\""name"\"] uniform." << BitEngine::endlog;	\
+				else																								\
+					LOGTO(Verbose) << "Uniform "#var" loaded with id: "<< var << "." << BitEngine::endlog
 #else
 #define LOAD_UNIFORM(var, name)	\
 					var = getUniformLocation(name)
@@ -33,6 +33,8 @@ class ShaderProgram
         ShaderProgram();
         virtual ~ShaderProgram();
 
+		virtual int Init() = 0;
+
 		/**
 		 * Binds the shader
 		 * Calls OnBind();
@@ -47,7 +49,7 @@ class ShaderProgram
 		/// VIRTUAL
 		// \param outVBO vector to store all VBO's id
 		// Returns a VAO with all ShaderConfigurations Set
-		virtual GLuint CreateVAO(GLuint* outVBO) = 0;
+		// GLuint CreateVAO(GLuint* outVBO) = 0;
 
         /// VIRTUAL
         ///

@@ -20,8 +20,8 @@ class ResourceSystem : public System
 		void Update() override;
 		void Shutdown() override;
 		
-		SpriteManager* getSpriteManager();
-		TextureManager* getTextureManager();
+		SpriteManager* getSpriteManager() const;
+		TextureManager* getTextureManager() const;
 
     private:
 		TextureManager* m_textureManager;

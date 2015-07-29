@@ -12,6 +12,7 @@ namespace BitEngine{
 	class Component
 	{
 	public:
+		virtual ~Component(){}
 
 	};
 

@@ -86,7 +86,7 @@ namespace BitEngine{
 	{
 	}
 
-	int Sprite2DShader::init(){
+	int Sprite2DShader::Init(){
 		return BuildProgramFromMemory(GL_VERTEX_SHADER, sprite2DshaderVertex_transform,
 									  GL_FRAGMENT_SHADER, sprite2DshaderFragment);
 	}

@@ -24,7 +24,7 @@ namespace BitEngine{
 			void DestroyComponent(ComponentHandle component) override;
 
 
-			std::vector<ComponentHandle>& getComponents() override;
+			const std::vector<ComponentHandle>& getComponents() const override;
 
 		private:
 			void calculateModelMatrix(Transform2DComponent* comp, glm::mat3& mat);

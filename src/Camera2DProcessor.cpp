@@ -7,7 +7,7 @@ Camera2DProcessor::Camera2DProcessor(EntitySystem* es, Transform2DProcessor* t2p
 {
 }
 
-Camera2DComponent* Camera2DProcessor::getActiveCamera()
+Camera2DComponent* Camera2DProcessor::getActiveCamera() const
 {
 	return activeCamera;
 }
@@ -30,7 +30,7 @@ void Camera2DProcessor::recalculateMatrix(Camera2DComponent* c, Transform2DCompo
 
 void Camera2DProcessor::FrameEnd()
 {
-	std::vector<ComponentHandle>& cameras = components.getValidComponents();
+	const std::vector<ComponentHandle>& cameras = components.getValidComponents();
 
 	for (ComponentHandle c : cameras)
 	{
@@ -70,7 +70,7 @@ Component* Camera2DProcessor::getComponent(ComponentHandle component)
 	return components.getComponent(component);
 }
 
-std::vector<ComponentHandle>& Camera2DProcessor::getComponents()
+const std::vector<ComponentHandle>& Camera2DProcessor::getComponents() const
 {
 	return components.getValidComponents();
 }

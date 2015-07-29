@@ -77,12 +77,13 @@ namespace BitEngine{
 			}
 		}
 
-		std::vector<ComponentHandle>& getValidComponents(){
+		const std::vector<ComponentHandle>& getValidComponents() const{
 			return validComponents;
 		}
 
 		std::vector<T*>& getValidComponentsRef(){
-			if (!validRef){
+			if (!validRef)
+			{
 				validComponentsRef.clear();
 				for (ComponentHandle h : validComponents){
 					validComponentsRef.emplace_back( &components[h] );

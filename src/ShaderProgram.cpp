@@ -8,15 +8,14 @@
 
 namespace BitEngine{
 
-
 ShaderProgram::ShaderProgram()
-    : m_programID(0)
+	: m_programID(0)
 {
 }
 
 ShaderProgram::~ShaderProgram()
 {
-	glDeleteProgram(m_programID);
+	FreeShaders();
 }
 
 void ShaderProgram::Bind()
@@ -32,7 +31,8 @@ void ShaderProgram::Unbind()
 
 void ShaderProgram::FreeShaders()
 {
-	if (m_programID != 0){
+	if (m_programID != 0)
+	{
 		Unbind();
 		glDeleteProgram(m_programID);
 		m_programID = 0;
@@ -49,7 +49,10 @@ int32 ShaderProgram::getUniformLocation(const std::string& name) const
 	return glGetUniformLocation(m_programID, name.c_str());
 }
 
-int ShaderProgram::BuildFinalProgram(std::vector<GLuint>& shaders){
+int ShaderProgram::BuildFinalProgram(std::vector<GLuint>& shaders)
+{
+	FreeShaders();
+
 	m_programID = glCreateProgram();
 
 	BindAttributes();
