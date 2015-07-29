@@ -39,17 +39,21 @@ namespace BitEngine{
 		
 			void setCommandState(int state);
 
-			/// \commandID the command ID returned when given key/action/mod combination ocurrs
-			/// \param commandState CommandSystem state necessary for processing this command
-			/// \key keyboard key needed
-			/// Note that this function will register the commandID for both inputs: RELEASE and PRESS
+			/** @param commandID	the command ID returned when given key/action/mod combination ocurrs
+			  * @param commandState		CommandSystem state necessary for processing this command
+			  *							Use -1 to assign it as a "Global" command. Useful for debug purposes.
+			  * @param key	keyboard key needed
+			  * Note that this function will register the commandID for both inputs: RELEASE and PRESS
+			  */
 			bool RegisterKeyboardCommand(int commandID, int commandState, int key);
 
-			/// \commandID the command ID returned when given key/action/mod combination ocurrs
-			/// \param commandState CommandSystem state necessary for processing this command
-			/// \key keyboard key needed
-			/// \action key state needed
-			/// \mod key modifiers (Shift, Alt, Ctrl, Super)
+			/** @param commandID	Command ID returned when given key/action/mod combination ocurrs
+			  * @param commandState		CommandSystem state necessary for processing this command
+			  *							Use -1 to assign it as a "Global" command. Useful for debug purposes.
+			  * @param key	Keyboard key needed
+			  * @param action	Key state needed
+			  * @param mod	Key modifiers (Shift, Alt, Ctrl, Super)
+			  */
 			bool RegisterKeyboardCommand(int commandID, int commandState, int key, InputReceiver::KeyAction action, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE);
 
 			bool RegisterMouseCommand(int commandID, int commandState, int button, InputReceiver::MouseAction action, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE);

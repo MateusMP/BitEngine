@@ -133,35 +133,74 @@ namespace BitEngine
 
 	void CommandSystem::Message(const InputReceiver::KeyboardInput& msg)
 	{
-		CommandIdentifier idtf(m_commandState, msg);
+		// Verify for global commands
+		{
+			CommandIdentifier idtf(-1, msg);
+			auto it = m_commands.find(idtf);
+			if (it != m_commands.end()){
+				const int cmdID = m_commands[idtf];
 
-		auto it = m_commands.find(idtf);
-		if (it != m_commands.end()){
-			const int cmdID = m_commands[idtf];
+				LOGTO(Verbose) << "Command dispatch: " << cmdID << endlog;
 
-			LOGTO(Verbose) << "Command dispatch: " << cmdID << endlog;
-
-			Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.keyAction));
+				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.keyAction));
+			}
+			else {
+				// LOGTO(Verbose) << "No command for this input." << endlog;
+			}
 		}
-		else {
-			// LOGTO(Verbose) << "No command for this input." << endlog;
+
+		// Verify for user defined states using current state
+		{
+			CommandIdentifier idtf(m_commandState, msg);
+
+			auto it = m_commands.find(idtf);
+			if (it != m_commands.end()){
+				const int cmdID = m_commands[idtf];
+
+				LOGTO(Verbose) << "Command dispatch: " << cmdID << endlog;
+
+				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.keyAction));
+			}
+			else {
+				// LOGTO(Verbose) << "No command for this input." << endlog;
+			}
 		}
 	}
 
 	void CommandSystem::Message(const InputReceiver::MouseInput& msg)
 	{
-		CommandIdentifier idtf(m_commandState, msg);
+		// Verify for global commands
+		{
+			CommandIdentifier idtf(-1, msg);
 
-		auto it = m_commands.find(idtf);
-		if (it != m_commands.end()){
-			const int cmdID = m_commands[idtf];
+			auto it = m_commands.find(idtf);
+			if (it != m_commands.end()){
+				const int cmdID = m_commands[idtf];
 
-			LOGTO(Verbose) << "Command dispatch: " << cmdID << endlog;
+				LOGTO(Verbose) << "Command dispatch: " << cmdID << endlog;
 
-			Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.action, msg.x, msg.y));
+				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.action, msg.x, msg.y));
+			}
+			else {
+				// LOGTO(Verbose) << "No command for this input." << endlog;
+			}
 		}
-		else {
-			// LOGTO(Verbose) << "No command for this input." << endlog;
+
+		// Verify for user defined states using current state
+		{
+			CommandIdentifier idtf(m_commandState, msg);
+
+			auto it = m_commands.find(idtf);
+			if (it != m_commands.end()){
+				const int cmdID = m_commands[idtf];
+
+				LOGTO(Verbose) << "Command dispatch: " << cmdID << endlog;
+
+				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.action, msg.x, msg.y));
+			}
+			else {
+				// LOGTO(Verbose) << "No command for this input." << endlog;
+			}
 		}
 	}
 }
