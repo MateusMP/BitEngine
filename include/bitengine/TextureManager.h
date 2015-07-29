@@ -14,10 +14,12 @@ namespace BitEngine{
 			TextureManager();
 			~TextureManager();
 
-			Texture* LoadTexture2D(const std::string& path);
+			const Texture* LoadTexture2D(const std::string& path);
 
 		private:
 			TextureMap m_textures;
+
+			Texture error_texture;
 	};
 
 

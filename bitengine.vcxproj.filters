@@ -132,6 +132,9 @@
     <ClCompile Include="src\RenderableMeshProcessor.cpp">
       <Filter>EntitySystem\Processors\3D</Filter>
     </ClCompile>
+    <ClCompile Include="src\Graphics\error_texture.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Color.h">
