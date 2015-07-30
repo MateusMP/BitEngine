@@ -7,8 +7,6 @@
 #include "VertexData.h"
 #include "glSystem.h"
 
-#include "Sprite.h"
-
 namespace BitEngine
 {
 	/// Draws 2D sprites using 2D coordinates

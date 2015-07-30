@@ -10,6 +10,13 @@ namespace BitEngine{
 
 typedef unsigned short SpriteHandle;
 
+enum class SpriteSortType : char{
+	NOONE,
+	BY_DEPTH_TEXTURE,
+
+	TOTAL
+};
+
 class Sprite{
 
     public:

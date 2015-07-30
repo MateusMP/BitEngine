@@ -183,6 +183,14 @@ class EntitySystem : public System
 		}
 
 		// Search
+		/**
+		 * Find all components of type <Having>
+		 * that matches with the entities of the components given in search
+		 * @param search Components to look for owner entity required <having> components
+		 * @param answer ComponentHandle found of Having for each search entry
+		 * @param matchSearchIndices valid indices of matches found for search
+		 * If an entity does not have at least one of the searching components, it won't be returned as part of the answer.
+		 */
 		template<typename BaseSearchCompClass, typename... Having>
 		void findAllTuples(const std::vector<ComponentHandle> &search, std::vector<ComponentHandle>& answer, std::vector<uint32>& matchSearchIndices) const
 		{
