@@ -43,6 +43,12 @@
     <Filter Include="EntitySystem\Processors\3D">
       <UniqueIdentifier>{bc5c2fa6-cb8c-49e6-9b51-80ebf7ef7aeb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EntitySystem\Processors\2D">
+      <UniqueIdentifier>{a35cefc6-3493-4c2f-8ffb-0b564ec6d7d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Shaders\Renderers">
+      <UniqueIdentifier>{243e27bc-0fcb-4cb9-bb35-5ddde902805e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GameEngine.cpp">
@@ -87,12 +93,6 @@
     <ClCompile Include="src\Sprite2DShader.cpp">
       <Filter>Graphics\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="src\Camera2DProcessor.cpp">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Transform2DProcessor.cpp">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClCompile>
     <ClCompile Include="src\EntitySystem.cpp">
       <Filter>EntitySystem</Filter>
     </ClCompile>
@@ -107,9 +107,6 @@
     </ClCompile>
     <ClCompile Include="src\TextureManager.cpp">
       <Filter>ResourceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Sprite2DProcessor.cpp">
-      <Filter>EntitySystem\Processors</Filter>
     </ClCompile>
     <ClCompile Include="src\ModelManager.cpp">
       <Filter>ResourceSystem</Filter>
@@ -134,6 +131,18 @@
     </ClCompile>
     <ClCompile Include="src\Graphics\error_texture.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sprite2DProcessor.cpp">
+      <Filter>EntitySystem\Processors\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Transform2DProcessor.cpp">
+      <Filter>EntitySystem\Processors\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera2DProcessor.cpp">
+      <Filter>EntitySystem\Processors\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\Sprite2DRenderer.cpp">
+      <Filter>Graphics\Shaders\Renderers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,13 +227,7 @@
     <ClInclude Include="include\bitengine\Sprite2DShader.h">
       <Filter>Graphics\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\Camera2DProcessor.h">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\ComponentProcessor.h">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Transform2DProcessor.h">
       <Filter>EntitySystem\Processors</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\ResourceSystem.h">
@@ -247,9 +250,6 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\Mesh.h">
       <Filter>Graphics\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite2DProcessor.h">
-      <Filter>EntitySystem\Processors</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\ModelManager.h">
       <Filter>ResourceSystem</Filter>
@@ -289,6 +289,18 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\MathUtils.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Transform2DProcessor.h">
+      <Filter>EntitySystem\Processors\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite2DProcessor.h">
+      <Filter>EntitySystem\Processors\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Camera2DProcessor.h">
+      <Filter>EntitySystem\Processors\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite2DRenderer.h">
+      <Filter>Graphics\Shaders\Renderers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
