@@ -11,10 +11,8 @@ namespace BitEngine{
 	class Camera3DProcessor : public ComponentHolderProcessor
 	{
 	public:
-		Camera3DProcessor(EntitySystem* es, Transform3DProcessor* t2p);
-
-		Camera3DComponent* getActiveCamera() const;
-
+		Camera3DProcessor(EntitySystem* es);
+		
 		Component* getComponent(ComponentHandle component) override;
 
 	private:
@@ -29,16 +27,12 @@ namespace BitEngine{
 		const std::vector<ComponentHandle>& getComponents() const override;
 
 		//
-		void recalculateViewMatrix(Camera3DComponent* c, Transform3DComponent* t);
+		void recalculateViewMatrix(Camera3DComponent* c, const Transform3DComponent* t);
 
 	private:
 		EntitySystem* m_entitySys;
-		Transform3DProcessor* m_t2p;
 
 		ComponentCollection<Camera3DComponent> components;
-
-		ComponentHandle activeCamera;
-		Camera3DComponent* activeCameraRef;
 	};
 
 }

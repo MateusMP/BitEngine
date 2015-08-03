@@ -2,21 +2,16 @@
 
 namespace BitEngine{
 
-	Camera3DProcessor::Camera3DProcessor(EntitySystem* es, Transform3DProcessor* t2p)
-		: m_entitySys(es), m_t2p(t2p), activeCamera(0)
+	Camera3DProcessor::Camera3DProcessor(EntitySystem* es)
+		: m_entitySys(es)
 	{
-	}
-
-	Camera3DComponent* Camera3DProcessor::getActiveCamera() const
-	{
-		return activeCameraRef; 
 	}
 
 	bool Camera3DProcessor::Init(){
 		return true;
 	}
 
-	void Camera3DProcessor::recalculateViewMatrix(Camera3DComponent* c, Transform3DComponent* t)
+	void Camera3DProcessor::recalculateViewMatrix(Camera3DComponent* c, const Transform3DComponent* t)
 	{
 		glm::vec3 eye(t->getMatrix()[3][0], t->getMatrix()[3][1], t->getMatrix()[3][2]);
 		//glm::vec3 eye = t->getPosition();
@@ -25,37 +20,20 @@ namespace BitEngine{
 
 	void Camera3DProcessor::FrameEnd()
 	{
-		Camera3DComponent* cam = components.getComponent(activeCamera);
-			
-		std::vector<ComponentHandle> search;
-		std::vector<ComponentHandle> answer;
-		std::vector<uint32> indices;
+		std::vector<Component*> answer;
+		m_entitySys->findAllTuplesOf<Camera3DComponent, Transform3DComponent>(answer);
 
-		search.push_back(activeCamera);
-		m_entitySys->findAllTuples<Camera3DComponent, Transform3DComponent>(search, answer, indices);
-		if (indices.size() == 1)
+		for (uint32 i = 0; i < answer.size(); i += 2)
 		{
-			Transform3DComponent* cp = static_cast<Transform3DComponent*>(m_t2p->getComponent(answer[0]));
-
-			recalculateViewMatrix(cam, cp);
-			// printf("View matrix recalculated\n");
-		}
-
-		if (activeCamera != 0){
-			activeCameraRef = components.getComponent(activeCamera);
-		} else {
-			activeCameraRef = nullptr;
+			Camera3DComponent* cam = (Camera3DComponent*)answer[i];
+			const Transform3DComponent* camTransform = (const Transform3DComponent*)answer[i + 1];
+			recalculateViewMatrix(cam, camTransform);
 		}
 	}
 
 	ComponentHandle Camera3DProcessor::CreateComponent(EntityHandle entity)
 	{
-		ComponentHandle c = components.newComponent();
-
-		if (activeCamera == 0)
-			activeCamera = c;
-
-		return c;
+		return components.newComponent();
 	}
 
 	void Camera3DProcessor::DestroyComponent(ComponentHandle component)

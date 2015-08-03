@@ -58,7 +58,7 @@ class GameEngine
 
 			// Create entity system processors:
 			Transform2DProcessor *t2p = new Transform2DProcessor();
-			Camera2DProcessor *c2p = new Camera2DProcessor(es, t2p);
+			Camera2DProcessor *c2p = new Camera2DProcessor(es);
 			Sprite2DProcessor *spr2d = new Sprite2DProcessor();
 			GameLogicProcessor *glp = new GameLogicProcessor(es);
 

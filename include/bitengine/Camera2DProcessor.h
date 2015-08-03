@@ -11,7 +11,7 @@ namespace BitEngine{
 class Camera2DProcessor : public ComponentHolderProcessor
 {
 	public:
-		Camera2DProcessor(EntitySystem* es, Transform2DProcessor* t2p);
+		Camera2DProcessor(EntitySystem* es);
 
 		Component* getComponent(ComponentHandle component) override;
 
@@ -31,7 +31,6 @@ class Camera2DProcessor : public ComponentHolderProcessor
 		
 	private:
 		EntitySystem* m_entitySys;
-		Transform2DProcessor* m_t2p;
 
 		ComponentCollection<Camera2DComponent> components;
 };
