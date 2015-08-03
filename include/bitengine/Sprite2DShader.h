@@ -4,7 +4,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "ShaderProgram.h"
-#include "VertexData.h"
 #include "glSystem.h"
 
 namespace BitEngine

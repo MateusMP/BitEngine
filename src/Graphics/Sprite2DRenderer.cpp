@@ -152,10 +152,10 @@ namespace BitEngine{
 		if (glewIsSupported("GL_VERSION_4_2") )
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_VERTEXDATA]);
-			glBufferData(GL_ARRAY_BUFFER, texAtexB.size() * sizeof(glm::vec2), texAtexB.data(), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
+			glBufferData(GL_ARRAY_BUFFER, texAtexB.size() * sizeof(glm::vec2), texAtexB.data(), GL_DYNAMIC_DRAW);
 
 			glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_MODELMAT]);
-			glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data(), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
+			glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data(), GL_DYNAMIC_DRAW);
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		} else {
@@ -171,10 +171,10 @@ namespace BitEngine{
 				Batch& b = batches[i];
 
 				glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_VERTEXDATA]);
-				glBufferData(GL_ARRAY_BUFFER, b.nItems*6 * sizeof(glm::vec2), texAtexB.data() + (b.offset*6), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
+				glBufferData(GL_ARRAY_BUFFER, b.nItems*6 * sizeof(glm::vec2), texAtexB.data() + (b.offset*6), GL_DYNAMIC_DRAW);
 
 				glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_MODELMAT]);
-				glBufferData(GL_ARRAY_BUFFER, b.nItems * sizeof(glm::mat3), modelMatrices.data() + b.offset, GL_DYNAMIC_DRAW); // TODO: verify best mode to use
+				glBufferData(GL_ARRAY_BUFFER, b.nItems * sizeof(glm::mat3), modelMatrices.data() + b.offset, GL_DYNAMIC_DRAW);
 			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);

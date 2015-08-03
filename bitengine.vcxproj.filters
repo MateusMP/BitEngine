@@ -57,19 +57,7 @@
     <ClCompile Include="src\MessageChannel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SceneGraph.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SceneNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Task.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\glSystem.cpp">
@@ -144,6 +132,9 @@
     <ClCompile Include="src\Graphics\Sprite2DRenderer.cpp">
       <Filter>Graphics\Shaders\Renderers</Filter>
     </ClCompile>
+    <ClCompile Include="src\Texture.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Color.h">
@@ -161,31 +152,13 @@
     <ClInclude Include="include\bitengine\MessageType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\SceneGraph.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\SceneNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\Task.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\TaskManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\TypeDefinition.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\VertexData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\Window.h">
@@ -298,6 +271,15 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\Camera2DProcessor.h">
       <Filter>EntitySystem\Processors\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite2DRenderer.h">
+      <Filter>Graphics\Shaders\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite.h">
+      <Filter>ResourceSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Texture.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
