@@ -299,8 +299,5 @@
     <ClInclude Include="include\bitengine\Camera2DProcessor.h">
       <Filter>EntitySystem\Processors\2D</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite2DRenderer.h">
-      <Filter>Graphics\Shaders\Renderers</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

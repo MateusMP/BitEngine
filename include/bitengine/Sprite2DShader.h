@@ -15,8 +15,6 @@ namespace BitEngine
 		public ShaderProgram
 	{
 		public:
-			class Sprite2DBatch;
-
 			// static const uint32 ATTR_VERTEX_POS = 0;
 			static const uint32 ATTR_VERTEX_TEX = 0; // 0, 1, 2, 3
 			static const uint32 ATTR_SPRITE_OFF = 4; // offset and size
@@ -39,7 +37,16 @@ namespace BitEngine
 
 			// Overrides
 
-			GLuint CreateVAO(GLuint* outVBO);
+			struct Vao{
+				GLuint VAO;
+				GLuint VBO[NUM_VBOS];
+
+				void free(){
+					glDeleteVertexArrays(1, &VAO);
+					glDeleteBuffers(NUM_VBOS, VBO);
+				}
+			};
+			static Vao CreateVAO();
 
 		protected:
 			void BindAttributes() override;

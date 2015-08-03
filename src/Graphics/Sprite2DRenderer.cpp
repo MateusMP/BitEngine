@@ -8,14 +8,12 @@ namespace BitEngine{
 
 	bool Sprite2DRenderer::Init()
 	{
-		GLuint vbo[Sprite2DShader::NUM_VBOS];
-
 		shader = new Sprite2DShader();
 		if (shader->Init() <= 0)
 			return false;
 
 		for (int i = 0; i < (int)SpriteSortType::TOTAL; ++i){
-			m_batchRenderers.push_back(new BatchRenderer((SpriteSortType)i, shader->CreateVAO(vbo), vbo));
+			m_batchRenderers.push_back(new BatchRenderer((SpriteSortType)i));
 		}
 
 		return true;
@@ -49,7 +47,7 @@ namespace BitEngine{
 	void Sprite2DRenderer::Render()
 	{
 		// Render
-		// shader->LoadViewMatrix(activeCamera->getMatrix());
+		
 		shader->Bind();
 		for (BatchRenderer* b : m_batchRenderers)
 		{
@@ -62,22 +60,17 @@ namespace BitEngine{
 	///										BATCH
 	/// ===============================================================================================
 
-	Sprite2DRenderer::BatchRenderer::BatchRenderer(SpriteSortType s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS])
-		: m_sorting(s), m_vao(vao)
+	Sprite2DRenderer::BatchRenderer::BatchRenderer(SpriteSortType s)
+		: m_sorting(s)
 	{
-		for (int i = 0; i < Sprite2DShader::NUM_VBOS; ++i){
-			m_vbo[i] = vbo[i];
-		}
+		// Create at least one VAO
+		m_VAOS.emplace_back(Sprite2DShader::CreateVAO());
 	}
 
 	Sprite2DRenderer::BatchRenderer::~BatchRenderer()
 	{
-		if (m_vao != 0){
-			glDeleteVertexArrays(1, &m_vao);
-		}
-
-		if (m_vbo[0] != 0){
-			glDeleteBuffers(Sprite2DShader::NUM_VBOS, m_vbo);
+		for (Sprite2DShader::Vao& v : m_VAOS){
+			v.free();
 		}
 	}
 
@@ -126,32 +119,24 @@ namespace BitEngine{
 		std::vector<glm::mat3> modelMatrices;
 
 		texAtexB.reserve(m_elements.size() * 6); // 4 texcoord (x,y) + 2 (x,y) size/offset per glyph
+		modelMatrices.reserve(m_elements.size());
 		batches.clear();
 
 		int offset = 0;
-		const Sprite* spr = m_elements[0].sprite;
-		const glm::vec4& uvrect = spr->getUV();
-		batches.emplace_back(0, 1, spr->getTexture(), spr->isTransparent());
-		texAtexB.emplace_back(uvrect.x, uvrect.y); // BL  xw   zw
-		texAtexB.emplace_back(uvrect.z, uvrect.y); // BR  
-		texAtexB.emplace_back(uvrect.x, uvrect.w); // TL  
-		texAtexB.emplace_back(uvrect.z, uvrect.w); // TR  xy   zy
-		texAtexB.emplace_back(-spr->getOffsetX(), -spr->getOffsetY());
-		texAtexB.emplace_back(spr->getWidth(), spr->getHeight());
-		modelMatrices.emplace_back(*m_elements[0].modelMatrix);
 
-		const Sprite* lastSpr = spr;
-		for (uint32 cg = 1; cg < m_elements.size(); cg++)
+		const Sprite* lastSpr = nullptr;
+		for (uint32 cg = 0; cg < m_elements.size(); cg++)
 		{
 			const Sprite* spr = m_elements[cg].sprite;
 			const glm::vec4& uvrect = spr->getUV();
 
-			offset += 1;
-
-			if (spr->getTexture() != lastSpr->getTexture() || spr->isTransparent() != lastSpr->isTransparent())
+			if (spr != lastSpr 
+				|| spr->getTexture() != lastSpr->getTexture() 
+				|| spr->isTransparent() != lastSpr->isTransparent() )
 			{
 				batches.emplace_back(offset, 0, spr->getTexture(), spr->isTransparent());
 			}
+			offset += 1;
 			batches.back().nItems += 1;
 			lastSpr = spr;
 
@@ -164,23 +149,57 @@ namespace BitEngine{
 			modelMatrices.emplace_back(*m_elements[cg].modelMatrix);
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[Sprite2DShader::VBO_VERTEXDATA]);
-		glBufferData(GL_ARRAY_BUFFER, texAtexB.size() * sizeof(glm::vec2), texAtexB.data(), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
+		if (glewIsSupported("GL_VERSION_4_2") )
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_VERTEXDATA]);
+			glBufferData(GL_ARRAY_BUFFER, texAtexB.size() * sizeof(glm::vec2), texAtexB.data(), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
 
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[Sprite2DShader::VBO_MODELMAT]);
-		glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data(), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
+			glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_MODELMAT]);
+			glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data(), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		} else {
+			
+			// Create more VAOs
+			while (m_VAOS.size() < batches.size()){
+				m_VAOS.emplace_back( Sprite2DShader::CreateVAO() );
+			}
+
+			// Bind data for each batch
+			for (uint32 i = 0; i < batches.size(); ++i)
+			{
+				Batch& b = batches[i];
+
+				glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_VERTEXDATA]);
+				glBufferData(GL_ARRAY_BUFFER, b.nItems*6 * sizeof(glm::vec2), texAtexB.data() + (b.offset*6), GL_DYNAMIC_DRAW); // TODO: verify best mode to use
+
+				glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_MODELMAT]);
+				glBufferData(GL_ARRAY_BUFFER, b.nItems * sizeof(glm::mat3), modelMatrices.data() + b.offset, GL_DYNAMIC_DRAW); // TODO: verify best mode to use
+			}
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		}
 
 		check_gl_error();
 	}
 
-
 	void Sprite2DRenderer::BatchRenderer::renderBatches()
 	{
-		glBindVertexArray(m_vao);
-
 		glActiveTexture(GL_TEXTURE0 + Sprite2DShader::TEXTURE_DIFFUSE);
+
+		if (glewIsSupported("GL_VERSION_4_2")){
+			renderGL4();
+		} else {
+			renderGL3();
+		}
+
+		check_gl_error();
+	}
+
+	void Sprite2DRenderer::BatchRenderer::renderGL4()
+	{
+		glBindVertexArray(m_VAOS[0].VAO);
+
 		for (const Batch& r : batches)
 		{
 			if (r.transparent){
@@ -197,8 +216,30 @@ namespace BitEngine{
 		}
 
 		glBindVertexArray(0);
+	}
 
-		check_gl_error();
+	void Sprite2DRenderer::BatchRenderer::renderGL3()
+	{
+		for (uint32 i = 0; i < batches.size(); ++i)
+		{
+			glBindVertexArray(m_VAOS[i].VAO);
+
+			const Batch& r = batches[i];
+			if (r.transparent){
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			}
+			glBindTexture(GL_TEXTURE_2D, r.texture);
+
+			glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, r.nItems);
+
+			if (r.transparent){
+				glDisable(GL_BLEND);
+			}
+
+		}
+
+		glBindVertexArray(0);
 	}
 
 	bool Sprite2DRenderer::BatchRenderer::compare_DepthTexture(const RenderingElement& a, const RenderingElement& b){

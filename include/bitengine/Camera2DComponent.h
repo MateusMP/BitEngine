@@ -42,6 +42,9 @@ namespace BitEngine {
 			glm::vec4 getWorldViewArea() const;
 			
 		private:
+			friend class Camera2DProcessor;
+
+		private:
 			int m_width;
 			int m_height;
 
@@ -53,10 +56,6 @@ namespace BitEngine {
 
 			bool changed;
 
-			bool m_active;
-
-		private:
-			friend class Camera2DProcessor;
 	};
 
 

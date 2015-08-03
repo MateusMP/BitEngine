@@ -35,10 +35,11 @@ namespace BitEngine{
 		void Render();
 
 	public:
+		
 		class BatchRenderer
 		{
 		public:
-			BatchRenderer(SpriteSortType s, GLuint vao, GLuint vbo[Sprite2DShader::NUM_VBOS]);
+			BatchRenderer(SpriteSortType s);
 			~BatchRenderer();
 
 			void begin();
@@ -58,6 +59,9 @@ namespace BitEngine{
 				int nItems;
 				uint32 texture;
 				bool transparent;
+
+				GLuint iVAO;
+				GLuint* iVBO;
 			};
 
 			struct RenderingElement {
@@ -76,19 +80,24 @@ namespace BitEngine{
 			void createRenderers();
 			void renderBatches();
 
+			void renderGL4();
+			void renderGL3();
+
 			static bool compare_DepthTexture(const RenderingElement& a, const RenderingElement& b);
 
 		private:
 			SpriteSortType m_sorting;
 
-			GLuint m_vao;
-			GLuint m_vbo[Sprite2DShader::NUM_VBOS];
+			//GLuint m_vao;
+			//GLuint m_vbo[Sprite2DShader::NUM_VBOS];
 
 			//std::vector<RenderingComponent> m_components; // Components used by this batch - sorted
 			std::vector<RenderingElement> m_elements;
 
 			// Batches
 			std::vector<Batch> batches;
+
+			std::vector<Sprite2DShader::Vao> m_VAOS;
 		};
 
 	private:

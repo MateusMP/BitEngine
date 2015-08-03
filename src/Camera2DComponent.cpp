@@ -44,11 +44,6 @@ namespace BitEngine{
 		return m_zoom;
 	}
 
-	void Camera2DComponent::setActive(bool a)
-	{
-		m_active = a;
-	}
-
 	const glm::mat4& Camera2DComponent::getMatrix() const {
 		return m_cameraMatrix;
 	}

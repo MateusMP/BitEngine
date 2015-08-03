@@ -85,6 +85,7 @@
     <ClCompile Include="src\GameLogicProcessor.cpp" />
     <ClCompile Include="src\glSystem.cpp" />
     <ClCompile Include="src\Graphics\error_texture.cpp" />
+    <ClCompile Include="src\Graphics\Sprite2DRenderer.cpp" />
     <ClCompile Include="src\InputSystem.cpp" />
     <ClCompile Include="src\ModelManager.cpp" />
     <ClCompile Include="src\MessageChannel.cpp" />

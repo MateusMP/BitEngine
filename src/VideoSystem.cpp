@@ -59,7 +59,16 @@ bool VideoSystem::Init()
 	LOGTO(Verbose) << "Video initialized!" << endlog;
 
     glewExperimental = GL_TRUE;
-    glewInit();
+	if (glewInit() != GLEW_OK){
+		LOGTO(Error) << "Video: Failed to initialize opengl!" << endlog;
+		glfwTerminate();
+		return false;
+	}
+
+	// Log to error to force output on all build versions
+	LOGTO(Error) << "[video info] Vendor: " << glGetString(GL_VENDOR) << endlog;
+	LOGTO(Error) << "[video info] Renderer: " << glGetString(GL_RENDERER) << endlog;
+	LOGTO(Error) << "[video info] Version: " << glGetString(GL_VERSION) << endlog;
 
 	glEnable(GL_TEXTURE_2D);
 

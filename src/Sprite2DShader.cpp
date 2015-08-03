@@ -117,24 +117,24 @@ namespace BitEngine{
 		loadMatrix(u_viewMatrixHdl, &(u_viewMatrix[0][0]) );
 	}
 
-	GLuint Sprite2DShader::CreateVAO(GLuint* outVBO) {
-		GLuint vao;
+	Sprite2DShader::Vao Sprite2DShader::CreateVAO() {
+		Vao vaoHolder;
 
 		// VAO
-		glGenVertexArrays(1, &vao);
-		if (vao == 0){
+		glGenVertexArrays(1, &vaoHolder.VAO);
+		if (vaoHolder.VAO == 0){
 			LOGTO(Error) << "Sprite2DBatch: Could not create VAO." << endlog;
 		}
-		glBindVertexArray(vao);
+		glBindVertexArray(vaoHolder.VAO);
 
 		// VBO
-		glGenBuffers(NUM_VBOS, outVBO);
-		if (outVBO[0] == 0){
+		glGenBuffers(NUM_VBOS, vaoHolder.VBO);
+		if (vaoHolder.VBO[0] == 0){
 			LOGTO(Error) << "Sprite2DBatch: Could not create VBO." << endlog;
 		}
 		
 		// Attributes
-		glBindBuffer(GL_ARRAY_BUFFER, outVBO[VBO_VERTEXDATA]);
+		glBindBuffer(GL_ARRAY_BUFFER, vaoHolder.VBO[VBO_VERTEXDATA]);
 		for (int i = 0; i < ATTR_MODEL_MAT; ++i){
 			glEnableVertexAttribArray(ATTR_VERTEX_TEX + i);
 			glVertexAttribPointer(ATTR_VERTEX_TEX + i, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 12, (void*)(i * 2 * sizeof(GLfloat)));
@@ -150,7 +150,7 @@ namespace BitEngine{
 		// printf("offsetA: %d\n", offsetof(Vertex, position));
 		// printf("offsetB: %d\n", offsetof(Vertex, uv));
 
-		glBindBuffer(GL_ARRAY_BUFFER, outVBO[VBO_MODELMAT]);
+		glBindBuffer(GL_ARRAY_BUFFER, vaoHolder.VBO[VBO_MODELMAT]);
 		for (int i = 0; i < VERTEX_MATRIX3_ATTIBUTE_SIZE; ++i){
 			glEnableVertexAttribArray(ATTR_MODEL_MAT + i);
 			glVertexAttribPointer(ATTR_MODEL_MAT + i, 3, GL_FLOAT, GL_FALSE, sizeof(glm::mat3), (void*)(sizeof(GLfloat)*3*i) );
@@ -159,6 +159,6 @@ namespace BitEngine{
 
 		glBindVertexArray(0);
 
-		return vao;
+		return vaoHolder;
 	}
 }

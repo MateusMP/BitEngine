@@ -3,20 +3,15 @@
 namespace BitEngine{
 
 Camera2DProcessor::Camera2DProcessor(EntitySystem* es, Transform2DProcessor* t2p)
-	: m_entitySys(es), m_t2p(t2p), activeCamera(nullptr)
+	: m_entitySys(es), m_t2p(t2p)
 {
-}
-
-Camera2DComponent* Camera2DProcessor::getActiveCamera() const
-{
-	return activeCamera;
 }
 
 bool Camera2DProcessor::Init(){
 	return true;
 }
 
-void Camera2DProcessor::recalculateMatrix(Camera2DComponent* c, Transform2DComponent* t)
+void Camera2DProcessor::recalculateMatrix(Camera2DComponent* c, const Transform2DComponent* t)
 {
 	// Uses look at as focal point
 	glm::vec2 translation = -t->getPosition() + glm::vec2(c->m_width / 2 - c->m_lookAt.x, c->m_height / 2 - c->m_lookAt.y);
@@ -32,25 +27,16 @@ void Camera2DProcessor::FrameEnd()
 {
 	const std::vector<ComponentHandle>& cameras = components.getValidComponents();
 
-	for (ComponentHandle c : cameras)
-	{
-		Camera2DComponent* cam = components.getComponent(c);
-		if (cam->m_active)
-		{
-			std::vector<ComponentHandle> search;
-			std::vector<ComponentHandle> answer;
-			std::vector<uint32> indices;
-			search.push_back(c);
-			
-			m_entitySys->findAllTuples<Camera2DComponent, Transform2DComponent>(search, answer, indices);
-			if (indices.size() == 1)
-			{
-				Transform2DComponent* cp = static_cast<Transform2DComponent*>(m_t2p->getComponent(answer[0]));
+	std::vector<Component*> answer;
+	m_entitySys->findAllTuplesOf<Camera2DComponent, Transform2DComponent>(answer);
 
-				activeCamera = cam;
-				recalculateMatrix(cam, cp);
-				break;
-			}
+	for (uint32 i = 0; i < answer.size(); i+=2)
+	{
+		Camera2DComponent* cam = (Camera2DComponent*)answer[i];
+		const Transform2DComponent* camTransform = (const Transform2DComponent*)answer[i + 1];
+		if (cam->changed)
+		{	
+			recalculateMatrix(cam, camTransform);
 		}
 	}
 }
