@@ -4,6 +4,12 @@
 
 #define NO_ERROR					 1
 
+// CONFIGURATION
+#define ERROR_UNKNOWN_SYSTEM		-1
+#define ERROR_UNKNOWN_CONFIG		-2
+#define ERROR_BAD_CONFIG			-3
+#define ERROR_CONFIG_WITHOUT_SYS	-4
+
 // SHADER
 #define FAILED_TO_READ				-1
 #define FAILED_TO_COMPILE			-2

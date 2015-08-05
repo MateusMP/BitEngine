@@ -37,7 +37,8 @@ void GameEngine::GLFW_ErrorCallback(int error, const char* description)
     LOGTO(Error) << "GLFW Error: " << error << ": " << description << endlog;
 }
 
-GameEngine::GameEngine()
+GameEngine::GameEngine(const std::string& configFile)
+	: configuration(configFile)
 {
     Channel::AddListener<WindowClose>(this);
 }
@@ -54,7 +55,12 @@ void GameEngine::Message(const WindowClose& msg)
 
 void GameEngine::AddSystem(System *sys)
 {
+	if (std::find(systems.begin(), systems.end(), sys) != systems.end())
+		return;
+
     systems.push_back(sys);
+
+	configuration.AddConfiguration(sys->getConfiguration());
 }
 
 System* GameEngine::getSystem(const std::string& name) const
@@ -71,6 +77,11 @@ System* GameEngine::getSystem(const std::string& name) const
 bool GameEngine::InitSystems()
 {
 	LOG() << "Initializing " << systems.size() << " systems " << endlog;
+
+	LOG() << "Loadiging system configurations..." << endlog;
+	configuration.LoadConfigurations();
+
+	LOG() << "Loadiging systems..." << endlog;
     for ( System* s : systems )
     {
         if (!s->Init())

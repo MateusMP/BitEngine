@@ -117,6 +117,7 @@
     <ClInclude Include="include\bitengine\ComponentProcessor.h" />
     <ClInclude Include="include\bitengine\Components.h" />
     <ClInclude Include="include\bitengine\ComponentsType.h" />
+    <ClInclude Include="include\bitengine\EngineConfiguration.h" />
     <ClInclude Include="include\bitengine\EngineLoggers.h" />
     <ClInclude Include="include\bitengine\EntitySystem.h" />
     <ClInclude Include="include\bitengine\ErrorCodes.h" />
@@ -143,6 +144,7 @@
     <ClInclude Include="include\bitengine\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\SpriteManager.h" />
     <ClInclude Include="include\bitengine\System.h" />
+    <ClInclude Include="include\bitengine\SystemConfiguration.h" />
     <ClInclude Include="include\bitengine\Task.h" />
     <ClInclude Include="include\bitengine\TaskManager.h" />
     <ClInclude Include="include\bitengine\Texture.h" />

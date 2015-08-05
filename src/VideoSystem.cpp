@@ -19,6 +19,7 @@ void VideoSystem::GlfwFrameResizeCallback(GLFWwindow* window, int width, int hei
 VideoSystem::VideoSystem()
 	: System("Video"), m_glfwWindow(nullptr)
 {
+	configuration.AddConfiguration("Fullscreen", "0");
     m_Window.m_Title = "WINDOW";
     m_Window.m_Width = 1280;
     m_Window.m_Height = 720;

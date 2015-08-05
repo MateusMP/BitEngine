@@ -281,5 +281,11 @@
     <ClInclude Include="include\bitengine\Texture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="include\bitengine\SystemConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\EngineConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

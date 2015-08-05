@@ -7,6 +7,8 @@
 
 #include "Graphics.h"
 
+#include "EngineConfiguration.h"
+
 // Basic Systems
 #include "VideoSystem.h"
 #include "EntitySystem.h"
@@ -29,7 +31,7 @@ class GameEngine
     public:
         static void GLFW_ErrorCallback(int error, const char* description);
 
-        GameEngine();
+        GameEngine(const std::string& configFile);
         ~GameEngine();
 
         bool Run();
@@ -78,6 +80,8 @@ class GameEngine
         std::vector<System*> systems;
 		std::vector<System*> systemsToShutdown;
         bool running;
+
+		EngineConfiguration configuration;
 };
 
 }
