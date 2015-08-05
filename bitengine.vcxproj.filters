@@ -135,6 +135,9 @@
     <ClCompile Include="src\Texture.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\EngineConfiguration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Color.h">
@@ -275,9 +278,6 @@
     <ClInclude Include="include\bitengine\Sprite2DRenderer.h">
       <Filter>Graphics\Shaders\Renderers</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite.h">
-      <Filter>ResourceSystem</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\Texture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -286,6 +286,9 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\EngineConfiguration.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

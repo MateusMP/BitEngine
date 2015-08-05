@@ -161,23 +161,35 @@ void VideoSystem::DestroyGLFWWindow()
 
 void VideoSystem::Update()
 {
-    if (glfwWindowShouldClose(m_Window.m_glfwWindow)){
-		Channel::Broadcast<WindowClosed>(WindowClosed(&m_Window));
-        return;
-    }
+	// EXAMPLE VIDEO UPDATE LAYOUT
+
+	// Check if the window was closed, do nothing in this case.
+	if (CheckWindowClosed())
+		return;
     
+	// Swap buffers / redraws window
 	UpdateWindow();
 
 	// Prepare for next frame
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Draw things here ~~ 
+	// Draw more things here ~~ 
 }
 
 void VideoSystem::UpdateWindow()
 {
 	glfwSwapBuffers(m_Window.m_glfwWindow);
+}
+
+bool VideoSystem::CheckWindowClosed()
+{
+	if (glfwWindowShouldClose(m_Window.m_glfwWindow)){
+		Channel::Broadcast<WindowClosed>(WindowClosed(&m_Window));
+		return true;
+	}
+
+	return false;
 }
 
 void VideoSystem::RecreateWindow()

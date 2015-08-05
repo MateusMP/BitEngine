@@ -80,6 +80,7 @@
     <ClCompile Include="src\Camera2DProcessor.cpp" />
     <ClCompile Include="src\Camera3DProcessor.cpp" />
     <ClCompile Include="src\CommandSystem.cpp" />
+    <ClCompile Include="src\EngineConfiguration.cpp" />
     <ClCompile Include="src\EntitySystem.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\GameLogicProcessor.cpp" />

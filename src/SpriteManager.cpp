@@ -1,13 +1,25 @@
-
 #include "SpriteManager.h"
 
 #include "EngineLoggers.h"
+#include "TextureManager.h"
 
 namespace BitEngine{
 
-	SpriteManager::SpriteManager(){
-		// TODO: Create default invalid sprite texture
-		m_sprites.emplace_back(); // First sprite is INVALID
+	SpriteManager::SpriteManager(TextureManager* textureManager)
+		: m_textureManager(textureManager)
+	{
+	}
+
+	bool SpriteManager::Init()
+	{
+		m_sprites.clear();
+		m_freeSlots.clear();
+		m_sprLookUp.clear();
+		m_sprLookUpInv.clear();
+
+		m_sprites.emplace_back(m_textureManager->getErrorTexture()->getID(), 64, 64, 0.0f, 0.0f, glm::vec4(0, 0, 1, 1), false); // First sprite is INVALID
+
+		return true;
 	}
 
 	SpriteHandle SpriteManager::createSprite(const std::string& name, const Sprite& spr)
@@ -36,6 +48,9 @@ namespace BitEngine{
 
 	void SpriteManager::removeSprite(SpriteHandle hdl)
 	{
+		if (hdl == 0)
+			return;
+
 		m_freeSlots.emplace_back(hdl);
 
 		auto it = m_sprLookUpInv.find(hdl);
@@ -47,6 +62,9 @@ namespace BitEngine{
 
 	bool SpriteManager::replaceSprite(SpriteHandle hdl, const Sprite& spr)
 	{
+		if (hdl == 0)
+			return false;
+
 		if (m_sprites.size() <= hdl){
 			LOGTO(Warning) << "SpriteManager: replaceSprite Invalid SpriteHandle: " <<  hdl << endlog;
 			return false;
@@ -69,7 +87,7 @@ namespace BitEngine{
 	{
 #ifdef _DEBUG
 		if (m_sprites.size() <= hdl){
-			//LOGTO(Warning) << "SpriteManager: Invalid SpriteHandle!" << endlog;
+			LOGTO(Warning) << "SpriteManager: Invalid SpriteHandle!" << endlog;
 			return nullptr;
 		}
 #endif

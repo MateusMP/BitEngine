@@ -50,6 +50,8 @@ namespace BitEngine{
 			 */
 			void UpdateWindow();
 
+			bool CheckWindowClosed();
+
 			void RecreateWindow();
 
 			void RegisterForResizeCallback(VideoSystem* vs, Window* window);

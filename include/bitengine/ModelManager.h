@@ -23,6 +23,9 @@ namespace BitEngine{
 		ModelManager(TextureManager* textureMng) {
 			m_textureManager = textureMng;
 		}
+		~ModelManager();
+
+		bool Init();
 
 		/**
 		 * Load a model for use in a given shader.

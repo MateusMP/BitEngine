@@ -7,9 +7,13 @@
 
 namespace BitEngine{
 
+	class TextureManager;
+
 	class SpriteManager{
 	public:
-		SpriteManager();
+		SpriteManager(TextureManager* textureManager);
+
+		bool Init();
 
 		/**
 		 * Insert a new sprite
@@ -60,6 +64,8 @@ namespace BitEngine{
 		std::map<SpriteHandle, std::string> m_sprLookUpInv;
 		std::vector<Sprite> m_sprites;
 		std::vector<SpriteHandle> m_freeSlots;
+
+		TextureManager* m_textureManager;
 		
 	};
 

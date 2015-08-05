@@ -8,13 +8,17 @@ namespace BitEngine
 class Texture
 {
     public:
-		friend class TextureManager;
+		Texture();
+		// ~Texture() PRIVATE.
 
         GLuint getID() const;
 
 		void bind(GLenum unit) const;
 
     private:
+		friend class TextureManager;
+		~Texture(); // Only the texture manager may delete Textures.
+
         GLenum m_textureType; ///< OpenGL texture type (GL_TEXTURE_??? , )
         GLuint m_textureID;
 

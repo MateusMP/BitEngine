@@ -14,6 +14,9 @@ namespace BitEngine{
 			TextureManager();
 			~TextureManager();
 
+			bool Init();
+
+			const Texture* getErrorTexture();
 			const Texture* LoadTexture2D(const std::string& path);
 
 		private:

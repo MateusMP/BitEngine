@@ -2,6 +2,9 @@
 
 namespace BitEngine{
 
+Texture::Texture()
+	: m_textureID(0), m_textureType(0)
+{}
 
 GLuint Texture::getID() const{
 

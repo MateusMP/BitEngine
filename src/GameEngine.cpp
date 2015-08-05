@@ -89,7 +89,7 @@ bool GameEngine::InitSystems()
     {
         if (!s->Init())
         {
-            LOG() << "System " << s->getName().c_str() << " failed to initialize!\n" << endlog;
+            LOG() << "System " << s->getName() << " failed to initialize!\n" << endlog;
             return false;
         }
 
@@ -107,6 +107,7 @@ void GameEngine::ShutdownSystems()
 
 	// Shutdown in reverse order
 	for (auto it = systemsToShutdown.rbegin(); it != systemsToShutdown.rend(); ++it){
+		LOG() << "Shutting down " << (*it)->getName() << endlog;
         (*it)->Shutdown();
     }
 }

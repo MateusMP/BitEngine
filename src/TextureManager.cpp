@@ -36,15 +36,29 @@ TextureManager::TextureManager()
 	error_texture.m_textureID = 0;
 }
 
-TextureManager::~TextureManager(){
+TextureManager::~TextureManager()
+{
 	for (TextureMap::iterator it = m_textures.begin(); it != m_textures.end(); ++it){
 		Texture *tex = it->second;
 
 		glDeleteTextures(1, &tex->m_textureID);
+		delete tex;
 	}
 
 	if (error_texture.m_textureID != 0)
 		glDeleteTextures(1, &error_texture.m_textureID);
+}
+
+bool TextureManager::Init()
+{
+	GenerateErrorTexture(error_texture.m_textureID);
+
+	return true;
+}
+
+const Texture* TextureManager::getErrorTexture()
+{
+	return &error_texture;
 }
 
 const Texture* TextureManager::LoadTexture2D(const std::string& path)
@@ -59,11 +73,7 @@ const Texture* TextureManager::LoadTexture2D(const std::string& path)
 
 	if (image == NULL){
 		LOGTO(Error) << "LoadTexture: failed to open texture: " << path << endlog;
-		if (error_texture.m_textureID == 0){
-			GenerateErrorTexture(error_texture.m_textureID);
-		}
-
-		return &error_texture;
+		return getErrorTexture();
 	}
 
 	GLuint textureID;
