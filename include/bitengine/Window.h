@@ -4,9 +4,9 @@
 
 namespace BitEngine{
 
-class Window
-{
-    public:
+	class Window
+	{
+	public:
 		bool m_Resizable;
 		bool m_FullScreen;
 
@@ -22,9 +22,22 @@ class Window
 		unsigned int m_StencilBits;
 
 		std::string m_Title;
-};
+	};
+}
 
+#include "Graphics.h"
+namespace BitEngine{
 
+	class Window_glfw : public Window
+	{
+	public:
+		Window_glfw()
+			: m_glfwWindow(nullptr)
+		{
+		}
+
+		GLFWwindow* m_glfwWindow;
+	};
 
 }
 

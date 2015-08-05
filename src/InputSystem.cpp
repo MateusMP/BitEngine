@@ -6,13 +6,14 @@
 
 namespace BitEngine{
 
-std::unordered_map<GLFWwindow*, InputReceiver> InputSystem::inputReceivers;
+std::unordered_map<Window*, InputReceiver> InputSystem::inputReceivers;
 
 
 InputSystem::InputSystem()
     : System("Input")
 {
     Channel::AddListener<WindowCreated>(this);
+	Channel::AddListener<WindowClosed>(this);
 }
 
 InputSystem::~InputSystem(){
@@ -25,12 +26,24 @@ bool InputSystem::Init()
 
 void InputSystem::Update()
 {
-
+	PoolEvents();
 }
 
 void InputSystem::Shutdown()
 {
 
+}
+
+Window* InputSystem::FindGLFWwindow(GLFWwindow* window)
+{
+	for (auto& it = inputReceivers.begin(); it != inputReceivers.end(); ++it){
+		Window_glfw* glfwW = static_cast<Window_glfw*>(it->first);
+		if (glfwW->m_glfwWindow == window){
+			return glfwW;
+		}
+	}
+
+	return nullptr;
 }
 
 void InputSystem::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -40,8 +53,14 @@ void InputSystem::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int
 	}
 
 	// LOGTO(Verbose) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods << endlog;
+	Window *w = FindGLFWwindow(window);
 
-	auto it = inputReceivers.find(window);
+	if (w == nullptr){
+		LOGTO(Warning) << "Unhandled key callback!" << endlog;
+		return;
+	}
+
+	auto it = inputReceivers.find(w);
 	if (it != inputReceivers.end()){
 		it->second.keyboardInput(key, scancode, action, mods);
 	} else {
@@ -51,7 +70,14 @@ void InputSystem::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int
 
 void InputSystem::GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	auto it = inputReceivers.find(window);
+	Window* w = FindGLFWwindow(window);
+
+	if (w == nullptr){
+		LOGTO(Warning) << "Unhandled mouse callback!" << endlog;
+		return;
+	}
+
+	auto it = inputReceivers.find(w);
 	if (it != inputReceivers.end()){
 		it->second.mouseInput(button, action, mods);
 	} else {
@@ -60,8 +86,14 @@ void InputSystem::GlfwMouseCallback(GLFWwindow* window, int button, int action, 
 }
 
 void InputSystem::GlfwMousePosCallback(GLFWwindow* window, double x, double y){
+	Window* w = FindGLFWwindow(window);
 
-	auto it = inputReceivers.find(window);
+	if (w == nullptr){
+		LOGTO(Warning) << "Unhandled mouse pos callback!" << endlog;
+		return;
+	}
+
+	auto it = inputReceivers.find(w);
 	if (it != inputReceivers.end()){
 		it->second.mouseInput(x, y);
 	}
@@ -75,9 +107,21 @@ void InputSystem::Message(const WindowCreated& wndcr)
 	// Creates instance for this window
 	inputReceivers[wndcr.window];
 
-    glfwSetKeyCallback(wndcr.window, GlfwKeyCallback);
-	glfwSetMouseButtonCallback(wndcr.window, GlfwMouseCallback);
-	glfwSetCursorPosCallback(wndcr.window, GlfwMousePosCallback);
+	const Window_glfw* glfwW = static_cast<const Window_glfw*>(wndcr.window);
+
+	// Define callback for functions
+	glfwSetKeyCallback(glfwW->m_glfwWindow, GlfwKeyCallback);
+	glfwSetMouseButtonCallback(glfwW->m_glfwWindow, GlfwMouseCallback);
+	glfwSetCursorPosCallback(glfwW->m_glfwWindow, GlfwMousePosCallback);
+}
+
+void InputSystem::Message(const WindowClosed& wndcr)
+{
+	const Window_glfw* glfwW = static_cast<const Window_glfw*>(wndcr.window);
+
+	Window *w = FindGLFWwindow(glfwW->m_glfwWindow);
+
+	inputReceivers.erase(w);
 }
 
 InputReceiver::KeyMod InputSystem::isKeyPressed(int key)
@@ -114,6 +158,11 @@ double InputSystem::getMouseY() const
 		return -1;
 
 	return w->second.getMouseY();
+}
+
+void InputSystem::PoolEvents()
+{
+	glfwPollEvents();
 }
 
 void InputReceiver::keyboardInput(int key, int scancode, int action, int mods)

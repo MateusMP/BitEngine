@@ -18,8 +18,9 @@ namespace BitEngine{
 	class EntityHolderComponent : public Component{
 		public:
 			EntityHolderComponent(EntityHandle ent, EntitySystem* sys)
-				: m_myEntity(ent), e_sys(sys) {
-				printf("%p EntityHolderComponent(%u, %p)\n", this, ent, sys);
+				: m_myEntity(ent), e_sys(sys) 
+			{
+				// printf("%p EntityHolderComponent(%u, %p)\n", this, ent, sys);
 			}
 
 			EntityHandle m_myEntity;

@@ -8,9 +8,10 @@
 	#define MIN_SEVERITY LOG_SEVERITY_VERBOSE
 
 	// to hide logs: LOG_SEVERITY_NO_LOGS
-	NEW_CONSOLE_LOG(Verbose, "Info",		LOG_SEVERITY_VERBOSE,	MIN_SEVERITY);
+	NEW_CONSOLE_LOG(Verbose, "Verbose",		LOG_SEVERITY_VERBOSE,	MIN_SEVERITY);
 	NEW_CONSOLE_LOG(Warning, "Warning",		LOG_SEVERITY_WARNING,	MIN_SEVERITY);
 	NEW_CONSOLE_LOG(Error,	 "Error",		LOG_SEVERITY_ERROR,		MIN_SEVERITY);
+	NEW_CONSOLE_LOG(Info,	 "Info",		LOG_SEVERITY_INFO,		MIN_SEVERITY);
 #else
 	#undef _LOG_SEVERITY_
 	#define MIN_SEVERITY LOG_SEVERITY_VERBOSE
@@ -21,11 +22,13 @@
 	NEW_LOG(Verbose, "Verbose", "BE_Info.log", LOG_SEVERITY_VERBOSE, MIN_SEVERITY);
 	NEW_LOG(Warning, "Warning", "BE_Warning.log", LOG_SEVERITY_WARNING, MIN_SEVERITY);
 	NEW_LOG(Error, "Error", "BE_Error.log", LOG_SEVERITY_ERROR, MIN_SEVERITY);
+	NEW_LOG(Info, "Info", "BE_Info.log",	LOG_SEVERITY_INFO,	MIN_SEVERITY);
 
 	// console log
 	// NEW_CONSOLE_LOG(Verbose, "Verbose", LOG_SEVERITY_VERBOSE, MIN_SEVERITY);
 	// NEW_CONSOLE_LOG(Warning, "Warning", LOG_SEVERITY_WARNING, MIN_SEVERITY);
 	// NEW_CONSOLE_LOG(Error, "Error", LOG_SEVERITY_ERROR, MIN_SEVERITY);
+	// NEW_CONSOLE_LOG(Info, "Info", LOG_SEVERITY_INFO, MIN_SEVERITY);
 	
 #endif
 
@@ -40,7 +43,7 @@ void GameEngine::GLFW_ErrorCallback(int error, const char* description)
 GameEngine::GameEngine(const std::string& configFile)
 	: configuration(configFile)
 {
-    Channel::AddListener<WindowClose>(this);
+    Channel::AddListener<WindowClosed>(this);
 }
 
 GameEngine::~GameEngine()
@@ -48,7 +51,7 @@ GameEngine::~GameEngine()
 
 }
 
-void GameEngine::Message(const WindowClose& msg)
+void GameEngine::Message(const WindowClosed& msg)
 {
     running = false;
 }
@@ -60,7 +63,7 @@ void GameEngine::AddSystem(System *sys)
 
     systems.push_back(sys);
 
-	configuration.AddConfiguration(sys->getConfiguration());
+	configuration.AddConfiguration(sys->getName(), sys->getConfiguration());
 }
 
 System* GameEngine::getSystem(const std::string& name) const

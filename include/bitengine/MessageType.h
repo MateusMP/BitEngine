@@ -1,19 +1,23 @@
 #pragma once
 
 
-#include "Graphics.h"
+#include "Window.h"
 
 namespace BitEngine{
 
-struct WindowClose
+struct WindowClosed
 {
+	WindowClosed(Window *w) :window(w)
+	{}
+
+	Window* window;
 };
 
 struct WindowCreated
 {
-    WindowCreated(GLFWwindow *w): window(w){
+    WindowCreated(Window *w): window(w){
     }
-    GLFWwindow* window;
+    Window* window;
 };
 
 

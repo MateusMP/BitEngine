@@ -117,6 +117,7 @@ class InputSystem
         void Update() override;
 
         void Message(const WindowCreated& wndcr);
+		void Message(const WindowClosed& wndcr);
 
 		// Will verify for the main window (first created)
 		InputReceiver::KeyMod isKeyPressed(int key);
@@ -126,12 +127,18 @@ class InputSystem
 		double getMouseX() const;
 		double getMouseY() const;
 
+	protected:
+		void PoolEvents();
+
     private:
+
+		static Window* FindGLFWwindow(GLFWwindow* window);
+
         static void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 		static void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
 		static void GlfwMousePosCallback(GLFWwindow* window, double x, double y);
 		
-		static std::unordered_map<GLFWwindow*, InputReceiver> inputReceivers;
+		static std::unordered_map<Window*, InputReceiver> inputReceivers;
 
 };
 

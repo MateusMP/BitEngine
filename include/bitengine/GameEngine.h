@@ -36,7 +36,7 @@ class GameEngine
 
         bool Run();
 
-        void Message(const WindowClose& msg);
+        void Message(const WindowClosed& msg);
 
     protected:
 		virtual void CreateSystems()

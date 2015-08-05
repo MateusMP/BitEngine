@@ -17,9 +17,8 @@ namespace BitEngine
 		{
 		}
 
-		bool AddConfiguration(SystemConfiguration* sysConfig){
-			printf("Sysname: '%s' %d\n", sysConfig->getSystemName().c_str(), sysConfig->getSystemName().size());
-			return systemConfigs.emplace(sysConfig->getSystemName(), sysConfig).second;
+		bool AddConfiguration(const std::string& systemName, SystemConfiguration* sysConfig){
+			return systemConfigs.emplace(systemName, sysConfig).second;
 		}
 
 		void LoadConfigurations(){
@@ -32,7 +31,7 @@ namespace BitEngine
 			}
 
 			// Read configs
-			SystemConfiguration* workingSystem = nullptr;
+			std::map<std::string, SystemConfiguration*>::iterator workingSystem = systemConfigs.end();
 			while (!inFile.eof())
 			{
 				std::string line;
@@ -41,7 +40,7 @@ namespace BitEngine
 				auto& linestream = inFile.getline(&line[0], line.capacity());
 				line.resize(strlen(line.c_str()));
 
-				readLine(line, &workingSystem);
+				readLine(line, workingSystem);
 			}
 		}
 
@@ -63,7 +62,7 @@ namespace BitEngine
 			for (const auto& it : systemConfigs)
 			{
 				const SystemConfiguration* sysConf = it.second;
-				fileOut << "!" << sysConf->getSystemName() << std::endl;
+				fileOut << "!" << it.first << std::endl;
 
 				for (const auto& items : sysConf->getConfigs()){
 					const ConfigurationItem& item = items.second;
@@ -86,7 +85,7 @@ namespace BitEngine
 		  *			  ERROR_BAD_CONFIG		
 		  *			  ERROR_CONFIG_WITHOUT_SYS
 		  */
-		int readLine(const std::string& line, SystemConfiguration** workingSystem)
+		int readLine(const std::string& line, std::map<std::string, SystemConfiguration*>::iterator& workingSystem)
 		{
 			const char* LINE_COMMENT = "#";
 			const char* BLANK_SPACES = " \n\r\t";
@@ -129,14 +128,13 @@ namespace BitEngine
 
 				std::string sysName = workLine.substr(1, nameEnd);
 
-				auto it = systemConfigs.find(sysName);
-				if (it == systemConfigs.end()){
-					*workingSystem = nullptr;
+				workingSystem = systemConfigs.find(sysName);
+				if (workingSystem == systemConfigs.end()){
 					LOGTO(Warning) << "EngineConfiguration: system not found: '" << sysName << "'" << endlog;
 					return ERROR_UNKNOWN_SYSTEM;
 				}
-				else {
-					*workingSystem = it->second;
+				else
+				{
 					LOGTO(Verbose) << "EngineConfiguration: reading configuration for system: " << sysName << endlog;
 					return 1;
 				}
@@ -165,14 +163,14 @@ namespace BitEngine
 
 				// It's a config item
 				// Check if we are on a valid system
-				if (*workingSystem == nullptr){
+				if (workingSystem == systemConfigs.end()){
 					LOGTO(Warning) << "EngineConfiguration: configuration is not defined for a system: " << configName << endlog;
 					return ERROR_CONFIG_WITHOUT_SYS;
 				}
 
-				ConfigurationItem* configItem = (*workingSystem)->getConfig(configName);
+				ConfigurationItem* configItem = workingSystem->second->getConfig(configName);
 				if (configItem == nullptr){
-					LOGTO(Warning) << "Unknown configuration for system " << (*workingSystem)->getSystemName() << " with name: " << configName << endlog;
+					LOGTO(Warning) << "Unknown configuration for system " << workingSystem->first << " with name: " << configName << endlog;
 					return ERROR_UNKNOWN_CONFIG;
 				}
 
@@ -182,7 +180,7 @@ namespace BitEngine
 
 				configItem->setValue(configValue);
 
-				LOGTO(Error) << "[info] CONFIG " << (*workingSystem)->getSystemName() << ": " << configName << " set to " << configValue << endlog;
+				LOGTO(Info) << "CONFIG " << workingSystem->first << ": " << configName << " set to '" << configValue << "'" << endlog;
 				return 2;
 			}
 

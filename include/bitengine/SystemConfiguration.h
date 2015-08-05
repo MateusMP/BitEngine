@@ -4,8 +4,6 @@
 #include <vector>
 #include <map>
 
-
-
 namespace BitEngine
 {
 
@@ -56,13 +54,8 @@ namespace BitEngine
 	class SystemConfiguration
 	{
 	public:
-		SystemConfiguration(const std::string& sysName)
-			: m_systemName(sysName)
+		SystemConfiguration()
 		{
-		}
-
-		const std::string& getSystemName() const {
-			return m_systemName;
 		}
 
 		const std::map<std::string, ConfigurationItem>& getConfigs() const {
@@ -89,7 +82,6 @@ namespace BitEngine
 		}
 
 	private:
-		std::string m_systemName;
 		std::map<std::string, ConfigurationItem> configs;
 	};
 

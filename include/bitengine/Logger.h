@@ -9,6 +9,7 @@
 #define LOG_SEVERITY_VERBOSE		0		// Show ALL
 #define LOG_SEVERITY_WARNING		1
 #define LOG_SEVERITY_ERROR			2
+#define LOG_SEVERITY_INFO			3
 #define LOG_SEVERITY_NO_LOGS		100
 
 #define NEW_LOG(id, name, output, severity, minServ) \
