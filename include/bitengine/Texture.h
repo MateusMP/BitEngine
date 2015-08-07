@@ -17,11 +17,10 @@ class Texture
 
     private:
 		friend class TextureManager;
-		~Texture(); // Only the texture manager may delete Textures.
+		~Texture(){} // Only the texture manager may delete Textures.
 
         GLenum m_textureType; ///< OpenGL texture type (GL_TEXTURE_??? , )
         GLuint m_textureID;
-
 };
 
 

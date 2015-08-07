@@ -7,12 +7,18 @@
 #include "Component.h"
 #include "ComponentsType.h"
 
+
 namespace BitEngine{
+
 
 	class Transform3DComponent :
 		public Component
 	{
 	public:
+		const static glm::vec3 FORWARD;
+		const static glm::vec3 UP;
+		const static glm::vec3 RIGHT;
+
 		enum Dirty : unsigned char{
 			DIRTY_PARENT = 1,
 			DIRTY_DATA = 2,
@@ -55,6 +61,14 @@ namespace BitEngine{
 
 		void setParent(ComponentHandle p);
 		ComponentHandle getParent() const;
+
+		const glm::vec3& getForward() const {
+			return rotation * FORWARD;
+		}
+
+		const glm::vec3& getRight() const {
+			return rotation * RIGHT;
+		}
 
 
 	private:

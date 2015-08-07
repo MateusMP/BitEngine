@@ -34,9 +34,9 @@ void ResourceSystem::Update()
 
 void ResourceSystem::Shutdown()
 {
+	delete m_modelManager;
 	delete m_spriteManager;
 	delete m_textureManager;
-	delete m_modelManager;
 }
 
 SpriteManager* ResourceSystem::getSpriteManager() const{

@@ -39,14 +39,18 @@ TextureManager::TextureManager()
 TextureManager::~TextureManager()
 {
 	for (TextureMap::iterator it = m_textures.begin(); it != m_textures.end(); ++it){
-		Texture *tex = it->second;
-
-		glDeleteTextures(1, &tex->m_textureID);
-		delete tex;
+		Texture *tex = it->second.data;
+		releasetexture(tex);
 	}
 
 	if (error_texture.m_textureID != 0)
 		glDeleteTextures(1, &error_texture.m_textureID);
+}
+
+void TextureManager::releasetexture(Texture* tex)
+{
+	glDeleteTextures(1, &tex->m_textureID);
+	delete tex;
 }
 
 bool TextureManager::Init()
@@ -61,19 +65,88 @@ const Texture* TextureManager::getErrorTexture()
 	return &error_texture;
 }
 
-const Texture* TextureManager::LoadTexture2D(const std::string& path)
+const Texture* TextureManager::getTexture(const std::string& name)
 {
-	auto texfound = m_textures.find(path);
-	if (texfound != m_textures.end()){
-		return texfound->second;
+	const auto& it = m_textures.find(name);
+	if (it != m_textures.end())
+	{
+		// Wait something is loading it?
+		while (it->second.ready == false){}
+
+		return it->second.data;
+	}
+	else
+	{
+		return doLoad(name);
+	}
+}
+
+void TextureManager::LoadPackage(const DataPackage* package)
+{
+	for (const auto& it : package->getItems())
+	{
+		// Now load
+		doLoad(it.first);
 	}
 
+	m_LoadedPackages.emplace(package);
+}
+
+void TextureManager::ReleasePackage(const DataPackage* package)
+{
+	for (const auto& it : package->getItems())
+	{
+		const std::string& path = it.first;
+		auto texfound = m_textures.find(path);
+
+		// If resource is already loaded
+		// ref count it
+		if (texfound != m_textures.end())
+		{
+			if (--(texfound->second.countUsing) == 0)
+			{
+				releasetexture(texfound->second.data);
+				m_textures.erase(texfound);
+			}
+		}
+	}
+
+	m_LoadedPackages.erase(package);
+}
+
+const Texture* TextureManager::doLoad(const std::string& path)
+{
+	auto texfound = m_textures.find(path);
+
+	// If resource is already loaded
+	// ref count it
+	if (texfound != m_textures.end())
+	{
+		texfound->second.countUsing++;
+		return texfound->second.data;
+	}
+
+	// Create a not ready reference
+	auto alocated = m_textures.emplace(path, nullptr);
+
+	// Load
+	Texture* texture = loadTexture2D(path);
+
+	// Save
+	alocated.first->second.data = texture;
+	alocated.first->second.ready = true;
+
+	return texture;
+}
+
+Texture* TextureManager::loadTexture2D(const std::string& path)
+{
 	int w, h, c;
 	unsigned char* image = stbi_load(path.c_str(), &w, &h, &c, 0);
 
 	if (image == NULL){
 		LOGTO(Error) << "LoadTexture: failed to open texture: " << path << endlog;
-		return getErrorTexture();
+		return nullptr;
 	}
 
 	GLuint textureID;
@@ -120,8 +193,6 @@ const Texture* TextureManager::LoadTexture2D(const std::string& path)
 	Texture *texture = new Texture();
 	texture->m_textureID = textureID;
 	texture->m_textureType = GL_TEXTURE_2D;
-
-	m_textures[path] = texture;
 
 	return texture;
 }

@@ -37,12 +37,12 @@ class ComponentRef
 		ComponentRef(ComponentHandle h, ComponentHolderProcessor* p)
 			: handle(h), holder(p)
 		{}
-		/*
+		
 		const CompClass* operator -> () const{
-			printf("Calling CONST operator\n");
+			// printf("Calling CONST operator\n");
 			return (const CompClass*)holder->getComponent(handle);
 		}
-		*/
+		
 		CompClass* operator -> () {
 			// printf("Calling NORMAL operator\n");
 			return (CompClass*) holder->getComponent(handle);
@@ -136,10 +136,10 @@ class EntitySystem : public System
 		 * Component adress may change during execution
 		 * Use the ComponentHandle for long living references.
 		 * See getComponentRef
-		 * @param entity Entity to get the component from
+		 * \param entity Entity to get the component from
 		 */
 		template<typename CompClass>
-		CompClass* getComponentUnsafe(EntityHandle entity) const
+		CompClass* getComponentFromEntityUnsafe(EntityHandle entity) const
 		{
 			// Verify if component type is valid
 			ComponentType type = CompClass::getComponentType();
@@ -155,9 +155,28 @@ class EntitySystem : public System
 		}
 
 		/**
+		* \param entity Entity to get the component from
+		*/
+		template<typename CompClass>
+		CompClass* getComponentByHandleUnsafe(ComponentHandle component) const
+		{
+			// Verify if component type is valid
+			ComponentType type = CompClass::getComponentType();
+			if (!isComponentOfTypeValid(type)){
+				LOGTO(Warning) << "EntitySystem: Unregistered type: " << type << endlog;
+				return nullptr;
+			}
+
+			const DHP& dhp = m_dataHolderProcessors[type];
+
+			// Verify if such entity exists for given system
+			return (CompClass*)dhp.getByHandle(component);
+		}
+
+		/**
 		 * Get a ComponentRef for given entity
 		 * 
-		 * @param entity Entity to get the component from
+		 * \param entity Entity to get the component from
 		 * @return Returns true when a component reference was found (and returned in ref).
 		 */
 		template<typename CompClass>
@@ -186,9 +205,9 @@ class EntitySystem : public System
 		/**
 		 * Find all components of type <Having>
 		 * that matches with the entities of the components given in search
-		 * @param search Components to look for owner entity required <having> components
-		 * @param answer ComponentHandle found of Having for each search entry
-		 * @param matchSearchIndices valid indices of matches found for search
+		 * \param search Components to look for owner entity required <having> components
+		 * \param answer ComponentHandle found of Having for each search entry
+		 * \param matchSearchIndices valid indices of matches found for search
 		 * If an entity does not have at least one of the searching components, it won't be returned as part of the answer.
 		 */
 		template<typename BaseSearchCompClass, typename... Having>
@@ -402,7 +421,7 @@ class EntitySystem : public System
 		 * Destroy the entity
 		 * All components inside this entity will be destroyed too
 		 * 
-		 * @param entity Entity to be destroyed
+		 * \param entity Entity to be destroyed
 		 */
 		void DestroyEntity(EntityHandle entity)
 		{
@@ -451,6 +470,10 @@ class EntitySystem : public System
 				if (componentsHandles.size() > entity)
 					return componentsHandles[entity];
 				return 0;
+			}
+
+			Component* getByHandle(ComponentHandle component) const{
+				return processor->getComponent(component);
 			}
 
 			void* getComponentRefFor(EntityHandle entity) const{

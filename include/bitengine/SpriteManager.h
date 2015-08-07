@@ -19,9 +19,9 @@ namespace BitEngine{
 		 * Insert a new sprite
 		 * The name is used for name look-up, but all sprites can be found
 		 * using the returned SpriteHandle.
-		 * @param Name used for indexing
-		 * @param Sprite data to be used
-		 * @param return SpriteHandle for direct acess to given sprite
+		 * \param Name used for indexing
+		 * \param Sprite data to be used
+		 * \param return SpriteHandle for direct acess to given sprite
 		 */
 		SpriteHandle createSprite(const std::string& name, const Sprite& spr);
 
@@ -46,7 +46,7 @@ namespace BitEngine{
 		bool replaceSprite(SpriteHandle hdl, const Sprite& spr);
 
 		/**
-		 * @param name Sprite name to find the SpriteHandle
+		 * \param name Sprite name to find the SpriteHandle
 		 * @return Returns the SpriteHandle associated with the sprite name.
 		 *			If not found, 0 is returned.
 		 */

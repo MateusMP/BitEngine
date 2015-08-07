@@ -80,6 +80,7 @@ class GameEngine
         std::vector<System*> systems;
 		std::vector<System*> systemsToShutdown;
         bool running;
+		int lastSystemInitialized;
 
 		EngineConfiguration configuration;
 };

@@ -2,6 +2,11 @@
 
 namespace BitEngine{
 
+	const glm::vec3 Transform3DComponent::FORWARD(0.0f, 0.0f, 1.0f);
+	const glm::vec3 Transform3DComponent::UP(0.0f, 1.0f, 0.0f);
+	const glm::vec3 Transform3DComponent::RIGHT(1.0f, 0.0f, 0.0f);
+
+
 	Transform3DComponent::Transform3DComponent()
 		: m_dirty(DIRTY_ALL), m_nParents(0), parent(0), position(0, 0, 0), scale(1.0f, 1.0f, 1.0f), rotation()
 	{

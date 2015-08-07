@@ -28,9 +28,9 @@ class Sprite2DProcessor : public ComponentHolderProcessor
 
 	private:
 		/*
-		* @param screen Screen expected to be a 2D box with bottom left coordinates to top right coordinates
-		* @param t Transform2D to be used on calculation
-		* @param s Sprite2D to be used on calculation
+		* \param screen Screen expected to be a 2D box with bottom left coordinates to top right coordinates
+		* \param t Transform2D to be used on calculation
+		* \param s Sprite2D to be used on calculation
 		*/
 		bool insideScreen(const glm::vec4& screen, const Transform2DComponent* t, const Sprite2DComponent* s);
 

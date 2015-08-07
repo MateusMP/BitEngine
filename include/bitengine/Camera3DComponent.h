@@ -24,6 +24,7 @@ namespace BitEngine{
 
 		Camera3DComponent()
 			: m_projectionType(PERSPECTIVE),
+			m_width(1280), m_height(720),
 			m_fov(45.0f), m_aspect(16.0f / 9.0f), m_near(1.0f), m_far(1000.0f),
 			m_lookAt(0.0f, 0.0f, 0.0f), m_up(0.0f, 1.0f, 0.0f)
 		{

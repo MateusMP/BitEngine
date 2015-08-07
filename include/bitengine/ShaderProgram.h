@@ -120,7 +120,7 @@ class ShaderProgram
 		// Functions
 
 		/**
-		 * @param errorLog If any error is encountered during shader compilation
+		 * \param errorLog If any error is encountered during shader compilation
 		 *		A log will be generated inside errorLog
 		 */
 		int compile(GLuint &hdl, GLenum type, const char* data, std::string& errorLog);

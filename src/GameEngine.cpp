@@ -85,6 +85,7 @@ bool GameEngine::InitSystems()
 	configuration.LoadConfigurations();
 
 	LOG() << "Loadiging systems..." << endlog;
+	lastSystemInitialized = -1;
     for ( System* s : systems )
     {
         if (!s->Init())
@@ -93,6 +94,7 @@ bool GameEngine::InitSystems()
             return false;
         }
 
+		++lastSystemInitialized;
 		systemsToShutdown.push_back(s);
     }
 
@@ -109,7 +111,14 @@ void GameEngine::ShutdownSystems()
 	for (auto it = systemsToShutdown.rbegin(); it != systemsToShutdown.rend(); ++it){
 		LOG() << "Shutting down " << (*it)->getName() << endlog;
         (*it)->Shutdown();
+
+		delete *it;
     }
+
+	// Delete systems that were not initialized because of failure
+	for (auto i = lastSystemInitialized + 1; i < systems.size(); ++i){
+		delete systems[i];
+	}
 }
 
 bool GameEngine::Run()
