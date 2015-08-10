@@ -48,7 +48,7 @@ class ComponentRef
 			return (CompClass*) holder->getComponent(handle);
 		}
 
-		ComponentHandle getComponentHandle(){
+		ComponentHandle getComponentHandle() const{
 			return handle;
 		}
 		
@@ -123,7 +123,7 @@ class EntitySystem : public System
 		}
 
 		bool isComponentOfTypeValid(ComponentType type) const {
-			return m_dataHolderProcessors.size() > type;
+			return m_dataHolderProcessors.size() > type && m_dataHolderProcessors[type].processor != nullptr;
 		}
 
 		bool hasEntity(EntityHandle entity) const{

@@ -8,6 +8,7 @@ namespace BitEngine{
 	class Sprite2DRenderer{
 	public:
 		Sprite2DRenderer();
+		~Sprite2DRenderer();
 
 		bool Init();
 
@@ -98,6 +99,8 @@ namespace BitEngine{
 			std::vector<Batch> batches;
 
 			std::vector<Sprite2DShader::Vao> m_VAOS;
+
+			std::vector<Sprite2Dinstanced_VAOinterleaved> m_interVAOs;
 		};
 
 	private:

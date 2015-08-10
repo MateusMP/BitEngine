@@ -22,6 +22,8 @@
 					var = getUniformLocation(name)
 #endif
 
+#define ARRAY_OFFSET(x) ((void*)(x))
+
 #define VERTEX_MATRIX3_ATTIBUTE_SIZE 3
 #define VERTEX_MATRIX4_ATTIBUTE_SIZE 4
 

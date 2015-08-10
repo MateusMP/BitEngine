@@ -111,14 +111,18 @@ void GameEngine::ShutdownSystems()
 	for (auto it = systemsToShutdown.rbegin(); it != systemsToShutdown.rend(); ++it){
 		LOG() << "Shutting down " << (*it)->getName() << endlog;
         (*it)->Shutdown();
-
+		LOG() << "done " << (*it)->getName() << endlog;
 		delete *it;
     }
+
+	LOG() << "Finalizing... " << endlog;
 
 	// Delete systems that were not initialized because of failure
 	for (auto i = lastSystemInitialized + 1; i < systems.size(); ++i){
 		delete systems[i];
 	}
+	
+	LOG() << "Systems released!" << endlog;
 }
 
 bool GameEngine::Run()

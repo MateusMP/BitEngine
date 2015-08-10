@@ -101,9 +101,7 @@ bool VideoSystem::Init()
 	LOGTO(Info) << "Vendor: " << glGetString(GL_VENDOR) << endlog;
 	LOGTO(Info) << "Renderer: " << glGetString(GL_RENDERER) << endlog;
 	LOGTO(Info) << "Version: " << glGetString(GL_VERSION) << endlog;
-
-	glEnable(GL_TEXTURE_2D);
-
+	
 	Channel::Broadcast<WindowCreated>(WindowCreated(&m_Window));
 	
     return true;

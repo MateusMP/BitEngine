@@ -1,4 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
+#ifndef _DEBUG
+#define STBI_FAILURE_USERMSG
+#endif
 #include <stb_image.h>
 
 #include "TextureManager.h"
@@ -38,9 +41,13 @@ TextureManager::TextureManager()
 
 TextureManager::~TextureManager()
 {
-	for (TextureMap::iterator it = m_textures.begin(); it != m_textures.end(); ++it){
-		Texture *tex = it->second.data;
-		releasetexture(tex);
+	for (TextureMap::iterator it = m_textures.begin(); it != m_textures.end(); ++it)
+	{
+		if (it->second.ready)
+		{
+			Texture *tex = it->second.data;
+			releasetexture(tex);
+		}
 	}
 
 	if (error_texture.m_textureID != 0)
@@ -77,8 +84,13 @@ const Texture* TextureManager::getTexture(const std::string& name)
 	}
 	else
 	{
-		return doLoad(name);
+		const Texture* t = doLoad(name);
+		if (t != nullptr){
+			return t;
+		}
 	}
+
+	return getErrorTexture();
 }
 
 void TextureManager::LoadPackage(const DataPackage* package)
@@ -120,7 +132,7 @@ const Texture* TextureManager::doLoad(const std::string& path)
 
 	// If resource is already loaded
 	// ref count it
-	if (texfound != m_textures.end())
+	if (texfound != m_textures.end() && texfound->second.ready)
 	{
 		texfound->second.countUsing++;
 		return texfound->second.data;
@@ -133,8 +145,10 @@ const Texture* TextureManager::doLoad(const std::string& path)
 	Texture* texture = loadTexture2D(path);
 
 	// Save
-	alocated.first->second.data = texture;
-	alocated.first->second.ready = true;
+	if (texture != nullptr){
+		alocated.first->second.data = texture;
+		alocated.first->second.ready = true;
+	}
 
 	return texture;
 }
@@ -145,7 +159,7 @@ Texture* TextureManager::loadTexture2D(const std::string& path)
 	unsigned char* image = stbi_load(path.c_str(), &w, &h, &c, 0);
 
 	if (image == NULL){
-		LOGTO(Error) << "LoadTexture: failed to open texture: " << path << endlog;
+		LOGTO(Error) << "LoadTexture: failed to open texture: " << path << "\n" << stbi_failure_reason() << endlog;
 		return nullptr;
 	}
 

@@ -1,7 +1,8 @@
 #include "EngineConfiguration.h"
 
-namespace BitEngine{
+#include "EngineLoggers.h"
 
+namespace BitEngine{
 
 
 	EngineConfiguration::EngineConfiguration(const std::string& fileName)
