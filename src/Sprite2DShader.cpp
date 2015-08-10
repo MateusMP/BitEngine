@@ -48,7 +48,7 @@ static const char* sprite2DshaderVertex_transform = GLSL_(150,
 			);																 
 
 	void main()																						 
-	{																								 
+	{
 		vec2 vertexPos = vertex_pos[gl_VertexID].xy * a_offset.zw;									 
 																									 
 		vec3 vertexWorldPos = a_modelMatrix * vec3(vertexPos + a_offset.xy*a_offset.zw, 1);			 
@@ -96,12 +96,14 @@ namespace BitEngine{
 		u_viewMatrix = matrix;
 	}
 
-	void Sprite2DShader::BindAttributes() {
-		BindAttribute(ATTR_VERTEX_TEX+0, "a_textureCoord[0]");
-		BindAttribute(ATTR_VERTEX_TEX+1, "a_textureCoord[1]");
-		BindAttribute(ATTR_VERTEX_TEX+2, "a_textureCoord[2]");
-		BindAttribute(ATTR_VERTEX_TEX+3, "a_textureCoord[3]");
-		BindAttribute(ATTR_MODEL_MAT, "a_modelMatrix");
+	void Sprite2DShader::BindAttributes() 
+	{
+		BindAttribute(0, "a_textureCoord[0]");
+		BindAttribute(1, "a_textureCoord[1]");
+		BindAttribute(2, "a_textureCoord[2]");
+		BindAttribute(3, "a_textureCoord[3]");
+		BindAttribute(4, "a_offset");
+		BindAttribute(5, "a_modelMatrix");
 
 		check_gl_error();
 	}
@@ -119,7 +121,7 @@ namespace BitEngine{
 
 	Sprite2DShader::Vao Sprite2DShader::CreateVAO() {
 		Vao vaoHolder;
-
+		/*
 		// VAO
 		glGenVertexArrays(1, &vaoHolder.VAO);
 		if (vaoHolder.VAO == 0){
@@ -158,7 +160,7 @@ namespace BitEngine{
 		}
 
 		glBindVertexArray(0);
-
+		*/
 		return vaoHolder;
 	}
 }

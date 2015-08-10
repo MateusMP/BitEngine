@@ -6,6 +6,13 @@ namespace BitEngine{
 	{
 	}
 
+	Sprite2DRenderer::~Sprite2DRenderer()
+	{
+		for (BatchRenderer* b : m_batchRenderers){
+			delete b;
+		}
+	}
+
 	bool Sprite2DRenderer::Init()
 	{
 		shader = new Sprite2DShader();
@@ -63,14 +70,16 @@ namespace BitEngine{
 	Sprite2DRenderer::BatchRenderer::BatchRenderer(SpriteSortType s)
 		: m_sorting(s)
 	{
-		// Create at least one VAO
-		m_VAOS.emplace_back(Sprite2DShader::CreateVAO());
 	}
 
 	Sprite2DRenderer::BatchRenderer::~BatchRenderer()
 	{
 		for (Sprite2DShader::Vao& v : m_VAOS){
 			v.free();
+		}
+
+		for (auto& v : m_interVAOs){
+			v.Destroy();
 		}
 	}
 
@@ -115,24 +124,29 @@ namespace BitEngine{
 
 	void Sprite2DRenderer::BatchRenderer::createRenderers()
 	{
-		std::vector<glm::vec2> texAtexB;
-		std::vector<glm::mat3> modelMatrices;
+		std::vector<Sprite2Dinstanced_VDVertices::Data> vertices_;
+		vertices_.resize(m_elements.size());
+		std::vector<Sprite2Dinstanced_VDModelMatrix::Data> modelMatrices_;
+		modelMatrices_.resize(m_elements.size());
 
-		texAtexB.reserve(m_elements.size() * 6); // 4 texcoord (x,y) + 2 (x,y) size/offset per glyph
-		modelMatrices.reserve(m_elements.size());
+		//std::vector<glm::vec2> texAtexB;
+		//std::vector<glm::mat3> modelMatrices;
+
+		//texAtexB.reserve(m_elements.size() * 6); // 4 texcoord (x,y) + 2 (x,y) size/offset per glyph
+		//modelMatrices.reserve(m_elements.size());
+
 		batches.clear();
 
 		int offset = 0;
-
 		const Sprite* lastSpr = nullptr;
 		for (uint32 cg = 0; cg < m_elements.size(); cg++)
 		{
 			const Sprite* spr = m_elements[cg].sprite;
 			const glm::vec4& uvrect = spr->getUV();
 
-			if (spr != lastSpr 
-				|| spr->getTexture() != lastSpr->getTexture() 
-				|| spr->isTransparent() != lastSpr->isTransparent() )
+			if (spr != lastSpr
+				|| spr->getTexture() != lastSpr->getTexture()
+				|| spr->isTransparent() != lastSpr->isTransparent())
 			{
 				batches.emplace_back(offset, 0, spr->getTexture(), spr->isTransparent());
 			}
@@ -140,29 +154,51 @@ namespace BitEngine{
 			batches.back().nItems += 1;
 			lastSpr = spr;
 
-			texAtexB.emplace_back(uvrect.x, uvrect.y); // BL  xw   zw
-			texAtexB.emplace_back(uvrect.z, uvrect.y); // BR  
-			texAtexB.emplace_back(uvrect.x, uvrect.w); // TL  
-			texAtexB.emplace_back(uvrect.z, uvrect.w); // TR  xy   zy
-			texAtexB.emplace_back(-spr->getOffsetX(), -spr->getOffsetY());
-			texAtexB.emplace_back(spr->getWidth(), spr->getHeight());
-			modelMatrices.emplace_back(*m_elements[cg].modelMatrix);
+			vertices_[cg].tex_coord[0] = glm::vec2(uvrect.x, uvrect.y); // BL  xw   zw
+			vertices_[cg].tex_coord[1] = glm::vec2(uvrect.z, uvrect.y); // BR  
+			vertices_[cg].tex_coord[2] = glm::vec2(uvrect.x, uvrect.w); // TL  
+			vertices_[cg].tex_coord[3] = glm::vec2(uvrect.z, uvrect.w); // TR  xy   zy
+			vertices_[cg].size_offset = glm::vec4(-spr->getOffsetX(), -spr->getOffsetY(), spr->getWidth(), spr->getHeight());
+			modelMatrices_[cg].modelMatrix = (*m_elements[cg].modelMatrix);
+			const glm::mat3& mat = modelMatrices_[cg].modelMatrix;
+			LOGTO(Verbose) << mat[2][0] << ", " << mat[2][1] << ", " << mat[2][2] << endlog;
+
+			//texAtexB.emplace_back(uvrect.x, uvrect.y); // BL  xw   zw
+			//texAtexB.emplace_back(uvrect.z, uvrect.y); // BR  
+			//texAtexB.emplace_back(uvrect.x, uvrect.w); // TL  
+			//texAtexB.emplace_back(uvrect.z, uvrect.w); // TR  xy   zy
+			//texAtexB.emplace_back(-spr->getOffsetX(), -spr->getOffsetY());
+			//texAtexB.emplace_back(spr->getWidth(), spr->getHeight());
+			//modelMatrices.emplace_back(*m_elements[cg].modelMatrix);
 		}
 
 		if (glewIsSupported("GL_VERSION_4_2") )
 		{
-			glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_VERTEXDATA]);
-			glBufferData(GL_ARRAY_BUFFER, texAtexB.size() * sizeof(glm::vec2), texAtexB.data(), GL_DYNAMIC_DRAW);
+			if (m_interVAOs.empty())
+			{
+				m_interVAOs.emplace_back();
+				m_interVAOs.back().Create();
+			}
+			// glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_VERTEXDATA]);
+			// glBufferData(GL_ARRAY_BUFFER, texAtexB.size() * sizeof(glm::vec2), texAtexB.data(), GL_DYNAMIC_DRAW);
+			// 
+			// glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_MODELMAT]);
+			// glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data(), GL_DYNAMIC_DRAW);
 
-			glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_MODELMAT]);
-			glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data(), GL_DYNAMIC_DRAW);
+			m_interVAOs[0].IVBO<Sprite2Dinstanced_VDVertices>::vbo.BindBuffer();
+			m_interVAOs[0].IVBO<Sprite2Dinstanced_VDVertices>::vbo.LoadBuffer(vertices_.data(), vertices_.size());
 
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			m_interVAOs[0].IVBO<Sprite2Dinstanced_VDModelMatrix>::vbo.BindBuffer();
+			m_interVAOs[0].IVBO<Sprite2Dinstanced_VDModelMatrix>::vbo.LoadBuffer(modelMatrices_.data(), modelMatrices_.size());
+
+			IVertexArrayBuffer::UnbindBuffer();
 		} else {
 			
 			// Create more VAOs
-			while (m_VAOS.size() < batches.size()){
-				m_VAOS.emplace_back( Sprite2DShader::CreateVAO() );
+			while (m_interVAOs.size() < batches.size()){
+				//m_VAOS.emplace_back( Sprite2DShader::CreateVAO() );
+				m_interVAOs.emplace_back();
+				m_interVAOs.back().Create();
 			}
 
 			// Bind data for each batch
@@ -170,14 +206,19 @@ namespace BitEngine{
 			{
 				Batch& b = batches[i];
 
-				glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_VERTEXDATA]);
-				glBufferData(GL_ARRAY_BUFFER, b.nItems*6 * sizeof(glm::vec2), texAtexB.data() + (b.offset*6), GL_DYNAMIC_DRAW);
+				//glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_VERTEXDATA]);
+				//glBufferData(GL_ARRAY_BUFFER, b.nItems*6 * sizeof(glm::vec2), texAtexB.data() + (b.offset*6), GL_DYNAMIC_DRAW);
+				//
+				//glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_MODELMAT]);
+				//glBufferData(GL_ARRAY_BUFFER, b.nItems * sizeof(glm::mat3), modelMatrices.data() + b.offset, GL_DYNAMIC_DRAW);
 
-				glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_MODELMAT]);
-				glBufferData(GL_ARRAY_BUFFER, b.nItems * sizeof(glm::mat3), modelMatrices.data() + b.offset, GL_DYNAMIC_DRAW);
+				m_interVAOs[i].IVBO<Sprite2Dinstanced_VDVertices>::vbo.BindBuffer();
+				m_interVAOs[i].IVBO<Sprite2Dinstanced_VDVertices>::vbo.LoadBuffer(&vertices_[b.offset], b.nItems);
+
+				m_interVAOs[i].IVBO<Sprite2Dinstanced_VDModelMatrix>::vbo.BindBuffer();
+				m_interVAOs[i].IVBO<Sprite2Dinstanced_VDModelMatrix>::vbo.LoadBuffer(&modelMatrices_[b.offset], b.nItems);
 			}
-
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			IVertexArrayBuffer::UnbindBuffer();
 		}
 
 		check_gl_error();
@@ -198,7 +239,8 @@ namespace BitEngine{
 
 	void Sprite2DRenderer::BatchRenderer::renderGL4()
 	{
-		glBindVertexArray(m_VAOS[0].VAO);
+		// glBindVertexArray(m_VAOS[0].VAO);
+		m_interVAOs[0].Bind();
 
 		for (const Batch& r : batches)
 		{
@@ -215,15 +257,16 @@ namespace BitEngine{
 			}
 		}
 
-		glBindVertexArray(0);
+		IVertexArrayObject::Unbind();
 	}
 
 	void Sprite2DRenderer::BatchRenderer::renderGL3()
 	{
 		for (uint32 i = 0; i < batches.size(); ++i)
 		{
-			glBindVertexArray(m_VAOS[i].VAO);
-
+			//glBindVertexArray(m_VAOS[i].VAO);
+			m_interVAOs[i].Bind();
+			
 			const Batch& r = batches[i];
 			if (r.transparent){
 				glEnable(GL_BLEND);
@@ -239,7 +282,7 @@ namespace BitEngine{
 
 		}
 
-		glBindVertexArray(0);
+		IVertexArrayObject::Unbind();
 	}
 
 	bool Sprite2DRenderer::BatchRenderer::compare_DepthTexture(const RenderingElement& a, const RenderingElement& b){

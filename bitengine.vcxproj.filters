@@ -290,5 +290,8 @@
     <ClInclude Include="include\bitengine\Sprite.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="include\bitengine\VertexArrayObject.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
