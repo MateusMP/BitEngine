@@ -42,16 +42,18 @@ namespace BitEngine
 		public ShaderProgram
 	{
 		public:
-			// static const uint32 ATTR_VERTEX_POS = 0;
-			/*static const uint32 ATTR_VERTEX_TEX = 0; // 0, 1, 2, 3
-			static const uint32 ATTR_SPRITE_OFF = 4; // offset and size
-			static const uint32 ATTR_MODEL_MAT = 5;
-
-			static const uint32 NUM_VBOS = 2;
-			static const uint32 VBO_VERTEXDATA = 0;
-			static const uint32 VBO_MODELMAT = 1;*/
+			enum Renderers{
+				NOT_DEFINED = -1,
+				USE_GL4 = 0,
+				USE_GL3,
+				USE_GL2
+			};
 
 			static const uint32 TEXTURE_DIFFUSE = 0;
+
+			static Renderers DetectBestRenderer();
+		private:
+			static Renderers useRenderer;
 
 		public:
 			Sprite2DShader();
@@ -62,21 +64,6 @@ namespace BitEngine
 
 			void LoadViewMatrix(const glm::mat4& matrix);
 
-			// Overrides
-
-			struct Vao{
-				//GLuint VAO;
-				//GLuint VBO[NUM_VBOS];
-
-				void free(){
-					//glDeleteVertexArrays(1, &VAO);
-					//glDeleteBuffers(NUM_VBOS, VBO);
-				}
-			};
-			static Vao CreateVAO();
-
-			//
-			
 			//
 
 		protected:
@@ -94,8 +81,6 @@ namespace BitEngine
 		private:
 			// Uniform data
 			glm::mat4 u_viewMatrix;
-
-
 
 		public:
 			void* operator new(size_t size){ return _aligned_malloc(size, 16); }

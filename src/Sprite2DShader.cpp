@@ -77,6 +77,30 @@ static const char* sprite2DshaderFragment = GLSL_(150,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace BitEngine{
 
+	Sprite2DShader::Renderers Sprite2DShader::useRenderer = NOT_DEFINED;
+
+	Sprite2DShader::Renderers Sprite2DShader::DetectBestRenderer()
+	{
+		if (useRenderer != NOT_DEFINED){
+			return useRenderer;
+		}
+
+		if (glewIsSupported("GL_VERSION_4_2"))
+		{
+			useRenderer = Renderers::USE_GL4;
+		}
+		else if (glewIsSupported("GL_VERSION_3_0"))
+		{
+			useRenderer = Renderers::USE_GL3;
+		}
+		else
+		{
+			useRenderer = Renderers::USE_GL2;
+		}
+
+		return useRenderer;
+	}
+
 	Sprite2DShader::Sprite2DShader()
 	{
 	}
@@ -86,7 +110,11 @@ namespace BitEngine{
 	{
 	}
 
-	int Sprite2DShader::Init(){
+	int Sprite2DShader::Init()
+	{
+		if (DetectBestRenderer() == NOT_DEFINED)
+			return SHADER_INIT_ERROR_NO_RENDERER;
+
 		return BuildProgramFromMemory(GL_VERTEX_SHADER, sprite2DshaderVertex_transform,
 									  GL_FRAGMENT_SHADER, sprite2DshaderFragment);
 	}
@@ -117,50 +145,5 @@ namespace BitEngine{
 		connectTexture(u_texDiffuseHdl, TEXTURE_DIFFUSE);
 
 		loadMatrix(u_viewMatrixHdl, &(u_viewMatrix[0][0]) );
-	}
-
-	Sprite2DShader::Vao Sprite2DShader::CreateVAO() {
-		Vao vaoHolder;
-		/*
-		// VAO
-		glGenVertexArrays(1, &vaoHolder.VAO);
-		if (vaoHolder.VAO == 0){
-			LOGTO(Error) << "Sprite2DBatch: Could not create VAO." << endlog;
-		}
-		glBindVertexArray(vaoHolder.VAO);
-
-		// VBO
-		glGenBuffers(NUM_VBOS, vaoHolder.VBO);
-		if (vaoHolder.VBO[0] == 0){
-			LOGTO(Error) << "Sprite2DBatch: Could not create VBO." << endlog;
-		}
-		
-		// Attributes
-		glBindBuffer(GL_ARRAY_BUFFER, vaoHolder.VBO[VBO_VERTEXDATA]);
-		for (int i = 0; i < ATTR_MODEL_MAT; ++i){
-			glEnableVertexAttribArray(ATTR_VERTEX_TEX + i);
-			glVertexAttribPointer(ATTR_VERTEX_TEX + i, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 12, (void*)(i * 2 * sizeof(GLfloat)));
-			glVertexAttribDivisor(ATTR_VERTEX_TEX + i, 1);
-		}
-
-		glEnableVertexAttribArray(ATTR_SPRITE_OFF);
-		glVertexAttribPointer(ATTR_SPRITE_OFF, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 12, (void*)(8 * sizeof(GLfloat)));
-		glVertexAttribDivisor(ATTR_SPRITE_OFF, 1);
-
-		// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		// printf("offsetA: %d\n", offsetof(Vertex, position));
-		// printf("offsetB: %d\n", offsetof(Vertex, uv));
-
-		glBindBuffer(GL_ARRAY_BUFFER, vaoHolder.VBO[VBO_MODELMAT]);
-		for (int i = 0; i < VERTEX_MATRIX3_ATTIBUTE_SIZE; ++i){
-			glEnableVertexAttribArray(ATTR_MODEL_MAT + i);
-			glVertexAttribPointer(ATTR_MODEL_MAT + i, 3, GL_FLOAT, GL_FALSE, sizeof(glm::mat3), (void*)(sizeof(GLfloat)*3*i) );
-			glVertexAttribDivisor(ATTR_MODEL_MAT + i, 1);
-		}
-
-		glBindVertexArray(0);
-		*/
-		return vaoHolder;
 	}
 }

@@ -11,6 +11,8 @@
 #define ERROR_CONFIG_WITHOUT_SYS	-4
 
 // SHADER
+#define SHADER_INIT_ERROR_NO_RENDERER -5
+
 #define FAILED_TO_READ				-1
 #define FAILED_TO_COMPILE			-2
 #define FAILED_TO_LINK				-3

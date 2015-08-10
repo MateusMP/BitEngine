@@ -5,7 +5,8 @@
 
 namespace BitEngine{
 
-	class Sprite2DRenderer{
+	class Sprite2DRenderer
+	{
 	public:
 		Sprite2DRenderer();
 		~Sprite2DRenderer();
@@ -36,7 +37,6 @@ namespace BitEngine{
 		void Render();
 
 	public:
-		
 		class BatchRenderer
 		{
 		public:
@@ -87,6 +87,7 @@ namespace BitEngine{
 			static bool compare_DepthTexture(const RenderingElement& a, const RenderingElement& b);
 
 		private:
+			Sprite2DShader::Renderers RENDERER_VERSION;
 			SpriteSortType m_sorting;
 
 			//GLuint m_vao;
@@ -97,9 +98,7 @@ namespace BitEngine{
 
 			// Batches
 			std::vector<Batch> batches;
-
-			std::vector<Sprite2DShader::Vao> m_VAOS;
-
+			
 			std::vector<Sprite2Dinstanced_VAOinterleaved> m_interVAOs;
 		};
 

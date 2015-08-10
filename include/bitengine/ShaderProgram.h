@@ -66,26 +66,6 @@ class ShaderProgram
 		/// Virtual
 		virtual void OnBind() = 0;
 
-		/// Bind attribute ID to specified variable name on shader
-        void BindAttribute(int attrid, const std::string& name);
-
-		/// Get uniform location on shader
-		int32 getUniformLocation(const std::string& name) const;
-
-        /// Load a single INT uniform
-        void loadInt(int location, int value);
-        void loadFloat(int location, float value);
-
-        void loadVector3f(int location, int n, float* vector);
-        void loadVector4f(int location, int n, float* vector);
-
-        void loadBoolean(int location, bool b);
-
-        void loadMatrix(int location, float* matrix);
-
-		/// \param textureID GL flag to indicate texture unit (GL_TEXTURE0 ... )
-		void connectTexture(int location, int unitID);
-
 		/**
 		* Build and link a set of sources from file to create a final Shader Program
 		* @return Returns NO_ERROR in case of success
@@ -120,6 +100,26 @@ class ShaderProgram
         GLuint m_programID;
 
 		// Functions
+
+		/// Bind attribute ID to specified variable name on shader
+		void BindAttribute(int attrid, const std::string& name);
+
+		/// Get uniform location on shader
+		int32 getUniformLocation(const std::string& name) const;
+
+		/// Load a single INT uniform
+		void loadInt(int location, int value);
+		void loadFloat(int location, float value);
+
+		void loadVector3f(int location, int n, float* vector);
+		void loadVector4f(int location, int n, float* vector);
+
+		void loadBoolean(int location, bool b);
+
+		void loadMatrix(int location, float* matrix);
+
+		/// \param textureID GL flag to indicate texture unit (GL_TEXTURE0 ... )
+		void connectTexture(int location, int unitID);
 
 		/**
 		 * \param errorLog If any error is encountered during shader compilation

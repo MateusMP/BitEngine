@@ -70,14 +70,18 @@ namespace BitEngine{
 	Sprite2DRenderer::BatchRenderer::BatchRenderer(SpriteSortType s)
 		: m_sorting(s)
 	{
+		RENDERER_VERSION = Sprite2DShader::DetectBestRenderer();
+
+		if (RENDERER_VERSION == Sprite2DShader::USE_GL4)
+		{
+			// Make sure we have the vao needed
+			m_interVAOs.emplace_back();
+			m_interVAOs.back().Create();
+		}
 	}
 
 	Sprite2DRenderer::BatchRenderer::~BatchRenderer()
 	{
-		for (Sprite2DShader::Vao& v : m_VAOS){
-			v.free();
-		}
-
 		for (auto& v : m_interVAOs){
 			v.Destroy();
 		}
@@ -125,15 +129,10 @@ namespace BitEngine{
 	void Sprite2DRenderer::BatchRenderer::createRenderers()
 	{
 		std::vector<Sprite2Dinstanced_VDVertices::Data> vertices_;
-		vertices_.resize(m_elements.size());
 		std::vector<Sprite2Dinstanced_VDModelMatrix::Data> modelMatrices_;
+
+		vertices_.resize(m_elements.size());
 		modelMatrices_.resize(m_elements.size());
-
-		//std::vector<glm::vec2> texAtexB;
-		//std::vector<glm::mat3> modelMatrices;
-
-		//texAtexB.reserve(m_elements.size() * 6); // 4 texcoord (x,y) + 2 (x,y) size/offset per glyph
-		//modelMatrices.reserve(m_elements.size());
 
 		batches.clear();
 
@@ -161,30 +160,11 @@ namespace BitEngine{
 			vertices_[cg].size_offset = glm::vec4(-spr->getOffsetX(), -spr->getOffsetY(), spr->getWidth(), spr->getHeight());
 			modelMatrices_[cg].modelMatrix = (*m_elements[cg].modelMatrix);
 			const glm::mat3& mat = modelMatrices_[cg].modelMatrix;
-			LOGTO(Verbose) << mat[2][0] << ", " << mat[2][1] << ", " << mat[2][2] << endlog;
-
-			//texAtexB.emplace_back(uvrect.x, uvrect.y); // BL  xw   zw
-			//texAtexB.emplace_back(uvrect.z, uvrect.y); // BR  
-			//texAtexB.emplace_back(uvrect.x, uvrect.w); // TL  
-			//texAtexB.emplace_back(uvrect.z, uvrect.w); // TR  xy   zy
-			//texAtexB.emplace_back(-spr->getOffsetX(), -spr->getOffsetY());
-			//texAtexB.emplace_back(spr->getWidth(), spr->getHeight());
-			//modelMatrices.emplace_back(*m_elements[cg].modelMatrix);
 		}
 
-		if (glewIsSupported("GL_VERSION_4_2") )
+		// Upload data to gpu
+		if (RENDERER_VERSION == Sprite2DShader::USE_GL4)
 		{
-			if (m_interVAOs.empty())
-			{
-				m_interVAOs.emplace_back();
-				m_interVAOs.back().Create();
-			}
-			// glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_VERTEXDATA]);
-			// glBufferData(GL_ARRAY_BUFFER, texAtexB.size() * sizeof(glm::vec2), texAtexB.data(), GL_DYNAMIC_DRAW);
-			// 
-			// glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[0].VBO[Sprite2DShader::VBO_MODELMAT]);
-			// glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat3), modelMatrices.data(), GL_DYNAMIC_DRAW);
-
 			m_interVAOs[0].IVBO<Sprite2Dinstanced_VDVertices>::vbo.BindBuffer();
 			m_interVAOs[0].IVBO<Sprite2Dinstanced_VDVertices>::vbo.LoadBuffer(vertices_.data(), vertices_.size());
 
@@ -192,11 +172,11 @@ namespace BitEngine{
 			m_interVAOs[0].IVBO<Sprite2Dinstanced_VDModelMatrix>::vbo.LoadBuffer(modelMatrices_.data(), modelMatrices_.size());
 
 			IVertexArrayBuffer::UnbindBuffer();
-		} else {
-			
-			// Create more VAOs
+		}
+		else if (RENDERER_VERSION == Sprite2DShader::USE_GL3)
+		{
+			// Create more VAOs if needed
 			while (m_interVAOs.size() < batches.size()){
-				//m_VAOS.emplace_back( Sprite2DShader::CreateVAO() );
 				m_interVAOs.emplace_back();
 				m_interVAOs.back().Create();
 			}
@@ -205,12 +185,6 @@ namespace BitEngine{
 			for (uint32 i = 0; i < batches.size(); ++i)
 			{
 				Batch& b = batches[i];
-
-				//glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_VERTEXDATA]);
-				//glBufferData(GL_ARRAY_BUFFER, b.nItems*6 * sizeof(glm::vec2), texAtexB.data() + (b.offset*6), GL_DYNAMIC_DRAW);
-				//
-				//glBindBuffer(GL_ARRAY_BUFFER, m_VAOS[i].VBO[Sprite2DShader::VBO_MODELMAT]);
-				//glBufferData(GL_ARRAY_BUFFER, b.nItems * sizeof(glm::mat3), modelMatrices.data() + b.offset, GL_DYNAMIC_DRAW);
 
 				m_interVAOs[i].IVBO<Sprite2Dinstanced_VDVertices>::vbo.BindBuffer();
 				m_interVAOs[i].IVBO<Sprite2Dinstanced_VDVertices>::vbo.LoadBuffer(&vertices_[b.offset], b.nItems);
@@ -228,9 +202,10 @@ namespace BitEngine{
 	{
 		glActiveTexture(GL_TEXTURE0 + Sprite2DShader::TEXTURE_DIFFUSE);
 
-		if (glewIsSupported("GL_VERSION_4_2")){
+		if (RENDERER_VERSION == Sprite2DShader::USE_GL4){
 			renderGL4();
-		} else {
+		}
+		else if (RENDERER_VERSION == Sprite2DShader::USE_GL3){
 			renderGL3();
 		}
 
@@ -239,7 +214,6 @@ namespace BitEngine{
 
 	void Sprite2DRenderer::BatchRenderer::renderGL4()
 	{
-		// glBindVertexArray(m_VAOS[0].VAO);
 		m_interVAOs[0].Bind();
 
 		for (const Batch& r : batches)
