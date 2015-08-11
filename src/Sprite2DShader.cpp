@@ -4,34 +4,8 @@
 #define GLSL(version, shader)  "#version " #version "\n" shader
 #define GLSL_(version, shader)  "#version " #version "\n" #shader
 
-// NO TRANSFORM_SHADER
-/*
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static const char* sprite2DshaderVertex = GLSL(150,
-
-	in vec2 a_vertexPosition;												
-	in vec2 a_textureCoord;													
-																			
-	out vec2 fragTextureCoord;
-
-	uniform mat4 u_viewMatrix;
-																			
-	void main()																
-	{																		
-		gl_Position.xy = (u_viewMatrix * vec4(a_vertexPosition, 0, 1.0f)).xy;
-		gl_Position.z = 0.0;												
-		gl_Position.w = 1.0;												
-																			
-		fragTextureCoord = a_textureCoord;									
-	}												
-);
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-*/
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-static const char* sprite2DshaderVertex_transform = GLSL_(150,
+// Use this vertex for GL3 and GL4 -> Uses instancing
+static const char* Sprite2D_vertex_GL3_GL4 = GLSL_(150,
 	in vec2 a_textureCoord[4];
 	in vec4 a_offset;
 	in mat3 a_modelMatrix;
@@ -60,8 +34,29 @@ static const char* sprite2DshaderVertex_transform = GLSL_(150,
 	}
 );
 
+// Shader for GL2
+// Does not uses instancing!
+static const char* Sprite2D_vertex_GL2 = GLSL_(120,
+	attribute vec2 a_position;
+	attribute vec2 a_uvcoord;
+
+	varying vec2 fragTextureCoord;
+
+	uniform mat4 u_viewMatrix;
+
+	void main()
+	{
+		gl_Position.xy = (u_viewMatrix * vec4(a_position, 0, 1.0f)).xy;
+		gl_Position.z = 0.0;
+		gl_Position.w = 1.0;
+
+		fragTextureCoord = a_uvcoord;
+	}
+);
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static const char* sprite2DshaderFragment = GLSL_(150,
+static const char* Sprite2D_fragment_GLall = GLSL_(150,
 	in vec2 fragTextureCoord;
 
 	out vec4 finalColor;
@@ -77,9 +72,9 @@ static const char* sprite2DshaderFragment = GLSL_(150,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace BitEngine{
 
-	Sprite2DShader::Renderers Sprite2DShader::useRenderer = NOT_DEFINED;
+	Sprite2DShader::RendererVersion Sprite2DShader::useRenderer = NOT_DEFINED;
 
-	Sprite2DShader::Renderers Sprite2DShader::DetectBestRenderer()
+	Sprite2DShader::RendererVersion Sprite2DShader::DetectBestRenderer()
 	{
 		if (useRenderer != NOT_DEFINED){
 			return useRenderer;
@@ -87,15 +82,15 @@ namespace BitEngine{
 
 		if (glewIsSupported("GL_VERSION_4_2"))
 		{
-			useRenderer = Renderers::USE_GL4;
+			useRenderer = RendererVersion::USE_GL4;
 		}
 		else if (glewIsSupported("GL_VERSION_3_0"))
 		{
-			useRenderer = Renderers::USE_GL3;
+			useRenderer = RendererVersion::USE_GL3;
 		}
 		else
 		{
-			useRenderer = Renderers::USE_GL2;
+			useRenderer = RendererVersion::USE_GL2;
 		}
 
 		return useRenderer;
@@ -110,13 +105,51 @@ namespace BitEngine{
 	{
 	}
 
+	int Sprite2DShader::Init(RendererVersion forceVersion)
+	{
+		useRenderer = forceVersion;
+		return Init();
+	}
+
 	int Sprite2DShader::Init()
 	{
-		if (DetectBestRenderer() == NOT_DEFINED)
+		// Try to guess the best renderer
+		if (DetectBestRenderer() == NOT_DEFINED){
 			return SHADER_INIT_ERROR_NO_RENDERER;
+		}
 
-		return BuildProgramFromMemory(GL_VERTEX_SHADER, sprite2DshaderVertex_transform,
-									  GL_FRAGMENT_SHADER, sprite2DshaderFragment);
+		// Try to compile the shaders
+
+		// GL3 and GL4 [instancing]
+		if ( (useRenderer == USE_GL4 || useRenderer == USE_GL3) )
+		{
+			int build = BuildProgramFromMemory(GL_VERTEX_SHADER, Sprite2D_vertex_GL3_GL4,
+											   GL_FRAGMENT_SHADER, Sprite2D_fragment_GLall);
+			if (build == NO_ERROR)
+			{
+				LOGTO(Info) << "Using Sprite2D " << ((useRenderer==USE_GL4)?"GL4":"GL3") << endlog;
+				return NO_ERROR;
+			}
+			
+			// If failed to compile -> fallback to GL2
+			LOGTO(Warning) << "Could not compile GL3/GL4 shader for Sprite2D, driver update needed? Fallback to GL2..." << endlog;
+			useRenderer = USE_GL2;
+		}
+
+		// GL2
+		if (useRenderer == USE_GL2)
+		{
+			int build = BuildProgramFromMemory(GL_VERTEX_SHADER, Sprite2D_vertex_GL2,
+											   GL_FRAGMENT_SHADER, Sprite2D_fragment_GLall);
+			if (build == NO_ERROR){
+				LOGTO(Info) << "Using Sprite2D GL2!" << endlog;
+				return NO_ERROR;
+			}
+		}
+
+
+		LOGTO(Error) << "Could not initialize Sprite2D shader!" << endlog;
+		return SHADER_INIT_ERROR_NO_RENDERER;
 	}
 
 	void Sprite2DShader::LoadViewMatrix(const glm::mat4& matrix)
@@ -126,12 +159,18 @@ namespace BitEngine{
 
 	void Sprite2DShader::BindAttributes() 
 	{
-		BindAttribute(0, "a_textureCoord[0]");
-		BindAttribute(1, "a_textureCoord[1]");
-		BindAttribute(2, "a_textureCoord[2]");
-		BindAttribute(3, "a_textureCoord[3]");
-		BindAttribute(4, "a_offset");
-		BindAttribute(5, "a_modelMatrix");
+		if (useRenderer == RendererVersion::USE_GL3 || useRenderer == RendererVersion::USE_GL4){
+			BindAttribute(0, "a_textureCoord[0]");
+			BindAttribute(1, "a_textureCoord[1]");
+			BindAttribute(2, "a_textureCoord[2]");
+			BindAttribute(3, "a_textureCoord[3]");
+			BindAttribute(4, "a_offset");
+			BindAttribute(5, "a_modelMatrix");
+		}
+		else {
+			BindAttribute(0, "a_position");
+			BindAttribute(1, "a_uvcoord");
+		}
 
 		check_gl_error();
 	}

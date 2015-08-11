@@ -270,18 +270,17 @@ namespace BitEngine{
 		}
 	};
 
-	template<typename A, typename ... B>
+	template<typename ... B>
 	class VertexArrayObject 
-		: public A, public B...
+		: public B...
 	{
 	public:
 		void Destroy()
 		{
 			glDeleteVertexArrays(1, &vao);
-			A::DestroyBuffer();
-			bool bs[] = { B::DestroyBuffer()... };
+			bool b[] = { B::DestroyBuffer()... };
 		}
-
+		
 		bool Create()
 		{
 			glGenVertexArrays(1, &vao);
@@ -294,8 +293,7 @@ namespace BitEngine{
 			Bind();
 
 			uint32 attributes = 0;
-			A::CreateBuffer(attributes);
-			bool bs[] = { B::CreateBuffer(attributes)... };
+			bool b[] = { B::CreateBuffer(attributes)... };
 
 			IVertexArrayObject::Unbind();
 

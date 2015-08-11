@@ -11,9 +11,7 @@ namespace BitEngine{
 		Sprite2DRenderer();
 		~Sprite2DRenderer();
 
-		bool Init();
-
-		Sprite2DShader* getShader();
+		void Init();
 
 		/**
 		* Clear renderer queue
@@ -81,13 +79,17 @@ namespace BitEngine{
 			void createRenderers();
 			void renderBatches();
 
+			void createRenderersGL2();
+			void createRenderersGL4GL3();
+
 			void renderGL4();
 			void renderGL3();
+			void renderGL2();
 
 			static bool compare_DepthTexture(const RenderingElement& a, const RenderingElement& b);
 
 		private:
-			Sprite2DShader::Renderers RENDERER_VERSION;
+			Sprite2DShader::RendererVersion RENDERER_VERSION;
 			SpriteSortType m_sorting;
 
 			//GLuint m_vao;
@@ -99,13 +101,12 @@ namespace BitEngine{
 			// Batches
 			std::vector<Batch> batches;
 			
-			std::vector<Sprite2Dinstanced_VAOinterleaved> m_interVAOs;
+			std::vector<Sprite2Dinstanced_VAOinterleaved> m_interVAOs; // GL3 and GL4
+			std::vector<Sprite2Dbasic_VAOinterleaved> m_basicVAOs; // GL2
 		};
 
 	private:
 		std::vector<BatchRenderer*> m_batchRenderers; // Sorted by SpriteSortType
-
-		Sprite2DShader *shader;
 	};
 
 

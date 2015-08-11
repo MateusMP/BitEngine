@@ -12,6 +12,7 @@ namespace BitEngine
 {
 	/// Draws 2D sprites using 2D coordinates
 	/// 
+	// GL3 and GL4
 	DECLARE_VERTEXDATA(Sprite2Dinstanced_VDVertices, 5)
 		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
 		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
@@ -33,16 +34,28 @@ namespace BitEngine
 		ADD_MEMBER(glm::mat3, modelMatrix)
 	END_VERTEX_DATA()
 
-	typedef VertexArrayObject 
-		<SVBO<Sprite2Dinstanced_VDVertices>, SVBO<Sprite2Dinstanced_VDModelMatrix>> Sprite2Dinstanced_VAOseparated;
+//	typedef VertexArrayObject
+//		<SVBO<Sprite2Dinstanced_VDVertices>, SVBO<Sprite2Dinstanced_VDModelMatrix>> Sprite2Dinstanced_VAOseparated;
 	typedef VertexArrayObject
 		<IVBO<Sprite2Dinstanced_VDVertices>, IVBO<Sprite2Dinstanced_VDModelMatrix>> Sprite2Dinstanced_VAOinterleaved;
+
+	// GL2
+	DECLARE_VERTEXDATA(Sprite2Dbasic_VD, 2)
+		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 0),
+		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 0),
+		END_ATTRIBUTES()
+	DECLARE_DATA_STRUCTURE()
+		ADD_MEMBER(glm::vec2, vertexPos)
+		ADD_MEMBER(glm::vec2, vertexUV)
+	END_VERTEX_DATA()
+
+	typedef VertexArrayObject < IVBO<Sprite2Dbasic_VD> > Sprite2Dbasic_VAOinterleaved;
 
 	class Sprite2DShader :
 		public ShaderProgram
 	{
 		public:
-			enum Renderers{
+			enum RendererVersion{
 				NOT_DEFINED = -1,
 				USE_GL4 = 0,
 				USE_GL3,
@@ -50,10 +63,12 @@ namespace BitEngine
 			};
 
 			static const uint32 TEXTURE_DIFFUSE = 0;
+			
+			static RendererVersion GetRendererVersion(){ return useRenderer; }
 
-			static Renderers DetectBestRenderer();
 		private:
-			static Renderers useRenderer;
+			static RendererVersion DetectBestRenderer();
+			static RendererVersion useRenderer;
 
 		public:
 			Sprite2DShader();
@@ -61,6 +76,7 @@ namespace BitEngine
 
 			// Compile shaders
 			int Init() override;
+			int Init(RendererVersion forceVersion);
 
 			void LoadViewMatrix(const glm::mat4& matrix);
 
