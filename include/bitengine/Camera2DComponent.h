@@ -40,6 +40,8 @@ namespace BitEngine {
 			 * @return vec4( bottomLeftX, bottomLeftY, topRightX, topRightY )
 			 */
 			glm::vec4 getWorldViewArea() const;
+
+			const glm::vec2 screenToWorldCoordinates(const glm::vec2& screenCoord) const;
 			
 		private:
 			friend class Camera2DProcessor;

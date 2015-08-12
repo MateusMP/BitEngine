@@ -27,23 +27,23 @@ public:
 	~Transform2DComponent();
 
 	// Position
-	const glm::vec2& getPosition() const;
+	const glm::vec2& getLocalPosition() const; // returns LOCAL position
 	template<typename T>
-	void setPosition(T x, T y)
+	void setLocalPosition(T x, T y) // sets LOCAL position
 	{
 		position.x = (float)x;
 		position.y = (float)y;
 		m_dirty |= DIRTY_DATA;
 	}
-	void setPosition(const glm::vec2& p);
+	void setLocalPosition(const glm::vec2& p); // sets LOCAL position
 
 	// Scale
-	const glm::vec2& getScale() const;
-	void setScale(const glm::vec2& s);
+	const glm::vec2& getLocalScale() const; // get LOCAL scale
+	void setLocalScale(const glm::vec2& s); // sets LOCAL scale
 
 	// Rotation
-	float getRotation() const;
-	void setRotation(float rad);
+	float getLocalRotation() const; // get LOCAL rotation
+	void setLocalRotation(float rad); // sets LOCAL rotation
 
 	/**
 	 * Retrieves the last calculated model matrix
@@ -54,6 +54,13 @@ public:
 	void setParent(ComponentHandle p);
 	ComponentHandle getParent() const;
 
+	float getWorldAngle() const {
+		return atan2(m_modelMatrix[0][1], m_modelMatrix[1][1]);
+	}
+
+	glm::vec2 getRight() const {
+		return glm::mat2(m_modelMatrix) * glm::vec2(1, 0);
+	}
 
 private:
 	friend class Transform2DProcessor;
