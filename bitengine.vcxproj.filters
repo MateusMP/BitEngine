@@ -293,5 +293,8 @@
     <ClInclude Include="include\bitengine\VertexArrayObject.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="include\bitengine\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

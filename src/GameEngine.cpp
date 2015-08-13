@@ -32,8 +32,9 @@
 	
 #endif
 
-
 namespace BitEngine{
+
+uint64 Time::ticks = 0;
 
 void GameEngine::GLFW_ErrorCallback(int error, const char* description)
 {
@@ -136,10 +137,15 @@ bool GameEngine::Run()
 
     if ( InitSystems() )
     {
-        while (running){
+		Time::ResetTicks();
+
+        while (running)
+		{
             for (System *s : systems){
                 s->Update();
             }
+
+			Time::Tick();
         }
     }
 
