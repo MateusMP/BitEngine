@@ -1,5 +1,6 @@
 #pragma once
 
+typedef unsigned char uint8;
 typedef signed long int int32;
 typedef signed short int16;
 typedef unsigned short uint16;

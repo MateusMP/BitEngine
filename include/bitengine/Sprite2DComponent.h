@@ -17,11 +17,10 @@ public:
 	}
 
 	Sprite2DComponent()
-		: depth(0), sortMode(SpriteSortType::BY_DEPTH_TEXTURE), sprite(0)
+		: depth(0), sprite(0)
 	{}
 
 	int depth;
-	SpriteSortType sortMode;
 	SpriteHandle sprite;
 
 };

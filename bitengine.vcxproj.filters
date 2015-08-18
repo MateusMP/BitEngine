@@ -49,6 +49,9 @@
     <Filter Include="Graphics\Shaders\Renderers">
       <UniqueIdentifier>{243e27bc-0fcb-4cb9-bb35-5ddde902805e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{258208a1-5e66-4888-b37f-506614b3c749}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GameEngine.cpp">
@@ -292,6 +295,9 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\VertexArrayObject.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\VectorBool.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

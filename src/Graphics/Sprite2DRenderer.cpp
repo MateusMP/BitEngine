@@ -1,62 +1,16 @@
 #include "Sprite2DRenderer.h"
 
 namespace BitEngine{
-
-	Sprite2DRenderer::Sprite2DRenderer()
-	{
-	}
-
-	Sprite2DRenderer::~Sprite2DRenderer()
-	{
-		for (BatchRenderer* b : m_batchRenderers){
-			delete b;
-		}
-	}
-
-	void Sprite2DRenderer::Init()
-	{
-		for (int i = 0; i < (int)SpriteSortType::TOTAL; ++i){
-			m_batchRenderers.push_back(new BatchRenderer((SpriteSortType)i));
-		}
-	}
-
-	void Sprite2DRenderer::Begin()
-	{
-		// Clear all batches
-		for (BatchRenderer* r : m_batchRenderers){
-			r->begin();
-		}
-	}
-
-	void Sprite2DRenderer::addToRender(SpriteSortType sortmode, const Sprite* sprite, const glm::mat3* modelMatrix, int depth)
-	{
-		m_batchRenderers[(int)sortmode]->drawSprite(sprite, modelMatrix, depth);
-	}
-
-	void Sprite2DRenderer::End(){
-		for (BatchRenderer* b : m_batchRenderers)
-		{
-			b->end();
-		}
-	}
-
-	void Sprite2DRenderer::Render()
-	{
-		for (BatchRenderer* b : m_batchRenderers)
-		{
-			b->render();
-		}
-	}
-
+	
 	/// ===============================================================================================
 	/// ===============================================================================================
 	///										BATCH
 	/// ===============================================================================================
 
-	Sprite2DRenderer::BatchRenderer::BatchRenderer(SpriteSortType s)
-		: m_sorting(s)
+	Sprite2DBatchRenderer::Sprite2DBatchRenderer(Sprite2DShader::RendererVersion renderer)
 	{
-		RENDERER_VERSION = Sprite2DShader::GetRendererVersion();
+		m_sortActive = true;
+		RENDERER_VERSION = renderer;
 
 		if (RENDERER_VERSION == Sprite2DShader::USE_GL4)
 		{
@@ -66,19 +20,19 @@ namespace BitEngine{
 		}
 	}
 
-	Sprite2DRenderer::BatchRenderer::~BatchRenderer()
+	Sprite2DBatchRenderer::~Sprite2DBatchRenderer()
 	{
 		for (auto& v : m_interVAOs){
 			v.Destroy();
 		}
 	}
 
-	void Sprite2DRenderer::BatchRenderer::begin()
+	void Sprite2DBatchRenderer::Begin()
 	{
 		m_elements.clear();
 	}
 
-	void Sprite2DRenderer::BatchRenderer::end()
+	void Sprite2DBatchRenderer::End()
 	{
 		if (m_elements.empty())
 			return;
@@ -87,12 +41,12 @@ namespace BitEngine{
 		createRenderers();
 	}
 
-	void Sprite2DRenderer::BatchRenderer::drawSprite(const Sprite* sprite, const glm::mat3* modelMatrix, int depth)
+	void Sprite2DBatchRenderer::DrawSprite(const Sprite* sprite, const glm::mat3* modelMatrix, int depth)
 	{
 		m_elements.emplace_back(depth, sprite, modelMatrix);
 	}
 
-	void Sprite2DRenderer::BatchRenderer::render()
+	void Sprite2DBatchRenderer::Render()
 	{
 		if (m_elements.empty())
 			return;
@@ -100,19 +54,15 @@ namespace BitEngine{
 		renderBatches();
 	}
 
-	void Sprite2DRenderer::BatchRenderer::sortComponents()
+	void Sprite2DBatchRenderer::sortComponents()
 	{
-		switch (m_sorting){
-		case SpriteSortType::BY_DEPTH_TEXTURE:
+		if (m_sortActive)
+		{
 			std::stable_sort(m_elements.begin(), m_elements.end(), compare_DepthTexture);
-			break;
-
-		default:
-			break;
 		}
 	}
 
-	void Sprite2DRenderer::BatchRenderer::createRenderers()
+	void Sprite2DBatchRenderer::createRenderers()
 	{
 		if (RENDERER_VERSION == Sprite2DShader::RendererVersion::USE_GL4
 			|| RENDERER_VERSION == Sprite2DShader::RendererVersion::USE_GL3)
@@ -126,7 +76,7 @@ namespace BitEngine{
 		check_gl_error();
 	}
 
-	void Sprite2DRenderer::BatchRenderer::createRenderersGL2()
+	void Sprite2DBatchRenderer::createRenderersGL2()
 	{
 		std::vector<Sprite2Dbasic_VD::Data> vertices_;
 
@@ -203,7 +153,7 @@ namespace BitEngine{
 		
 	}
 
-	void Sprite2DRenderer::BatchRenderer::createRenderersGL4GL3()
+	void Sprite2DBatchRenderer::createRenderersGL4GL3()
 	{
 		std::vector<Sprite2Dinstanced_VDVertices::Data> vertices_;
 		std::vector<Sprite2Dinstanced_VDModelMatrix::Data> modelMatrices_;
@@ -272,7 +222,7 @@ namespace BitEngine{
 		}
 	}
 
-	void Sprite2DRenderer::BatchRenderer::renderBatches()
+	void Sprite2DBatchRenderer::renderBatches()
 	{
 		glActiveTexture(GL_TEXTURE0 + Sprite2DShader::TEXTURE_DIFFUSE);
 
@@ -289,7 +239,7 @@ namespace BitEngine{
 		check_gl_error();
 	}
 
-	void Sprite2DRenderer::BatchRenderer::renderGL4()
+	void Sprite2DBatchRenderer::renderGL4()
 	{
 		m_interVAOs[0].Bind();
 
@@ -311,7 +261,7 @@ namespace BitEngine{
 		IVertexArrayObject::Unbind();
 	}
 
-	void Sprite2DRenderer::BatchRenderer::renderGL3()
+	void Sprite2DBatchRenderer::renderGL3()
 	{
 		for (uint32 i = 0; i < batches.size(); ++i)
 		{
@@ -335,7 +285,7 @@ namespace BitEngine{
 		IVertexArrayObject::Unbind();
 	}
 
-	void Sprite2DRenderer::BatchRenderer::renderGL2()
+	void Sprite2DBatchRenderer::renderGL2()
 	{
 		for (uint32 i = 0; i < batches.size(); ++i)
 		{
@@ -359,7 +309,7 @@ namespace BitEngine{
 		IVertexArrayObject::Unbind();
 	}
 
-	bool Sprite2DRenderer::BatchRenderer::compare_DepthTexture(const RenderingElement& a, const RenderingElement& b){
+	bool Sprite2DBatchRenderer::compare_DepthTexture(const RenderingElement& a, const RenderingElement& b){
 		return a.depth < b.depth
 			|| (a.depth == b.depth && (a.sprite->getTexture() < b.sprite->getTexture()));
 	}

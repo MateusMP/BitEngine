@@ -159,6 +159,7 @@
     <ClInclude Include="include\bitengine\Transform3DComponent.h" />
     <ClInclude Include="include\bitengine\Transform3DProcessor.h" />
     <ClInclude Include="include\bitengine\TypeDefinition.h" />
+    <ClInclude Include="include\bitengine\VectorBool.h" />
     <ClInclude Include="include\bitengine\VertexArrayObject.h" />
     <ClInclude Include="include\bitengine\VideoSystem.h" />
     <ClInclude Include="include\bitengine\Window.h" />
