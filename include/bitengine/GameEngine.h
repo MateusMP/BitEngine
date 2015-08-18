@@ -23,6 +23,7 @@
 #include "Sprite2DProcessor.h"
 #include "RenderableMeshProcessor.h"
 
+#include "Timer.h"
 
 namespace BitEngine{
 

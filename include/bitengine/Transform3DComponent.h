@@ -62,11 +62,11 @@ namespace BitEngine{
 		void setParent(ComponentHandle p);
 		ComponentHandle getParent() const;
 
-		const glm::vec3& getForward() const {
+		const glm::vec3 getForward() const {
 			return rotation * FORWARD;
 		}
 
-		const glm::vec3& getRight() const {
+		const glm::vec3 getRight() const {
 			return rotation * RIGHT;
 		}
 

@@ -14,7 +14,7 @@ bool Camera2DProcessor::Init(){
 void Camera2DProcessor::recalculateMatrix(Camera2DComponent* c, const Transform2DComponent* t)
 {
 	// Uses look at as focal point
-	glm::vec2 translation = -t->getPosition() + glm::vec2(c->m_width / 2 - c->m_lookAt.x, c->m_height / 2 - c->m_lookAt.y);
+	glm::vec2 translation = -t->getLocalPosition() + glm::vec2(c->m_width / 2 - c->m_lookAt.x, c->m_height / 2 - c->m_lookAt.y);
 	glm::vec3 scale(c->m_zoom, c->m_zoom, 0.0f);
 
 	c->m_cameraMatrix = glm::translate(c->m_orthoMatrix, glm::vec3(translation,0));

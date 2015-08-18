@@ -17,7 +17,7 @@ namespace BitEngine{
 		m_sprLookUp.clear();
 		m_sprLookUpInv.clear();
 
-		m_sprites.emplace_back(m_textureManager->getErrorTexture()->getID(), 64, 64, 0.0f, 0.0f, glm::vec4(0, 0, 1, 1), false); // First sprite is INVALID
+		m_sprites.emplace_back(m_textureManager->getErrorTexture()->getID(), 64, 64, 0.5f, 0.5f, glm::vec4(0, 0, 1, 1), false); // First sprite is INVALID
 
 		return true;
 	}

@@ -58,6 +58,10 @@ namespace BitEngine{
 
 			bool RegisterMouseCommand(int commandID, int commandState, int button, InputReceiver::MouseAction action, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE);
 
+			bool RegisterMouseMove(int commandID, int commandState, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE){
+				return RegisterMouseCommand(commandID, commandState, 0, InputReceiver::MouseAction::MOVE, mod);
+			}
+
 			void Message(const InputReceiver::KeyboardInput& msg);
 			void Message(const InputReceiver::MouseInput& msg);
 

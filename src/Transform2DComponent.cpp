@@ -14,35 +14,37 @@ Transform2DComponent::~Transform2DComponent()
 {
 }
 
-const glm::vec2& Transform2DComponent::getPosition() const
+const glm::vec2& Transform2DComponent::getLocalPosition() const
 {
 	return position;
 }
 
-void Transform2DComponent::setPosition(const glm::vec2& p)
+void Transform2DComponent::setLocalPosition(const glm::vec2& p)
 {
 	position = p;
 	m_dirty |= DIRTY_DATA;
 }
 
-const glm::vec2& Transform2DComponent::getScale() const
+const glm::vec2& Transform2DComponent::getLocalScale() const
 {
 	return scale;
 }
 
-void Transform2DComponent::setScale(const glm::vec2& s)
+void Transform2DComponent::setLocalScale(const glm::vec2& s)
 {
 	scale = s;
+	m_dirty |= DIRTY_DATA;
 }
 
-float Transform2DComponent::getRotation() const
+float Transform2DComponent::getLocalRotation() const
 {
 	return rotation;
 }
 
-void Transform2DComponent::setRotation(float rad)
+void Transform2DComponent::setLocalRotation(float rad)
 {
 	rotation = rad;
+	m_dirty |= DIRTY_DATA;
 }
 
 const glm::mat3& Transform2DComponent::getMatrix() const{

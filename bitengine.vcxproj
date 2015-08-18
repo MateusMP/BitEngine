@@ -154,6 +154,7 @@
     <ClInclude Include="include\bitengine\TaskManager.h" />
     <ClInclude Include="include\bitengine\Texture.h" />
     <ClInclude Include="include\bitengine\TextureManager.h" />
+    <ClInclude Include="include\bitengine\Timer.h" />
     <ClInclude Include="include\bitengine\Transform2DComponent.h" />
     <ClInclude Include="include\bitengine\Transform2DProcessor.h" />
     <ClInclude Include="include\bitengine\Transform3DComponent.h" />

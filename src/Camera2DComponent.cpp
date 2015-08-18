@@ -54,4 +54,9 @@ namespace BitEngine{
 						 m_lookAt.x + m_width / 2,	m_lookAt.y + m_height / 2);
 	}
 
+	const glm::vec2 Camera2DComponent::screenToWorldCoordinates(const glm::vec2& screenCoord) const {
+		return glm::vec2(m_lookAt.x - m_width / 2 + screenCoord.x,
+						 m_lookAt.y - m_height / 2 + screenCoord.y);
+	}
+
 }
