@@ -298,6 +298,7 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\VectorBool.h">
       <Filter>Utils</Filter>
+	</ClInclude>
     <ClInclude Include="include\bitengine\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>

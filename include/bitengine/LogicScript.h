@@ -53,6 +53,10 @@ namespace BitEngine{
 				return e_sys->getComponentRef(m_myEntity, ref);
 			}
 
+			EntitySystem* getES() {
+				return e_sys;
+			}
+
 		private:
 			friend class GameLogicComponent;
 			EntityHandle m_myEntity;

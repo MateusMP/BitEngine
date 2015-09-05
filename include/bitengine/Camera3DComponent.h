@@ -33,14 +33,13 @@ namespace BitEngine{
 
 		~Camera3DComponent(){}
 
-		void setView(int width, int height);
+		void setView(int width, int height){ m_width = width; m_height = height; }
 
-		void setFOV(float fov);
-		void setNearFar(float near, float far);
-		void setLookAt(const glm::vec3& lookAt);
-		void setUp(const glm::vec3& up);
+		void setFOV(float fov) { m_fov = fov; }
+		void setNearFar(float near, float far) { m_near = near; m_far = far; }
+		void setLookAt(const glm::vec3& lookAt) { m_lookAt = lookAt; }
+		void setUp(const glm::vec3& up) { m_up = up; }
 
-		
 		const glm::mat4& getProjection() const { return m_projection; }
 		const glm::mat4& getView() const { return m_viewMatrix; }
 
@@ -48,8 +47,8 @@ namespace BitEngine{
 		friend class Camera3DProcessor;
 
 		ProjectionMode m_projectionType;
-		float m_width;
-		float m_height;
+		int m_width;
+		int m_height;
 		float m_fov;
 		float m_aspect;
 		float m_near;
@@ -67,7 +66,7 @@ namespace BitEngine{
 				m_projection = glm::perspective(m_fov, m_aspect, m_near, m_far);
 			}
 			else {
-				m_projection = glm::ortho(0.0f, m_width, 0.0f, m_height, m_near, m_far);
+				m_projection = glm::ortho(0.0f, (float)m_width, 0.0f, (float)m_height, m_near, m_far);
 			}
 		}
 	};

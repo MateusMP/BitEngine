@@ -15,7 +15,7 @@ namespace BitEngine{
 	{
 		glm::vec3 eye(t->getMatrix()[3][0], t->getMatrix()[3][1], t->getMatrix()[3][2]);
 		//glm::vec3 eye = t->getPosition();
-		c->m_viewMatrix = lookAt(eye, c->m_lookAt, c->m_up);
+		c->m_viewMatrix = glm::lookAt(eye, c->m_lookAt, c->m_up);
 	}
 
 	void Camera3DProcessor::FrameEnd()
