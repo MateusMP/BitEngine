@@ -38,19 +38,19 @@ namespace BitEngine{
 
 	template <typename T, int N> char(&ctadim(T(&)[N]))[N];
 
-#define compile_time_array_dim(x) (sizeof(ctadim(x)))
+#define compile_time_array_dim(x) (sizeof(BitEngine::ctadim(x)))
 
 
-#define DECLARE_VERTEXDATA(name, numAttrs)							\
-	class name {													\
-		public:														\
-		static const uint32 NUM_ATTRIBUTES = numAttrs;				\
-		static const VertexAttribute attributes[NUM_ATTRIBUTES];	\
-		static const VertexAttribute& getAttribute(int index) {		\
-			static const VertexAttribute v[] = {
+#define DECLARE_VERTEXDATA(name, numAttrs)									\
+	class name {															\
+		public:																\
+		static const uint32 NUM_ATTRIBUTES = numAttrs;						\
+		static const BitEngine::VertexAttribute attributes[NUM_ATTRIBUTES];	\
+		static const BitEngine::VertexAttribute& getAttribute(int index) {	\
+			static const BitEngine::VertexAttribute v[] = {
 
 #define ADD_ATTRIBUTE(type, count, normalized, divisor)				\
-				VertexAttribute(type, count, normalized, divisor)
+				BitEngine::VertexAttribute(type, count, normalized, divisor)
 
 #define END_ATTRIBUTES()													\
 					};														\
@@ -74,15 +74,16 @@ namespace BitEngine{
 	/*
 	EXAMPLE:
 		DECLARE_VERTEXDATA(Sprite2D_VDinstancedVertices, 5)
-		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
-		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
-		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
-		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
-		ADD_ATTRIBUTE(GL_FLOAT, 4, GL_FALSE, 1)
-		END_ATTRIBUTES()
-		DECLARE_DATA_STRUCTURE()
-		ADD_MEMBER_ARRAY(glm::vec2, tex_coord, 4)
-		ADD_MEMBER(glm::vec4, size_offset)
+			ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
+			ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
+			ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
+			ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 1),
+			ADD_ATTRIBUTE(GL_FLOAT, 4, GL_FALSE, 1)
+			END_ATTRIBUTES()
+
+			DECLARE_DATA_STRUCTURE()
+				ADD_MEMBER_ARRAY(glm::vec2, tex_coord, 4)
+				ADD_MEMBER(glm::vec4, size_offset)
 		END_VERTEX_DATA()
 	*/
 

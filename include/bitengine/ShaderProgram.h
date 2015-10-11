@@ -109,14 +109,21 @@ class ShaderProgram
 
 		/// Load a single INT uniform
 		void loadInt(int location, int value);
+
+		/// Load a single FLOAT uniform
 		void loadFloat(int location, float value);
 
-		void loadVector3f(int location, int n, float* vector);
-		void loadVector4f(int location, int n, float* vector);
+		/// Load 3 floats (vec3)
+		void loadVector3f(int location, int n, const float* vector);
 
+		/// Load 4 floats (vec4)
+		void loadVector4f(int location, int n, const float* vector);
+
+		/// Load a single Bool
 		void loadBoolean(int location, bool b);
 
-		void loadMatrix(int location, float* matrix);
+		/// Loads a single float Matrix 4x4
+		void loadMatrix4f(int location, const float* matrix);
 
 		/// \param textureID GL flag to indicate texture unit (GL_TEXTURE0 ... )
 		void connectTexture(int location, int unitID);

@@ -183,6 +183,6 @@ namespace BitEngine{
 	void Sprite2DShader::OnBind() {
 		connectTexture(u_texDiffuseHdl, TEXTURE_DIFFUSE);
 
-		loadMatrix(u_viewMatrixHdl, &(u_viewMatrix[0][0]) );
+		loadMatrix4f(u_viewMatrixHdl, &(u_viewMatrix[0][0]) );
 	}
 }
