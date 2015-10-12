@@ -72,29 +72,7 @@ static const char* Sprite2D_fragment_GLall = GLSL_(150,
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace BitEngine{
 
-	Sprite2DShader::RendererVersion Sprite2DShader::useRenderer = NOT_DEFINED;
-
-	Sprite2DShader::RendererVersion Sprite2DShader::DetectBestRenderer()
-	{
-		if (useRenderer != NOT_DEFINED){
-			return useRenderer;
-		}
-
-		if (glewIsSupported("GL_VERSION_4_2"))
-		{
-			useRenderer = RendererVersion::USE_GL4;
-		}
-		else if (glewIsSupported("GL_VERSION_3_0"))
-		{
-			useRenderer = RendererVersion::USE_GL3;
-		}
-		else
-		{
-			useRenderer = RendererVersion::USE_GL2;
-		}
-
-		return useRenderer;
-	}
+	RendererVersion Sprite2DShader::useRenderer = NOT_DEFINED;
 
 	Sprite2DShader::Sprite2DShader()
 	{
@@ -114,7 +92,11 @@ namespace BitEngine{
 	int Sprite2DShader::Init()
 	{
 		// Try to guess the best renderer
-		if (DetectBestRenderer() == NOT_DEFINED){
+		if (useRenderer == NOT_DEFINED){
+			useRenderer = DetectBestRenderer();
+		}
+
+		if (useRenderer == NOT_AVAILABLE){
 			return SHADER_INIT_ERROR_NO_RENDERER;
 		}
 
@@ -123,12 +105,14 @@ namespace BitEngine{
 		// GL3 and GL4 [instancing]
 		if ( (useRenderer == USE_GL4 || useRenderer == USE_GL3) )
 		{
-			int build = BuildProgramFromMemory(GL_VERTEX_SHADER, Sprite2D_vertex_GL3_GL4,
-											   GL_FRAGMENT_SHADER, Sprite2D_fragment_GLall);
-			if (build == NO_ERROR)
+			ShaderGL4* s = new ShaderGL4(useRenderer);
+			if (s->Init() == NO_ERROR)
 			{
 				LOGTO(Info) << "Using Sprite2D " << ((useRenderer==USE_GL4)?"GL4":"GL3") << endlog;
+				m_shader = s;
 				return NO_ERROR;
+			} else {
+				delete s;
 			}
 			
 			// If failed to compile -> fallback to GL2
@@ -139,50 +123,143 @@ namespace BitEngine{
 		// GL2
 		if (useRenderer == USE_GL2)
 		{
-			int build = BuildProgramFromMemory(GL_VERTEX_SHADER, Sprite2D_vertex_GL2,
-											   GL_FRAGMENT_SHADER, Sprite2D_fragment_GLall);
-			if (build == NO_ERROR){
-				LOGTO(Info) << "Using Sprite2D GL2!" << endlog;
+			ShaderGL2* s = new ShaderGL2();
+			if (s->Init() == NO_ERROR){
+				LOGTO(Info) << "Using Sprite2D GL2" << endlog;
+				m_shader = s;
 				return NO_ERROR;
+			} else {
+				delete s;
 			}
+
+			LOGTO(Error) << "Could not compile GL2 shader for Sprite2D, driver update needed? ERROR!" << endlog;
 		}
 
-
+		m_shader = nullptr;
 		LOGTO(Error) << "Could not initialize Sprite2D shader!" << endlog;
 		return SHADER_INIT_ERROR_NO_RENDERER;
 	}
 
+	void Sprite2DShader::Bind()
+	{
+		m_shader->Bind();
+	}
+
 	void Sprite2DShader::LoadViewMatrix(const glm::mat4& matrix)
+	{
+		m_shader->LoadViewMatrix(matrix);
+	}
+
+
+	// ************************ GL 4 ************************
+	Sprite2DShader::ShaderGL4::ShaderGL4(RendererVersion v)
+		: version(v)
+	{}
+	Sprite2DShader::ShaderGL4::~ShaderGL4()
+	{}
+
+	int Sprite2DShader::ShaderGL4::Init()
+	{
+		// Check if functions are available
+		if (version == USE_GL4){
+			if (!BatchRenderer::CheckFunctionsGL4()){
+				version = USE_GL3;
+				LOGTO(Info) << "Functions for Sprite2D GL4 not available! Fallback to GL3... " << endlog;
+			}
+		}
+
+		if (version == USE_GL3) {
+			if (!BatchRenderer::CheckFunctionsGL3()){
+				version = NOT_AVAILABLE;
+				return SHADER_INIT_ERROR_NO_FUNCTIONS;
+			}
+		}
+
+		// Try to compile the shaders
+		int build = BuildProgramFromMemory(GL_VERTEX_SHADER, Sprite2D_vertex_GL3_GL4,
+										   GL_FRAGMENT_SHADER, Sprite2D_fragment_GLall);
+		if (build == NO_ERROR)
+		{
+			LOGTO(Info) << "Using Sprite2D " << ((version == USE_GL4) ? "GL4" : "GL3") << endlog;
+			return NO_ERROR;
+		}
+
+		return SHADER_INIT_ERROR_NO_RENDERER;
+	}
+
+	void Sprite2DShader::ShaderGL4::LoadViewMatrix(const glm::mat4& matrix)
 	{
 		u_viewMatrix = matrix;
 	}
 
-	void Sprite2DShader::BindAttributes() 
+	void Sprite2DShader::ShaderGL4::BindAttributes()
 	{
-		if (useRenderer == RendererVersion::USE_GL3 || useRenderer == RendererVersion::USE_GL4){
-			BindAttribute(0, "a_textureCoord[0]");
-			BindAttribute(1, "a_textureCoord[1]");
-			BindAttribute(2, "a_textureCoord[2]");
-			BindAttribute(3, "a_textureCoord[3]");
-			BindAttribute(4, "a_offset");
-			BindAttribute(5, "a_modelMatrix");
-		}
-		else {
-			BindAttribute(0, "a_position");
-			BindAttribute(1, "a_uvcoord");
-		}
+		BindAttribute(0, "a_textureCoord[0]");
+		BindAttribute(1, "a_textureCoord[1]");
+		BindAttribute(2, "a_textureCoord[2]");
+		BindAttribute(3, "a_textureCoord[3]");
+		BindAttribute(4, "a_offset");
+		BindAttribute(5, "a_modelMatrix");
 
 		check_gl_error();
 	}
 
-	void Sprite2DShader::RegisterUniforms() {
+	void Sprite2DShader::ShaderGL4::RegisterUniforms() {
 		LOAD_UNIFORM(u_texDiffuseHdl, "u_texDiffuse");
 		LOAD_UNIFORM(u_viewMatrixHdl, "u_viewMatrix");
 	}
 
-	void Sprite2DShader::OnBind() {
+	void Sprite2DShader::ShaderGL4::OnBind() {
 		connectTexture(u_texDiffuseHdl, TEXTURE_DIFFUSE);
 
-		loadMatrix4f(u_viewMatrixHdl, &(u_viewMatrix[0][0]) );
+		loadMatrix4f(u_viewMatrixHdl, &(u_viewMatrix[0][0]));
 	}
+
+
+	// ************************ GL 2 ************************
+	Sprite2DShader::ShaderGL2::ShaderGL2()
+	{}
+	Sprite2DShader::ShaderGL2::~ShaderGL2()
+	{}
+
+	int Sprite2DShader::ShaderGL2::Init()
+	{
+		// Try to compile the shaders
+		if (!BatchRenderer::CheckFunctions())
+			return SHADER_INIT_ERROR_NO_FUNCTIONS;
+
+		int build = BuildProgramFromMemory(GL_VERTEX_SHADER, Sprite2D_vertex_GL2,
+											GL_FRAGMENT_SHADER, Sprite2D_fragment_GLall);
+		if (build == NO_ERROR){
+			LOGTO(Info) << "Using Sprite2D GL2!" << endlog;
+			return NO_ERROR;
+		}
+
+		return SHADER_INIT_ERROR_NO_RENDERER;
+	}
+
+	void Sprite2DShader::ShaderGL2::LoadViewMatrix(const glm::mat4& matrix)
+	{
+		u_viewMatrix = matrix;
+	}
+
+	void Sprite2DShader::ShaderGL2::BindAttributes()
+	{
+		BindAttribute(0, "a_position");
+		BindAttribute(1, "a_uvcoord");
+
+		check_gl_error();
+	}
+
+	void Sprite2DShader::ShaderGL2::RegisterUniforms() {
+		LOAD_UNIFORM(u_texDiffuseHdl, "u_texDiffuse");
+		LOAD_UNIFORM(u_viewMatrixHdl, "u_viewMatrix");
+	}
+
+	void Sprite2DShader::ShaderGL2::OnBind() {
+		connectTexture(u_texDiffuseHdl, TEXTURE_DIFFUSE);
+
+		loadMatrix4f(u_viewMatrixHdl, &(u_viewMatrix[0][0]));
+	}
+
 }

@@ -46,11 +46,11 @@
     <Filter Include="EntitySystem\Processors\2D">
       <UniqueIdentifier>{a35cefc6-3493-4c2f-8ffb-0b564ec6d7d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics\Shaders\Renderers">
-      <UniqueIdentifier>{243e27bc-0fcb-4cb9-bb35-5ddde902805e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{258208a1-5e66-4888-b37f-506614b3c749}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Shaders\Sprite2D">
+      <UniqueIdentifier>{243e27bc-0fcb-4cb9-bb35-5ddde902805e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -79,9 +79,6 @@
       <Filter>Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\ShaderProgram.cpp">
-      <Filter>Graphics\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Sprite2DShader.cpp">
       <Filter>Graphics\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="src\EntitySystem.cpp">
@@ -133,13 +130,16 @@
       <Filter>EntitySystem\Processors\2D</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\Sprite2DRenderer.cpp">
-      <Filter>Graphics\Shaders\Renderers</Filter>
+      <Filter>Graphics\Shaders\Sprite2D</Filter>
     </ClCompile>
     <ClCompile Include="src\Texture.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\EngineConfiguration.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sprite2DShader.cpp">
+      <Filter>Graphics\Shaders\Sprite2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -202,9 +202,6 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\Components.h">
       <Filter>EntitySystem</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite2DShader.h">
-      <Filter>Graphics\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\ComponentProcessor.h">
       <Filter>EntitySystem\Processors</Filter>
@@ -278,9 +275,6 @@
     <ClInclude Include="include\bitengine\Camera2DProcessor.h">
       <Filter>EntitySystem\Processors\2D</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite2DRenderer.h">
-      <Filter>Graphics\Shaders\Renderers</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\Texture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -298,9 +292,12 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\VectorBool.h">
       <Filter>Utils</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="include\bitengine\Timer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Sprite2DShader.h">
+      <Filter>Graphics\Shaders\Sprite2D</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

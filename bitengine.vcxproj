@@ -145,7 +145,6 @@
     <ClInclude Include="include\bitengine\Sprite.h" />
     <ClInclude Include="include\bitengine\Sprite2DComponent.h" />
     <ClInclude Include="include\bitengine\Sprite2DProcessor.h" />
-    <ClInclude Include="include\bitengine\Sprite2DRenderer.h" />
     <ClInclude Include="include\bitengine\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\SpriteManager.h" />
     <ClInclude Include="include\bitengine\System.h" />

@@ -119,7 +119,7 @@ void GameEngine::ShutdownSystems()
 	LOG() << "Finalizing... " << endlog;
 
 	// Delete systems that were not initialized because of failure
-	for (auto i = lastSystemInitialized + 1; i < systems.size(); ++i){
+	for (int i = lastSystemInitialized + 1; i < (int)systems.size(); ++i){
 		delete systems[i];
 	}
 	
