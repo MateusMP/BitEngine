@@ -24,6 +24,7 @@
 
 #define ARRAY_OFFSET(x) ((void*)(x))
 
+// If using matrices, some macros to help define the correct attribute sizes
 #define VERTEX_MATRIX3_ATTIBUTE_SIZE 3
 #define VERTEX_MATRIX4_ATTIBUTE_SIZE 4
 
@@ -35,41 +36,24 @@ class ShaderProgram
         ShaderProgram();
         virtual ~ShaderProgram();
 
+		/// Init the shader
+		/// Normally calls BuildProgramFromFile/Memory
 		virtual int Init() = 0;
 
-		/**
-		 * Binds the shader
-		 * Calls OnBind();
-		 */
+		/// Binds the shader
+		/// Calls OnBind()
         void Bind();
 
-		/**
-		 * Unbinds the shader
-		 */
+		/// Unbinds the shader
         void Unbind();
 
-		/// VIRTUAL
-		// \param outVBO vector to store all VBO's id
-		// Returns a VAO with all ShaderConfigurations Set
-		// GLuint CreateVAO(GLuint* outVBO) = 0;
+	protected:
+        GLuint m_programID; //!< program unique id
 
-        /// VIRTUAL
-        ///
-        ///
-        virtual void BindAttributes() = 0;
+		// BUILDING THE SHADER PROGRAM
 
-        /// VIRTUAL
-        ///
-        ///
-        virtual void RegisterUniforms() = 0;
-
-		/// Virtual
-		virtual void OnBind() = 0;
-
-		/**
-		* Build and link a set of sources from file to create a final Shader Program
-		* @return Returns NO_ERROR in case of success
-		*/
+		/// \brief Build and link a set of sources from file to create a final Shader Program
+		/// \return Returns NO_ERROR in case of success
 		template <typename ...Args>
 		int BuildProgramFromFile(GLint type, const std::string& file, Args... args){
 			std::vector<GLuint> shaders;
@@ -81,10 +65,8 @@ class ShaderProgram
 			return FAILED_TO_COMPILE;
 		}
 
-		/**
-		 * Build and link a set of sources from memory to create a final Shader Program
-		 * @return Returns NO_ERROR in case of success
-		 */
+		/// \brief Build and link a set of sources from memory to create a final Shader Program
+		/// \return Returns NO_ERROR in case of success
 		template <typename ...Args>
 		int BuildProgramFromMemory(GLint type, const char* source, Args... args){
 			std::vector<GLuint> shaders;
@@ -96,16 +78,21 @@ class ShaderProgram
 			return FAILED_TO_COMPILE;
 		}
 
-	protected:
-        GLuint m_programID;
 
-		// Functions
+		// ATTRIBUTE/UNIFORM FUNCTIONS
 
 		/// Bind attribute ID to specified variable name on shader
+		/// Usually called inside BindAttributes implementation
 		void BindAttribute(int attrid, const std::string& name);
 
 		/// Get uniform location on shader
+		/// Usually called inside RegisterUniforms implementation
 		int32 getUniformLocation(const std::string& name) const;
+
+
+		// Loading uniform data functions
+		// They are normally used on OnBind() implmentation
+		// or between draw calls for changing drawing parameters
 
 		/// Load a single INT uniform
 		void loadInt(int location, int value);
@@ -125,20 +112,43 @@ class ShaderProgram
 		/// Loads a single float Matrix 4x4
 		void loadMatrix4f(int location, const float* matrix);
 
-		/// \param textureID GL flag to indicate texture unit (GL_TEXTURE0 ... )
+		/// \param unitID GL flag to indicate texture unit (GL_TEXTURE0 ... )
 		void connectTexture(int location, int unitID);
 
-		/**
-		 * \param errorLog If any error is encountered during shader compilation
-		 *		A log will be generated inside errorLog
-		 */
+	private:
+		/// VIRTUAL
+		// \param outVBO vector to store all VBO's id
+		// Returns a VAO with all ShaderConfigurations Set
+		// GLuint CreateVAO(GLuint* outVBO) = 0;
+
+		/// VIRTUAL
+		/// Called right before the shader is linked
+		/// Use this to bind your attribute locations
+		virtual void BindAttributes() = 0;
+
+		/// VIRTUAL
+		/// Called right after the shader is linked
+		/// Use this to get your uniform locations
+		virtual void RegisterUniforms() = 0;
+
+		/// Virtual
+		/// Used for setting up global shader variables like matrices or other usefull data
+		/// Normally using 'loadX' functions (or wrappers for those functions)
+		virtual void OnBind() = 0;
+
+
+		/// SHADER COMPILATION AND LINKAGE
+
+		/// \param errorLog If any error is encountered during shader compilation
+		/// 	A log will be generated inside errorLog
+		/// 
 		int compile(GLuint &hdl, GLenum type, const char* data, std::string& errorLog);
 		int retrieveSourceFromFile(const std::string& file, std::string& out) const;
 
 		void linkShaders();
 		int linkShaders(std::vector<GLuint>& shaders);
 
-	private:
+		//
 		template <typename ...Args>
 		int CompileFromFile(std::vector<GLuint>& shaders){ return NO_ERROR; }
 		template <typename ...Args>
@@ -180,4 +190,4 @@ class ShaderProgram
 
 };
 
-}
+} // namespace BitEngine
