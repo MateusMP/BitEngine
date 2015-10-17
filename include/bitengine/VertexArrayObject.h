@@ -279,7 +279,7 @@ namespace BitEngine{
 		void Destroy()
 		{
 			glDeleteVertexArrays(1, &vao);
-			bool b[] = { B::DestroyBuffer()... };
+			bool b[] = { this->B::DestroyBuffer()... };
 		}
 		
 		bool Create()
@@ -294,7 +294,7 @@ namespace BitEngine{
 			Bind();
 
 			uint32 attributes = 0;
-			bool b[] = { B::CreateBuffer(attributes)... };
+			bool b[] = { this->B::CreateBuffer(attributes)... };
 
 			IVertexArrayObject::Unbind();
 

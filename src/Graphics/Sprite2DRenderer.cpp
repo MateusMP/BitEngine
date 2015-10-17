@@ -209,6 +209,8 @@ namespace BitEngine{
 
 	Sprite2DShader::ShaderGL2::BatchRenderer::~BatchRenderer()
 	{
+		for (auto& x : m_basicVAOs)
+			x.Destroy();
 	}
 
 	void Sprite2DShader::ShaderGL2::BatchRenderer::Begin()
