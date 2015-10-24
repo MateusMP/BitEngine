@@ -1,30 +1,6 @@
 #include "Sprite2DShader.h"
+#include "ShaderProgram.h"
 
-#include "Graphics\Shaders\Sprite2DGL2.h"
-#include "Graphics\Shaders\Sprite2DGL4.h"
-
-// Shader for GL2
-// Does not uses instancing!
-static const char* Sprite2D_vertex_GL2 = GLSL_(120,
-	attribute vec2 a_position;
-	attribute vec2 a_uvcoord;
-
-	varying vec2 fragTextureCoord;
-
-	uniform mat4 u_viewMatrix;
-
-	void main()
-	{
-		gl_Position.xy = (u_viewMatrix * vec4(a_position, 0, 1.0f)).xy;
-		gl_Position.z = 0.0;
-		gl_Position.w = 1.0;
-
-		fragTextureCoord = a_uvcoord;
-	}
-);
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static const char* Sprite2D_fragment_GLall = GLSL_(150,
 	in vec2 fragTextureCoord;
 
@@ -37,8 +13,11 @@ static const char* Sprite2D_fragment_GLall = GLSL_(150,
 		finalColor = texture(u_texDiffuse, fragTextureCoord);
 	}
 );
-// 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "OpenGL\Sprite2DGL2.h"
+#include "OpenGL\Sprite2DGL4.h"
+
+
 namespace BitEngine{
 
 	RendererVersion Sprite2DShader::useRenderer = NOT_DEFINED;

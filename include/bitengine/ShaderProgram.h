@@ -9,6 +9,10 @@
 #include "EngineLoggers.h"
 #include "ErrorCodes.h"
 
+#define GLSL(version, shader)  "#version " #version "\n" shader
+#define GLSL_(version, shader)  "#version " #version "\n" #shader
+
+
 
 #ifdef _DEBUG
 #define LOAD_UNIFORM(var, name)																						\

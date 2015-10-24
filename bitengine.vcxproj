@@ -90,15 +90,14 @@
     <ClCompile Include="src\GameLogicProcessor.cpp" />
     <ClCompile Include="src\glSystem.cpp" />
     <ClCompile Include="src\Graphics\error_texture.cpp" />
-    <ClCompile Include="src\Graphics\Sprite2DRenderer.cpp" />
+    <ClCompile Include="src\Graphics\OpenGL\ShaderProgram.cpp" />
+    <ClCompile Include="src\Graphics\Sprite2DShader.cpp" />
     <ClCompile Include="src\InputSystem.cpp" />
     <ClCompile Include="src\ModelManager.cpp" />
     <ClCompile Include="src\MessageChannel.cpp" />
     <ClCompile Include="src\RenderableMeshProcessor.cpp" />
     <ClCompile Include="src\ResourceSystem.cpp" />
-    <ClCompile Include="src\ShaderProgram.cpp" />
     <ClCompile Include="src\Sprite2DProcessor.cpp" />
-    <ClCompile Include="src\Sprite2DShader.cpp" />
     <ClCompile Include="src\SpriteManager.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\Task.cpp" />
@@ -163,6 +162,8 @@
     <ClInclude Include="include\bitengine\VertexArrayObject.h" />
     <ClInclude Include="include\bitengine\VideoSystem.h" />
     <ClInclude Include="include\bitengine\Window.h" />
+    <ClInclude Include="src\Graphics\OpenGL\Sprite2DGL2.h" />
+    <ClInclude Include="src\Graphics\OpenGL\Sprite2DGL4.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

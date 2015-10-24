@@ -9,7 +9,8 @@ class Texture
 {
     public:
 		Texture();
-		// ~Texture() PRIVATE.
+
+		// Destructor is PRIVATE.
 
         GLuint getID() const;
 

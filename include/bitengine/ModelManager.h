@@ -8,6 +8,7 @@
 
 #include <glm/common.hpp>
 
+#include "EngineLoggers.h"
 #include "TypeDefinition.h"
 #include "Mesh.h"
 #include "TextureManager.h"
