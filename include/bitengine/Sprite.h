@@ -90,7 +90,6 @@ class Sprite{
 				maxH *= std::max(1.0f - m_offsetY, m_offsetY);
 			}
 
-			float max = std::max(maxW, maxH);
 			m_maxRadius = std::sqrt(maxW*maxW + maxH*maxH);
 		}
 

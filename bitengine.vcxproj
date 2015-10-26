@@ -90,6 +90,7 @@
     <ClCompile Include="src\GameLogicProcessor.cpp" />
     <ClCompile Include="src\glSystem.cpp" />
     <ClCompile Include="src\Graphics\error_texture.cpp" />
+    <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Graphics\OpenGL\ShaderProgram.cpp" />
     <ClCompile Include="src\Graphics\Sprite2DShader.cpp" />
     <ClCompile Include="src\InputSystem.cpp" />

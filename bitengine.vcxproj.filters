@@ -135,6 +135,9 @@
     <ClCompile Include="src\Graphics\Sprite2DShader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\Graphics\Graphics.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Color.h">
