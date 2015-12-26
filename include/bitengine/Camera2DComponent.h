@@ -5,18 +5,12 @@
 
 #include "Component.h"
 
-#include "ComponentsType.h"
-
 namespace BitEngine {
 
 	class Camera2DComponent
 		: public Component
 	{
 		public:
-			static ComponentType getComponentType(){
-				return COMPONENT_TYPE_CAMERA2D;
-			}
-
 			Camera2DComponent();
 			
 			// Set camera focus position

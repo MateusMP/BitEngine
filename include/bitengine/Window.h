@@ -25,19 +25,4 @@ namespace BitEngine{
 	};
 }
 
-#include "Graphics.h"
-namespace BitEngine{
-
-	class Window_glfw : public Window
-	{
-	public:
-		Window_glfw()
-			: m_glfwWindow(nullptr)
-		{
-		}
-
-		GLFWwindow* m_glfwWindow;
-	};
-
-}
 

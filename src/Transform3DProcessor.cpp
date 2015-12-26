@@ -8,13 +8,16 @@ namespace BitEngine{
 	{
 	}
 
-
 	Transform3DProcessor::~Transform3DProcessor()
 	{
 	}
 
-	bool Transform3DProcessor::Init() {
+	bool Transform3DProcessor::Init(BaseEntitySystem* es) {
 		return true;
+	}
+
+	void Transform3DProcessor::Stop() {
+
 	}
 
 	void Transform3DProcessor::calculateModelMatrix(Transform3DComponent* comp, glm::mat4& mat)
@@ -51,7 +54,7 @@ namespace BitEngine{
 		return k;
 	}
 
-	void Transform3DProcessor::FrameEnd() {
+	void Transform3DProcessor::Process() {
 
 		// Recalculate distance to root
 		for (Transform3DComponent* t : components.getValidComponentsRef())
@@ -84,11 +87,11 @@ namespace BitEngine{
 
 	}
 
-	ComponentHandle Transform3DProcessor::CreateComponent(EntityHandle entity) {
+	ComponentHandle Transform3DProcessor::AllocComponent() {
 		return components.newComponent();
 	}
 
-	void Transform3DProcessor::DestroyComponent(ComponentHandle component) {
+	void Transform3DProcessor::DeallocComponent(ComponentHandle component) {
 		components.removeComponent(component);
 	}
 

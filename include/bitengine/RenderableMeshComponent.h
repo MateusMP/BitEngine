@@ -5,8 +5,6 @@
 
 #include "Component.h"
 
-#include "ComponentsType.h"
-
 #include "Mesh.h"
 
 namespace BitEngine{
@@ -14,9 +12,6 @@ namespace BitEngine{
 	class RenderableMeshComponent : public Component
 	{
 	public:
-		static ComponentType getComponentType(){
-			return COMPONENT_TYPE_RENDERABLEMESH;
-		}
 
 		RenderableMeshComponent()
 			: mesh(nullptr), material(nullptr)

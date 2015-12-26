@@ -13,8 +13,15 @@ namespace BitEngine{
 	{
 	}
 
-	bool Transform2DProcessor::Init() {
+	bool Transform2DProcessor::Init(BaseEntitySystem* es) {
+		// RegisterListener(this);
+
 		return true;
+	}
+
+	void Transform2DProcessor::Stop()
+	{
+
 	}
 
 	void Transform2DProcessor::calculateModelMatrix(Transform2DComponent* comp, glm::mat3& mat)
@@ -54,7 +61,7 @@ namespace BitEngine{
 		return k;
 	}
 
-	void Transform2DProcessor::FrameEnd() {
+	void Transform2DProcessor::Process() {
 
 		// Recalculate distance to root
 		for (Transform2DComponent* t : components.getValidComponentsRef())
@@ -87,11 +94,11 @@ namespace BitEngine{
 
 	}
 
-	ComponentHandle Transform2DProcessor::CreateComponent(EntityHandle entity) {
+	ComponentHandle Transform2DProcessor::AllocComponent() {
 		return components.newComponent();
 	}
 
-	void Transform2DProcessor::DestroyComponent(ComponentHandle component) {
+	void Transform2DProcessor::DeallocComponent(ComponentHandle component) {
 		components.removeComponent(component);
 	}
 

@@ -2,13 +2,41 @@
 
 namespace BitEngine{
 
-Camera2DProcessor::Camera2DProcessor(EntitySystem* es)
-	: m_entitySys(es)
+Camera2DProcessor::Camera2DProcessor()
 {
 }
 
-bool Camera2DProcessor::Init(){
+bool Camera2DProcessor::Init(BaseEntitySystem* es)
+{
+	baseES = es;
+	Transform2DType = baseES->getComponentType<Transform2DComponent>();
+	Camera2DType = baseES->getComponentType<Camera2DComponent>();
+
+	holderCamera = baseES->getHolder(Camera2DType);
+	holderTransform = baseES->getHolder(Transform2DType);
+
+	holderCamera->RegisterListener(this);
+	holderTransform->RegisterListener(this);
+
 	return true;
+}
+
+void Camera2DProcessor::Stop()
+{
+	holderCamera->UnregisterListener(this);
+	holderTransform->UnregisterListener(this);
+}
+
+void Camera2DProcessor::OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component)
+{
+	if (holderCamera->HasComponentOnEntity(entity) && holderTransform->HasComponentOnEntity(entity)) {
+		processEntities.emplace_back(entity);
+	}
+}
+
+void Camera2DProcessor::OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component)
+{
+
 }
 
 void Camera2DProcessor::recalculateMatrix(Camera2DComponent* c, const Transform2DComponent* t)
@@ -23,30 +51,26 @@ void Camera2DProcessor::recalculateMatrix(Camera2DComponent* c, const Transform2
 	c->m_cameraMatrix = glm::scale(glm::mat4(1.0f), scale) * c->m_cameraMatrix;
 }
 
-void Camera2DProcessor::FrameEnd()
+void Camera2DProcessor::Process()
 {
-	const std::vector<ComponentHandle>& cameras = components.getValidComponents();
-
-	std::vector<Component*> answer;
-	m_entitySys->findAllTuplesOf<Camera2DComponent, Transform2DComponent>(answer);
-
-	for (uint32 i = 0; i < answer.size(); i+=2)
+	for (EntityHandle entity : processEntities)
 	{
-		Camera2DComponent* cam = (Camera2DComponent*)answer[i];
-		const Transform2DComponent* camTransform = (const Transform2DComponent*)answer[i + 1];
+		Camera2DComponent* cam = (Camera2DComponent*)holderCamera->getComponentFor(entity);
+		const Transform2DComponent* camTransform = (const Transform2DComponent*)holderTransform->getComponentFor(entity);
 		if (cam->changed)
 		{	
 			recalculateMatrix(cam, camTransform);
+			cam->changed = false;
 		}
 	}
 }
 
-ComponentHandle Camera2DProcessor::CreateComponent(EntityHandle entity)
+ComponentHandle Camera2DProcessor::AllocComponent()
 {
 	return components.newComponent();
 }
 
-void Camera2DProcessor::DestroyComponent(ComponentHandle component)
+void Camera2DProcessor::DeallocComponent(ComponentHandle component)
 {
 	components.removeComponent(component);
 }

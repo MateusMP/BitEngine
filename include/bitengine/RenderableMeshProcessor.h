@@ -9,21 +9,24 @@
 namespace BitEngine
 {
 
-	class RenderableMeshProcessor : public ComponentHolderProcessor
+	class RenderableMeshProcessor : public ComponentProcessor, public ComponentHolder
 	{
 	public:
 		RenderableMeshProcessor();
 
 		Component* getComponent(ComponentHandle component) override;
 
-	private: // Functions
-		bool Init() override;
-		void FrameStart() override {};
-		void FrameMiddle() override {};
-		void FrameEnd() override {};
+		bool Init(BaseEntitySystem* es) override;
+		void Stop() override;
 
-		ComponentHandle CreateComponent(EntityHandle entity) override;
-		void DestroyComponent(ComponentHandle component) override;
+		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component)
+		{}
+		void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component)
+		{}
+
+	private: // Functions
+		ComponentHandle AllocComponent() override;
+		void DeallocComponent(ComponentHandle component) override;
 
 		const std::vector<ComponentHandle>& getComponents() const override;
 

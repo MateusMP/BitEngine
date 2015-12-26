@@ -16,7 +16,8 @@ namespace BitEngine{
 
 		template<typename... Args>
 		ComponentHandle newComponent(Args ... args){
-			if (freeHandles.empty()){
+			if (freeHandles.empty())
+			{
 				ComponentHandle hdl = components.size();
 				if (validRef){ // Needs to guarantee if the final vector address did not change
 					T* _reallocTest = &components[0];
@@ -36,7 +37,8 @@ namespace BitEngine{
 
 				return hdl;
 			}
-			else {
+			else 
+			{
 				ComponentHandle hdl = freeHandles.back();
 				components.emplace(components.begin() + hdl);
 				freeHandles.pop_back();
@@ -95,6 +97,10 @@ namespace BitEngine{
 		}
 
 		T* getComponent(ComponentHandle hdl){
+			return &components[hdl];
+		}
+
+		const T* getComponent(ComponentHandle hdl) const {
 			return &components[hdl];
 		}
 

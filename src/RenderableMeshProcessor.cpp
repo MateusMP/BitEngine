@@ -6,16 +6,20 @@ namespace BitEngine{
 	{
 	}
 	
-	bool RenderableMeshProcessor::Init(){
+	bool RenderableMeshProcessor::Init(BaseEntitySystem* es){
 		return true;
 	}
 
-	ComponentHandle RenderableMeshProcessor::CreateComponent(EntityHandle entity)
+	void RenderableMeshProcessor::Stop() {
+
+	}
+
+	ComponentHandle RenderableMeshProcessor::AllocComponent()
 	{
 		return components.newComponent();
 	}
 
-	void RenderableMeshProcessor::DestroyComponent(ComponentHandle component)
+	void RenderableMeshProcessor::DeallocComponent(ComponentHandle component)
 	{
 		components.removeComponent(component);
 	}

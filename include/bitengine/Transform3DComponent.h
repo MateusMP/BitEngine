@@ -5,8 +5,6 @@
 #include <glm\gtc\matrix_transform.hpp>
 
 #include "Component.h"
-#include "ComponentsType.h"
-
 
 namespace BitEngine{
 
@@ -24,11 +22,6 @@ namespace BitEngine{
 			DIRTY_DATA = 2,
 			DIRTY_ALL = DIRTY_PARENT | DIRTY_DATA
 		};
-
-		static ComponentType getComponentType(){
-			return COMPONENT_TYPE_TRANSFORM3D;
-		}
-
 
 		Transform3DComponent();
 		~Transform3DComponent();

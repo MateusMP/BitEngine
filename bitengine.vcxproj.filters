@@ -49,6 +49,9 @@
     <Filter Include="Graphics\OpenGL">
       <UniqueIdentifier>{243e27bc-0fcb-4cb9-bb35-5ddde902805e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DefaultImplementations">
+      <UniqueIdentifier>{c51362a5-7fcb-4f9d-b147-8f2fd623dfec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GameEngine.cpp">
@@ -74,9 +77,6 @@
     </ClCompile>
     <ClCompile Include="src\CommandSystem.cpp">
       <Filter>Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EntitySystem.cpp">
-      <Filter>EntitySystem</Filter>
     </ClCompile>
     <ClCompile Include="src\SpriteManager.cpp">
       <Filter>ResourceSystem</Filter>
@@ -137,6 +137,9 @@
     </ClCompile>
     <ClCompile Include="src\Graphics\Graphics.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BaseEntitySystem.cpp">
+      <Filter>EntitySystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -211,9 +214,6 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\GameLogicProcessor.h">
       <Filter>EntitySystem\Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\ComponentsType.h">
-      <Filter>EntitySystem</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\TextureManager.h">
       <Filter>ResourceSystem</Filter>
@@ -301,6 +301,12 @@
     </ClInclude>
     <ClInclude Include="include\bitengine\Sprite2DShader.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\BaseEntitySystem.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\GLFW_VideoSystem.h">
+      <Filter>Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

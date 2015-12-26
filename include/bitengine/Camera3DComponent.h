@@ -5,8 +5,6 @@
 
 #include "Component.h"
 
-#include "ComponentsType.h"
-
 namespace BitEngine{
 
 	class Camera3DComponent : public Component
@@ -17,10 +15,6 @@ namespace BitEngine{
 			PERSPECTIVE,
 
 		};
-
-		static ComponentType getComponentType(){
-			return COMPONENT_TYPE_CAMERA3D;
-		}
 
 		Camera3DComponent()
 			: m_projectionType(PERSPECTIVE),

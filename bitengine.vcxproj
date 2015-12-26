@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -18,12 +18,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -39,12 +39,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>include\bitengine;$(STB_HOME)\;$(GLFW_HOME)\include;$(GLM_HOME)\include;$(GLEW_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>include\bitengine;$(STB_HOME);$(GLFW_INCLUDE);$(GLM_HOME);$(GLEW_INCLUDE);$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>include\bitengine;$(STB_HOME)\;$(GLFW_HOME)\include;$(GLM_HOME)\include;$(GLEW_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>include\bitengine;$(STB_HOME);$(GLFW_INCLUDE);$(GLM_HOME);$(GLEW_INCLUDE);$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -80,12 +80,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\BaseEntitySystem.cpp" />
     <ClCompile Include="src\Camera2DComponent.cpp" />
     <ClCompile Include="src\Camera2DProcessor.cpp" />
     <ClCompile Include="src\Camera3DProcessor.cpp" />
     <ClCompile Include="src\CommandSystem.cpp" />
     <ClCompile Include="src\EngineConfiguration.cpp" />
-    <ClCompile Include="src\EntitySystem.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\GameLogicProcessor.cpp" />
     <ClCompile Include="src\glSystem.cpp" />
@@ -111,6 +111,7 @@
     <ClCompile Include="src\VideoSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\bitengine\BaseEntitySystem.h" />
     <ClInclude Include="include\bitengine\Camera2DComponent.h" />
     <ClInclude Include="include\bitengine\Camera2DProcessor.h" />
     <ClInclude Include="include\bitengine\Camera3DComponent.h" />
@@ -121,13 +122,13 @@
     <ClInclude Include="include\bitengine\ComponentCollection.h" />
     <ClInclude Include="include\bitengine\ComponentProcessor.h" />
     <ClInclude Include="include\bitengine\Components.h" />
-    <ClInclude Include="include\bitengine\ComponentsType.h" />
     <ClInclude Include="include\bitengine\EngineConfiguration.h" />
     <ClInclude Include="include\bitengine\EngineLoggers.h" />
     <ClInclude Include="include\bitengine\EntitySystem.h" />
     <ClInclude Include="include\bitengine\ErrorCodes.h" />
     <ClInclude Include="include\bitengine\GameEngine.h" />
     <ClInclude Include="include\bitengine\GameLogicProcessor.h" />
+    <ClInclude Include="include\bitengine\GLFW_VideoSystem.h" />
     <ClInclude Include="include\bitengine\glSystem.h" />
     <ClInclude Include="include\bitengine\Graphics.h" />
     <ClInclude Include="include\bitengine\InputSystem.h" />

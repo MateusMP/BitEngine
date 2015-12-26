@@ -5,8 +5,8 @@
 
 namespace BitEngine{
 
-
-	class Transform3DProcessor : public ComponentHolderProcessor
+	// TODO: Fix parents on childs when a parent Transform is destroyed
+	class Transform3DProcessor : public ComponentProcessor, public ComponentHolder
 	{
 	public:
 		Transform3DProcessor();
@@ -14,15 +14,19 @@ namespace BitEngine{
 
 		Component* getComponent(ComponentHandle component) override;
 
+		bool Init(BaseEntitySystem* es) override;
+		void Stop() override;
+		void Process();
+
+		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override
+		{}
+		void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) override
+		{}
+
 	private:
-		bool Init() override;
-		void FrameStart() override {};
-		void FrameMiddle() override {};
-		void FrameEnd() override;
 
-		ComponentHandle CreateComponent(EntityHandle entity) override;
-		void DestroyComponent(ComponentHandle component) override;
-
+		ComponentHandle AllocComponent() override;
+		void DeallocComponent(ComponentHandle component) override;
 
 		const std::vector<ComponentHandle>& getComponents() const override;
 

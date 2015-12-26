@@ -4,6 +4,7 @@
 
 namespace BitEngine{
 
+	class ComponentHolder;
 
 	typedef uint32 EntityHandle;
 	typedef uint32 ComponentHandle;
@@ -13,7 +14,14 @@ namespace BitEngine{
 	{
 	public:
 		virtual ~Component(){}
+		
+		EntityHandle getEntity() const {
+			return entity;
+		}
 
+	private:
+		friend class ComponentHolder;
+		EntityHandle entity;
 	};
 
 }

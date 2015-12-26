@@ -18,17 +18,12 @@ const std::vector<ComponentHandle>& Sprite2DProcessor::getComponents() const
 	return components.getValidComponents();
 }
 
-bool Sprite2DProcessor::Init()
-{
-	return true;
-}
-
-ComponentHandle Sprite2DProcessor::CreateComponent(EntityHandle entity)
+ComponentHandle Sprite2DProcessor::AllocComponent()
 {
 	return components.newComponent();
 }
 
-void Sprite2DProcessor::DestroyComponent(ComponentHandle component)
+void Sprite2DProcessor::DeallocComponent(ComponentHandle component)
 {
 	components.removeComponent(component);
 }

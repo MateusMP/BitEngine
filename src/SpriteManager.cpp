@@ -29,7 +29,7 @@ namespace BitEngine{
 			return 0;
 		}
 
-		SpriteHandle handle = m_sprites.size();
+		SpriteHandle handle = (SpriteHandle)m_sprites.size();
 		m_sprites.emplace_back(spr);
 
 		m_sprLookUp[name] = handle;
@@ -40,7 +40,7 @@ namespace BitEngine{
 	/// This sprite wont be avaible through getSprite(name)
 	SpriteHandle SpriteManager::createSprite(const Sprite& spr)
 	{
-		SpriteHandle handle = m_sprites.size();
+		SpriteHandle handle = (SpriteHandle)m_sprites.size();
 		m_sprites.emplace_back(spr);
 
 		return handle;

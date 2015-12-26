@@ -2,8 +2,7 @@
 
 namespace BitEngine{
 
-	GameLogicProcessor::GameLogicProcessor(EntitySystem* sys)
-		: m_e_sys(sys)
+	GameLogicProcessor::GameLogicProcessor()
 	{
 	}
 
@@ -19,13 +18,26 @@ namespace BitEngine{
 		}
 	}
 
-	bool GameLogicProcessor::Init(){
+	bool GameLogicProcessor::Init(BaseEntitySystem* es){
+		e_sys = es;
+
+		// GameLogicComponentType = es->getComponentType<GameLogicComponent>();
+		// es->getHolder(GameLogicComponentType)->RegisterListener(this);
+		RegisterListener(this); // Self register
+
 		return true;
 	}
 
-	void GameLogicProcessor::FrameStart(){
+	void GameLogicProcessor::Stop()
+	{
+		UnregisterListener(this);
+	}
+
+	void GameLogicProcessor::FrameStart()
+	{
 		// LOGTO(Verbose) << "GameLogicProcessor::FrameStart\n" << endlog;
 
+		// Initialize all components not yet initialized
 		for (ComponentHandle hdl : m_notInitialized)
 		{
 			auto& pieces = components.getComponent(hdl)->m_gamelogics;
@@ -50,6 +62,7 @@ namespace BitEngine{
 		}
 		m_notInitialized.clear();
 
+		// Run FrameStart on all components
 		for (GameLogic* l : m_onFrameStart){
 			l->FrameStart();
 		}
@@ -71,33 +84,58 @@ namespace BitEngine{
 		}
 	}
 
-	ComponentHandle GameLogicProcessor::CreateComponent(EntityHandle entity)
+	void GameLogicProcessor::OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component)
 	{
-		ComponentHandle hdl = components.newComponent(entity, m_e_sys);
-		m_notInitialized.emplace_back(hdl);
+		GameLogicComponent* glc = components.getComponent(component);
+		glc->e_sys = e_sys;
 
-		return hdl;
+		m_notInitialized.emplace_back(component);
 	}
 
-	void GameLogicProcessor::DestroyComponent(ComponentHandle component)
+	void GameLogicProcessor::OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component)
 	{
-		auto& pieces = components.getComponent(component)->m_gamelogics;
-		for (GameLogic* logic : pieces)
+		GameLogicComponent* comp = components.getComponent(component);
+		auto& pieces = comp->m_gamelogics;
+		for (size_t i = 0; i < pieces.size(); ++i)
 		{
+			GameLogic* logic = pieces[i];
 			GameLogic::RunEvents ev = logic->getRunEvents();
-			if (ev & GameLogic::RunEvents::EFrameStart){
-				m_onFrameStart.erase(std::find(m_onFrameStart.begin(), m_onFrameStart.end(), logic));
+			if (ev & GameLogic::RunEvents::EFrameStart) {
+				removeFrom(logic, m_onFrameStart);
 			}
-			if (ev & GameLogic::RunEvents::EFrameMiddle){
-				m_onFrameMiddle.erase(std::find(m_onFrameMiddle.begin(), m_onFrameMiddle.end(), logic));
+
+			if (ev & GameLogic::RunEvents::EFrameMiddle) {
+				removeFrom(logic, m_onFrameMiddle);
 			}
-			if (ev & GameLogic::RunEvents::EFrameEnd){
-				m_onFrameEnd.erase(std::find(m_onFrameEnd.begin(), m_onFrameEnd.end(), logic));
+
+			if (ev & GameLogic::RunEvents::EFrameEnd) {
+				removeFrom(logic, m_onFrameEnd);
 			}
 
 			logic->End();
 		}
+	}
 
+	void GameLogicProcessor::removeFrom(GameLogic* l, std::vector<GameLogic*>& vec) 
+	{
+		for (size_t i = 0; i < vec.size(); ++i) 
+		{
+			if (vec[i] == l) 
+			{
+				vec[i] = vec.back();
+				vec.pop_back();
+				return;
+			}
+		}
+	}
+
+	ComponentHandle GameLogicProcessor::AllocComponent()
+	{
+		return components.newComponent();
+	}
+
+	void GameLogicProcessor::DeallocComponent(ComponentHandle component)
+	{
 		components.removeComponent(component);
 	}
 

@@ -2,7 +2,6 @@
 
 #include <vector>
 #include "Component.h"
-#include "ComponentsType.h"
 
 #include "EntitySystem.h"
 #include "MathUtils.h"
@@ -13,18 +12,6 @@ namespace BitEngine{
 	class CollisionLogic
 	{
 		virtual void OnCollision() = 0;
-	};
-
-	class EntityHolderComponent : public Component{
-		public:
-			EntityHolderComponent(EntityHandle ent, EntitySystem* sys)
-				: m_myEntity(ent), e_sys(sys) 
-			{
-				// printf("%p EntityHolderComponent(%u, %p)\n", this, ent, sys);
-			}
-
-			EntityHandle m_myEntity;
-			EntitySystem* e_sys;
 	};
 
 	class GameLogic
@@ -48,42 +35,41 @@ namespace BitEngine{
 
 			virtual void End() = 0;
 
-			template<typename CompClass>
-			bool getComponent(ComponentRef<CompClass>& ref){
-				return e_sys->getComponentRef(m_myEntity, ref);
+			template<typename ComponentIDProvider, typename CompClass>
+			bool getComponent(ComponentRef<CompClass>& ref) {
+				return e_sys->getComponentRef<ComponentIDProvider, CompClass>(m_myEntity, ref);
 			}
 
-			EntitySystem* getES() {
-				return e_sys;
+			// Prefer the variation above
+			template<typename CompClass>
+			bool getComponent_ex(ComponentRef<CompClass>& ref){
+				return e_sys->getComponentRef<CompClass>(m_myEntity, ref);
 			}
+
 
 		private:
 			friend class GameLogicComponent;
 			EntityHandle m_myEntity;
-			EntitySystem* e_sys;
+			BaseEntitySystem* e_sys;
 	};
 
-	class GameLogicComponent : public EntityHolderComponent
+	class GameLogicComponent : public Component
 	{
 	public:
-		GameLogicComponent()
-			: EntityHolderComponent(0, nullptr) {}
-		GameLogicComponent(EntityHandle ent, EntitySystem* sys)
-			: EntityHolderComponent(ent, sys) {}
+		GameLogicComponent(){}
+			//: EntityHolderComponent(0, nullptr) {}
+		GameLogicComponent(EntityHandle ent){}
+			//: EntityHolderComponent(ent, sys) {}
 
 		void addLogicPiece(GameLogic* logic){
 			m_gamelogics.emplace_back(logic);
-			logic->m_myEntity = m_myEntity;
+			logic->m_myEntity = getEntity();
 			logic->e_sys = e_sys;
-		}
-
-		static ComponentType getComponentType(){
-			return COMPONENT_TYPE_GAMELOGIC;
 		}
 
 	private:
 		friend class GameLogicProcessor;
-
+		BaseEntitySystem* e_sys;
 		std::vector<GameLogic*> m_gamelogics;
 	};
 

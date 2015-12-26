@@ -6,33 +6,58 @@
 #include "Transform2DProcessor.h"
 #include "EntitySystem.h"
 
+#include "VectorBool.h"
+
 namespace BitEngine{
 
-class Camera2DProcessor : public ComponentHolderProcessor
+class Camera2DProcessor : public ComponentProcessor, public ComponentHolder
 {
-	public:
-		Camera2DProcessor(EntitySystem* es);
+	public: // Methods
+		Camera2DProcessor();
 
+		/// Holder
 		Component* getComponent(ComponentHandle component) override;
 
-	private:
-		bool Init() override;
-		void FrameStart() override {};
-		void FrameMiddle() override {};
-		void FrameEnd() override;
+		/// Processor
+		bool Init(BaseEntitySystem* es) override;
+		void Stop() override;
+		void Process();
 
-		ComponentHandle CreateComponent(EntityHandle entity) override;
-		void DestroyComponent(ComponentHandle component) override;
+		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override;
+		void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) override;
 
+	private: // Methods
+
+		/// Component Holder
+		ComponentHandle AllocComponent() override;
+		void DeallocComponent(ComponentHandle component) override;
+		
 		const std::vector<ComponentHandle>& getComponents() const override;
 
-		//
+		/// Processor
 		void recalculateMatrix(Camera2DComponent* c, const Transform2DComponent* t);
 		
-	private:
-		EntitySystem* m_entitySys;
+	private: // Member variables
 
+		/// ComponentHolder part
+		// The collection of components
 		ComponentCollection<Camera2DComponent> components;
+
+		/// Component processor
+
+		// Hold the ComponentType for all components this processor cares
+		ComponentType Transform2DType;
+		ComponentType Camera2DType;
+
+		// Hold the ComponentHolders for all ComponentTypes cared by this processor
+		ComponentHolder* holderCamera;
+		ComponentHolder* holderTransform;
+
+		// All entities that currently have the required components to be processed by this processor
+		std::vector<EntityHandle> processEntities;
+
+		// The BaseEntitySystem this processor is working for
+		BaseEntitySystem* baseES;
 };
 
 }

@@ -2,13 +2,27 @@
 
 namespace BitEngine{
 
-	Camera3DProcessor::Camera3DProcessor(EntitySystem* es)
-		: m_entitySys(es)
+	Camera3DProcessor::Camera3DProcessor()
 	{
 	}
 
-	bool Camera3DProcessor::Init(){
+	bool Camera3DProcessor::Init(BaseEntitySystem* es){
+
+		baseES = es;
+		Transform3DType = baseES->getComponentType<Transform3DComponent>();
+		Camera3DType = baseES->getComponentType<Camera3DComponent>();
+
+		holderCamera = baseES->getHolder(Camera3DType);
+		holderTransform = baseES->getHolder(Transform3DType);
+
+		holderCamera->RegisterListener(this);
+		holderTransform->RegisterListener(this);
+
 		return true;
+	}
+
+	void Camera3DProcessor::Stop() {
+
 	}
 
 	void Camera3DProcessor::recalculateViewMatrix(Camera3DComponent* c, const Transform3DComponent* t)
@@ -18,25 +32,26 @@ namespace BitEngine{
 		c->m_viewMatrix = glm::lookAt(eye, c->m_lookAt, c->m_up);
 	}
 
-	void Camera3DProcessor::FrameEnd()
+	void Camera3DProcessor::Process()
 	{
 		std::vector<Component*> answer;
-		m_entitySys->findAllTuplesOf<Camera3DComponent, Transform3DComponent>(answer);
-
-		for (uint32 i = 0; i < answer.size(); i += 2)
+		// m_entitySys->findAllTuplesOf<Camera3DComponent, Transform3DComponent>(answer);
+		
+		for (EntityHandle entity : processEntities)
 		{
-			Camera3DComponent* cam = (Camera3DComponent*)answer[i];
-			const Transform3DComponent* camTransform = (const Transform3DComponent*)answer[i + 1];
+			Camera3DComponent* cam = (Camera3DComponent*)holderCamera->getComponentFor(entity);
+			const Transform3DComponent* camTransform = (const Transform3DComponent*)holderTransform->getComponentFor(entity);
+			
 			recalculateViewMatrix(cam, camTransform);
 		}
 	}
 
-	ComponentHandle Camera3DProcessor::CreateComponent(EntityHandle entity)
+	ComponentHandle Camera3DProcessor::AllocComponent()
 	{
 		return components.newComponent();
 	}
 
-	void Camera3DProcessor::DestroyComponent(ComponentHandle component)
+	void Camera3DProcessor::DeallocComponent(ComponentHandle component)
 	{
 		components.removeComponent(component);
 	}

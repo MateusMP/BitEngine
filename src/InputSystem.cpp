@@ -4,6 +4,8 @@
 #include "MessageChannel.h"
 #include "EngineLoggers.h"
 
+#include "GLFW_VideoSystem.h"
+
 namespace BitEngine{
 
 std::unordered_map<Window*, InputReceiver> InputSystem::inputReceivers;
