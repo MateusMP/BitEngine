@@ -17,12 +17,6 @@ namespace BitEngine{
 		const static glm::vec3 UP;
 		const static glm::vec3 RIGHT;
 
-		enum Dirty : unsigned char{
-			DIRTY_PARENT = 1,
-			DIRTY_DATA = 2,
-			DIRTY_ALL = DIRTY_PARENT | DIRTY_DATA
-		};
-
 		Transform3DComponent();
 		~Transform3DComponent();
 
@@ -34,7 +28,7 @@ namespace BitEngine{
 			position.x = (float)x;
 			position.y = (float)y;
 			position.z = (float)z;
-			m_dirty |= DIRTY_DATA;
+			m_dirty = true;
 		}
 		void setPosition(const glm::vec3& p);
 
@@ -45,15 +39,6 @@ namespace BitEngine{
 		// Rotation
 		const glm::quat& getRotation() const;
 		void setRotation(const glm::quat& quat);
-
-		/**
-		* Retrieves the last calculated model matrix
-		* This is updated by Transform2DProcessor
-		*/
-		const glm::mat4& getMatrix() const;
-
-		void setParent(ComponentHandle p);
-		ComponentHandle getParent() const;
 
 		const glm::vec3 getForward() const {
 			return rotation * FORWARD;
@@ -71,11 +56,7 @@ namespace BitEngine{
 		glm::vec3 scale;
 		glm::quat rotation;
 
-		char m_dirty;
-		int m_nParents;
-		ComponentHandle parent;
-
-		glm::mat4 m_modelMatrix;
+		bool m_dirty;
 	};
 
 

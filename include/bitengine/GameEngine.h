@@ -21,7 +21,7 @@
 #include "Transform3DProcessor.h"
 #include "Camera2DProcessor.h"
 #include "Camera3DProcessor.h"
-#include "Sprite2DProcessor.h"
+#include "Sprite2DHolder.h"
 #include "RenderableMeshProcessor.h"
 
 #include "Timer.h"

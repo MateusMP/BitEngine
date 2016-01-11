@@ -48,7 +48,6 @@ class EntitySystem : public BaseEntitySystem
 		EntitySystem()
 		{
 			m_dataHolder.resize(ComponentIDProvider::TotalComponents(), nullptr);
-			m_entities.emplace_back(0); // First entity is invalid.
 		}
 
 		bool Init()

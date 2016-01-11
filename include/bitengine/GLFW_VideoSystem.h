@@ -106,11 +106,11 @@ public:
 			return;
 
 		// Swap buffers / redraws window
-		UpdateWindow();
+		// UpdateWindow();
 
 		// Prepare for next frame
-		glClearColor(0, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// glClearColor(0, 0, 0, 1);
+		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw more things here ~~ 
 	}
@@ -123,15 +123,15 @@ public:
 		glViewport(0, 0, width, height);
 	}
 
-protected:
-	/** Helper function
-	* Swap buffers drawing new screen
-	*/
 	void UpdateWindow()
 	{
 		glfwSwapBuffers(m_Window.m_glfwWindow);
 	}
+protected:
 
+	/** Helper function
+	* Swap buffers drawing new screen
+	*/
 	bool CheckWindowClosed()
 	{
 		if (glfwWindowShouldClose(m_Window.m_glfwWindow)) {

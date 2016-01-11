@@ -94,8 +94,13 @@ class ComponentHolder
 			//}
 		}
 
-		bool HasComponentOnEntity(EntityHandle entity) {
-			return m_componentByEntity.find(entity) != m_componentByEntity.end();
+		// returns 0 if there is no component for this entity. ComponentHandle id otherwise.
+		ComponentHandle getComponentHandleFor(EntityHandle entity)
+		{
+			auto it = m_componentByEntity.find(entity);
+			if (it == m_componentByEntity.end())
+				return 0;
+			return it->second;
 		}
 
 	protected:

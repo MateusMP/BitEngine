@@ -25,7 +25,7 @@ class Camera2DProcessor : public ComponentProcessor, public ComponentHolder
 
 		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override;
 		void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) override;
-
+		
 	private: // Methods
 
 		/// Component Holder

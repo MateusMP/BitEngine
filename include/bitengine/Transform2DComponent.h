@@ -11,12 +11,6 @@ class Transform2DComponent :
 	public Component
 {
 public:
-	enum Dirty : unsigned char{
-		DIRTY_PARENT = 1,
-		DIRTY_DATA = 2,
-		DIRTY_ALL = DIRTY_PARENT | DIRTY_DATA
-	};
-
 	Transform2DComponent();
 	~Transform2DComponent();
 
@@ -27,7 +21,7 @@ public:
 	{
 		position.x = (float)x;
 		position.y = (float)y;
-		m_dirty |= DIRTY_DATA;
+		m_dirty = true;
 	}
 	void setLocalPosition(const glm::vec2& p); // sets LOCAL position
 
@@ -39,15 +33,7 @@ public:
 	float getLocalRotation() const; // get LOCAL rotation
 	void setLocalRotation(float rad); // sets LOCAL rotation
 
-	/**
-	 * Retrieves the last calculated model matrix
-	 * This is updated by Transform2DProcessor
-	 */
-	const glm::mat3& getMatrix() const;
-
-	void setParent(ComponentHandle p);
-	ComponentHandle getParent() const;
-
+	/* // TODO ADD THIS AGAIN SOMEWHERE
 	float getWorldAngle() const {
 		return atan2(m_modelMatrix[0][1], m_modelMatrix[1][1]);
 	}
@@ -55,7 +41,7 @@ public:
 	glm::vec2 getRight() const {
 		return glm::mat2(m_modelMatrix) * glm::vec2(1, 0);
 	}
-
+	*/
 private:
 	friend class Transform2DProcessor;
 
@@ -63,11 +49,7 @@ private:
 	glm::vec2 scale;
 	float rotation;
 
-	char m_dirty;
-	int m_nParents;
-	ComponentHandle parent;
-
-	glm::mat3 m_modelMatrix;
+	bool m_dirty;
 };
 
 

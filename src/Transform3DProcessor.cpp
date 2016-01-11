@@ -13,78 +13,58 @@ namespace BitEngine{
 	}
 
 	bool Transform3DProcessor::Init(BaseEntitySystem* es) {
+		RegisterListener(this);
 		return true;
 	}
 
 	void Transform3DProcessor::Stop() {
-
+		UnregisterListener(this);
 	}
 
-	void Transform3DProcessor::calculateModelMatrix(Transform3DComponent* comp, glm::mat4& mat)
+	void Transform3DProcessor::CalculateLocalModelMatrix(const Transform3DComponent* comp, glm::mat4& mat)
 	{
 		// T R S
 		// mat = glm::translate(glm::mat4(1), comp->position) * glm::mat4_cast(comp->rotation) * glm::scale(glm::mat4(1), comp->scale);
 		mat = glm::translate(glm::mat4_cast(comp->rotation) * glm::scale(glm::mat4(1), comp->scale), comp->position);
+	}
 
-		if (comp->parent)
+	void Transform3DProcessor::Process() 
+	{
+		// Recalculate localTransform
+		for (ComponentHandle c : components.getValidComponents())
 		{
-			Transform3DComponent* parentT = components.getComponent(comp->parent);
-			mat = parentT->getMatrix() * mat;
+			Transform3DComponent* t = (Transform3DComponent*)getComponent(c);
+			if ( t->m_dirty ) 
+			{
+				t->m_dirty = false;
+				CalculateLocalModelMatrix(t, localTransform[c]);
+				hierarchy[c].dirty = true;
+			} 
+		}
+
+		// Update globalTransform of valid components
+		for (ComponentHandle c : getComponents())
+		{
+			RecalcGlobal(hierarchy[c]);
 		}
 	}
 
-	int Transform3DProcessor::calculateParentRootDistance(Transform3DComponent* t){
-
-		if (t->parent == 0)
-			return 0;
-
-		// TODO: Remove recursion
-		int k = 0;
-		t = components.getComponent(t->parent);
-		if (t->m_dirty){
-			int x = calculateParentRootDistance(t);
-			t->m_nParents = x;
-			t->m_dirty = Transform3DComponent::DIRTY_DATA;
-			k = x + 1;
-		}
-		else {
-			k = t->m_nParents + 1;
-		}
-
-		return k;
-	}
-
-	void Transform3DProcessor::Process() {
-
-		// Recalculate distance to root
-		for (Transform3DComponent* t : components.getValidComponentsRef())
+	void Transform3DProcessor::RecalcGlobal(Hierarchy &t)
+	{
+		if (t.dirty)
 		{
-			// printf("before Verify T2C: %p parent: %p, nParents: %d\n", t, t->parent, t->m_nParents);
-			if (t->m_dirty & Transform3DComponent::DIRTY_PARENT){
-				t->m_nParents = calculateParentRootDistance(t);
-				t->m_dirty = Transform3DComponent::DIRTY_DATA;
-			}
-			// printf("after Verify T2C: %p parent: %p, nParents: %d\n", t, t->parent, t->m_nParents);
-		}
+			if (t.parent != 0)
+				globalTransform[t.self] = globalTransform[t.parent] * localTransform[t.self];
+			else
+				globalTransform[t.self] = localTransform[t.self];
+			
+			t.dirty = false;
 
-		// Copy vector
-		std::vector< Transform3DComponent* > ordered = components.getValidComponentsRef();
-
-		// sort
-		std::sort(ordered.begin(), ordered.end(),
-			[](Transform3DComponent* a, Transform3DComponent* b){
-			return a->m_nParents < b->m_nParents;
-		});
-
-		// Update transform matrix starting from the parents
-		for (Transform3DComponent* t : ordered){
-			// printf("Ordered T2C: %p parent: %p, nParents: %d\n", t, t->parent, t->m_nParents);
-
-			if (t->m_dirty & Transform3DComponent::DIRTY_DATA){
-				calculateModelMatrix(t, t->m_modelMatrix);
+			for (const ComponentHandle c : t.childs) {
+				hierarchy[c].dirty = true;
+				RecalcGlobal(hierarchy[c]);
 			}
 		}
-
 	}
 
 	ComponentHandle Transform3DProcessor::AllocComponent() {

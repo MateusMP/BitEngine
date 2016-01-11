@@ -29,7 +29,7 @@ void Camera2DProcessor::Stop()
 
 void Camera2DProcessor::OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component)
 {
-	if (holderCamera->HasComponentOnEntity(entity) && holderTransform->HasComponentOnEntity(entity)) {
+	if (holderCamera->getComponentHandleFor(entity) && holderTransform->getComponentHandleFor(entity)) {
 		processEntities.emplace_back(entity);
 	}
 }

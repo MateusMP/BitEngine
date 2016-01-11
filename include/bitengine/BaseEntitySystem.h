@@ -63,7 +63,9 @@ namespace BitEngine {
 	{
 		public:
 			BaseEntitySystem()
-				: System("Entity"){}
+				: System("Entity"){
+				m_entities.emplace_back(0); // First entity is invalid.
+			}
 
 			/**
 			* Creates a new Entity

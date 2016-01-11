@@ -12,3 +12,4 @@ ProjectFiles/BitEngine.layout
 ProjectFiles/CppCheckResults.xml
 ProjectFiles/BitEngine_build_log.html
 Debug/vc120.idb
+*.tlog

@@ -12,8 +12,8 @@ namespace BitEngine{
 		Transform3DType = baseES->getComponentType<Transform3DComponent>();
 		Camera3DType = baseES->getComponentType<Camera3DComponent>();
 
-		holderCamera = baseES->getHolder(Camera3DType);
-		holderTransform = baseES->getHolder(Transform3DType);
+		holderCamera = (Camera3DProcessor*) baseES->getHolder(Camera3DType);
+		holderTransform = (Transform3DProcessor*)baseES->getHolder(Transform3DType);
 
 		holderCamera->RegisterListener(this);
 		holderTransform->RegisterListener(this);
@@ -25,24 +25,54 @@ namespace BitEngine{
 
 	}
 
-	void Camera3DProcessor::recalculateViewMatrix(Camera3DComponent* c, const Transform3DComponent* t)
+
+	void Camera3DProcessor::OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component)
 	{
-		glm::vec3 eye(t->getMatrix()[3][0], t->getMatrix()[3][1], t->getMatrix()[3][2]);
+		ComponentHandle camera = holderCamera->getComponentHandleFor(entity);
+		ComponentHandle transform = holderTransform->getComponentHandleFor(entity);
+		
+		if (camera && transform) {
+			processEntries.emplace_back(entity, camera, transform);
+		}
+	}
+
+	void Camera3DProcessor::OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component)
+	{
+		invalidatedEntries.emplace(entity);
+	}
+
+	void Camera3DProcessor::recalculateViewMatrix(Camera3DComponent* c, const glm::mat4& modelMat)
+	{
+		glm::vec3 eye(modelMat[3][0], modelMat[3][1], modelMat[3][2]);
 		//glm::vec3 eye = t->getPosition();
 		c->m_viewMatrix = glm::lookAt(eye, c->m_lookAt, c->m_up);
 	}
 
 	void Camera3DProcessor::Process()
 	{
-		std::vector<Component*> answer;
-		// m_entitySys->findAllTuplesOf<Camera3DComponent, Transform3DComponent>(answer);
-		
-		for (EntityHandle entity : processEntities)
+		// Remove invalidated entries
+		if (!invalidatedEntries.empty()) 
 		{
-			Camera3DComponent* cam = (Camera3DComponent*)holderCamera->getComponentFor(entity);
-			const Transform3DComponent* camTransform = (const Transform3DComponent*)holderTransform->getComponentFor(entity);
+			for (unsigned i = 0; i < processEntries.size(); ++i) 
+			{
+				auto it = invalidatedEntries.find(processEntries[i].entity);
+				if (it != invalidatedEntries.end()) 
+				{
+					processEntries[i] = processEntries.back();
+					processEntries.pop_back();
+					// invalidatedEntries.erase(it); // TODO: Delete at each iteration? or one single clear at the end?
+					break;
+				}
+			}
+
+			invalidatedEntries.clear();
+		}
+				
+		for (const Entry& entry : processEntries)
+		{
+			Camera3DComponent* cam = (Camera3DComponent*)holderCamera->getComponent(entry.camera3d);
 			
-			recalculateViewMatrix(cam, camTransform);
+			recalculateViewMatrix(cam, holderTransform->getGlobalTransformFor(entry.transform3d) );
 		}
 	}
 

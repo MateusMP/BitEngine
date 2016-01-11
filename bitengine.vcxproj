@@ -98,7 +98,7 @@
     <ClCompile Include="src\MessageChannel.cpp" />
     <ClCompile Include="src\RenderableMeshProcessor.cpp" />
     <ClCompile Include="src\ResourceSystem.cpp" />
-    <ClCompile Include="src\Sprite2DProcessor.cpp" />
+    <ClCompile Include="src\Sprite2DHolder.cpp" />
     <ClCompile Include="src\SpriteManager.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\Task.cpp" />
@@ -145,7 +145,7 @@
     <ClInclude Include="include\bitengine\ShaderProgram.h" />
     <ClInclude Include="include\bitengine\Sprite.h" />
     <ClInclude Include="include\bitengine\Sprite2DComponent.h" />
-    <ClInclude Include="include\bitengine\Sprite2DProcessor.h" />
+    <ClInclude Include="include\bitengine\Sprite2DHolder.h" />
     <ClInclude Include="include\bitengine\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\SpriteManager.h" />
     <ClInclude Include="include\bitengine\System.h" />

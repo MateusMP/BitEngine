@@ -8,8 +8,9 @@ namespace BitEngine{
 
 
 	Transform3DComponent::Transform3DComponent()
-		: m_dirty(DIRTY_ALL), m_nParents(0), parent(0), position(0, 0, 0), scale(1.0f, 1.0f, 1.0f), rotation()
+		: position(0, 0, 0), scale(1.0f, 1.0f, 1.0f), rotation()
 	{
+		m_dirty = false;
 	}
 
 	Transform3DComponent::~Transform3DComponent(){
@@ -22,6 +23,7 @@ namespace BitEngine{
 
 	void Transform3DComponent::setPosition(const glm::vec3& p){
 		position = p;
+		m_dirty = true;
 	}
 
 	// Scale
@@ -31,6 +33,7 @@ namespace BitEngine{
 
 	void Transform3DComponent::setScale(const glm::vec3& s){
 		scale = s;
+		m_dirty = true;
 	}
 
 	// Rotation
@@ -40,24 +43,7 @@ namespace BitEngine{
 
 	void Transform3DComponent::setRotation(const glm::quat& quat){
 		rotation = quat;
+		m_dirty = true;
 	}
-
-	/**
-	* Retrieves the last calculated model matrix
-	* This is updated by Transform2DProcessor
-	*/
-	const glm::mat4& Transform3DComponent::getMatrix() const{
-		return m_modelMatrix;
-	}
-
-	void Transform3DComponent::setParent(ComponentHandle p){
-		parent = p;
-	}
-
-	ComponentHandle Transform3DComponent::getParent() const{
-		return parent;
-	}
-
-
 
 }
