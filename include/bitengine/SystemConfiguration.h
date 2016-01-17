@@ -16,31 +16,42 @@ namespace BitEngine
 			: name(_name), defaultValue(_defaultValue), value(_defaultValue), description(_description)
 		{}
 
-		void setValue(const std::string& newValue){
+		void setValue(const std::string& newValue) {
 			value = newValue;
 		}
 
-		void setValue(double newValue){
+		void setValue(double newValue) {
 			value = std::to_string(newValue);
 		}
 
-		double getValueAsReal() const{
+		void setValue(bool newValue) {
+			if (newValue)
+				value = "true";
+			else
+				value = "false";
+		}
+
+		double getValueAsReal() const {
 			return std::strtod(value.c_str(), nullptr);
 		}
 
-		const std::string& getValueAsString() const{
+		bool getValueAsBool() const {
+			return (value == "true" || value == "1");
+		}
+
+		const std::string& getValueAsString() const {
 			return value;
 		}
 
-		const std::string& getDefaultValue() const{
+		const std::string& getDefaultValue() const {
 			return defaultValue;
 		}
 
-		double getDefaultValueAsReal() const{
+		double getDefaultValueAsReal() const {
 			return std::strtod(defaultValue.c_str(), nullptr);
 		}
 
-		const std::string& getDescription() const{
+		const std::string& getDescription() const {
 			return description;
 		}
 
