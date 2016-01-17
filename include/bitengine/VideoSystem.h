@@ -3,102 +3,128 @@
 #include "Graphics.h"
 #include "System.h"
 #include "Window.h"
+#include "Video/IVideoRenderer.h"
 
 #include <set>
 
-namespace BitEngine{
+namespace BitEngine {
 
-	template<unsigned channels, unsigned R, unsigned G, unsigned B, unsigned A>
-	struct Color {
-		enum Channel { RED = R, GREEN = G, BLUE = B, ALPHA = A, CHANNELS = channels };
-		float& operator [] (Channel x) {
-			return colors[x];
-		}
-		inline float r() const { return colors[R]; }
-		inline float g() const { return colors[G]; }
-		inline float b() const { return colors[B]; }
-		inline float a() const { return colors[A]; }
-
-		private:
-			float colors[channels];
-	};
-	typedef Color<4, 0, 1, 2, 3> ColorRGBA;
-	typedef Color<3, 0, 1, 2, 3> ColorRGB;
-
-	enum BufferClearBitMask {
-		COLOR,
-		DEPTH,
-	};
-
-	class IRenderBuffer
+	class VideoConfiguration
 	{
 	};
 
-	class IRenderer
+	class IVideoDriver
 	{
 		public:
+			IVideoDriver(IVideoRenderer* renderer)
+				: m_renderer(renderer) 
+			{}
+		
+			virtual bool Init(const VideoConfiguration& config) = 0;
+			virtual void Shutdown() = 0;
+
+			virtual Window* CreateWindow(const WindowConfiguration& wc) = 0;
+			virtual void CloseWindow(Window* window) = 0;
+			virtual Window* RecreateWindow(Window* window) = 0;
+			virtual void UpdateWindow(Window* window) = 0;
 			
-			virtual void ClearBuffer(IRenderBuffer* buffer, BufferClearBitMask mask);
+			virtual void Update() = 0;
 
-			/**
-			 * If buffer == nullptr, clears the screen
-			 * otherwise, clears the given RenderBuffer
-			 **/
-			virtual void ClearBufferColor(IRenderBuffer* buffer, const ColorRGBA& color);
+			IVideoRenderer* getRenderer() {
+				return m_renderer;
+			}
 
-			virtual void SetViewPort(int x, int y, int width, int height);
+		protected:
+			IVideoRenderer* m_renderer;
 	};
 
-	class OpenGLRenderer : public IRenderer
-	{
-		void ClearBuffer(IRenderBuffer* buffer, BufferClearBitMask mask) override {
-			GLbitfield bitfield;
-			if (mask & BufferClearBitMask::COLOR)
-				bitfield |= GL_COLOR_BUFFER_BIT;
-			if (mask & BufferClearBitMask::DEPTH)
-				bitfield |= GL_DEPTH_BUFFER_BIT;
-
-			glClear(bitfield);
-		}
-
-		void ClearBufferColor(IRenderBuffer* buffer, const ColorRGBA& color) override {
-			glClearColor(color.r(), color.g(), color.b(), color.a());
-		}
-
-		void SetViewPort(int x, int y, int width, int height) override {
-			glViewport(x, y, width, height);
-		}
-	};
-
-	/**
-	 * Override this class for creating your own rendering pipeline
+	/** Default class for Video configuration
+	 * Basic video initialization
+	 * Uses just one window
 	 */
 	class VideoSystem : public System
 	{
 		public:
-			VideoSystem(const std::string& name) : System(name) {}
+			VideoSystem(const std::string& name, IVideoDriver* driver) 
+				: System(name), m_driver(driver)
+			{
+				configuration.AddConfiguration("Fullscreen", "false");
+			}
 
-			virtual ~VideoSystem(){}
-		
+			virtual ~VideoSystem()
+			{
+
+			}
+
+			IVideoDriver* getDriver() {
+				return m_driver;
+			}
+					
 			/**
 			 * Initializes a window and it's rendering driver
 			 */
-			virtual bool Init() = 0;
+			bool Init() override 
+			{
+				VideoConfiguration config;
+				WindowConfiguration windowConfig;
+
+				windowConfig.m_Title = "WINDOW";
+				windowConfig.m_Width = 1280;
+				windowConfig.m_Height = 720;
+				windowConfig.m_Resizable = GL_TRUE;
+				windowConfig.m_FullScreen = configuration.getConfig("Fullscreen")->getValueAsBool();
+
+				windowConfig.m_RedBits = 8;
+				windowConfig.m_GreenBits = 8;
+				windowConfig.m_BlueBits = 8;
+				windowConfig.m_AlphaBits = 8;
+
+				windowConfig.m_DepthBits = 8;
+				windowConfig.m_StencilBits = 8;
+
+				if (m_driver->Init(config)) 
+				{
+					m_window = m_driver->CreateWindow(windowConfig);
+					if (m_window)
+					{
+
+					}
+
+					return m_window != nullptr;
+				}
+
+				return false;
+			}
 
 			/**
 			 * Close the Video System
 			 */
-			virtual void Shutdown() = 0;
+			void Shutdown() override 
+			{
+				m_driver->CloseWindow(m_window);
+				m_driver->Shutdown();
+			}
 
 			/**
 			 * Called once a frame
 			 */
-			virtual void Update() = 0;
+			void Update()
+			{
+				m_driver->Update();
+			}
 
 			/**
-			 * Called when a window is resized
+			 * Redraws the default window
 			 */
-			virtual void OnWindowResize(Window* window, int width, int height) = 0;
+			void UpdateWindow()
+			{
+				m_driver->UpdateWindow(m_window);
+			}
+			
+		protected:
+			IVideoDriver* m_driver;
+
+			Window* m_window;
 	};
 
 }

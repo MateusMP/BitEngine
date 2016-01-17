@@ -28,9 +28,6 @@
     <Filter Include="ResourceSystem">
       <UniqueIdentifier>{6d5d36a7-4ce0-445b-9cf9-78508df503fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics">
-      <UniqueIdentifier>{4d553416-a2d1-40d9-9861-fef8f52f8bde}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EntitySystem\Components\3D">
       <UniqueIdentifier>{41629f48-9c7f-44e9-a01d-18ed4a5544e9}</UniqueIdentifier>
     </Filter>
@@ -46,11 +43,17 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{258208a1-5e66-4888-b37f-506614b3c749}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Graphics\OpenGL">
-      <UniqueIdentifier>{243e27bc-0fcb-4cb9-bb35-5ddde902805e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DefaultImplementations">
       <UniqueIdentifier>{c51362a5-7fcb-4f9d-b147-8f2fd623dfec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Video">
+      <UniqueIdentifier>{4d553416-a2d1-40d9-9861-fef8f52f8bde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Video\OpenGL">
+      <UniqueIdentifier>{243e27bc-0fcb-4cb9-bb35-5ddde902805e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Video\GLFW">
+      <UniqueIdentifier>{d82ff762-b74f-4e50-8848-9cc91c8c96ac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -112,7 +115,7 @@
       <Filter>EntitySystem\Processors\3D</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\error_texture.cpp">
-      <Filter>Graphics</Filter>
+      <Filter>Video</Filter>
     </ClCompile>
     <ClCompile Include="src\Transform2DProcessor.cpp">
       <Filter>EntitySystem\Processors\2D</Filter>
@@ -121,25 +124,28 @@
       <Filter>EntitySystem\Processors\2D</Filter>
     </ClCompile>
     <ClCompile Include="src\Texture.cpp">
-      <Filter>Graphics</Filter>
+      <Filter>Video</Filter>
     </ClCompile>
     <ClCompile Include="src\EngineConfiguration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\OpenGL\ShaderProgram.cpp">
-      <Filter>Graphics\OpenGL</Filter>
+      <Filter>Video\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\Sprite2DShader.cpp">
-      <Filter>Graphics</Filter>
+      <Filter>Video</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\Graphics.cpp">
-      <Filter>Graphics</Filter>
+      <Filter>Video</Filter>
     </ClCompile>
     <ClCompile Include="src\BaseEntitySystem.cpp">
       <Filter>EntitySystem</Filter>
     </ClCompile>
     <ClCompile Include="src\Sprite2DHolder.cpp">
       <Filter>EntitySystem\Processors\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DefImpl\GLFW_VideoDriver.cpp">
+      <Filter>Video\GLFW</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -222,7 +228,7 @@
       <Filter>ResourceSystem</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\Graphics.h">
-      <Filter>Graphics</Filter>
+      <Filter>Video</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\Camera3DComponent.h">
       <Filter>EntitySystem\Components\3D</Filter>
@@ -261,16 +267,13 @@
       <Filter>EntitySystem\Processors\2D</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\Texture.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\SystemConfiguration.h">
-      <Filter>Header Files</Filter>
+      <Filter>Video</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\EngineConfiguration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\Sprite.h">
-      <Filter>Graphics</Filter>
+      <Filter>Video</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\VectorBool.h">
       <Filter>Utils</Filter>
@@ -279,34 +282,43 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\OpenGL\Sprite2DGL2.h">
-      <Filter>Graphics\OpenGL</Filter>
+      <Filter>Video\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\OpenGL\Sprite2DGL4.h">
-      <Filter>Graphics\OpenGL</Filter>
+      <Filter>Video\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\Mesh.h">
-      <Filter>Graphics</Filter>
+      <Filter>Video</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\ShaderProgram.h">
-      <Filter>Graphics\OpenGL</Filter>
+      <Filter>Video\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\VertexArrayObject.h">
-      <Filter>Graphics\OpenGL</Filter>
+      <Filter>Video\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\glSystem.h">
-      <Filter>Graphics\OpenGL</Filter>
+      <Filter>Video\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\Sprite2DShader.h">
-      <Filter>Graphics</Filter>
+      <Filter>Video</Filter>
     </ClInclude>
     <ClInclude Include="include\bitengine\BaseEntitySystem.h">
       <Filter>EntitySystem</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitengine\GLFW_VideoSystem.h">
-      <Filter>Systems</Filter>
-    </ClInclude>
     <ClInclude Include="include\bitengine\Sprite2DHolder.h">
       <Filter>EntitySystem\Processors\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Video\IVideoRenderer.h">
+      <Filter>Video</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\Video\opengl\OpenGL4Renderer.h">
+      <Filter>Video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\GLFW_VideoDriver.h">
+      <Filter>Video\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitengine\SystemConfiguration.h">
+      <Filter>Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

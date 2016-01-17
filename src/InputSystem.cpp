@@ -4,7 +4,7 @@
 #include "MessageChannel.h"
 #include "EngineLoggers.h"
 
-#include "GLFW_VideoSystem.h"
+#include "GLFW_VideoDriver.h"
 
 namespace BitEngine{
 
@@ -39,7 +39,7 @@ void InputSystem::Shutdown()
 Window* InputSystem::FindGLFWwindow(GLFWwindow* window)
 {
 	for (auto& it = inputReceivers.begin(); it != inputReceivers.end(); ++it){
-		Window_glfw* glfwW = static_cast<Window_glfw*>(it->first);
+		GLFW_VideoDriver::Window_glfw* glfwW = static_cast<GLFW_VideoDriver::Window_glfw*>(it->first);
 		if (glfwW->m_glfwWindow == window){
 			return glfwW;
 		}
@@ -109,7 +109,7 @@ void InputSystem::Message(const WindowCreated& wndcr)
 	// Creates instance for this window
 	inputReceivers[wndcr.window];
 
-	const Window_glfw* glfwW = static_cast<const Window_glfw*>(wndcr.window);
+	const GLFW_VideoDriver::Window_glfw* glfwW = static_cast<const GLFW_VideoDriver::Window_glfw*>(wndcr.window);
 
 	// Define callback for functions
 	glfwSetKeyCallback(glfwW->m_glfwWindow, GlfwKeyCallback);
@@ -119,7 +119,7 @@ void InputSystem::Message(const WindowCreated& wndcr)
 
 void InputSystem::Message(const WindowClosed& wndcr)
 {
-	const Window_glfw* glfwW = static_cast<const Window_glfw*>(wndcr.window);
+	const GLFW_VideoDriver::Window_glfw* glfwW = static_cast<const GLFW_VideoDriver::Window_glfw*>(wndcr.window);
 
 	Window *w = FindGLFWwindow(glfwW->m_glfwWindow);
 

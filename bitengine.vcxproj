@@ -85,6 +85,7 @@
     <ClCompile Include="src\Camera2DProcessor.cpp" />
     <ClCompile Include="src\Camera3DProcessor.cpp" />
     <ClCompile Include="src\CommandSystem.cpp" />
+    <ClCompile Include="src\DefImpl\GLFW_VideoDriver.cpp" />
     <ClCompile Include="src\EngineConfiguration.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\GameLogicProcessor.cpp" />
@@ -128,7 +129,7 @@
     <ClInclude Include="include\bitengine\ErrorCodes.h" />
     <ClInclude Include="include\bitengine\GameEngine.h" />
     <ClInclude Include="include\bitengine\GameLogicProcessor.h" />
-    <ClInclude Include="include\bitengine\GLFW_VideoSystem.h" />
+    <ClInclude Include="include\bitengine\GLFW_VideoDriver.h" />
     <ClInclude Include="include\bitengine\glSystem.h" />
     <ClInclude Include="include\bitengine\Graphics.h" />
     <ClInclude Include="include\bitengine\InputSystem.h" />
@@ -163,6 +164,8 @@
     <ClInclude Include="include\bitengine\VectorBool.h" />
     <ClInclude Include="include\bitengine\VertexArrayObject.h" />
     <ClInclude Include="include\bitengine\VideoSystem.h" />
+    <ClInclude Include="include\bitengine\Video\IVideoRenderer.h" />
+    <ClInclude Include="include\bitengine\Video\opengl\OpenGL4Renderer.h" />
     <ClInclude Include="include\bitengine\Window.h" />
     <ClInclude Include="src\Graphics\OpenGL\Sprite2DGL2.h" />
     <ClInclude Include="src\Graphics\OpenGL\Sprite2DGL4.h" />
