@@ -20,6 +20,7 @@ namespace BitEngine {
 			IVideoDriver(IVideoRenderer* renderer)
 				: m_renderer(renderer) 
 			{}
+			virtual ~IVideoDriver(){}
 		
 			virtual bool Init(const VideoConfiguration& config) = 0;
 			virtual void Shutdown() = 0;

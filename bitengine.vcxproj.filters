@@ -67,6 +67,7 @@
     <ClInclude Include="include\bitengine\bitengine.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGLRenderer.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputDriver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -84,7 +85,6 @@
     <ClCompile Include="src\Core\EngineConfiguration.cpp" />
     <ClCompile Include="src\Core\error_texture.cpp" />
     <ClCompile Include="src\Core\GameEngine.cpp" />
-    <ClCompile Include="src\Core\Graphics.cpp" />
     <ClCompile Include="src\Core\InputSystem.cpp" />
     <ClCompile Include="src\Core\MessageChannel.cpp" />
     <ClCompile Include="src\Core\ModelManager.cpp" />
@@ -96,8 +96,9 @@
     <ClCompile Include="src\Core\Texture.cpp" />
     <ClCompile Include="src\Core\TextureManager.cpp" />
     <ClCompile Include="src\Core\VideoSystem.cpp" />
-    <ClCompile Include="src\DefaultBackends\GLFW_VideoDriver.cpp" />
-    <ClCompile Include="src\DefaultBackends\glSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\ShaderProgram.cpp" />
+    <ClCompile Include="src\DefaultBackends\glfw\GLFW_VideoDriver.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\glSystem.cpp" />
+    <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputDriver.cpp" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 
-#include "Core/Graphics.h"
 #include "Core/System.h"
 #include "Core/MessageChannel.h"
 #include "Core/MessageType.h"
@@ -105,11 +104,28 @@ class InputReceiver
 		double cursorInScreenY;
 };
 
+class IInputDriver
+{
+public:
+	virtual ~IInputDriver(){}
+
+	virtual void inputWindowCreated(BitEngine::Window* window) = 0;
+	virtual void inputWindowDestroyed(BitEngine::Window* window) = 0;
+
+	virtual InputReceiver::KeyMod isKeyPressed(int key) = 0;
+	virtual InputReceiver::KeyMod keyReleased(int key) = 0;
+
+	virtual double getMouseX() const = 0;
+	virtual double getMouseY() const = 0;
+
+	virtual void poolEvents() = 0;
+};
+
 class InputSystem
     : public System
 {
     public:
-        InputSystem();
+        InputSystem(IInputDriver *input);
         ~InputSystem();
 		
         bool Init() override;
@@ -119,27 +135,8 @@ class InputSystem
         void Message(const WindowCreated& wndcr);
 		void Message(const WindowClosed& wndcr);
 
-		// Will verify for the main window (first created)
-		InputReceiver::KeyMod isKeyPressed(int key);
-		// Will verify for the main window (first created)
-		InputReceiver::KeyMod keyReleased(int key);
-
-		double getMouseX() const;
-		double getMouseY() const;
-
-	protected:
-		void PoolEvents();
-
-    private:
-
-		static Window* FindGLFWwindow(GLFWwindow* window);
-
-        static void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-		static void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
-		static void GlfwMousePosCallback(GLFWwindow* window, double x, double y);
-		
-		static std::unordered_map<Window*, InputReceiver> inputReceivers;
-
+	private:
+		IInputDriver *driver;
 };
 
 

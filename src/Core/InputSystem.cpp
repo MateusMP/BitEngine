@@ -8,11 +8,8 @@
 
 namespace BitEngine{
 
-std::unordered_map<Window*, InputReceiver> InputSystem::inputReceivers;
-
-
-InputSystem::InputSystem()
-    : System("Input")
+InputSystem::InputSystem(IInputDriver *input)
+    : System("Input"), driver(input)
 {
     Channel::AddListener<WindowCreated>(this);
 	Channel::AddListener<WindowClosed>(this);
@@ -28,144 +25,25 @@ bool InputSystem::Init()
 
 void InputSystem::Update()
 {
-	PoolEvents();
+	driver->poolEvents();
 }
 
 void InputSystem::Shutdown()
 {
-
+	delete driver;
 }
 
-Window* InputSystem::FindGLFWwindow(GLFWwindow* window)
-{
-	for (auto& it = inputReceivers.begin(); it != inputReceivers.end(); ++it){
-		GLFW_VideoDriver::Window_glfw* glfwW = static_cast<GLFW_VideoDriver::Window_glfw*>(it->first);
-		if (glfwW->m_glfwWindow == window){
-			return glfwW;
-		}
-	}
-
-	return nullptr;
-}
-
-void InputSystem::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_UNKNOWN){
-		LOGTO(Warning) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods << endlog;
-	}
-
-	// LOGTO(Verbose) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods << endlog;
-	Window *w = FindGLFWwindow(window);
-
-	if (w == nullptr){
-		LOGTO(Warning) << "Unhandled key callback!" << endlog;
-		return;
-	}
-
-	auto it = inputReceivers.find(w);
-	if (it != inputReceivers.end()){
-		it->second.keyboardInput(key, scancode, action, mods);
-	} else {
-		LOGTO(Error) << "Invalid window input!" << endlog;
-	}
-}
-
-void InputSystem::GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods)
-{
-	Window* w = FindGLFWwindow(window);
-
-	if (w == nullptr){
-		LOGTO(Warning) << "Unhandled mouse callback!" << endlog;
-		return;
-	}
-
-	auto it = inputReceivers.find(w);
-	if (it != inputReceivers.end()){
-		it->second.mouseInput(button, action, mods);
-	} else {
-		LOGTO(Error) << "Invalid window input!" << endlog;
-	}
-}
-
-void InputSystem::GlfwMousePosCallback(GLFWwindow* window, double x, double y){
-	Window* w = FindGLFWwindow(window);
-
-	if (w == nullptr){
-		LOGTO(Warning) << "Unhandled mouse pos callback!" << endlog;
-		return;
-	}
-
-	auto it = inputReceivers.find(w);
-	if (it != inputReceivers.end()){
-		it->second.mouseInput(x, y);
-	}
-	else {
-		LOGTO(Error) << "Invalid window input!" << endlog;
-	}
-}
 
 void InputSystem::Message(const WindowCreated& wndcr)
 {
-	// Creates instance for this window
-	inputReceivers[wndcr.window];
-
-	const GLFW_VideoDriver::Window_glfw* glfwW = static_cast<const GLFW_VideoDriver::Window_glfw*>(wndcr.window);
-
-	// Define callback for functions
-	glfwSetKeyCallback(glfwW->m_glfwWindow, GlfwKeyCallback);
-	glfwSetMouseButtonCallback(glfwW->m_glfwWindow, GlfwMouseCallback);
-	glfwSetCursorPosCallback(glfwW->m_glfwWindow, GlfwMousePosCallback);
+	driver->inputWindowCreated(wndcr.window);
 }
 
 void InputSystem::Message(const WindowClosed& wndcr)
 {
-	const GLFW_VideoDriver::Window_glfw* glfwW = static_cast<const GLFW_VideoDriver::Window_glfw*>(wndcr.window);
-
-	Window *w = FindGLFWwindow(glfwW->m_glfwWindow);
-
-	inputReceivers.erase(w);
+	driver->inputWindowDestroyed(wndcr.window);
 }
 
-InputReceiver::KeyMod InputSystem::isKeyPressed(int key)
-{
-	auto w = inputReceivers.begin();
-	if (w == inputReceivers.end())
-		return InputReceiver::KeyMod::FALSE;
-
-	return w->second.isKeyPressed(key);
-}
-
-InputReceiver::KeyMod InputSystem::keyReleased(int key)
-{
-	auto w = inputReceivers.begin();
-	if (w == inputReceivers.end())
-		return InputReceiver::KeyMod::FALSE;
-
-	return w->second.keyReleased(key);
-}
-
-double InputSystem::getMouseX() const
-{
-	auto w = inputReceivers.begin();
-	if (w == inputReceivers.end())
-		return -1;
-
-	return w->second.getMouseX();
-}
-
-double InputSystem::getMouseY() const
-{
-	auto w = inputReceivers.begin();
-	if (w == inputReceivers.end())
-		return -1;
-
-	return w->second.getMouseY();
-}
-
-void InputSystem::PoolEvents()
-{
-	glfwPollEvents();
-}
 
 void InputReceiver::keyboardInput(int key, int scancode, int action, int mods)
 {
