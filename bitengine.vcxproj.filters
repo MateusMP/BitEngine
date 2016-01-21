@@ -1,324 +1,103 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Systems">
-      <UniqueIdentifier>{ad5f49a9-fd47-4518-82ab-fb0335d1c663}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EntitySystem">
-      <UniqueIdentifier>{3154d8cf-c5ae-47f3-9de2-fc6a4e21da03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EntitySystem\Components">
-      <UniqueIdentifier>{2b7e48e2-12fc-4f66-92a4-dc4e0e6e0f44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EntitySystem\Processors">
-      <UniqueIdentifier>{b2f00c10-1b33-4ddd-8e86-f0a4dc114ae1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ResourceSystem">
-      <UniqueIdentifier>{6d5d36a7-4ce0-445b-9cf9-78508df503fc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EntitySystem\Components\3D">
-      <UniqueIdentifier>{41629f48-9c7f-44e9-a01d-18ed4a5544e9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EntitySystem\Components\2D">
-      <UniqueIdentifier>{812cee9b-34de-4ac8-8e84-3e0ffd507657}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EntitySystem\Processors\3D">
-      <UniqueIdentifier>{bc5c2fa6-cb8c-49e6-9b51-80ebf7ef7aeb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="EntitySystem\Processors\2D">
-      <UniqueIdentifier>{a35cefc6-3493-4c2f-8ffb-0b564ec6d7d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Utils">
-      <UniqueIdentifier>{258208a1-5e66-4888-b37f-506614b3c749}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="DefaultImplementations">
-      <UniqueIdentifier>{c51362a5-7fcb-4f9d-b147-8f2fd623dfec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Video">
-      <UniqueIdentifier>{4d553416-a2d1-40d9-9861-fef8f52f8bde}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Video\OpenGL">
-      <UniqueIdentifier>{243e27bc-0fcb-4cb9-bb35-5ddde902805e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Video\GLFW">
-      <UniqueIdentifier>{d82ff762-b74f-4e50-8848-9cc91c8c96ac}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\GameEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MessageChannel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Task.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\InputSystem.cpp">
-      <Filter>Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="src\System.cpp">
-      <Filter>Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VideoSystem.cpp">
-      <Filter>Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="src\CommandSystem.cpp">
-      <Filter>Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SpriteManager.cpp">
-      <Filter>ResourceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ResourceSystem.cpp">
-      <Filter>ResourceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameLogicProcessor.cpp">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TextureManager.cpp">
-      <Filter>ResourceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ModelManager.cpp">
-      <Filter>ResourceSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Transform2DComponent.cpp">
-      <Filter>EntitySystem\Components\2D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Camera2DComponent.cpp">
-      <Filter>EntitySystem\Components\2D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Transform3DComponent.cpp">
-      <Filter>EntitySystem\Components\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Camera3DProcessor.cpp">
-      <Filter>EntitySystem\Processors\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Transform3DProcessor.cpp">
-      <Filter>EntitySystem\Processors\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RenderableMeshProcessor.cpp">
-      <Filter>EntitySystem\Processors\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics\error_texture.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Transform2DProcessor.cpp">
-      <Filter>EntitySystem\Processors\2D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Camera2DProcessor.cpp">
-      <Filter>EntitySystem\Processors\2D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EngineConfiguration.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics\OpenGL\ShaderProgram.cpp">
-      <Filter>Video\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics\Sprite2DShader.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics\Graphics.cpp">
-      <Filter>Video</Filter>
-    </ClCompile>
-    <ClCompile Include="src\BaseEntitySystem.cpp">
-      <Filter>EntitySystem</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Sprite2DHolder.cpp">
-      <Filter>EntitySystem\Processors\2D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DefImpl\GLFW_VideoDriver.cpp">
-      <Filter>Video\GLFW</Filter>
-    </ClCompile>
+    <ClInclude Include="include\bitengine\Common\ErrorCodes.h" />
+    <ClInclude Include="include\bitengine\Common\MathUtils.h" />
+    <ClInclude Include="include\bitengine\Common\VectorBool.h" />
+    <ClInclude Include="include\bitengine\Core\Color.h" />
+    <ClInclude Include="include\bitengine\Core\CommandSystem.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\BaseEntitySystem.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Camera2DComponent.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Camera2DProcessor.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Camera3DComponent.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Camera3DProcessor.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Component.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\ComponentCollection.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\ComponentProcessor.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Components.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\EntitySystem.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\GameLogicProcessor.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\LogicScript.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshComponent.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshProcessor.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DComponent.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DHolder.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Transform2DComponent.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Transform2DProcessor.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Transform3DComponent.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Transform3DProcessor.h" />
+    <ClInclude Include="include\bitengine\Core\EngineConfiguration.h" />
+    <ClInclude Include="include\bitengine\Core\EngineLoggers.h" />
+    <ClInclude Include="include\bitengine\Core\GameEngine.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics.h" />
+    <ClInclude Include="include\bitengine\Core\InputSystem.h" />
+    <ClInclude Include="include\bitengine\Core\IVideoRenderer.h" />
+    <ClInclude Include="include\bitengine\Core\Logger.h" />
+    <ClInclude Include="include\bitengine\Core\Mesh.h" />
+    <ClInclude Include="include\bitengine\Core\MessageChannel.h" />
+    <ClInclude Include="include\bitengine\Core\MessageType.h" />
+    <ClInclude Include="include\bitengine\Core\ModelManager.h" />
+    <ClInclude Include="include\bitengine\Core\ResourceSystem.h" />
+    <ClInclude Include="include\bitengine\Core\SmartManager.h" />
+    <ClInclude Include="include\bitengine\Core\Sprite.h" />
+    <ClInclude Include="include\bitengine\Core\Sprite2DShader.h" />
+    <ClInclude Include="include\bitengine\Core\SpriteManager.h" />
+    <ClInclude Include="include\bitengine\Core\System.h" />
+    <ClInclude Include="include\bitengine\Core\SystemConfiguration.h" />
+    <ClInclude Include="include\bitengine\Core\Task.h" />
+    <ClInclude Include="include\bitengine\Core\TaskManager.h" />
+    <ClInclude Include="include\bitengine\Core\Texture.h" />
+    <ClInclude Include="include\bitengine\Core\TextureManager.h" />
+    <ClInclude Include="include\bitengine\Core\Timer.h" />
+    <ClInclude Include="include\bitengine\Core\VideoSystem.h" />
+    <ClInclude Include="include\bitengine\Core\Window.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_VideoDriver.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\glSystem.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\VertexArrayObject.h" />
+    <ClInclude Include="include\bitengine\Common\TypeDefinition.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\Sprite2DGL2.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\Sprite2DGL4.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\ShaderProgram.h" />
+    <ClInclude Include="include\bitengine\bitengine.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGLRenderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\bitengine\Color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\GameEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Logger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\MessageChannel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\MessageType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Task.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\TaskManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\TypeDefinition.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\ErrorCodes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\VideoSystem.h">
-      <Filter>Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\System.h">
-      <Filter>Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\InputSystem.h">
-      <Filter>Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\EngineLoggers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\CommandSystem.h">
-      <Filter>Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\EntitySystem.h">
-      <Filter>EntitySystem</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Component.h">
-      <Filter>EntitySystem\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\ComponentCollection.h">
-      <Filter>EntitySystem</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Components.h">
-      <Filter>EntitySystem</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\ComponentProcessor.h">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\ResourceSystem.h">
-      <Filter>ResourceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\SpriteManager.h">
-      <Filter>ResourceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\LogicScript.h">
-      <Filter>EntitySystem\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\GameLogicProcessor.h">
-      <Filter>EntitySystem\Processors</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\TextureManager.h">
-      <Filter>ResourceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\ModelManager.h">
-      <Filter>ResourceSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Graphics.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Camera3DComponent.h">
-      <Filter>EntitySystem\Components\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Transform3DComponent.h">
-      <Filter>EntitySystem\Components\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\RenderableMeshComponent.h">
-      <Filter>EntitySystem\Components\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite2DComponent.h">
-      <Filter>EntitySystem\Components\2D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Transform2DComponent.h">
-      <Filter>EntitySystem\Components\2D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Camera2DComponent.h">
-      <Filter>EntitySystem\Components\2D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Camera3DProcessor.h">
-      <Filter>EntitySystem\Processors\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Transform3DProcessor.h">
-      <Filter>EntitySystem\Processors\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\RenderableMeshProcessor.h">
-      <Filter>EntitySystem\Processors\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\MathUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Transform2DProcessor.h">
-      <Filter>EntitySystem\Processors\2D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Camera2DProcessor.h">
-      <Filter>EntitySystem\Processors\2D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Texture.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\EngineConfiguration.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\VectorBool.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\OpenGL\Sprite2DGL2.h">
-      <Filter>Video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\OpenGL\Sprite2DGL4.h">
-      <Filter>Video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Mesh.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\ShaderProgram.h">
-      <Filter>Video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\VertexArrayObject.h">
-      <Filter>Video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\glSystem.h">
-      <Filter>Video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite2DShader.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\BaseEntitySystem.h">
-      <Filter>EntitySystem</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Sprite2DHolder.h">
-      <Filter>EntitySystem\Processors\2D</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Video\IVideoRenderer.h">
-      <Filter>Video</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\Video\opengl\OpenGL4Renderer.h">
-      <Filter>Video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\GLFW_VideoDriver.h">
-      <Filter>Video\GLFW</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bitengine\SystemConfiguration.h">
-      <Filter>Systems</Filter>
-    </ClInclude>
+    <ClCompile Include="src\Core\CommandSystem.cpp" />
+    <ClCompile Include="src\Core\ECS\BaseEntitySystem.cpp" />
+    <ClCompile Include="src\Core\ECS\Camera2DComponent.cpp" />
+    <ClCompile Include="src\Core\ECS\Camera2DProcessor.cpp" />
+    <ClCompile Include="src\Core\ECS\Camera3DProcessor.cpp" />
+    <ClCompile Include="src\Core\ECS\GameLogicProcessor.cpp" />
+    <ClCompile Include="src\Core\ECS\RenderableMeshProcessor.cpp" />
+    <ClCompile Include="src\Core\ECS\Sprite2DHolder.cpp" />
+    <ClCompile Include="src\Core\ECS\Transform2DComponent.cpp" />
+    <ClCompile Include="src\Core\ECS\Transform2DProcessor.cpp" />
+    <ClCompile Include="src\Core\ECS\Transform3DComponent.cpp" />
+    <ClCompile Include="src\Core\ECS\Transform3DProcessor.cpp" />
+    <ClCompile Include="src\Core\EngineConfiguration.cpp" />
+    <ClCompile Include="src\Core\error_texture.cpp" />
+    <ClCompile Include="src\Core\GameEngine.cpp" />
+    <ClCompile Include="src\Core\Graphics.cpp" />
+    <ClCompile Include="src\Core\InputSystem.cpp" />
+    <ClCompile Include="src\Core\MessageChannel.cpp" />
+    <ClCompile Include="src\Core\ModelManager.cpp" />
+    <ClCompile Include="src\Core\ResourceSystem.cpp" />
+    <ClCompile Include="src\Core\Sprite2DShader.cpp" />
+    <ClCompile Include="src\Core\SpriteManager.cpp" />
+    <ClCompile Include="src\Core\System.cpp" />
+    <ClCompile Include="src\Core\Task.cpp" />
+    <ClCompile Include="src\Core\Texture.cpp" />
+    <ClCompile Include="src\Core\TextureManager.cpp" />
+    <ClCompile Include="src\Core\VideoSystem.cpp" />
+    <ClCompile Include="src\DefaultBackends\GLFW_VideoDriver.cpp" />
+    <ClCompile Include="src\DefaultBackends\glSystem.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\ShaderProgram.cpp" />
   </ItemGroup>
 </Project>
