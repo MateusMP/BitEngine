@@ -26,11 +26,9 @@ public:
 	void poolEvents() override;
 
 private:
-	static GLFW_VideoDriver::Window_glfw* FindGLFWwindow(GLFWwindow* window);
-
 	static void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
 	static void GlfwMousePosCallback(GLFWwindow* window, double x, double y);
 
-	static std::unordered_map<GLFW_VideoDriver::Window_glfw*, BitEngine::InputReceiver> inputReceivers;
+	static std::unordered_map<GLFWwindow*, BitEngine::InputReceiver> inputReceivers;
 };

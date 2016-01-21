@@ -137,15 +137,17 @@ namespace BitEngine
 		{
 			CommandIdentifier idtf(-1, msg);
 			auto it = m_commands.find(idtf);
-			if (it != m_commands.end()){
+			if (it != m_commands.end())
+			{
 				const int cmdID = m_commands[idtf];
 
 				LOGTO(Verbose) << "Command dispatch: " << cmdID << endlog;
 
 				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.keyAction));
 			}
-			else {
-				// LOGTO(Verbose) << "No command for this input." << endlog;
+			else 
+			{
+				LOGTO(Verbose) << "No command for this input." << endlog;
 			}
 		}
 

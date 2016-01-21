@@ -4,8 +4,6 @@
 #include "Core/MessageChannel.h"
 #include "Core/EngineLoggers.h"
 
-#include "DefaultBackends/glfw/GLFW_VideoDriver.h"
-
 namespace BitEngine{
 
 InputSystem::InputSystem(IInputDriver *input)
@@ -45,58 +43,53 @@ void InputSystem::Message(const WindowClosed& wndcr)
 }
 
 
-void InputReceiver::keyboardInput(int key, int scancode, int action, int mods)
+void InputReceiver::keyboardInput(int key, int scancode, KeyAction action, int mods)
 {
-	KeyAction act = KeyAction::NONE;
-	switch (action){
-		case GLFW_REPEAT:
+	switch (action)
+	{
+		case KeyAction::REPEAT:
 			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyReleased[key] = KeyMod::FALSE;
-			act = KeyAction::REPEAT;
 		break;
 
-		case GLFW_PRESS:
+		case KeyAction::PRESS:
 			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyReleased[key] = KeyMod::FALSE;
-			act = KeyAction::PRESS;
 		break;
 
-		case GLFW_RELEASE:
+		case KeyAction::RELEASE:
 			m_keyReleased[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_keyDown[key] = KeyMod::FALSE;
-			act = KeyAction::RELEASE;
 		break;
 
 		default:
-			LOGTO(Warning) << "Invalid key action: " << action << endlog;
+			LOGTO(Warning) << "Invalid key action: " << ((int)action) << endlog;
 			return;
 	}
 
-	Channel::Broadcast<KeyboardInput>(KeyboardInput(key, act, (KeyMod)mods));
+	Channel::Broadcast<KeyboardInput>(KeyboardInput(key, action, (KeyMod)mods));
 }
 
-void InputReceiver::mouseInput(int button, int action, int mods)
+void InputReceiver::mouseInput(int button, MouseAction action, int mods)
 {
-	MouseAction act = MouseAction::NONE;
-	switch (action){
-		case GLFW_PRESS:
+	switch (action)
+	{
+		case MouseAction::PRESS:
 			m_mouseDown[button] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_mouseReleased[button] = KeyMod::FALSE;
-			act = MouseAction::PRESS;
 			break;
 
-		case GLFW_RELEASE:
+		case MouseAction::RELEASE:
 			m_mouseReleased[button] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
 			m_mouseDown[button] = KeyMod::FALSE;
-			act = MouseAction::RELEASE;
 			break;
 
 		default:
-			LOGTO(Warning) << "Invalid mouse action: " << action << endlog;
+			LOGTO(Warning) << "Invalid mouse action: " << ((int)action) << endlog;
 			return;
 	}
 
-	Channel::Broadcast<MouseInput>(MouseInput(button, act, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
+	Channel::Broadcast<MouseInput>(MouseInput(button, action, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
 }
 
 void InputReceiver::mouseInput(double x, double y)

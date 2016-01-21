@@ -1,6 +1,6 @@
 #include "Defaultbackends/glfw/GLFW_InputDriver.h"
 
-std::unordered_map<GLFW_VideoDriver::Window_glfw*, BitEngine::InputReceiver> GLFW_InputDriver::inputReceivers;
+std::unordered_map<GLFWwindow*, BitEngine::InputReceiver> GLFW_InputDriver::inputReceivers;
 
 
 void GLFW_InputDriver::inputWindowCreated(BitEngine::Window* window)
@@ -8,7 +8,7 @@ void GLFW_InputDriver::inputWindowCreated(BitEngine::Window* window)
 	GLFW_VideoDriver::Window_glfw* w = static_cast<GLFW_VideoDriver::Window_glfw*>(window);
 
 	// Creates instance for this window
-	inputReceivers[w];
+	inputReceivers[w->m_glfwWindow];
 
 	// Define callback for functions
 	glfwSetKeyCallback(w->m_glfwWindow, GlfwKeyCallback);
@@ -18,7 +18,7 @@ void GLFW_InputDriver::inputWindowCreated(BitEngine::Window* window)
 
 void GLFW_InputDriver::inputWindowDestroyed(BitEngine::Window* window)
 {
-	inputReceivers.erase(static_cast<GLFW_VideoDriver::Window_glfw*>(window));
+	inputReceivers.erase(static_cast<GLFW_VideoDriver::Window_glfw*>(window)->m_glfwWindow);
 }
 
 
@@ -63,19 +63,6 @@ void GLFW_InputDriver::poolEvents()
 	glfwPollEvents();
 }
 
-GLFW_VideoDriver::Window_glfw* GLFW_InputDriver::FindGLFWwindow(GLFWwindow* window)
-{
-	for (auto& it = inputReceivers.begin(); it != inputReceivers.end(); ++it) {
-		GLFW_VideoDriver::Window_glfw* glfwW = it->first;
-		if (glfwW->m_glfwWindow == window) {
-			return glfwW;
-		}
-	}
-
-	return nullptr;
-}
-
-
 void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_UNKNOWN) {
@@ -83,16 +70,27 @@ void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode
 	}
 
 	// LOGTO(Verbose) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods << endlog;
-	GLFW_VideoDriver::Window_glfw *w = FindGLFWwindow(window);
-
-	if (w == nullptr) {
-		LOGTO(Warning) << "Unhandled key callback!" << BitEngine::endlog;
-		return;
-	}
-
-	auto it = inputReceivers.find(w);
-	if (it != inputReceivers.end()) {
-		it->second.keyboardInput(key, scancode, action, mods);
+	
+	auto it = inputReceivers.find(window);
+	if (it != inputReceivers.end()) 
+	{
+		BitEngine::InputReceiver::KeyAction act = BitEngine::InputReceiver::KeyAction::NONE;
+		switch (action) 
+		{
+			case GLFW_REPEAT:
+				act = BitEngine::InputReceiver::KeyAction::REPEAT;
+				break;
+			case GLFW_PRESS:
+				act = BitEngine::InputReceiver::KeyAction::PRESS;
+				break;
+			case GLFW_RELEASE:
+				act = BitEngine::InputReceiver::KeyAction::RELEASE;
+				break;
+			default:
+				LOGTO(Warning) << "Invalid key action: " << action << BitEngine::endlog;
+				return;
+		}
+		it->second.keyboardInput(key, scancode, act, mods);
 	}
 	else {
 		LOGTO(Error) << "Invalid window input!" << BitEngine::endlog;
@@ -101,31 +99,33 @@ void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode
 
 void GLFW_InputDriver::GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	GLFW_VideoDriver::Window_glfw *w = FindGLFWwindow(window);
-
-	if (w == nullptr) {
-		LOGTO(Warning) << "Unhandled mouse callback!" << BitEngine::endlog;
-		return;
+	auto it = inputReceivers.find(window);
+	if (it != inputReceivers.end()) 
+	{
+		BitEngine::InputReceiver::MouseAction act = BitEngine::InputReceiver::MouseAction::NONE;
+		switch (action)
+		{
+			case GLFW_PRESS:
+				act = BitEngine::InputReceiver::MouseAction::PRESS;
+				break;
+			case GLFW_RELEASE:
+				act = BitEngine::InputReceiver::MouseAction::RELEASE;
+				break;
+			default:
+				LOGTO(Warning) << "Invalid mouse action: " << action << BitEngine::endlog;
+				return;
+		}
+		it->second.mouseInput(button, act, mods);
 	}
-
-	auto it = inputReceivers.find(w);
-	if (it != inputReceivers.end()) {
-		it->second.mouseInput(button, action, mods);
-	}
-	else {
+	else 
+	{
 		LOGTO(Error) << "Invalid window input!" << BitEngine::endlog;
 	}
 }
 
-void GLFW_InputDriver::GlfwMousePosCallback(GLFWwindow* window, double x, double y) {
-	GLFW_VideoDriver::Window_glfw *w = FindGLFWwindow(window);
-
-	if (w == nullptr) {
-		LOGTO(Warning) << "Unhandled mouse pos callback!" << BitEngine::endlog;
-		return;
-	}
-
-	auto it = inputReceivers.find(w);
+void GLFW_InputDriver::GlfwMousePosCallback(GLFWwindow* window, double x, double y) 
+{
+	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()) {
 		it->second.mouseInput(x, y);
 	}

@@ -83,8 +83,8 @@ class InputReceiver
 		};
 
 	public:
-		void keyboardInput(int key, int scancode, int action, int mods);
-		void mouseInput(int button, int action, int mods);
+		void keyboardInput(int key, int scancode, KeyAction action, int mods);
+		void mouseInput(int button, MouseAction action, int mods);
 		void mouseInput(double x, double y);
 
 		KeyMod isKeyPressed(int key);
