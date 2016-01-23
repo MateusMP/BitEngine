@@ -4,7 +4,7 @@
 #include "DefaultBackends/opengl/ShaderProgram.h"
 #include "DefaultBackends/opengl/glSystem.h"
 
-#include "Core/EngineLoggers.h"
+#include "Core/Logger.h"
 
 namespace BitEngine{
 
@@ -73,7 +73,7 @@ int ShaderProgram::CompileFromMemory(std::vector<GLuint>& shaders, GLint type, c
 
 	int error = compile(shaderHDL, type, source, errorlog);
 	if (error != NO_ERROR){
-		LOGTO(Error) << "Shader: Shader <m> compile Error!\n " << errorlog << endlog;
+		LOG(EngineLog, ERROR) << "Shader: Shader <m> compile Error!\n " << errorlog;
 		return FAILED_TO_COMPILE;
 	}
 	else {
@@ -114,7 +114,7 @@ int ShaderProgram::linkShaders(std::vector<GLuint>& shaders)
 		}
 
 		// Use the infoLog as you see fit.
-		LOGTO(Error) << "Shader: Linking error: " << &infoLog[0] << endlog;
+		LOG(EngineLog, ERROR) << "Shader: Linking error: " << &infoLog[0];
 
 		// In this simple program, we'll just leave
 		return FAILED_TO_LINK;

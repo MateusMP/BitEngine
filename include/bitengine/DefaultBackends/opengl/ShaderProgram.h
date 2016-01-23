@@ -7,7 +7,10 @@
 #include "Common/ErrorCodes.h"
 
 #include "Core/Graphics.h"
-#include "Core/EngineLoggers.h"
+#include "Core/Logger.h"
+
+namespace BitEngine
+{
 
 #define GLSL(version, shader)  "#version " #version "\n" shader
 #define GLSL_(version, shader)  "#version " #version "\n" #shader
@@ -18,9 +21,9 @@
 #define LOAD_UNIFORM(var, name)																						\
 				var = getUniformLocation(name);																		\
 				if (var < 0)																						\
-					LOGTO(Warning) << "Shader: Failed to load "#var" [\""name"\"] uniform." << BitEngine::endlog;	\
+					LOG(BitEngine::EngineLog, WARNING) << "Shader: Failed to load "#var" [\""name"\"] uniform.";	\
 				else																								\
-					LOGTO(Verbose) << "Uniform "#var" loaded with id: "<< var << "." << BitEngine::endlog
+					LOG(BitEngine::EngineLog, VERBOSE) << "Uniform "#var" loaded with id: "<< var << "."
 #else
 #define LOAD_UNIFORM(var, name)	\
 					var = getUniformLocation(name)
@@ -28,11 +31,9 @@
 
 #define ARRAY_OFFSET(x) ((void*)(x))
 
-// If using matrices, some macros to help define the correct attribute sizes
+	// If using matrices, some macros to help define the correct attribute sizes
 #define VERTEX_MATRIX3_ATTIBUTE_SIZE 3
 #define VERTEX_MATRIX4_ATTIBUTE_SIZE 4
-
-namespace BitEngine{
 	
 class ShaderProgram
 {
@@ -162,10 +163,10 @@ class ShaderProgram
 		template <typename ...Args>
 		int CompileFromFile(std::vector<GLuint>& shaders, GLint type, const std::string& file, Args... args)
 		{
-			LOGTO(Verbose) << "Compiling shader (type: " << type << ") file " << file << endlog;
+			LOG(EngineLog, VERBOSE) << "Compiling shader (type: " << type << ") file " << file;
 			std::string source;
 			if (retrieveSourceFromFile(file, source) != NO_ERROR){
-				LOGTO(Error) << "Failed to read shader file: " << file << endlog;
+				LOG(EngineLog, ERROR) << "Failed to read shader file: " << file;
 				return FAILED_TO_READ;
 			}
 

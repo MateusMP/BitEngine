@@ -5,7 +5,7 @@
 #include <stb_image.h>
 
 #include "Core/TextureManager.h"
-#include "Core/EngineLoggers.h"
+#include "Core/Logger.h"
 
 namespace BitEngine{
 
@@ -19,7 +19,7 @@ struct ERROR_TEXTURE_DATA {
 extern ERROR_TEXTURE_DATA error_texture_data;
 static void GenerateErrorTexture(GLuint& textureID){
 	glGenTextures(1, &textureID);
-	printf("GENERATING ERROR TEXTURE: %u %d %d\n", textureID, error_texture_data.width, error_texture_data.height);
+	LOG(EngineLog, VERBOSE) << "GENERATING ERROR TEXTURE: " << textureID << error_texture_data.width << error_texture_data.height;
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, error_texture_data.width, error_texture_data.height,
 		0, GL_RGB, GL_UNSIGNED_BYTE, error_texture_data.pixel_data);
@@ -159,7 +159,7 @@ Texture* TextureManager::loadTexture2D(const std::string& path)
 	unsigned char* image = stbi_load(path.c_str(), &w, &h, &c, 0);
 
 	if (image == NULL){
-		LOGTO(Error) << "LoadTexture: failed to open texture: " << path << "\n" << stbi_failure_reason() << endlog;
+		LOG(EngineLog, ERROR) << "LoadTexture: failed to open texture: " << path << "\n" << stbi_failure_reason();
 		return nullptr;
 	}
 
@@ -195,7 +195,7 @@ Texture* TextureManager::loadTexture2D(const std::string& path)
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else{
-		LOG() << "LoadTexture: Unknow color " << c << endlog;
+		LOG(EngineLog, WARNING) << "LoadTexture: Unknow color " << c;
 	}
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

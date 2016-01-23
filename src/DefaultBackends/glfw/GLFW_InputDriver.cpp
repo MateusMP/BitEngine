@@ -2,7 +2,6 @@
 
 std::unordered_map<GLFWwindow*, BitEngine::InputReceiver> GLFW_InputDriver::inputReceivers;
 
-
 void GLFW_InputDriver::inputWindowCreated(BitEngine::Window* window)
 {
 	GLFW_VideoDriver::Window_glfw* w = static_cast<GLFW_VideoDriver::Window_glfw*>(window);
@@ -66,10 +65,10 @@ void GLFW_InputDriver::poolEvents()
 void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_UNKNOWN) {
-		LOGTO(Warning) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods << BitEngine::endlog;
+		LOG(SELFLOG(), WARNING) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods;
 	}
 
-	// LOGTO(Verbose) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods << endlog;
+	// LOG(SELFLOG(), VERBOSE) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods;
 	
 	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()) 
@@ -87,13 +86,13 @@ void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode
 				act = BitEngine::InputReceiver::KeyAction::RELEASE;
 				break;
 			default:
-				LOGTO(Warning) << "Invalid key action: " << action << BitEngine::endlog;
+				LOG(SELFLOG(), WARNING) << "Invalid key action: " << action;
 				return;
 		}
 		it->second.keyboardInput(key, scancode, act, mods);
 	}
 	else {
-		LOGTO(Error) << "Invalid window input!" << BitEngine::endlog;
+		LOG(SELFLOG(), ERROR) << "Invalid window input!";
 	}
 }
 
@@ -112,14 +111,14 @@ void GLFW_InputDriver::GlfwMouseCallback(GLFWwindow* window, int button, int act
 				act = BitEngine::InputReceiver::MouseAction::RELEASE;
 				break;
 			default:
-				LOGTO(Warning) << "Invalid mouse action: " << action << BitEngine::endlog;
+				LOG(SELFLOG(), WARNING) << "Invalid mouse action: " << action;
 				return;
 		}
 		it->second.mouseInput(button, act, mods);
 	}
 	else 
 	{
-		LOGTO(Error) << "Invalid window input!" << BitEngine::endlog;
+		LOG(SELFLOG(), ERROR) << "Invalid window input!";
 	}
 }
 
@@ -130,6 +129,6 @@ void GLFW_InputDriver::GlfwMousePosCallback(GLFWwindow* window, double x, double
 		it->second.mouseInput(x, y);
 	}
 	else {
-		LOGTO(Error) << "Invalid window input!" << BitEngine::endlog;
+		LOG(SELFLOG(), ERROR) << "Invalid window input!";
 	}
 }

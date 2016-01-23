@@ -2,7 +2,7 @@
 #include "Core/InputSystem.h"
 
 #include "Core/MessageChannel.h"
-#include "Core/EngineLoggers.h"
+#include "Core/Logger.h"
 
 namespace BitEngine{
 
@@ -63,7 +63,7 @@ void InputReceiver::keyboardInput(int key, int scancode, KeyAction action, int m
 		break;
 
 		default:
-			LOGTO(Warning) << "Invalid key action: " << ((int)action) << endlog;
+			LOG(EngineLog, WARNING) << "Invalid key action: " << ((int)action);
 			return;
 	}
 
@@ -85,7 +85,7 @@ void InputReceiver::mouseInput(int button, MouseAction action, int mods)
 			break;
 
 		default:
-			LOGTO(Warning) << "Invalid mouse action: " << ((int)action) << endlog;
+			LOG(EngineLog, WARNING) << "Invalid mouse action: " << ((int)action);
 			return;
 	}
 

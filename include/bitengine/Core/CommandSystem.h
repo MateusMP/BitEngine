@@ -8,9 +8,11 @@
 
 namespace BitEngine{
 
-	class CommandSystem : public System {
+	class CommandSystem : public System
+	{
 		public:
-			struct CommandInput{
+			struct CommandInput
+			{
 				CommandInput(int _id, float _intensity, int _other);
 				CommandInput(int _id, float _intensity, InputReceiver::KeyAction _other);
 				CommandInput(int _id, float _intensity, InputReceiver::MouseAction _other, double x, double y);
@@ -55,6 +57,9 @@ namespace BitEngine{
 			  */
 			bool RegisterKeyboardCommand(int commandID, int commandState, int key, InputReceiver::KeyAction action, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE);
 
+			/**
+			 * Same for mouse commands
+			 */
 			bool RegisterMouseCommand(int commandID, int commandState, int button, InputReceiver::MouseAction action, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE);
 
 			bool RegisterMouseMove(int commandID, int commandState, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE){

@@ -10,7 +10,7 @@
 
 #include "Common/TypeDefinition.h"
 
-#include "Core/EngineLoggers.h"
+#include "Core/Logger.h"
 #include "Core/Mesh.h"
 #include "Core/TextureManager.h"
 
@@ -54,7 +54,7 @@ namespace BitEngine{
 				if (model != nullptr){
 					holder.modelsByName.insert(std::pair<std::string, Model*>(filename, model));
 				} else {
-					LOGTO(Error) << "Failed to load model from file " << filename << endlog;
+					LOG(EngineLog, ERROR) << "Failed to load model from file " << filename;
 				}
 			}
 
@@ -75,7 +75,7 @@ namespace BitEngine{
 					// holder.models.push_back(model);
 				}
 				else {
-					LOGTO(Error) << "Failed to load model from file " << name << endlog;
+					LOG(EngineLog, ERROR) << "Failed to load model from file " << name;
 				}
 			}
 

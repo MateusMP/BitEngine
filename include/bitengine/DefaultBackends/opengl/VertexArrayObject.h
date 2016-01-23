@@ -5,10 +5,10 @@
 #include "Common/TypeDefinition.h"
 #include "Common/MathUtils.h"
 
-#include "Core/EngineLoggers.h"
+#include "Core/Logger.h"
 #include "Core/Graphics.h"
 
-namespace BitEngine{
+namespace BitEngine {
 	
 	class VertexAttribute
 	{
@@ -25,7 +25,7 @@ namespace BitEngine{
 			else if (type == GL_INT) bytes = sizeof(GLint);
 			else if (type == GL_UNSIGNED_INT) bytes = sizeof(GLint);
 			else {
-				LOGTO(Error) << "Invalid VertexAttribute" << endlog;
+				LOG(EngineLog, ERROR) << "Invalid VertexAttribute";
 			}
 
 			sizeBytes = count * bytes;
@@ -120,7 +120,7 @@ namespace BitEngine{
 			// Creates VBO
 			glGenBuffers(1, &vbo);
 			if (vbo == 0){
-				LOGTO(Error) << "VertexBuffer: Could not create VBO." << endlog;
+				LOG(EngineLog, ERROR) << "VertexBuffer: Could not create VBO.";
 				return;
 			}
 
@@ -133,7 +133,7 @@ namespace BitEngine{
 			//}
 
 
-			LOGTO(Verbose) << "VBO: " << vbo << endlog;
+			LOG(EngineLog, VERBOSE) << "VBO: " << vbo;
 			// Attributes
 			uint32 accumOffset = 0;
 			for (int i = 0; i < VertexData::NUM_ATTRIBUTES; ++i)
@@ -145,9 +145,9 @@ namespace BitEngine{
 				glVertexAttribPointer(attrID, attr.count, attr.type, attr.normalized, sizeof(VertexData::Data), (void*)(accumOffset));
 				glVertexAttribDivisor(attrID, attr.divisor);
 
-				LOGTO(Verbose) << "Defining attribute " << attrID<<"("<<i<<")" << ": count: " << attr.count <<
+				LOG(EngineLog, VERBOSE) << "Defining attribute " << attrID<<"("<<i<<")" << ": count: " << attr.count <<
 									", type: " << attr.type << ", normal: " << attr.normalized << 
-									", size: " << sizeof(VertexData::Data) << "(" << attr.sizeBytes << ")" << ", offset:" << accumOffset << endlog;
+									", size: " << sizeof(VertexData::Data) << "(" << attr.sizeBytes << ")" << ", offset:" << accumOffset;
 
 				accumOffset += attr.sizeBytes;
 			}
@@ -196,7 +196,7 @@ namespace BitEngine{
 			// Creates VBO
 			glGenBuffers(VertexData::NUM_ATTRIBUTES, vbo);
 			if (vbo[0] == 0){
-				LOGTO(Error) << "VertexBuffer: Could not create VBOs." << endlog;
+				LOG(EngineLog, ERROR) << "VertexBuffer: Could not create VBOs.";
 				return;
 			}
 
@@ -283,11 +283,11 @@ namespace BitEngine{
 		{
 			glGenVertexArrays(1, &vao);
 			if (vao == 0){
-				LOGTO(Error) << "VertexArrayObject: Could not create VAO." << endlog;
+				LOG(EngineLog, ERROR) << "VertexArrayObject: Could not create VAO.";
 				return false;
 			}
 
-			LOGTO(Verbose) << "VAO: " << vao << endlog;
+			LOG(EngineLog, VERBOSE) << "VAO: " << vao;
 			Bind();
 
 			uint32 attributes = 0;

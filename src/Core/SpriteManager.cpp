@@ -1,6 +1,6 @@
 #include "Core/SpriteManager.h"
 
-#include "Core/EngineLoggers.h"
+#include "Core/Logger.h"
 #include "Core/TextureManager.h"
 
 namespace BitEngine{
@@ -66,7 +66,7 @@ namespace BitEngine{
 			return false;
 
 		if (m_sprites.size() <= hdl){
-			LOGTO(Warning) << "SpriteManager: replaceSprite Invalid SpriteHandle: " <<  hdl << endlog;
+			LOG(EngineLog, WARNING) << "SpriteManager: replaceSprite Invalid SpriteHandle: " <<  hdl;
 			return false;
 		}
 
@@ -87,7 +87,7 @@ namespace BitEngine{
 	{
 #ifdef _DEBUG
 		if (m_sprites.size() <= hdl){
-			LOGTO(Warning) << "SpriteManager: Invalid SpriteHandle!" << endlog;
+			LOG(EngineLog, WARNING) << "SpriteManager: Invalid SpriteHandle!";
 			return nullptr;
 		}
 #endif

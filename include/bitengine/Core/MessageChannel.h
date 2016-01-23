@@ -5,6 +5,10 @@
 
 namespace BitEngine{
 
+/**
+ * Synchronized channel
+ * Messages sent through this channel are processed immediately by the same thread
+ */
 class Channel
 {
     private:

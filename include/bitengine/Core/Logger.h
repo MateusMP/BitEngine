@@ -3,108 +3,115 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
+#include <chrono>
+#include <ctime>
+
+#define NO_LOGGING 0
+#define ERROR 1
+#define WARNING 3
+#define INFO 5
+#define VERBOSE 7
+#define LOG_ALL 128
 
 // TODO: thread safe with std::recursive_mutex
 
-#define LOG_SEVERITY_VERBOSE		0		// Show ALL
-#define LOG_SEVERITY_WARNING		1
-#define LOG_SEVERITY_ERROR			2
-#define LOG_SEVERITY_INFO			3
-#define LOG_SEVERITY_NO_LOGS		100
+// The higher the value, more logs will be generated
 
-#define NEW_LOG(id, name, output, severity, minServ) \
-	BitEngine::Logger<id> BitEngine::Logger<id>::self(name, output, severity, minServ)
+#ifndef LOG_LOGGING_THRESHOLD
+#define LOG_LOGGING_THRESHOLD LOG_ALL
+#endif
 
-#define NEW_CONSOLE_LOG(id, name, severity, minServ) \
-		BitEngine::Logger<id> BitEngine::Logger<id>::self(name, severity, minServ)
+#define LOG_STATIC(logname, output)									\
+		public:														\
+			static BitEngine::Logger& SELFLOG() {					\
+				static BitEngine::Logger _log(logname, output);	\
+				return _log;										\
+			}														\
+		private:
 
-#define LOGTO(id) \
-		((BitEngine::Logger<id>::self))
-#define LOG() \
-		((BitEngine::Logger<0>::self))
+#define LOG(logger,severity)						\
+		if (severity > LOG_LOGGING_THRESHOLD) ;		\
+		else BitEngine::LogLine(logger, severity)
 
-#define SHOULD_LOG(x, xMax)	\
-		(x != LOG_SEVERITY_NO_LOGS) && (xMax <= x)
-
-// #define NEW_LOG(id, output, name) /##/
-// #define NEW_CONSOLE_LOG(id, name) /##/
-// 
-// #define LOGTO(id) /##/
-// #define LOG() /##/
+namespace BitEngine {
 
 
-namespace BitEngine{
+	class LogLine;
 
-struct endlog_t{};
-static endlog_t endlog;
-
-template<int instance>
-class Logger
-{
-private:
-	std::streambuf *buf;
-	std::ofstream of;
-	std::ostream out;
-
-	std::string name;
-
-	bool m_begining;
-	const int severity;
-	const int logLimit;
-
-public:
-	static Logger self;
-
-	Logger(const char* _name, int _sev, int minSev)
-		: out(nullptr), m_begining(true), severity(_sev), logLimit(minSev)
+	class Logger
 	{
-		if (SHOULD_LOG(severity, logLimit)){
-			name = _name;
-			buf = std::cout.rdbuf();
-			out.rdbuf(buf);
-		}
-	}
+		private:
+			std::string logName;
 
-	Logger(const char* _name, const char* file, int _serv, int minSev)
-		: out(nullptr), m_begining(true), severity(_serv), logLimit(minSev)
-	{
-		if (SHOULD_LOG(severity, logLimit)){
-			name = _name;
+			std::ofstream outFStream;
+			std::ostream outStream;
 
-			if (file == 0){
-				buf = std::cout.rdbuf();
-			}
-			else {
-				of.open(file);
-				buf = of.rdbuf();
+		public:
+			Logger(const std::string& name, std::ostream& output)
+				: logName(name), outStream(output.rdbuf())
+			{
+				std::ostringstream str;
+				str << timeNow() << logName << " LOG STARTED" << std::endl;
+				outStream << str.str();
 			}
 
-			out.rdbuf(buf);
-		}
-	}
-
-	Logger& operator<<(const endlog_t& endl)
-	{
-		if (SHOULD_LOG(severity, logLimit)){
-			m_begining = true;
-			out << "\n";
-		}
-		return *this;
-	}
-
-	template<typename T>
-	Logger& operator << (const T& t){
-		if (SHOULD_LOG(severity, logLimit)){
-			if (m_begining){
-				out << "<" << severity << "> " << name << ": ";
-				m_begining = false;
+			Logger(const std::string& name, const char* file, int mode)
+				: logName(name), outFStream(file, mode), outStream(outFStream.rdbuf())
+			{
+				std::ostringstream str;
+				str << timeNow() << logName << " LOG STARTED" << std::endl;
+				outStream << str.str();
 			}
 
-			out << t;
-		}
-		return *this;
-	}
-};
+			inline void Log(const std::string& line)
+			{
+				std::ostringstream str;
+				str << timeNow() << logName << ": " << line;
+				outStream << str.str();
+			}
 
+		private:
+			inline static std::string timeNow()
+			{
+				char buff[32];
+				struct tm sTm;
+				time_t now = time(0);
+				gmtime_s(&sTm, &now);
 
+				strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S ", &sTm);
+				return std::string(buff);
+			}
+	};
+
+	class LogLine
+	{
+		friend class Logger;
+
+		public:
+			LogLine(Logger& l, int severity)
+				: log(l)
+			{
+				out << "<" << severity << "> - ";
+			}
+
+			~LogLine()
+			{
+				out << std::endl;
+				log.Log(out.str());
+			}
+
+			template<typename T>
+			inline std::ostringstream& operator << (const T& t) 
+			{
+				out << t;
+				return out;
+			}
+
+		private:
+			std::ostringstream out;
+			Logger& log;
+	};
+
+	extern Logger EngineLog;
 }

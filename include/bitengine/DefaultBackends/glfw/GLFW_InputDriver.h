@@ -4,14 +4,13 @@
 
 #include "Core/MessageType.h"
 #include "Core/InputSystem.h"
+#include "Core/Logger.h"
 
 #include "GLFW_VideoDriver.h"
 
 class GLFW_InputDriver : public BitEngine::IInputDriver
 {
 public:
-	~GLFW_InputDriver(){}
-
 	void inputWindowCreated(BitEngine::Window* window) override;
 	void inputWindowDestroyed(BitEngine::Window* window) override;
 
@@ -31,4 +30,6 @@ private:
 	static void GlfwMousePosCallback(GLFWwindow* window, double x, double y);
 
 	static std::unordered_map<GLFWwindow*, BitEngine::InputReceiver> inputReceivers;
+
+	LOG_STATIC("GLFW_InputDriver", std::cout);
 };

@@ -84,7 +84,7 @@ namespace BitEngine{
 			if (version == USE_GL4){
 				if (!BatchRenderer::CheckFunctionsGL4()){
 					version = USE_GL3;
-					LOGTO(Info) << "Functions for Sprite2D GL4 not available! Fallback to GL3... " << endlog;
+					LOG(EngineLog, INFO) << "Functions for Sprite2D GL4 not available! Fallback to GL3... ";
 				}
 			}
 
@@ -100,7 +100,7 @@ namespace BitEngine{
 				GL_FRAGMENT_SHADER, Sprite2D_fragment_GLall);
 			if (build == NO_ERROR)
 			{
-				LOGTO(Info) << "Using Sprite2D " << ((version == USE_GL4) ? "GL4" : "GL3") << endlog;
+				LOG(EngineLog, INFO) << "Using Sprite2D " << ((version == USE_GL4) ? "GL4" : "GL3");
 				return NO_ERROR;
 			}
 

@@ -62,7 +62,7 @@ class Sprite2DRendererBasic : public ComponentProcessor
 			{
 				spr2Dbatch = spr2DShader->CreateRenderer();
 				if (spr2Dbatch == nullptr) {
-					LOGTO(Error) << "Could not create Sprite2D renderer" << BitEngine::endlog;
+					LOG(EngineLog, ERROR) << "Could not create Sprite2D renderer";
 					return false;
 				}
 			}

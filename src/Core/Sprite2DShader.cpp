@@ -48,7 +48,7 @@ namespace BitEngine {
 			Sprite2DGL4* s = new Sprite2DGL4(useRenderer);
 			if (s->Init() == NO_ERROR)
 			{
-				LOGTO(Info) << "Using Sprite2D " << ((useRenderer == USE_GL4) ? "GL4" : "GL3") << endlog;
+				LOG(EngineLog, INFO) << "Using Sprite2D " << ((useRenderer == USE_GL4) ? "GL4" : "GL3");
 				return s;
 			}
 			else {
@@ -56,7 +56,7 @@ namespace BitEngine {
 			}
 
 			// If failed to compile -> fallback to GL2
-			LOGTO(Warning) << "Could not compile GL3/GL4 shader for Sprite2D, driver update needed? Fallback to GL2..." << endlog;
+			LOG(EngineLog, WARNING) << "Could not compile GL3/GL4 shader for Sprite2D, driver update needed? Fallback to GL2...";
 			useRenderer = USE_GL2;
 		}
 
@@ -65,17 +65,17 @@ namespace BitEngine {
 		{
 			Sprite2DGL2* s = new Sprite2DGL2();
 			if (s->Init() == NO_ERROR) {
-				LOGTO(Info) << "Using Sprite2D GL2" << endlog;
+				LOG(EngineLog, INFO) << "Using Sprite2D GL2";
 				return s;
 			}
 			else {
 				delete s;
 			}
 
-			LOGTO(Error) << "Could not compile GL2 shader for Sprite2D, driver update needed? ERROR!" << endlog;
+			LOG(EngineLog, ERROR) << "Could not compile GL2 shader for Sprite2D, driver update needed? ERROR!";
 		}
 
-		LOGTO(Error) << "Could not initialize Sprite2D shader!" << endlog;
+		LOG(EngineLog, ERROR) << "Could not initialize Sprite2D shader!";
 		return nullptr;
 	}
 

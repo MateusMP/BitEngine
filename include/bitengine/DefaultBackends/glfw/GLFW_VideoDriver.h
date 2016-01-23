@@ -2,6 +2,7 @@
 
 #include "Core/Graphics.h"
 #include "Core/VideoSystem.h"
+#include "Core/Logger.h"
 
 class GLFW_VideoDriver : public BitEngine::IVideoDriver
 {
@@ -16,9 +17,10 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 				GLFWwindow* m_glfwWindow;
 		};
 
-		GLFW_VideoDriver(BitEngine::IVideoRenderer* renderer)
+		GLFW_VideoDriver::GLFW_VideoDriver(BitEngine::IVideoRenderer* renderer)
 			: BitEngine::IVideoDriver(renderer), glewStarted(false), m_currentContext(nullptr)
 		{}
+		~GLFW_VideoDriver(){}
 
 		/**
 		* Initializes a window and openGL related stuff (Extensions and functions)
@@ -93,4 +95,6 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 
 		bool glewStarted;
 		Window_glfw* m_currentContext;
+
+		LOG_STATIC("GLFW_VideoDriver", std::cout);
 };

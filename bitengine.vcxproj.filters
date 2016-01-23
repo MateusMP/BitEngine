@@ -33,7 +33,6 @@
     <ClInclude Include="include\bitengine\Core\ECS\Transform3DComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform3DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\EngineConfiguration.h" />
-    <ClInclude Include="include\bitengine\Core\EngineLoggers.h" />
     <ClInclude Include="include\bitengine\Core\GameEngine.h" />
     <ClInclude Include="include\bitengine\Core\Graphics.h" />
     <ClInclude Include="include\bitengine\Core\InputSystem.h" />
@@ -100,5 +99,6 @@
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_VideoDriver.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\glSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputDriver.cpp" />
+    <ClCompile Include="src\Core\Logger.cpp" />
   </ItemGroup>
 </Project>

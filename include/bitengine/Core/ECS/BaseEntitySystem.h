@@ -84,14 +84,14 @@ namespace BitEngine {
 			bool AddComponent(EntityHandle entity, ComponentType type, ComponentRef<CompClass>& ref)
 			{
 				if (!hasEntity(entity)) {
-					LOGTO(Warning) << "EntitySystem: Trying to attach component of type " << type << " to unknown entity: " << entity << "!" << endlog;
+					LOG(EngineLog, WARNING) << "EntitySystem: Trying to attach component of type " << type << " to unknown entity: " << entity << "!";
 					return false;
 				}
 
 				ComponentHolder* holder = m_dataHolder[type];
 				ComponentHandle hdl = holder->CreateComponent(entity);
 				if (hdl == 0) {
-					LOGTO(Warning) << "EntitySystem: Entity " << entity << " already has a component of type: " << type << "!" << endlog;
+					LOG(EngineLog, WARNING) << "EntitySystem: Entity " << entity << " already has a component of type: " << type << "!";
 					return false;
 				}
 
@@ -104,7 +104,7 @@ namespace BitEngine {
 			template<typename CompClass>
 			bool RemoveComponent(const ComponentRef<CompClass>& ref) {
 				if (!hasEntity(ref->getEntity())) {
-					LOGTO(Warning) << "EntitySystem: Trying to remove component of type " << type << " with handle: " << ref.handle << "!" << endlog;
+					LOG(EngineLog, WARNING) << "EntitySystem: Trying to remove component of type " << type << " with handle: " << ref.handle << "!";
 					return false;
 				}
 
@@ -187,7 +187,7 @@ namespace BitEngine {
 				// Verify if component type is valid
 				ComponentType type = getComponentType<CompClass>();
 				if (type == ~0) {
-					LOGTO(Warning) << "EntitySystem: Unregistered type: " << type << endlog;
+					LOG(EngineLog, WARNING) << "EntitySystem: Unregistered type: " << type;
 					return false;
 				}
 
