@@ -54,7 +54,7 @@ namespace BitEngine{
 				if (model != nullptr){
 					holder.modelsByName.insert(std::pair<std::string, Model*>(filename, model));
 				} else {
-					LOG(EngineLog, ERROR) << "Failed to load model from file " << filename;
+					LOG(EngineLog, BE_LOG_ERROR) << "Failed to load model from file " << filename;
 				}
 			}
 
@@ -75,7 +75,7 @@ namespace BitEngine{
 					// holder.models.push_back(model);
 				}
 				else {
-					LOG(EngineLog, ERROR) << "Failed to load model from file " << name;
+					LOG(EngineLog, BE_LOG_ERROR) << "Failed to load model from file " << name;
 				}
 			}
 

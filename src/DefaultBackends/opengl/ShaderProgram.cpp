@@ -57,9 +57,9 @@ int ShaderProgram::BuildFinalProgram(std::vector<GLuint>& shaders)
 
 	BindAttributes();
 
-	if (linkShaders(shaders) == NO_ERROR){
+	if (linkShaders(shaders) == BE_NO_ERROR){
 		RegisterUniforms();
-		return NO_ERROR;
+		return BE_NO_ERROR;
 	}
 	else {
 		return FAILED_TO_LINK;
@@ -72,15 +72,15 @@ int ShaderProgram::CompileFromMemory(std::vector<GLuint>& shaders, GLint type, c
 	std::string errorlog;
 
 	int error = compile(shaderHDL, type, source, errorlog);
-	if (error != NO_ERROR){
-		LOG(EngineLog, ERROR) << "Shader: Shader <m> compile Error!\n " << errorlog;
+	if (error != BE_NO_ERROR){
+		LOG(EngineLog, BE_LOG_ERROR) << "Shader: Shader <m> compile Error!\n " << errorlog;
 		return FAILED_TO_COMPILE;
 	}
 	else {
 		shaders.push_back(shaderHDL);
 	}
 
-	return NO_ERROR;
+	return BE_NO_ERROR;
 }
 
 int ShaderProgram::linkShaders(std::vector<GLuint>& shaders)
@@ -114,7 +114,7 @@ int ShaderProgram::linkShaders(std::vector<GLuint>& shaders)
 		}
 
 		// Use the infoLog as you see fit.
-		LOG(EngineLog, ERROR) << "Shader: Linking error: " << &infoLog[0];
+		LOG(EngineLog, BE_LOG_ERROR) << "Shader: Linking error: " << &infoLog[0];
 
 		// In this simple program, we'll just leave
 		return FAILED_TO_LINK;
@@ -130,7 +130,7 @@ int ShaderProgram::linkShaders(std::vector<GLuint>& shaders)
 		glDeleteShader(shaders[i]);
 	}
 
-	return NO_ERROR;
+	return BE_NO_ERROR;
 }
 
 int ShaderProgram::retrieveSourceFromFile(const std::string& file, std::string& out) const
@@ -151,7 +151,7 @@ int ShaderProgram::retrieveSourceFromFile(const std::string& file, std::string& 
 
 	fdata.close();
 
-	return NO_ERROR;
+	return BE_NO_ERROR;
 }
 
 int ShaderProgram::compile(GLuint &hdl, GLenum type, const char* data, std::string& errorLog)
@@ -184,7 +184,7 @@ int ShaderProgram::compile(GLuint &hdl, GLenum type, const char* data, std::stri
 	}
 
     hdl = shdhdl;
-    return NO_ERROR;
+    return BE_NO_ERROR;
 }
 
 

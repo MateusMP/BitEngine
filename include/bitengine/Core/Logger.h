@@ -7,19 +7,32 @@
 #include <chrono>
 #include <ctime>
 
-#define NO_LOGGING 0
-#define ERROR 1
-#define WARNING 3
-#define INFO 5
-#define VERBOSE 7
-#define LOG_ALL 128
+#include "Timer.h"
+
+//#define LOG_PERFORMANCE 1
+
+#ifndef BE_LOG_ENABLE_PERFORMANCE
+#define BE_LOG_ENABLE_PERFORMANCE 0
+#endif
+
+// These values will be used on the file as a log type identifier
+// Ex: 
+// TIME LOG_NAME: <1> Log Description			// <1> -> Error log
+// TIME LOG_NAME: <3> Log Description			// <3> -> Warning log
+#define BE_LOG_NO_LOGGING 0
+#define BE_LOG_ERROR 1
+#define BE_LOG_WARNING 3
+#define BE_LOG_INFO 5
+#define BE_LOG_VERBOSE 7
+#define BE_LOG_PERFORMANCE 9
+#define BE_LOG_ALL 128
 
 // TODO: thread safe with std::recursive_mutex
 
 // The higher the value, more logs will be generated
 
 #ifndef LOG_LOGGING_THRESHOLD
-#define LOG_LOGGING_THRESHOLD LOG_ALL
+#define LOG_LOGGING_THRESHOLD BE_LOG_ALL
 #endif
 
 #define LOG_STATIC(logname, output)									\
@@ -33,6 +46,13 @@
 #define LOG(logger,severity)						\
 		if (severity > LOG_LOGGING_THRESHOLD) ;		\
 		else BitEngine::LogLine(logger, severity)
+
+#define LOG_SCOPE_TIME(logto, description)		\
+		if (LOG_PERFORMANCE)					\
+			BitEngine::ScopeLogger(logto, description)
+
+#define LOG_FUNCTION_TIME(logto)				\
+			BitEngine::ScopeLogger _log_function(logto, __func__)
 
 namespace BitEngine {
 
@@ -52,7 +72,7 @@ namespace BitEngine {
 				: logName(name), outStream(output.rdbuf())
 			{
 				std::ostringstream str;
-				str << timeNow() << logName << " LOG STARTED" << std::endl;
+				str << timeNowStr() << logName << " LOG STARTED" << std::endl;
 				outStream << str.str();
 			}
 
@@ -60,23 +80,28 @@ namespace BitEngine {
 				: logName(name), outFStream(file, mode), outStream(outFStream.rdbuf())
 			{
 				std::ostringstream str;
-				str << timeNow() << logName << " LOG STARTED" << std::endl;
+				str << timeNowStr() << logName << " LOG STARTED" << std::endl;
 				outStream << str.str();
 			}
 
 			inline void Log(const std::string& line)
 			{
 				std::ostringstream str;
-				str << timeNow() << logName << ": " << line;
+				str << timeNowStr() << logName << ": " << line;
 				outStream << str.str();
 			}
 
-		private:
-			inline static std::string timeNow()
+			inline static time_t timeNow()
+			{
+				return time(0);
+			}
+
+			inline static std::string timeNowStr()
 			{
 				char buff[32];
-				struct tm sTm;
-				time_t now = time(0);
+				tm sTm;
+
+				time_t now = timeNow();
 				gmtime_s(&sTm, &now);
 
 				strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S ", &sTm);
@@ -86,8 +111,6 @@ namespace BitEngine {
 
 	class LogLine
 	{
-		friend class Logger;
-
 		public:
 			LogLine(Logger& l, int severity)
 				: log(l)
@@ -111,6 +134,28 @@ namespace BitEngine {
 		private:
 			std::ostringstream out;
 			Logger& log;
+	};
+
+	class ScopeLogger
+	{
+		public:
+			ScopeLogger(Logger& l, const std::string& descrp)
+				: log(l), description(descrp)
+			{
+				timer.setTime();
+			}
+
+			~ScopeLogger()
+			{
+				double elapsed = timer.timeElapsedSeconds();
+				BitEngine::LogLine(log, 9) << description << " took " << elapsed << " seconds";
+			}
+
+		private:
+			Logger& log;
+			const std::string description;
+
+			BitEngine::Timer timer;
 	};
 
 	extern Logger EngineLog;

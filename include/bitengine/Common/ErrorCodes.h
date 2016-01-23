@@ -2,7 +2,7 @@
 #pragma once
 
 
-#define NO_ERROR					 1
+#define BE_NO_ERROR					 1
 
 // CONFIGURATION
 #define ERROR_UNKNOWN_SYSTEM		-1

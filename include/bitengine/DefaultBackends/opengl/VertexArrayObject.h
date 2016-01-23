@@ -25,7 +25,7 @@ namespace BitEngine {
 			else if (type == GL_INT) bytes = sizeof(GLint);
 			else if (type == GL_UNSIGNED_INT) bytes = sizeof(GLint);
 			else {
-				LOG(EngineLog, ERROR) << "Invalid VertexAttribute";
+				LOG(EngineLog, BE_LOG_ERROR) << "Invalid VertexAttribute";
 			}
 
 			sizeBytes = count * bytes;
@@ -120,7 +120,7 @@ namespace BitEngine {
 			// Creates VBO
 			glGenBuffers(1, &vbo);
 			if (vbo == 0){
-				LOG(EngineLog, ERROR) << "VertexBuffer: Could not create VBO.";
+				LOG(EngineLog, BE_LOG_ERROR) << "VertexBuffer: Could not create VBO.";
 				return;
 			}
 
@@ -133,7 +133,7 @@ namespace BitEngine {
 			//}
 
 
-			LOG(EngineLog, VERBOSE) << "VBO: " << vbo;
+			LOG(EngineLog, BE_LOG_VERBOSE) << "VBO: " << vbo;
 			// Attributes
 			uint32 accumOffset = 0;
 			for (int i = 0; i < VertexData::NUM_ATTRIBUTES; ++i)
@@ -145,7 +145,7 @@ namespace BitEngine {
 				glVertexAttribPointer(attrID, attr.count, attr.type, attr.normalized, sizeof(VertexData::Data), (void*)(accumOffset));
 				glVertexAttribDivisor(attrID, attr.divisor);
 
-				LOG(EngineLog, VERBOSE) << "Defining attribute " << attrID<<"("<<i<<")" << ": count: " << attr.count <<
+				LOG(EngineLog, BE_LOG_VERBOSE) << "Defining attribute " << attrID<<"("<<i<<")" << ": count: " << attr.count <<
 									", type: " << attr.type << ", normal: " << attr.normalized << 
 									", size: " << sizeof(VertexData::Data) << "(" << attr.sizeBytes << ")" << ", offset:" << accumOffset;
 
@@ -196,7 +196,7 @@ namespace BitEngine {
 			// Creates VBO
 			glGenBuffers(VertexData::NUM_ATTRIBUTES, vbo);
 			if (vbo[0] == 0){
-				LOG(EngineLog, ERROR) << "VertexBuffer: Could not create VBOs.";
+				LOG(EngineLog, BE_LOG_ERROR) << "VertexBuffer: Could not create VBOs.";
 				return;
 			}
 
@@ -283,11 +283,11 @@ namespace BitEngine {
 		{
 			glGenVertexArrays(1, &vao);
 			if (vao == 0){
-				LOG(EngineLog, ERROR) << "VertexArrayObject: Could not create VAO.";
+				LOG(EngineLog, BE_LOG_ERROR) << "VertexArrayObject: Could not create VAO.";
 				return false;
 			}
 
-			LOG(EngineLog, VERBOSE) << "VAO: " << vao;
+			LOG(EngineLog, BE_LOG_VERBOSE) << "VAO: " << vao;
 			Bind();
 
 			uint32 attributes = 0;

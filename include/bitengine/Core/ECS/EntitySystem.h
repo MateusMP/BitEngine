@@ -97,7 +97,7 @@ class EntitySystem : public BaseEntitySystem
 
 			if (!RegisterHolder(ch, type, globalID))
 			{
-				LOG(EngineLog, WARNING) << "EntitySystem: Trying to register two holders for the component type: " << type;
+				LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to register two holders for the component type: " << type;
 				return false;
 			}
 
@@ -169,7 +169,7 @@ class EntitySystem : public BaseEntitySystem
 		//	// Verify if component type is valid
 		//	ComponentType type = ComponentIDProvider::ID<CompClass>();
 		//	if (!isComponentOfTypeValid(type)){
-		//		LOG(EngineLog, WARNING) << "EntitySystem: Unregistered type: " << type;
+		//		LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Unregistered type: " << type;
 		//		return nullptr;
 		//	}
 		//
@@ -188,7 +188,7 @@ class EntitySystem : public BaseEntitySystem
 		//	// Verify if component type is valid
 		//	ComponentType type = ComponentIDProvider::ID<CompClass>();
 		//	if (!isComponentOfTypeValid(type)){
-		//		LOG(EngineLog, WARNING) << "EntitySystem: Unregistered type: " << type;
+		//		LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Unregistered type: " << type;
 		//		return nullptr;
 		//	}
 		//
@@ -215,7 +215,7 @@ class EntitySystem : public BaseEntitySystem
 		//
 		//	if (!isComponentOfTypeValid(typeSearch)){
 		//		matchSearchIndices.clear(); // nothing found!
-		//		LOG(EngineLog, WARNING) << "EntitySystem: Trying to search for invalid type: " << typeSearch;
+		//		LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to search for invalid type: " << typeSearch;
 		//		return;
 		//	}
 		//
@@ -270,7 +270,7 @@ class EntitySystem : public BaseEntitySystem
 		//	ComponentType typeSearch = BaseSearchCompClass::getComponentType();
 		//
 		//	if (!isComponentOfTypeValid(typeSearch)){
-		//		LOG(EngineLog, WARNING) << "EntitySystem: Trying to search for invalid type: " << typeSearch;
+		//		LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to search for invalid type: " << typeSearch;
 		//		return;
 		//	}
 		//
@@ -321,7 +321,7 @@ class EntitySystem : public BaseEntitySystem
 		//	ComponentType typeSearch = BaseSearchCompClass::getComponentType();
 		//
 		//	if (!isComponentOfTypeValid(typeSearch)){
-		//		LOG(EngineLog, WARNING) << "EntitySystem: Trying to search for invalid type: " << typeSearch;
+		//		LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to search for invalid type: " << typeSearch;
 		//		return;
 		//	}
 		//

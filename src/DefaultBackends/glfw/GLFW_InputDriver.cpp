@@ -25,7 +25,7 @@ BitEngine::InputReceiver::KeyMod GLFW_InputDriver::isKeyPressed(int key)
 {
 	auto w = inputReceivers.begin();
 	if (w == inputReceivers.end())
-		return BitEngine::InputReceiver::KeyMod::FALSE;
+		return BitEngine::InputReceiver::KeyMod::KFALSE;
 
 	return w->second.isKeyPressed(key);
 }
@@ -34,7 +34,7 @@ BitEngine::InputReceiver::KeyMod GLFW_InputDriver::keyReleased(int key)
 {
 	auto w = inputReceivers.begin();
 	if (w == inputReceivers.end())
-		return BitEngine::InputReceiver::KeyMod::FALSE;
+		return BitEngine::InputReceiver::KeyMod::KFALSE;
 
 	return w->second.keyReleased(key);
 }
@@ -65,7 +65,7 @@ void GLFW_InputDriver::poolEvents()
 void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_UNKNOWN) {
-		LOG(SELFLOG(), WARNING) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods;
+		LOG(SELFLOG(), BE_LOG_WARNING) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods;
 	}
 
 	// LOG(SELFLOG(), VERBOSE) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods;
@@ -86,13 +86,13 @@ void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode
 				act = BitEngine::InputReceiver::KeyAction::RELEASE;
 				break;
 			default:
-				LOG(SELFLOG(), WARNING) << "Invalid key action: " << action;
+				LOG(SELFLOG(), BE_LOG_WARNING) << "Invalid key action: " << action;
 				return;
 		}
 		it->second.keyboardInput(key, scancode, act, mods);
 	}
 	else {
-		LOG(SELFLOG(), ERROR) << "Invalid window input!";
+		LOG(SELFLOG(), BE_LOG_ERROR) << "Invalid window input!";
 	}
 }
 
@@ -111,14 +111,14 @@ void GLFW_InputDriver::GlfwMouseCallback(GLFWwindow* window, int button, int act
 				act = BitEngine::InputReceiver::MouseAction::RELEASE;
 				break;
 			default:
-				LOG(SELFLOG(), WARNING) << "Invalid mouse action: " << action;
+				LOG(SELFLOG(), BE_LOG_WARNING) << "Invalid mouse action: " << action;
 				return;
 		}
 		it->second.mouseInput(button, act, mods);
 	}
 	else 
 	{
-		LOG(SELFLOG(), ERROR) << "Invalid window input!";
+		LOG(SELFLOG(), BE_LOG_ERROR) << "Invalid window input!";
 	}
 }
 
@@ -129,6 +129,6 @@ void GLFW_InputDriver::GlfwMousePosCallback(GLFWwindow* window, double x, double
 		it->second.mouseInput(x, y);
 	}
 	else {
-		LOG(SELFLOG(), ERROR) << "Invalid window input!";
+		LOG(SELFLOG(), BE_LOG_ERROR) << "Invalid window input!";
 	}
 }

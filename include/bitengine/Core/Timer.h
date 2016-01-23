@@ -2,61 +2,65 @@
 
 #include "Common/TypeDefinition.h"
 
-#include "Core/Graphics.h"
-
 namespace BitEngine
 {
 	class Time
 	{
-	private:
-		friend class GameEngine;
-		static uint64 ticks;
+		private:
+			friend class GameEngine;
+			static uint64 ticks;
 
-		static void Tick(){
-			ticks++;
-		}
+			static void Tick(){
+				ticks++;
+			}
 
-		static void ResetTicks(){
-			ticks = 0;
-		}
+			static void ResetTicks(){
+				ticks = 0;
+			}
 
-	public:
-		// Time since video started
-		static double getTime(){ // in seconds
-			return glfwGetTime();
-		}
-		static uint64 getTicks(){
+		public:
 
-		}
-
+			static uint64 getTicks() {
+				return ticks;
+			}
 	};
 
 	class Timer
 	{
-	public:
-		Timer(){
-			timeSet = 0;
-		}
+		public:
+			Timer()
+			{
+				timeSet = 0;
+			}
 
-		void setTime(double t = -1)
-		{
-			if (t <= 0)
-				timeSet = Time::getTime();
-			else
-				timeSet = t;
-		}
+			void setTime(int64 t = -1)
+			{
+				if (t <= 0)
+					timeSet = clockNow();
+				else
+					timeSet = t;
+			}
 
-		bool hasPassed(double seconds) const
-		{
-			return timeElapsed() >= seconds;
-		}
+			bool hasPassed(int64 seconds) const
+			{
+				return timeElapsed() >= (seconds * 1000000);
+			}
 
-		double timeElapsed() const {
-			return Time::getTime() - timeSet;
-		}
+			// int microseconds
+			int64 timeElapsed() const {
+				return clockToMicroSeconds(clockNow() - timeSet);
+			}
 
-	private:
-		double timeSet;
+			double timeElapsedSeconds() const {
+				return clockToMicroSeconds(clockNow() - timeSet) / 1000000.0;
+			}
+
+		private:
+			int64 timeSet;
+
+			static int64 clockNow();
+
+			static int64 clockToMicroSeconds(int64 a);
 	};
 
 	class TimerTicks

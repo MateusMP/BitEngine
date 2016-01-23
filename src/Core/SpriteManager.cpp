@@ -66,7 +66,7 @@ namespace BitEngine{
 			return false;
 
 		if (m_sprites.size() <= hdl){
-			LOG(EngineLog, WARNING) << "SpriteManager: replaceSprite Invalid SpriteHandle: " <<  hdl;
+			LOG(EngineLog, BE_LOG_WARNING) << "SpriteManager: replaceSprite Invalid SpriteHandle: " <<  hdl;
 			return false;
 		}
 
@@ -87,7 +87,7 @@ namespace BitEngine{
 	{
 #ifdef _DEBUG
 		if (m_sprites.size() <= hdl){
-			LOG(EngineLog, WARNING) << "SpriteManager: Invalid SpriteHandle!";
+			LOG(EngineLog, BE_LOG_WARNING) << "SpriteManager: Invalid SpriteHandle!";
 			return nullptr;
 		}
 #endif

@@ -100,5 +100,6 @@
     <ClCompile Include="src\DefaultBackends\opengl\glSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputDriver.cpp" />
     <ClCompile Include="src\Core\Logger.cpp" />
+    <ClCompile Include="src\Core\Timer.cpp" />
   </ItemGroup>
 </Project>

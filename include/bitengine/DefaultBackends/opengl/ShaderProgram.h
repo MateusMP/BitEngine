@@ -21,9 +21,9 @@ namespace BitEngine
 #define LOAD_UNIFORM(var, name)																						\
 				var = getUniformLocation(name);																		\
 				if (var < 0)																						\
-					LOG(BitEngine::EngineLog, WARNING) << "Shader: Failed to load "#var" [\""name"\"] uniform.";	\
+					LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Shader: Failed to load "#var" [\""name"\"] uniform.";	\
 				else																								\
-					LOG(BitEngine::EngineLog, VERBOSE) << "Uniform "#var" loaded with id: "<< var << "."
+					LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "Uniform "#var" loaded with id: "<< var << "."
 #else
 #define LOAD_UNIFORM(var, name)	\
 					var = getUniformLocation(name)
@@ -58,12 +58,12 @@ class ShaderProgram
 		// BUILDING THE SHADER PROGRAM
 
 		/// \brief Build and link a set of sources from file to create a final Shader Program
-		/// \return Returns NO_ERROR in case of success
+		/// \return Returns BE_NO_ERROR in case of success
 		template <typename ...Args>
 		int BuildProgramFromFile(GLint type, const std::string& file, Args... args){
 			std::vector<GLuint> shaders;
 
-			if (CompileFromFile(shaders, type, file, args...) == NO_ERROR){
+			if (CompileFromFile(shaders, type, file, args...) == BE_NO_ERROR){
 				return BuildFinalProgram(shaders);
 			}
 
@@ -71,12 +71,12 @@ class ShaderProgram
 		}
 
 		/// \brief Build and link a set of sources from memory to create a final Shader Program
-		/// \return Returns NO_ERROR in case of success
+		/// \return Returns BE_NO_ERROR in case of success
 		template <typename ...Args>
 		int BuildProgramFromMemory(GLint type, const char* source, Args... args){
 			std::vector<GLuint> shaders;
 
-			if (CompileFromMemory(shaders, type, source, args...) == NO_ERROR){
+			if (CompileFromMemory(shaders, type, source, args...) == BE_NO_ERROR){
 				return BuildFinalProgram(shaders);
 			}
 
@@ -154,23 +154,23 @@ class ShaderProgram
 
 		//
 		template <typename ...Args>
-		int CompileFromFile(std::vector<GLuint>& shaders){ return NO_ERROR; }
+		int CompileFromFile(std::vector<GLuint>& shaders){ return BE_NO_ERROR; }
 		template <typename ...Args>
-		int CompileFromMemory(std::vector<GLuint>& shaders){ return NO_ERROR; }
+		int CompileFromMemory(std::vector<GLuint>& shaders){ return BE_NO_ERROR; }
 
 		int BuildFinalProgram(std::vector<GLuint>& shaders);
 
 		template <typename ...Args>
 		int CompileFromFile(std::vector<GLuint>& shaders, GLint type, const std::string& file, Args... args)
 		{
-			LOG(EngineLog, VERBOSE) << "Compiling shader (type: " << type << ") file " << file;
+			LOG(EngineLog, BE_LOG_VERBOSE) << "Compiling shader (type: " << type << ") file " << file;
 			std::string source;
-			if (retrieveSourceFromFile(file, source) != NO_ERROR){
-				LOG(EngineLog, ERROR) << "Failed to read shader file: " << file;
+			if (retrieveSourceFromFile(file, source) != BE_NO_ERROR){
+				LOG(EngineLog, BE_LOG_ERROR) << "Failed to read shader file: " << file;
 				return FAILED_TO_READ;
 			}
 
-			if (CompileFromMemory(shaders, type, source.data()) != NO_ERROR){
+			if (CompileFromMemory(shaders, type, source.data()) != BE_NO_ERROR){
 				return FAILED_TO_COMPILE;
 			}
 
@@ -180,7 +180,7 @@ class ShaderProgram
 		template <typename ...Args>
 		int CompileFromMemory(std::vector<GLuint>& shaders, GLint type, const char* source, Args... args)
 		{
-			if (CompileFromMemory(shaders, type, source) != NO_ERROR){
+			if (CompileFromMemory(shaders, type, source) != BE_NO_ERROR){
 				return FAILED_TO_COMPILE;
 			}
 

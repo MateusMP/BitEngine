@@ -61,9 +61,9 @@ namespace BitEngine{
 
 			int build = BuildProgramFromMemory(GL_VERTEX_SHADER, Sprite2D_vertex_GL2,
 				GL_FRAGMENT_SHADER, Sprite2D_fragment_GLall);
-			if (build == NO_ERROR){
-				LOG(EngineLog, INFO) << "Using Sprite2D GL2!";
-				return NO_ERROR;
+			if (build == BE_NO_ERROR){
+				LOG(EngineLog, BE_LOG_INFO) << "Using Sprite2D GL2!";
+				return BE_NO_ERROR;
 			}
 
 			return SHADER_INIT_ERROR_NO_RENDERER;

@@ -5,7 +5,7 @@
 #include "Core/Logger.h"
 
 #ifdef _DEBUG
-	#define LOG_LOGGING_THRESHOLD LOG_ALL
+	#define LOG_LOGGING_THRESHOLD BE_LOG_ALL
 
 #else
 	#define LOG_LOGGING_THRESHOLD ERROR	
@@ -17,7 +17,7 @@ uint64 Time::ticks = 0;
 
 void GameEngine::GLFW_ErrorCallback(int error, const char* description)
 {
-    LOG(EngineLog, ERROR) << "GLFW Error: " << error << ": " << description;
+    LOG(EngineLog, BE_LOG_ERROR) << "GLFW Error: " << error << ": " << description;
 }
 
 GameEngine::GameEngine(const std::string& configFile)
@@ -59,18 +59,18 @@ System* GameEngine::getSystem(const std::string& name) const
 
 bool GameEngine::InitSystems()
 {
-	LOG(EngineLog, WARNING) << "Initializing " << systems.size() << " systems ";
+	LOG(EngineLog, BE_LOG_WARNING) << "Initializing " << systems.size() << " systems ";
 
-	LOG(EngineLog, WARNING) << "Loadiging system configurations...";
+	LOG(EngineLog, BE_LOG_WARNING) << "Loadiging system configurations...";
 	configuration.LoadConfigurations();
 
-	LOG(EngineLog, WARNING) << "Loadiging systems...";
+	LOG(EngineLog, BE_LOG_WARNING) << "Loadiging systems...";
 	lastSystemInitialized = -1;
     for ( System* s : systems )
     {
         if (!s->Init())
         {
-            LOG(EngineLog, WARNING) << "System " << s->getName() << " failed to initialize!\n";
+            LOG(EngineLog, BE_LOG_WARNING) << "System " << s->getName() << " failed to initialize!\n";
             return false;
         }
 
@@ -78,38 +78,38 @@ bool GameEngine::InitSystems()
 		systemsToShutdown.push_back(s);
     }
 
-	LOG(EngineLog, WARNING) << "All systems set!\n";
+	LOG(EngineLog, BE_LOG_WARNING) << "All systems set!\n";
 
     return true;
 }
 
 void GameEngine::ShutdownSystems()
 {
-	LOG(EngineLog, WARNING) << "Shutitng down systems...";
+	LOG(EngineLog, BE_LOG_WARNING) << "Shutitng down systems...";
 
 	// Shutdown in reverse order
 	for (auto it = systemsToShutdown.rbegin(); it != systemsToShutdown.rend(); ++it){
-		LOG(EngineLog, WARNING) << "Shutting down " << (*it)->getName();
+		LOG(EngineLog, BE_LOG_WARNING) << "Shutting down " << (*it)->getName();
         (*it)->Shutdown();
-		LOG(EngineLog, WARNING) << "done " << (*it)->getName();
+		LOG(EngineLog, BE_LOG_WARNING) << "done " << (*it)->getName();
 		delete *it;
     }
 
-	LOG(EngineLog, WARNING) << "Finalizing... ";
+	LOG(EngineLog, BE_LOG_WARNING) << "Finalizing... ";
 
 	// Delete systems that were not initialized because of failure
 	for (int i = lastSystemInitialized + 1; i < (int)systems.size(); ++i){
 		delete systems[i];
 	}
 	
-	LOG(EngineLog, WARNING) << "Systems released!";
+	LOG(EngineLog, BE_LOG_WARNING) << "Systems released!";
 }
 
 bool GameEngine::Run()
 {
 	CreateSystems();
 
-    LOG(EngineLog, WARNING) << "GameEngine::Run";
+    LOG(EngineLog, BE_LOG_WARNING) << "GameEngine::Run";
     glfwSetErrorCallback(GLFW_ErrorCallback);
 
     running = true;

@@ -58,11 +58,11 @@ class Sprite2DRendererBasic : public ComponentProcessor
 			holderSprite->RegisterListener(this);
 
 			spr2DShader = BitEngine::Sprite2DShader::CreateShader();
-			if (spr2DShader->Init() == NO_ERROR) 
+			if (spr2DShader->Init() == BE_NO_ERROR) 
 			{
 				spr2Dbatch = spr2DShader->CreateRenderer();
 				if (spr2Dbatch == nullptr) {
-					LOG(EngineLog, ERROR) << "Could not create Sprite2D renderer";
+					LOG(EngineLog, BE_LOG_ERROR) << "Could not create Sprite2D renderer";
 					return false;
 				}
 			}

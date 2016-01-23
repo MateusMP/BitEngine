@@ -30,7 +30,7 @@ namespace BitEngine{
 		void setView(int width, int height){ m_width = width; m_height = height; }
 
 		void setFOV(float fov) { m_fov = fov; }
-		void setNearFar(float near, float far) { m_near = near; m_far = far; }
+		void setNearFar(float n, float f) { m_near = n; m_far = f; }
 		void setLookAt(const glm::vec3& lookAt) { m_lookAt = lookAt; }
 		void setUp(const glm::vec3& up) { m_up = up; }
 

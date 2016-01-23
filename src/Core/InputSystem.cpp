@@ -48,22 +48,22 @@ void InputReceiver::keyboardInput(int key, int scancode, KeyAction action, int m
 	switch (action)
 	{
 		case KeyAction::REPEAT:
-			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
-			m_keyReleased[key] = KeyMod::FALSE;
+			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::KTRUE) | (unsigned char)mods);
+			m_keyReleased[key] = KeyMod::KFALSE;
 		break;
 
 		case KeyAction::PRESS:
-			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
-			m_keyReleased[key] = KeyMod::FALSE;
+			m_keyDown[key] = (KeyMod)(((unsigned char)KeyMod::KTRUE) | (unsigned char)mods);
+			m_keyReleased[key] = KeyMod::KFALSE;
 		break;
 
 		case KeyAction::RELEASE:
-			m_keyReleased[key] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
-			m_keyDown[key] = KeyMod::FALSE;
+			m_keyReleased[key] = (KeyMod)(((unsigned char)KeyMod::KTRUE) | (unsigned char)mods);
+			m_keyDown[key] = KeyMod::KFALSE;
 		break;
 
 		default:
-			LOG(EngineLog, WARNING) << "Invalid key action: " << ((int)action);
+			LOG(EngineLog, BE_LOG_WARNING) << "Invalid key action: " << ((int)action);
 			return;
 	}
 
@@ -75,17 +75,17 @@ void InputReceiver::mouseInput(int button, MouseAction action, int mods)
 	switch (action)
 	{
 		case MouseAction::PRESS:
-			m_mouseDown[button] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
-			m_mouseReleased[button] = KeyMod::FALSE;
+			m_mouseDown[button] = (KeyMod)(((unsigned char)KeyMod::KTRUE) | (unsigned char)mods);
+			m_mouseReleased[button] = KeyMod::KFALSE;
 			break;
 
 		case MouseAction::RELEASE:
-			m_mouseReleased[button] = (KeyMod)(((unsigned char)KeyMod::TRUE) | (unsigned char)mods);
-			m_mouseDown[button] = KeyMod::FALSE;
+			m_mouseReleased[button] = (KeyMod)(((unsigned char)KeyMod::KTRUE) | (unsigned char)mods);
+			m_mouseDown[button] = KeyMod::KFALSE;
 			break;
 
 		default:
-			LOG(EngineLog, WARNING) << "Invalid mouse action: " << ((int)action);
+			LOG(EngineLog, BE_LOG_WARNING) << "Invalid mouse action: " << ((int)action);
 			return;
 	}
 
@@ -106,7 +106,7 @@ InputReceiver::KeyMod InputReceiver::isKeyPressed(int key)
 	if (k != m_keyDown.end())
 		return k->second;
 
-	return KeyMod::FALSE;
+	return KeyMod::KFALSE;
 }
 
 InputReceiver::KeyMod InputReceiver::keyReleased(int key)
@@ -115,7 +115,7 @@ InputReceiver::KeyMod InputReceiver::keyReleased(int key)
 	if (k != m_keyReleased.end())
 		return k->second;
 
-	return KeyMod::FALSE;
+	return KeyMod::KFALSE;
 }
 
 double InputReceiver::getMouseX() const

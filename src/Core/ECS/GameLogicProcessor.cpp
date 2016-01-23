@@ -35,7 +35,7 @@ namespace BitEngine{
 
 	void GameLogicProcessor::FrameStart()
 	{
-		// LOG(EngineLog, VERBOSE) << "GameLogicProcessor::FrameStart\n";
+		// LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameStart\n";
 
 		// Initialize all components not yet initialized
 		for (ComponentHandle hdl : m_notInitialized)
@@ -56,7 +56,7 @@ namespace BitEngine{
 				}
 
 				if (!logic->Init()){
-					LOG(EngineLog, ERROR) << "GameLogicProcessor: GameLogicComponent " << hdl << " logic " << i << " failed to Init! ";
+					LOG(EngineLog, BE_LOG_ERROR) << "GameLogicProcessor: GameLogicComponent " << hdl << " logic " << i << " failed to Init! ";
 				}
 			}
 		}
@@ -69,7 +69,7 @@ namespace BitEngine{
 	}
 
 	void GameLogicProcessor::FrameMiddle(){
-		// LOG(EngineLog, VERBOSE) << "GameLogicProcessor::FrameMiddle\n";
+		// LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameMiddle\n";
 
 		for (GameLogic* l : m_onFrameMiddle){
 			l->FrameMiddle();
@@ -77,7 +77,7 @@ namespace BitEngine{
 	}
 
 	void GameLogicProcessor::FrameEnd(){
-		// LOG(EngineLog, VERBOSE) << "GameLogicProcessor::FrameEnd\n";
+		// LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameEnd\n";
 
 		for (GameLogic* l : m_onFrameEnd){
 			l->FrameEnd();

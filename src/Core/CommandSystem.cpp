@@ -141,13 +141,13 @@ namespace BitEngine
 			{
 				const int cmdID = m_commands[idtf];
 
-				LOG(EngineLog, VERBOSE) << "Command dispatch: " << cmdID;
+				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
 				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.keyAction));
 			}
 			else 
 			{
-				LOG(EngineLog, VERBOSE) << "No command for this input.";
+				LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this input.";
 			}
 		}
 
@@ -159,12 +159,12 @@ namespace BitEngine
 			if (it != m_commands.end()){
 				const int cmdID = m_commands[idtf];
 
-				LOG(EngineLog, VERBOSE) << "Command dispatch: " << cmdID;
+				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
 				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.keyAction));
 			}
 			else {
-				// LOG(EngineLog, VERBOSE) << "No command for this input.";
+				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this input.";
 			}
 		}
 	}
@@ -179,12 +179,12 @@ namespace BitEngine
 			if (it != m_commands.end()){
 				const int cmdID = m_commands[idtf];
 
-				LOG(EngineLog, VERBOSE) << "Command dispatch: " << cmdID;
+				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
 				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
-				// LOG(EngineLog, VERBOSE) << "No command for this input.";
+				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this input.";
 			}
 		}
 
@@ -196,12 +196,12 @@ namespace BitEngine
 			if (it != m_commands.end()){
 				const int cmdID = m_commands[idtf];
 
-				LOG(EngineLog, VERBOSE) << "Command dispatch: " << cmdID;
+				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
 				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
-				// LOG(EngineLog, VERBOSE) << "No command for this input.";
+				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this input.";
 			}
 		}
 	}

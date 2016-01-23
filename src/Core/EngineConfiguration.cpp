@@ -46,7 +46,7 @@ namespace BitEngine{
 			"# Configurations are set as:\n# ConfigName: value\n\n";
 
 		if (!fileOut.is_open()){
-			LOG(EngineLog, ERROR) << "EngineConfiguration: Failed to open configuration file!";
+			LOG(EngineLog, BE_LOG_ERROR) << "EngineConfiguration: Failed to open configuration file!";
 			return;
 		}
 
@@ -72,7 +72,7 @@ namespace BitEngine{
 	{
 		std::string workLine = line;
 
-		// LOG(EngineLog, VERBOSE) << "Line: '" << line << '\'';
+		// LOG(EngineLog, BE_LOG_VERBOSE) << "Line: '" << line << '\'';
 
 		if (line.empty())
 			return 0;
@@ -88,12 +88,12 @@ namespace BitEngine{
 
 			workingSystem = systemConfigs.find(sysName);
 			if (workingSystem == systemConfigs.end()){
-				LOG(EngineLog, WARNING) << "EngineConfiguration: system not found: '" << sysName << "'";
+				LOG(EngineLog, BE_LOG_WARNING) << "EngineConfiguration: system not found: '" << sysName << "'";
 				return ERROR_UNKNOWN_SYSTEM;
 			}
 			else
 			{
-				LOG(EngineLog, VERBOSE) << "EngineConfiguration: reading configuration for system: " << sysName;
+				LOG(EngineLog, BE_LOG_VERBOSE) << "EngineConfiguration: reading configuration for system: " << sysName;
 				return 1;
 			}
 		}
@@ -102,7 +102,7 @@ namespace BitEngine{
 			// Find final character
 			auto end = workLine.find_last_of(CONFIG_VALUE_SEPARATOR_CHAR);
 			if (end == workLine.size()){
-				LOG(EngineLog, WARNING) << "EngineConfiguration: configuration not defined properly? Missing < " << CONFIG_VALUE_SEPARATOR_CHAR << " >";
+				LOG(EngineLog, BE_LOG_WARNING) << "EngineConfiguration: configuration not defined properly? Missing < " << CONFIG_VALUE_SEPARATOR_CHAR << " >";
 				return ERROR_BAD_CONFIG;
 			}
 
@@ -111,13 +111,13 @@ namespace BitEngine{
 			// It's a config item
 			// Check if we are on a valid system
 			if (workingSystem == systemConfigs.end()){
-				LOG(EngineLog, WARNING) << "EngineConfiguration: configuration is not defined for a system: " << configName;
+				LOG(EngineLog, BE_LOG_WARNING) << "EngineConfiguration: configuration is not defined for a system: " << configName;
 				return ERROR_CONFIG_WITHOUT_SYS;
 			}
 
 			ConfigurationItem* configItem = workingSystem->second->getConfig(configName);
 			if (configItem == nullptr){
-				LOG(EngineLog, WARNING) << "Unknown configuration for system " << workingSystem->first << " with name: " << configName;
+				LOG(EngineLog, BE_LOG_WARNING) << "Unknown configuration for system " << workingSystem->first << " with name: " << configName;
 				return ERROR_UNKNOWN_CONFIG;
 			}
 
@@ -127,7 +127,7 @@ namespace BitEngine{
 
 			configItem->setValue(configValue);
 
-			LOG(EngineLog, INFO) << "CONFIG " << workingSystem->first << ": " << configName << " set to '" << configValue << "'";
+			LOG(EngineLog, BE_LOG_INFO) << "CONFIG " << workingSystem->first << ": " << configName << " set to '" << configValue << "'";
 			return 2;
 		}
 
