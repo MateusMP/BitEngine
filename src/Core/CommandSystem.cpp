@@ -147,7 +147,7 @@ namespace BitEngine
 			}
 			else 
 			{
-				LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this input.";
+				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for input key: " << msg.key << " action: " << (int)(msg.keyAction) << " mod: " << (int)msg.keyMod;
 			}
 		}
 
@@ -156,7 +156,8 @@ namespace BitEngine
 			CommandIdentifier idtf(m_commandState, msg);
 
 			auto it = m_commands.find(idtf);
-			if (it != m_commands.end()){
+			if (it != m_commands.end())
+			{
 				const int cmdID = m_commands[idtf];
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
@@ -164,7 +165,7 @@ namespace BitEngine
 				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.keyAction));
 			}
 			else {
-				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this input.";
+				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for input key: " << msg.key << " action: " << (int)(msg.keyAction) << " mod: " << (int)msg.keyMod;
 			}
 		}
 	}
@@ -176,7 +177,8 @@ namespace BitEngine
 			CommandIdentifier idtf(-1, msg);
 
 			auto it = m_commands.find(idtf);
-			if (it != m_commands.end()){
+			if (it != m_commands.end())
+			{
 				const int cmdID = m_commands[idtf];
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
@@ -184,7 +186,7 @@ namespace BitEngine
 				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
-				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this input.";
+				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this mouse input.";
 			}
 		}
 
@@ -193,7 +195,8 @@ namespace BitEngine
 			CommandIdentifier idtf(m_commandState, msg);
 
 			auto it = m_commands.find(idtf);
-			if (it != m_commands.end()){
+			if (it != m_commands.end())
+			{
 				const int cmdID = m_commands[idtf];
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
@@ -201,7 +204,7 @@ namespace BitEngine
 				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
-				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this input.";
+				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this mouse input.";
 			}
 		}
 	}

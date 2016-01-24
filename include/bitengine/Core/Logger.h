@@ -91,19 +91,14 @@ namespace BitEngine {
 				outStream << str.str();
 			}
 
-			inline static time_t timeNow()
-			{
-				return time(0);
-			}
-
+		private:
 			inline static std::string timeNowStr()
 			{
 				char buff[32];
 				tm sTm;
 
-				time_t now = timeNow();
-				gmtime_s(&sTm, &now);
-
+				time_t now = std::chrono::system_clock::to_time_t(Time::currentTime());
+				localtime_s(&sTm, &now);
 				strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S ", &sTm);
 				return std::string(buff);
 			}
@@ -147,8 +142,8 @@ namespace BitEngine {
 
 			~ScopeLogger()
 			{
-				double elapsed = timer.timeElapsedSeconds();
-				BitEngine::LogLine(log, 9) << description << " took " << elapsed << " seconds";
+				double elapsed = timer.timeElapsedMs();
+				BitEngine::LogLine(log, 9) << description << " took " << elapsed << " ms";
 			}
 
 		private:

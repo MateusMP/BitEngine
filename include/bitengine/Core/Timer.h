@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 #include "Common/TypeDefinition.h"
 
 namespace BitEngine
@@ -18,51 +20,54 @@ namespace BitEngine
 				ticks = 0;
 			}
 
+
 		public:
+			inline static std::chrono::system_clock::time_point currentTime() {
+				return std::chrono::system_clock::now();
+			}
+
+			inline static std::chrono::high_resolution_clock::time_point currentTimePrecise() {
+				return std::chrono::high_resolution_clock::now();
+			}
 
 			static uint64 getTicks() {
 				return ticks;
 			}
 	};
 
+	// High resolution timer
 	class Timer
 	{
 		public:
 			Timer()
+			{}
+			
+			void setTime()
 			{
-				timeSet = 0;
+				timeSet = Time::currentTimePrecise();
 			}
 
-			void setTime(int64 t = -1)
-			{
-				if (t <= 0)
-					timeSet = clockNow();
-				else
-					timeSet = t;
+			// in milliseconds
+			double timeElapsedMs() const {
+				return std::chrono::duration<double, std::milli>(Time::currentTimePrecise() - timeSet).count();
 			}
 
-			bool hasPassed(int64 seconds) const
-			{
-				return timeElapsed() >= (seconds * 1000000);
+			// in microseconds
+			double timeElapsedMicro() const {
+				return std::chrono::duration<double, std::micro>(Time::currentTimePrecise() - timeSet).count();
 			}
 
-			// int microseconds
-			int64 timeElapsed() const {
-				return clockToMicroSeconds(clockNow() - timeSet);
+			// in seconds
+			double timeElapsedSec() const {
+				return std::chrono::duration<double>(Time::currentTimePrecise() - timeSet).count();
 			}
 
-			double timeElapsedSeconds() const {
-				return clockToMicroSeconds(clockNow() - timeSet) / 1000000.0;
-			}
 
 		private:
-			int64 timeSet;
-
-			static int64 clockNow();
-
-			static int64 clockToMicroSeconds(int64 a);
+			std::chrono::high_resolution_clock::time_point timeSet;
 	};
 
+	// Timer based on game ticks (Frames)
 	class TimerTicks
 	{
 	public:
@@ -76,11 +81,6 @@ namespace BitEngine
 				timeSet = Time::getTicks();
 			else
 				timeSet = t;
-		}
-
-		bool hasPassed(uint64 seconds) const
-		{
-			return (timeSet + seconds) >= Time::getTicks();
 		}
 
 		uint64 timeElapsed() const {

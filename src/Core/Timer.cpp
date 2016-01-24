@@ -8,7 +8,7 @@
 
 namespace BitEngine
 {
-
+/*
 	int64 Timer::clockNow()
 	{
 	#ifdef _MSC_VER
@@ -34,6 +34,6 @@ namespace BitEngine
 		return std::chrono::duration_cast<std::chrono::microseconds>(a).count()
 	#endif
 	}
-
+*/
 
 }
