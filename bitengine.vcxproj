@@ -37,9 +37,11 @@
     <ClInclude Include="include\bitengine\Core\ECS\Transform3DComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform3DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\EngineConfiguration.h" />
+    <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
     <ClInclude Include="include\bitengine\Core\GameEngine.h" />
     <ClInclude Include="include\bitengine\Core\Graphics.h" />
     <ClInclude Include="include\bitengine\Core\InputSystem.h" />
+    <ClInclude Include="include\bitengine\Core\IResourceManager.h" />
     <ClInclude Include="include\bitengine\Core\IVideoRenderer.h" />
     <ClInclude Include="include\bitengine\Core\Logger.h" />
     <ClInclude Include="include\bitengine\Core\Mesh.h" />
@@ -47,8 +49,12 @@
     <ClInclude Include="include\bitengine\Core\MessageType.h" />
     <ClInclude Include="include\bitengine\Core\ModelManager.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSystem.h" />
+    <ClInclude Include="include\bitengine\Core\ThreadSafeQueue.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputDriver.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\FrameBuffer.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\GLTextureManager.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGLheaders.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\ShaderProgram.h" />
     <ClInclude Include="include\bitengine\Core\SmartManager.h" />
     <ClInclude Include="include\bitengine\Core\Sprite.h" />
@@ -58,14 +64,12 @@
     <ClInclude Include="include\bitengine\Core\SystemConfiguration.h" />
     <ClInclude Include="include\bitengine\Core\Task.h" />
     <ClInclude Include="include\bitengine\Core\TaskManager.h" />
-    <ClInclude Include="include\bitengine\Core\Texture.h" />
-    <ClInclude Include="include\bitengine\Core\TextureManager.h" />
+    <ClInclude Include="include\bitengine\Core\ITexture.h" />
     <ClInclude Include="include\bitengine\Core\Timer.h" />
     <ClInclude Include="include\bitengine\Common\TypeDefinition.h" />
     <ClInclude Include="include\bitengine\Core\VideoSystem.h" />
     <ClInclude Include="include\bitengine\Core\Window.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_VideoDriver.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\opengl\glSystem.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGLRenderer.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\VertexArrayObject.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\Sprite2DGL2.h" />
@@ -86,7 +90,7 @@
     <ClCompile Include="src\Core\ECS\Transform3DComponent.cpp" />
     <ClCompile Include="src\Core\ECS\Transform3DProcessor.cpp" />
     <ClCompile Include="src\Core\EngineConfiguration.cpp" />
-    <ClCompile Include="src\Core\error_texture.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\error_texture.cpp" />
     <ClCompile Include="src\Core\GameEngine.cpp" />
     <ClCompile Include="src\Core\InputSystem.cpp" />
     <ClCompile Include="src\Core\Logger.cpp" />
@@ -97,13 +101,12 @@
     <ClCompile Include="src\Core\SpriteManager.cpp" />
     <ClCompile Include="src\Core\System.cpp" />
     <ClCompile Include="src\Core\Task.cpp" />
-    <ClCompile Include="src\Core\Texture.cpp" />
-    <ClCompile Include="src\Core\TextureManager.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\Core\VideoSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputDriver.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_VideoDriver.cpp" />
-    <ClCompile Include="src\DefaultBackends\opengl\glSystem.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\OpenGL.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\GLTextureManager.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\ShaderProgram.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

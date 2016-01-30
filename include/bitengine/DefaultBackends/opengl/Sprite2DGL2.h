@@ -4,7 +4,6 @@
 
 #include "DefaultBackends/opengl/ShaderProgram.h"
 #include "DefaultBackends/opengl/VertexArrayObject.h"
-#include "DefaultBackends/opengl/glSystem.h"
 
 // Shader Implementation for Sprite2D supporting GL2
 
@@ -208,7 +207,7 @@ namespace BitEngine{
 						|| spr->getTexture() != lastSpr->getTexture()
 						|| spr->isTransparent() != lastSpr->isTransparent())
 					{
-						batches.emplace_back(offset, 0, spr->getTexture(), spr->isTransparent());
+						batches.emplace_back(offset, 0, spr->getTexture()->getTextureID(), spr->isTransparent());
 					}
 					offset += NUM_VERTS;
 					batches.back().nItems += NUM_VERTS;

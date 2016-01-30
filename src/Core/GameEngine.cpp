@@ -4,13 +4,6 @@
 #include "Core/GameEngine.h"
 #include "Core/Logger.h"
 
-#ifdef _DEBUG
-	#define LOG_LOGGING_THRESHOLD BE_LOG_ALL
-
-#else
-	#define LOG_LOGGING_THRESHOLD ERROR	
-#endif
-
 namespace BitEngine{
 
 uint64 Time::ticks = 0;
@@ -78,7 +71,7 @@ bool GameEngine::InitSystems()
 		systemsToShutdown.push_back(s);
     }
 
-	LOG(EngineLog, BE_LOG_WARNING) << "All systems set!\n";
+	LOG(EngineLog, BE_LOG_WARNING) << "All systems set!";
 
     return true;
 }

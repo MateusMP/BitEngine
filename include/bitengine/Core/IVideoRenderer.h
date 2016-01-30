@@ -5,7 +5,9 @@ namespace BitEngine {
 	template<unsigned channels, unsigned R, unsigned G, unsigned B, unsigned A>
 	struct Color 
 	{
-	public:
+		static_assert(R != G && G != B && B != A, "Invalid color index");
+
+		public:
 			enum Channel { RED = R, GREEN = G, BLUE = B, ALPHA = A, CHANNELS = channels };
 			float& operator [] (Channel x) {
 				return colors[x];
@@ -29,6 +31,11 @@ namespace BitEngine {
 
 	class IRenderBuffer
 	{
+		virtual void Unbind() = 0;
+		virtual void Bind() = 0;
+		virtual void BindDraw() = 0;
+		virtual void BindRead() = 0;
+		virtual bool Ready() = 0;
 	};
 
 	class IVideoRenderer

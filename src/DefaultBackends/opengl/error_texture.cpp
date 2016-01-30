@@ -1,11 +1,11 @@
-namespace BitEngine
-{
+
 struct ERROR_TEXTURE_DATA{
 	int 	 width;
 	int 	 height;
 	unsigned int 	 bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */
 	unsigned char	 pixel_data[32 * 32 * 3 + 1];
 };
+
 ERROR_TEXTURE_DATA error_texture_data = {
 	32, 32, 3,
 	"\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\376\204\204"
@@ -148,5 +148,3 @@ ERROR_TEXTURE_DATA error_texture_data = {
 	"\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\345\226\226"
 	"\350\245\245\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377",
 };
-
-} // namespace BitEngine

@@ -31,5 +31,5 @@ private:
 
 	static std::unordered_map<GLFWwindow*, BitEngine::InputReceiver> inputReceivers;
 
-	LOG_STATIC("GLFW_InputDriver", std::cout);
+	LOG_STATIC("GLFW_InputDriver", BitEngine::EngineLog);
 };

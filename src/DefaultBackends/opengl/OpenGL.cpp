@@ -1,11 +1,6 @@
-
-#include <iostream>
 #include <string>
 
-#define GLEW_STATIC
-#include <gl\glew.h>
-
-#include "DefaultBackends/opengl/glSystem.h"
+#include "DefaultBackends/opengl/OpenGL.h"
 
 void _check_gl_error(const char *file, int line)
 {
@@ -23,7 +18,7 @@ void _check_gl_error(const char *file, int line)
 		default: error = "Code " + std::to_string(err) + " d";
 		}
 
-		std::cout << ">>>>> ERROR: GL_" << error.c_str() << " - " << file << ":" << line << "\a" << std::endl;
+		LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR: GL_" << error.c_str() << " - " << file << ":" << line << "\a" << std::endl;
 		err = glGetError();
 	}
 }

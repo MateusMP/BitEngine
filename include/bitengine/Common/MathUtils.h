@@ -7,6 +7,7 @@
 //#include <cmath>
 //#endif
 
+#include "Common/TypeDefinition.h"
 
 namespace BitEngine
 {
@@ -19,11 +20,18 @@ namespace BitEngine
 	const float DegToRadf = M_PIf / 180.0f;
 	const float RadToDegf = 180.0f / M_PIf;
 
-	static inline float DegToRad(float deg){
+	inline float DegToRad(float deg){
 		return deg * DegToRadf;
 	}
 
-	static inline float RadToDeg(float rad){
+	inline float RadToDeg(float rad){
 		return rad * RadToDegf;
+	}
+
+	inline float BytesToMB(uint32 bytes) {
+		return bytes / (1000000.0f);
+	}
+	inline float BytesToKB(uint32 bytes) {
+		return bytes / 1000.0f;
 	}
 }

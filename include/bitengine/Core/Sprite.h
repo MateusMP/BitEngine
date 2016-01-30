@@ -5,6 +5,7 @@
 #include <glm/common.hpp>
 
 #include "Common/TypeDefinition.h"
+#include "Core/ITexture.h"
 
 
 namespace BitEngine{
@@ -21,7 +22,7 @@ class Sprite{
 			calculateMaxRadius();
 		}
 
-		Sprite(uint32 texture, int w, int h, float oX, float oY, const glm::vec4& _uvrect, bool _transparent=false)
+		Sprite(const ITexture* texture, int w, int h, float oX, float oY, const glm::vec4& _uvrect, bool _transparent=false)
 			: m_textureID(texture), m_width(w), m_height(h), m_offsetX(oX), m_offsetY(oY), m_uvrect(_uvrect), m_transparent(_transparent)
         {
 			calculateMaxRadius();
@@ -31,7 +32,7 @@ class Sprite{
 			return m_maxRadius;
 		}
 
-		uint32 getTexture() const {
+		const ITexture* getTexture() const {
 			return m_textureID;
 		}
 
@@ -94,7 +95,7 @@ class Sprite{
 			m_maxRadius = std::sqrt(maxW*maxW + maxH*maxH);
 		}
 
-        uint32 m_textureID;
+        const ITexture* m_textureID;
 		int m_width;
 		int m_height;
 		float m_offsetX;

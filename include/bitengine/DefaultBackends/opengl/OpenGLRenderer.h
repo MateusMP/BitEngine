@@ -1,11 +1,8 @@
 #pragma once
 
+#include "OpenGLheaders.h"
+
 #include "Core/IVideoRenderer.h"
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-#include "DefaultBackends/opengl/glSystem.h"
 
 namespace BitEngine {
 

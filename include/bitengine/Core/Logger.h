@@ -1,24 +1,21 @@
 #pragma once
 
-#include <iostream>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <chrono>
 #include <ctime>
+#include <thread>
 
 #include "Timer.h"
 
 //#define LOG_PERFORMANCE 1
 
-#ifndef BE_LOG_ENABLE_PERFORMANCE
-#define BE_LOG_ENABLE_PERFORMANCE 0
-#endif
-
 // These values will be used on the file as a log type identifier
 // Ex: 
 // TIME LOG_NAME: <1> Log Description			// <1> -> Error log
 // TIME LOG_NAME: <3> Log Description			// <3> -> Warning log
+// The higher the value, more logs will be generated
 #define BE_LOG_NO_LOGGING 0
 #define BE_LOG_ERROR 1
 #define BE_LOG_WARNING 3
@@ -27,12 +24,20 @@
 #define BE_LOG_PERFORMANCE 9
 #define BE_LOG_ALL 128
 
-// TODO: thread safe with std::recursive_mutex
-
-// The higher the value, more logs will be generated
+#ifndef BE_LOG_ENABLE_PERFORMANCE
+	#ifdef _DEBUG
+		#define BE_LOG_ENABLE_PERFORMANCE 1
+	#else
+		#define BE_LOG_ENABLE_PERFORMANCE 1
+	#endif
+#endif
 
 #ifndef LOG_LOGGING_THRESHOLD
-#define LOG_LOGGING_THRESHOLD BE_LOG_ALL
+	#ifdef _DEBUG
+		#define LOG_LOGGING_THRESHOLD BE_LOG_ALL
+	#else
+		#define LOG_LOGGING_THRESHOLD BE_LOG_INFO	
+	#endif
 #endif
 
 #define LOG_STATIC(logname, output)									\
@@ -47,13 +52,16 @@
 		if (severity > LOG_LOGGING_THRESHOLD) ;		\
 		else BitEngine::LogLine(logger, severity)
 
+#if BE_LOG_ENABLE_PERFORMANCE == 1
 #define LOG_SCOPE_TIME(logto, description)		\
-		if (LOG_PERFORMANCE)					\
-			BitEngine::ScopeLogger(logto, description)
-
+		BitEngine::ScopeLogger _log_scope(logto, description)
 #define LOG_FUNCTION_TIME(logto)				\
-			BitEngine::ScopeLogger _log_function(logto, __func__)
-
+		BitEngine::ScopeLogger _log_function(logto, __func__)
+#else
+#define LOG_SCOPE_TIME(logto, description)
+#define LOG_FUNCTION_TIME(logto)
+#endif
+			
 namespace BitEngine {
 
 
@@ -72,7 +80,15 @@ namespace BitEngine {
 				: logName(name), outStream(output.rdbuf())
 			{
 				std::ostringstream str;
-				str << timeNowStr() << logName << " LOG STARTED" << std::endl;
+				str << header() << " LOG STARTED" << std::endl;
+				outStream << str.str();
+			}
+
+			Logger(const std::string& name, Logger& output)
+				: logName(name), outStream(output.getOutputSink().rdbuf())
+			{
+				std::ostringstream str;
+				str << header() << " LOG STARTED" << std::endl;
 				outStream << str.str();
 			}
 
@@ -80,18 +96,31 @@ namespace BitEngine {
 				: logName(name), outFStream(file, mode), outStream(outFStream.rdbuf())
 			{
 				std::ostringstream str;
-				str << timeNowStr() << logName << " LOG STARTED" << std::endl;
+				str << header() << " LOG STARTED" << std::endl;
 				outStream << str.str();
 			}
 
 			inline void Log(const std::string& line)
 			{
 				std::ostringstream str;
-				str << timeNowStr() << logName << ": " << line;
+				str << header() << line;
 				outStream << str.str();
 			}
 
+			std::ostream& getOutputSink() {
+				return outStream;
+			}
+
 		private:
+			inline std::string header()
+			{
+				std::ostringstream a;
+
+				a << timeNowStr() << "(" << std::this_thread::get_id() << ") " << logName << ": ";
+
+				return a.str();
+			}
+
 			inline static std::string timeNowStr()
 			{
 				char buff[32];

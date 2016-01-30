@@ -2,7 +2,6 @@
 #include <fstream>
 
 #include "DefaultBackends/opengl/ShaderProgram.h"
-#include "DefaultBackends/opengl/glSystem.h"
 
 #include "Core/Logger.h"
 

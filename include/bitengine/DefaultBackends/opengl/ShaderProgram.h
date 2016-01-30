@@ -3,11 +3,12 @@
 #include <string>
 #include <vector>
 
+#include "OpenGLheaders.h"
+
 #include "Common/TypeDefinition.h"
 #include "Common/ErrorCodes.h"
-
-#include "Core/Graphics.h"
 #include "Core/Logger.h"
+
 
 namespace BitEngine
 {

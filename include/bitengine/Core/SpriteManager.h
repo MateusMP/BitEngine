@@ -3,15 +3,14 @@
 #include <vector>
 #include <map>
 
+#include "Core/IResourceManager.h"
 #include "Core/Sprite.h"
 
 namespace BitEngine{
-
-	class TextureManager;
-
+	
 	class SpriteManager{
 	public:
-		SpriteManager(TextureManager* textureManager);
+		SpriteManager(ITextureManager* textureManager);
 
 		bool Init();
 
@@ -65,7 +64,7 @@ namespace BitEngine{
 		std::vector<Sprite> m_sprites;
 		std::vector<SpriteHandle> m_freeSlots;
 
-		TextureManager* m_textureManager;
+		ITextureManager* m_textureManager;
 		
 	};
 

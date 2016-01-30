@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 
-#include <gl/glew.h>
+#include "DefaultBackends/opengl/OpenGL.h"
 
 #include <glm/common.hpp>
 
@@ -12,14 +12,14 @@
 
 #include "Core/Logger.h"
 #include "Core/Mesh.h"
-#include "Core/TextureManager.h"
+#include "Core/IResourceManager.h"
 
 namespace BitEngine{
 	
 	class ModelManager
 	{
 	public:
-		ModelManager(TextureManager* textureMng) {
+		ModelManager(ITextureManager* textureMng) {
 			m_textureManager = textureMng;
 		}
 		~ModelManager();
@@ -96,6 +96,6 @@ namespace BitEngine{
 		};
 
 		std::map<uint16, ShaderModelHolder> m_models;
-		TextureManager* m_textureManager;
+		ITextureManager* m_textureManager;
 	};
 }

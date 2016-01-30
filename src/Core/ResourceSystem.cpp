@@ -6,10 +6,9 @@
 
 namespace BitEngine{
 
-ResourceSystem::ResourceSystem()
-	: System("Resource"), m_textureManager(nullptr), m_spriteManager(nullptr){
+ResourceSystem::ResourceSystem(ITextureManager* tmng)
+	: System("Resource"), m_textureManager(tmng), m_spriteManager(nullptr){
 
-	m_textureManager = new TextureManager();
 	m_spriteManager = new SpriteManager(m_textureManager);
 	m_modelManager = new ModelManager(m_textureManager);
 
@@ -29,7 +28,7 @@ bool ResourceSystem::Init()
 
 void ResourceSystem::Update()
 {
-
+	m_textureManager->Update();
 }
 
 void ResourceSystem::Shutdown()
@@ -43,7 +42,7 @@ SpriteManager* ResourceSystem::getSpriteManager() const{
 	return m_spriteManager;
 }
 
-TextureManager* ResourceSystem::getTextureManager() const{
+ITextureManager* ResourceSystem::getTextureManager() const{
 	return m_textureManager;
 }
 

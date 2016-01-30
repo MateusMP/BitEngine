@@ -2,11 +2,12 @@
 
 #include <vector>
 
+#include "OpenGLheaders.h"
+
 #include "Common/TypeDefinition.h"
 #include "Common/MathUtils.h"
 
 #include "Core/Logger.h"
-#include "Core/Graphics.h"
 
 namespace BitEngine {
 	
