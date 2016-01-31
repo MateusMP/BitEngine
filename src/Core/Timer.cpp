@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Core/Timer.h"
 
 #ifdef _MSC_VER

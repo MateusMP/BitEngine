@@ -4,6 +4,8 @@
 
 #include "Core/System.h"
 #include "Core/ECS/Component.h"
+#include "Core/ECS/ComponentProcessor.h"
+#include "Core/Logger.h"
 
 namespace BitEngine {
 
@@ -102,7 +104,7 @@ namespace BitEngine {
 			}
 
 			template<typename CompClass>
-			bool RemoveComponent(const ComponentRef<CompClass>& ref) {
+			bool RemoveComponent(EntityHandle entity, ComponentType type, const ComponentRef<CompClass>& ref) {
 				if (!hasEntity(ref->getEntity())) {
 					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to remove component of type " << type << " with handle: " << ref.handle << "!";
 					return false;
@@ -170,7 +172,7 @@ namespace BitEngine {
 			template<typename ComponentIDProvider, typename CompClass>
 			bool getComponentRef(EntityHandle entity, ComponentRef<CompClass>& ref) const
 			{
-				return getComponentRef<CompClass>(entity, ComponentIDProvider::ID<CompClass>(), ref);
+				return this->template getComponentRef<CompClass>(entity, ComponentIDProvider::template ID<CompClass>(), ref);
 			}
 
 			/**
@@ -198,7 +200,7 @@ namespace BitEngine {
 			/* Register holder with given ids
 			 * \param id is the sequential ID inside the BaseEntitySystem
 			 * \param globalID is an unique application global component class identificator
-			 *			this is used to discover the ComponentHolder inside this class 
+			 *			this is used to discover the ComponentHolder inside this class
 			 *			based on the ComponentClass only.
 			 *	See: getComponentRef
 			 */

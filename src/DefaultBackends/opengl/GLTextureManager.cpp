@@ -38,7 +38,7 @@ GLuint GLTextureManager::GenerateErrorTexture()
 //
 
 GLTextureManager::GLTextureManager(BitEngine::IResourceLoader* loader)
-	: ITextureManager(), m_loader(loader), m_currentIndex(0)
+	: ITextureManager(), m_currentIndex(0), m_loader(loader)
 {
 	ramInUse = 0;
 	gpuMemInUse = 0;
@@ -55,7 +55,7 @@ bool GLTextureManager::Init()
 	m_textures[0].m_loaded = true;
 
 	// Erase textures
-	for (OpenGLTexture& t : m_textures) 
+	for (OpenGLTexture& t : m_textures)
 	{
 		t.m_textureType = m_textures[0].m_textureType;
 		t.m_textureID = m_textures[0].m_textureID;
@@ -135,7 +135,7 @@ BitEngine::ITexture* GLTextureManager::getTexture(uint32 resourceId)
 	}
 	else
 	{
-		if (!m_textures[it->second].m_loaded) 
+		if (!m_textures[it->second].m_loaded)
 		{
 			m_loader->reloadResource( resourceId, this );
 		}
@@ -177,8 +177,8 @@ uint16 GLTextureManager::getNextIndex()
 	if (m_freeIndices.empty())
 	{
 		id = ++m_currentIndex;
-	} 
-	else 
+	}
+	else
 	{
 		id = m_freeIndices.back();
 		m_freeIndices.pop_back();
@@ -190,7 +190,7 @@ uint16 GLTextureManager::getNextIndex()
 void GLTextureManager::loadTexture2D(const OpenGLTexture::StbiImageData& data, OpenGLTexture& texture)
 {
 	GLuint textureID = 0;
-	
+
 	if (data.color == 3) // RGBA
 	{
 		glGenTextures(1, &textureID);

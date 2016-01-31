@@ -5,7 +5,7 @@
 #include "Common/TypeDefinition.h"
 
 namespace BitEngine {
-	
+
 	class IResourceManager;
 
 	// All resources come from this
@@ -16,21 +16,21 @@ namespace BitEngine {
 				: resourceId(0), dataPtr(0), dataSize(0)
 			{}
 
-			BaseResource(uint32 id, const std::string& p, void* data, int size)
+			BaseResource(uint32 id, const std::string& p, char* data, int size)
 				: resourceId(id), path(p), dataPtr(data), dataSize(size)
 			{}
 
 			// Unique global resource id inside the ResourceLoader
 			// this resource was loaded from
 			uint32 resourceId;
-			
+
 			// Original path name used in the request for loading this resource
 			std::string path;
 
 			// TODO: add extra resource information retrieved from package data?
 
 			// Takes owner ship of pointer
-			void setBaseData(void* data, int size)
+			void setBaseData(char* data, int size)
 			{
 				dataPtr = data;
 				dataSize = size;
@@ -45,7 +45,7 @@ namespace BitEngine {
 			}
 
 		protected:
-			// The resource data in memory. 
+			// The resource data in memory.
 			// Not all resources need to stay in memory to be used (Textures may stay on GPU)
 			// This pointer when loaded by the ResourceLoader may not be the same after passing through a Resource Manager
 			// A loader may get a compressed file from disk and later the resource manager may uncompress it and
@@ -55,13 +55,13 @@ namespace BitEngine {
 			// Loads the pixel data to GPU, free the original file data and
 			// leaves the unconpressed pixel data in memory for faster reloads in case the texture
 			// was removed from the GPU memory
-			void* dataPtr;
+			char* dataPtr;
 
 			// Number of bytes pointed by dataPtr.
 			// This may be updated by the ResourceManager
 			int dataSize;
 	};
-	
+
 	// Load a resource from disk or package
 	class IResourceLoader
 	{
@@ -88,9 +88,9 @@ namespace BitEngine {
 			// in bytes
 			virtual uint32 getCurrentRamUsage() = 0;
 			virtual uint32 getCurrentGPUMemoryUsage() = 0;
-			
+
 		private:
-			
+
 	};
 
 }

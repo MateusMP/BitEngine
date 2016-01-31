@@ -15,6 +15,7 @@ namespace BitEngine
 	class ITextureManager : public IResourceManager
 	{
 		public:
+        virtual ~ITextureManager() {};
 		virtual void Update() = 0;
 
 		// Always returns a valid pointer.

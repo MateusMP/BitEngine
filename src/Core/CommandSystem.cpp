@@ -1,4 +1,3 @@
-
 #include "Core/CommandSystem.h"
 #include "Core/Logger.h"
 
@@ -145,7 +144,7 @@ namespace BitEngine
 
 				Channel::Broadcast<CommandInput>(CommandInput(cmdID, 1, msg.keyAction));
 			}
-			else 
+			else
 			{
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for input key: " << msg.key << " action: " << (int)(msg.keyAction) << " mod: " << (int)msg.keyMod;
 			}

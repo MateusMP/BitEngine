@@ -60,7 +60,7 @@ class EntitySystem : public BaseEntitySystem
 			return true;
 		}
 
-		void Shutdown() 
+		void Shutdown()
 		{
 			for (ComponentProcessor* p : m_processors)
 			{
@@ -72,7 +72,7 @@ class EntitySystem : public BaseEntitySystem
 				bool del = true;
 				for (auto it = m_processors.begin(); it != m_processors.end(); ++it)
 				{
-					if ((void*)(*it) == (void*)h) 
+					if ((void*)(*it) == (void*)h)
 					{
 						delete h;
 						del = false;
@@ -92,7 +92,7 @@ class EntitySystem : public BaseEntitySystem
 		template<typename CompClass>
 		bool RegisterComponentHolder(ComponentHolder* ch)
 		{
-			const ComponentType type = ComponentIDProvider::ID<CompClass>();
+			const ComponentType type = ComponentIDProvider::template ID<CompClass>();
 			const int globalID = ComponentGlobalID<CompClass>::ID();
 
 			if (!RegisterHolder(ch, type, globalID))
@@ -134,9 +134,9 @@ class EntitySystem : public BaseEntitySystem
 			size_t lasts[4] = { 0,0,0,0 };
 
 			// TODO: Use threads
-			while (finish != (0xf) ) 
-			{	
-				for (int i = 0; i < 4; ++i) 
+			while (finish != (0xf) )
+			{
+				for (int i = 0; i < 4; ++i)
 				{
 					if (!(finish & (1 << i))) {
 						if (lasts[i] < process_order[i].size()) {
@@ -156,47 +156,6 @@ class EntitySystem : public BaseEntitySystem
 
 
 		// Get
-		
-		/**
-		 * Component adress may change during execution
-		 * Use the ComponentHandle for long living references.
-		 * See getComponentRef
-		 * \param entity Entity to get the component from
-		 */
-		//template<typename CompClass>
-		//CompClass* getComponentFromEntityUnsafe(EntityHandle entity) const
-		//{
-		//	// Verify if component type is valid
-		//	ComponentType type = ComponentIDProvider::ID<CompClass>();
-		//	if (!isComponentOfTypeValid(type)){
-		//		LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Unregistered type: " << type;
-		//		return nullptr;
-		//	}
-		//
-		//	const DHP& dhp = m_dataHolder[type];
-		//
-		//	// Verify if such entity exists for given system
-		//	return (CompClass*)dhp.getComponentRefFor(entity);
-		//}
-
-		/**
-		* \param entity Entity to get the component from
-		*/
-		//template<typename CompClass>
-		//CompClass* getComponentByHandleUnsafe(ComponentHandle component) const
-		//{
-		//	// Verify if component type is valid
-		//	ComponentType type = ComponentIDProvider::ID<CompClass>();
-		//	if (!isComponentOfTypeValid(type)){
-		//		LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Unregistered type: " << type;
-		//		return nullptr;
-		//	}
-		//
-		//	const DHP& dhp = m_dataHolder[type];
-		//
-		//	// Verify if such entity exists for given system
-		//	return (CompClass*)dhp.getByHandle(component);
-		//}
 
 		//// Search
 		///**
@@ -364,24 +323,24 @@ class EntitySystem : public BaseEntitySystem
 		//	}
 		//
 		//}
-		
+
 
 		// Add
 
 		template<typename CompClass>
 		bool AddComponent(EntityHandle entity, ComponentRef<CompClass>& ref)
 		{
-			return BaseEntitySystem::AddComponent(entity, ComponentIDProvider::ID<CompClass>(), ref);
+			return BaseEntitySystem::AddComponent(entity, ComponentIDProvider::template ID<CompClass>(), ref);
 		}
 
 		template<typename CompClass>
 		bool RemoveComponent(EntityHandle entity, const ComponentRef<CompClass>& ref)
 		{
-			return BaseEntitySystem::RemoveComponent(entity, ref);
+			return BaseEntitySystem::RemoveComponent(entity, ComponentIDProvider::template ID<CompClass>(), ref);
 		}
 
 	private:
-
+	/*
 		template<typename CompClass>
 		ComponentHandle getComponentFromEntity(EntityHandle entity) const
 		{
@@ -395,7 +354,7 @@ class EntitySystem : public BaseEntitySystem
 			ComponentType type = CompClass::getComponentType();
 			return (CompClass*)m_dataHolder[type].getComponentRefFor(entity);
 		}
-
+		*/
 		struct PipelineProcess {
 			PipelineProcess(ComponentProcessor* c, ComponentProcessor::processFunc f) :
 				cs(c), func(f)

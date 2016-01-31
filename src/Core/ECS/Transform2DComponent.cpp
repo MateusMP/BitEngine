@@ -5,7 +5,7 @@
 namespace BitEngine{
 
 Transform2DComponent::Transform2DComponent()
-	: m_dirty(true), scale(1.0f, 1.0f), rotation(0.0f)
+	: scale(1.0f, 1.0f), rotation(0.0f), m_dirty(true)
 {
 }
 

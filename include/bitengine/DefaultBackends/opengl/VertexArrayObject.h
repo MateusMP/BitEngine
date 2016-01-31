@@ -10,7 +10,7 @@
 #include "Core/Logger.h"
 
 namespace BitEngine {
-	
+
 	class VertexAttribute
 	{
 	public:
@@ -31,7 +31,7 @@ namespace BitEngine {
 
 			sizeBytes = count * bytes;
 		}
-		
+
 		uint32 type;
 		uint32 count;
 		bool normalized;
@@ -108,7 +108,7 @@ namespace BitEngine {
 			: vbo(0)
 		{}
 		~VertexArrayBuffer(){
-			
+
 		}
 
 		void DestroyBuffer()
@@ -137,18 +137,18 @@ namespace BitEngine {
 			LOG(EngineLog, BE_LOG_VERBOSE) << "VBO: " << vbo;
 			// Attributes
 			uint32 accumOffset = 0;
-			for (int i = 0; i < VertexData::NUM_ATTRIBUTES; ++i)
+			for (uint32 i = 0; i < VertexData::NUM_ATTRIBUTES; ++i)
 			{
 				uint32 attrID = attributes + i;
 				const VertexAttribute& attr = VertexData::getAttribute(i);
 
 				glEnableVertexAttribArray(attrID);
-				glVertexAttribPointer(attrID, attr.count, attr.type, attr.normalized, sizeof(VertexData::Data), (void*)(accumOffset));
+				glVertexAttribPointer(attrID, attr.count, attr.type, attr.normalized, sizeof(typename VertexData::Data), (void*)(accumOffset));
 				glVertexAttribDivisor(attrID, attr.divisor);
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Defining attribute " << attrID<<"("<<i<<")" << ": count: " << attr.count <<
-									", type: " << attr.type << ", normal: " << attr.normalized << 
-									", size: " << sizeof(VertexData::Data) << "(" << attr.sizeBytes << ")" << ", offset:" << accumOffset;
+									", type: " << attr.type << ", normal: " << attr.normalized <<
+									", size: " << sizeof(typename VertexData::Data) << "(" << attr.sizeBytes << ")" << ", offset:" << accumOffset;
 
 				accumOffset += attr.sizeBytes;
 			}
@@ -254,7 +254,7 @@ namespace BitEngine {
 			}
 
 	};
-	
+
 	template <typename T>
 	using IVBO = VertexArrayObject_base<VertexArrayBuffer<true, T>>;
 	template <typename T>
@@ -270,7 +270,7 @@ namespace BitEngine {
 	};
 
 	template<typename ... B>
-	class VertexArrayObject 
+	class VertexArrayObject
 		: public B...
 	{
 	public:
@@ -278,8 +278,10 @@ namespace BitEngine {
 		{
 			glDeleteVertexArrays(1, &vao);
 			bool b[] = { this->B::DestroyBuffer()... };
+			if (b[0]) // remove "b" not used warning
+                b[0] = b[0];
 		}
-		
+
 		bool Create()
 		{
 			glGenVertexArrays(1, &vao);
@@ -293,6 +295,8 @@ namespace BitEngine {
 
 			uint32 attributes = 0;
 			bool b[] = { this->B::CreateBuffer(attributes)... };
+			if (b[0]) // remove "b" not used warning
+                b[0] = b[0];
 
 			IVertexArrayObject::Unbind();
 

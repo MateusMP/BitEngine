@@ -2,6 +2,8 @@
 
 #include "Core/Logger.h"
 
+#include <string.h>
+
 namespace BitEngine{
 
 
@@ -98,7 +100,7 @@ namespace BitEngine{
 			}
 		}
 		else { // May be a config
-			
+
 			// Find final character
 			auto end = workLine.find_last_of(CONFIG_VALUE_SEPARATOR_CHAR);
 			if (end == workLine.size()){

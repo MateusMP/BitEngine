@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 namespace BitEngine{
@@ -21,7 +22,7 @@ namespace BitEngine{
 	class Mesh
 	{
 		public:
-			Mesh(const std::string& name) 
+			Mesh(const std::string& name)
 				: m_name(name) {}
 
 			virtual ~Mesh(){}

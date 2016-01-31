@@ -12,7 +12,7 @@
 //#define LOG_PERFORMANCE 1
 
 // These values will be used on the file as a log type identifier
-// Ex: 
+// Ex:
 // TIME LOG_NAME: <1> Log Description			// <1> -> Error log
 // TIME LOG_NAME: <3> Log Description			// <3> -> Warning log
 // The higher the value, more logs will be generated
@@ -36,7 +36,7 @@
 	#ifdef _DEBUG
 		#define LOG_LOGGING_THRESHOLD BE_LOG_ALL
 	#else
-		#define LOG_LOGGING_THRESHOLD BE_LOG_INFO	
+		#define LOG_LOGGING_THRESHOLD BE_LOG_INFO
 	#endif
 #endif
 
@@ -61,7 +61,7 @@
 #define LOG_SCOPE_TIME(logto, description)
 #define LOG_FUNCTION_TIME(logto)
 #endif
-			
+
 namespace BitEngine {
 
 
@@ -92,7 +92,7 @@ namespace BitEngine {
 				outStream << str.str();
 			}
 
-			Logger(const std::string& name, const char* file, int mode)
+			Logger(const std::string& name, const char* file, std::ios_base::openmode mode)
 				: logName(name), outFStream(file, mode), outStream(outFStream.rdbuf())
 			{
 				std::ostringstream str;
@@ -149,7 +149,7 @@ namespace BitEngine {
 			}
 
 			template<typename T>
-			inline std::ostringstream& operator << (const T& t) 
+			inline std::ostringstream& operator << (const T& t)
 			{
 				out << t;
 				return out;

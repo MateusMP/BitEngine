@@ -94,14 +94,14 @@ Window* GLFW_VideoDriver::CreateWindow(const WindowConfiguration& wc)
 	}
 	else
 	{
-		if (!glewStarted) 
+		if (!glewStarted)
 		{
 			glewStarted = true;
 			glewExperimental = GL_TRUE;
 			if (glewInit() != GLEW_OK) {
 				LOG(SELFLOG(), BE_LOG_ERROR) << "Video: Failed to initialize opengl!";
 				glfwTerminate();
-				return false;
+				return nullptr;
 			}
 
 			// Log to error to force output on all build versions

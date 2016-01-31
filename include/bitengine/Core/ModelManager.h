@@ -15,7 +15,7 @@
 #include "Core/IResourceManager.h"
 
 namespace BitEngine{
-	
+
 	class ModelManager
 	{
 	public:
@@ -37,7 +37,7 @@ namespace BitEngine{
 		 * that will be stored inside the ModelManager.
 		 * Posterior calls for loading the same filename with the same shader will
 		 * return the already loaded model.
-		 * 
+		 *
 		 * The ShaderClass should also have another static method: int GetID()
 		 * that should return an unique int for identifying the shader type.
 		 */
@@ -45,7 +45,7 @@ namespace BitEngine{
 		typename ShaderClass::Model* loadModel(const std::string& filename)
 		{
 			ShaderModelHolder& holder = m_models[ShaderClass::GetID()];
-			ShaderClass::Model* model = static_cast<ShaderClass::Model*>(holder.getModel(filename));
+			typename ShaderClass::Model* model = static_cast<typename ShaderClass::Model*>(holder.getModel(filename));
 
 			if (model == nullptr)
 			{
@@ -79,8 +79,7 @@ namespace BitEngine{
 				}
 			}
 
-			return (ShaderClass::Model*) model;
-			
+			return (typename ShaderClass::Model*) model;
 		}
 
 	private:

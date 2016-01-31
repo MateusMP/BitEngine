@@ -49,7 +49,8 @@ namespace BitEngine{
 			}
 		}
 
-		void removeComponent(ComponentHandle hdl){
+		void removeComponent(ComponentHandle hdl)
+		{
 			unsigned int index;
 			for (index = 0; index < validComponents.size(); ++index){
 				if (validComponents[index] == hdl){
@@ -64,7 +65,7 @@ namespace BitEngine{
 			freeHandles.push_back(hdl);
 
 			// Put something on the cleaned space to mantain a sequential order
-			if (index < validComponents.size() - 1)
+			if (index < validComponents.size())
 			{
 				// NOTE: THE REAL COMPONENT DATA DO NOT CHANGE POSITION
 				// Last valid index now ocuppy the freed index
@@ -72,10 +73,13 @@ namespace BitEngine{
 
 				// components[hdl] = components[substBy];
 				validComponents[index] = substBy;
-				validComponentsRef[index] = &components[substBy];
-
 				validComponents.pop_back();
-				validComponentsRef.pop_back();
+
+				if (index < validComponentsRef.size()) 
+				{
+					validComponentsRef[index] = &components[substBy];
+					validComponentsRef.pop_back();
+				}
 			}
 		}
 
