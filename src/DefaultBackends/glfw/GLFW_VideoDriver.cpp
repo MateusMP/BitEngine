@@ -1,11 +1,15 @@
 
 #include "DefaultBackends/glfw/GLFW_VideoDriver.h"
 
-#include "Core/Logger.h"
 #include "Core/MessageChannel.h"
 #include "Core/MessageType.h"
 
 using namespace BitEngine;
+
+void GLFW_VideoDriver::GLFW_ErrorCallback(int error, const char* description)
+{
+	LOG(SELFLOG(), BE_LOG_ERROR) << "GLFW Error: " << error << ": " << description;
+}
 
 bool GLFW_VideoDriver::Init(const VideoConfiguration& config)
 {
@@ -15,6 +19,8 @@ bool GLFW_VideoDriver::Init(const VideoConfiguration& config)
 		LOG(SELFLOG(), BE_LOG_ERROR) << "Video: Failed to initialize glfw!";
 		return false;
 	}
+
+	glfwSetErrorCallback(GLFW_ErrorCallback);
 
 	/*LOG(SELFLOG(), BE_LOG_VERBOSE) << "Video: Creating window...";
 	Window_glfw *w = new Window_glfw();

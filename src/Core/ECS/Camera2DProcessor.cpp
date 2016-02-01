@@ -12,11 +12,11 @@ bool Camera2DProcessor::Init(BaseEntitySystem* es)
 	Transform2DType = baseES->getComponentType<Transform2DComponent>();
 	Camera2DType = baseES->getComponentType<Camera2DComponent>();
 
-	holderCamera = baseES->getHolder(Camera2DType);
 	holderTransform = baseES->getHolder(Transform2DType);
+	holderCamera = baseES->getHolder(Camera2DType);
 
-	holderCamera->RegisterListener(this);
 	holderTransform->RegisterListener(this);
+	holderCamera->RegisterListener(this);
 
 	return true;
 }
@@ -58,7 +58,7 @@ void Camera2DProcessor::Process()
 		Camera2DComponent* cam = (Camera2DComponent*)holderCamera->getComponentFor(entity);
 		const Transform2DComponent* camTransform = (const Transform2DComponent*)holderTransform->getComponentFor(entity);
 		if (cam->changed)
-		{	
+		{
 			recalculateMatrix(cam, camTransform);
 			cam->changed = false;
 		}

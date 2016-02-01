@@ -8,11 +8,6 @@ namespace BitEngine{
 
 uint64 Time::ticks = 0;
 
-void GameEngine::GLFW_ErrorCallback(int error, const char* description)
-{
-    LOG(EngineLog, BE_LOG_ERROR) << "GLFW Error: " << error << ": " << description;
-}
-
 GameEngine::GameEngine(const std::string& configFile)
 	: configuration(configFile)
 {
@@ -103,8 +98,7 @@ bool GameEngine::Run()
 	CreateSystems();
 
     LOG(EngineLog, BE_LOG_WARNING) << "GameEngine::Run";
-    glfwSetErrorCallback(GLFW_ErrorCallback);
-
+   
     running = true;
 
     if ( InitSystems() )

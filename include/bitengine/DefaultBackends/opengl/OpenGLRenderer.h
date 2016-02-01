@@ -8,9 +8,9 @@ namespace BitEngine {
 
 	class OpenGLRenderer : public IVideoRenderer
 	{
-		void ClearBuffer(IRenderBuffer* buffer, BufferClearBitMask mask) override 
+		void ClearBuffer(IRenderBuffer* buffer, BufferClearBitMask mask) override
 		{
-			GLbitfield bitfield;
+			GLbitfield bitfield = 0;
 			if (mask & BufferClearBitMask::COLOR)
 				bitfield |= GL_COLOR_BUFFER_BIT;
 			if (mask & BufferClearBitMask::DEPTH)
@@ -19,12 +19,12 @@ namespace BitEngine {
 			glClear(bitfield);
 		}
 
-		void ClearBufferColor(IRenderBuffer* buffer, const ColorRGBA& color) override 
+		void ClearBufferColor(IRenderBuffer* buffer, const ColorRGBA& color) override
 		{
 			glClearColor(color.r(), color.g(), color.b(), color.a());
 		}
 
-		void setViewPort(int x, int y, int width, int height) override 
+		void setViewPort(int x, int y, int width, int height) override
 		{
 			glViewport(x, y, width, height);
 		}

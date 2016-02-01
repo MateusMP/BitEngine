@@ -93,7 +93,7 @@ class EntitySystem : public BaseEntitySystem
 		bool RegisterComponentHolder(ComponentHolder* ch)
 		{
 			const ComponentType type = ComponentIDProvider::template ID<CompClass>();
-			const int globalID = ComponentGlobalID<CompClass>::ID();
+			const int globalID = ComponentGlobalID::ID<CompClass>();
 
 			if (!RegisterHolder(ch, type, globalID))
 			{

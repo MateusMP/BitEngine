@@ -29,8 +29,6 @@ namespace BitEngine{
 class GameEngine
 {
     public:
-        static void GLFW_ErrorCallback(int error, const char* description);
-
         GameEngine(const std::string& configFile);
         ~GameEngine();
 

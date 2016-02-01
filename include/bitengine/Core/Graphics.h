@@ -14,10 +14,6 @@
 	#include <GL/glew.h>
 #endif
 
-#ifdef _USE_GLFW_
-	#include <GLFW/glfw3.h>
-#endif
-
 #ifdef _BITENGINE_USE_GL4_
 	#include "DefaultBackends/opengl/OpenGL.h"
 #endif

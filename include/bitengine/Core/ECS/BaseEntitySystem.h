@@ -50,14 +50,14 @@ namespace BitEngine {
 	/**
 	 * Creates a Global Unique ID for the given component inside the application
 	 */
-	template<typename T>
 	class ComponentGlobalID
 	{
 		public:
+			template<typename T>
 			static int ID()
 			{
-				static int x;
-				return (int)&x;
+				static int theID;
+				return (int)&theID;
 			}
 	};
 
@@ -129,7 +129,7 @@ namespace BitEngine {
 			template<typename CompClass>
 			ComponentType getComponentType() const
 			{
-				int id = ComponentGlobalID<CompClass>::ID();
+				int id = ComponentGlobalID::ID<CompClass>();
 
 				// TODO: Implement a better search?
 				for (ComponentHolder* h : m_dataHolder)

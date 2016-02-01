@@ -4,6 +4,8 @@
 #include "Core/VideoSystem.h"
 #include "Core/Logger.h"
 
+#include <GLFW/glfw3.h>
+
 class GLFW_VideoDriver : public BitEngine::IVideoDriver
 {
 	public:
@@ -86,6 +88,8 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 		}
 
 	private:
+		static void GLFW_ErrorCallback(int error, const char* description);
+
 		bool CreateGLFWWindow(Window_glfw* window);
 
 		static void GlfwFrameResizeCallback(GLFWwindow* window, int width, int height);
