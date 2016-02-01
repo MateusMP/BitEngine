@@ -100,5 +100,5 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 		bool glewStarted;
 		Window_glfw* m_currentContext;
 
-		LOG_STATIC("GLFW_VideoDriver", BitEngine::EngineLog.getOutputSink());
+		LOG_CLASS(BitEngine::EngineLog.getOutputSink());
 };

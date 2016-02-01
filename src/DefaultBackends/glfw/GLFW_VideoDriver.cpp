@@ -8,32 +8,32 @@ using namespace BitEngine;
 
 void GLFW_VideoDriver::GLFW_ErrorCallback(int error, const char* description)
 {
-	LOG(SELFLOG(), BE_LOG_ERROR) << "GLFW Error: " << error << ": " << description;
+	LOGCLASS(BE_LOG_ERROR) << "GLFW Error: " << error << ": " << description;
 }
 
 bool GLFW_VideoDriver::Init(const VideoConfiguration& config)
 {
-	LOG(SELFLOG(), BE_LOG_VERBOSE) << "Video: Init video...";
+	LOGCLASS(BE_LOG_VERBOSE) << "Video: Init video...";
 
 	if (!glfwInit()) {
-		LOG(SELFLOG(), BE_LOG_ERROR) << "Video: Failed to initialize glfw!";
+		LOGCLASS(BE_LOG_ERROR) << "Video: Failed to initialize glfw!";
 		return false;
 	}
 
 	glfwSetErrorCallback(GLFW_ErrorCallback);
 
-	/*LOG(SELFLOG(), BE_LOG_VERBOSE) << "Video: Creating window...";
+	/*LOGCLASS(BE_LOG_VERBOSE) << "Video: Creating window...";
 	Window_glfw *w = new Window_glfw();
 	if (!CreateGLFWWindow(w)) {
-	LOG(SELFLOG(), BE_LOG_ERROR) << "Video: Failed to create video!";
+	LOGCLASS(BE_LOG_ERROR) << "Video: Failed to create video!";
 	glfwTerminate();
 	return false;
 	}*/
-	LOG(SELFLOG(), BE_LOG_VERBOSE) << "Video initialized!";
+	LOGCLASS(BE_LOG_VERBOSE) << "Video initialized!";
 
 	/*glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
-		LOG(SELFLOG(), BE_LOG_ERROR) << "Video: Failed to initialize opengl!";
+		LOGCLASS(BE_LOG_ERROR) << "Video: Failed to initialize opengl!";
 		glfwTerminate();
 		return false;
 	}*/
@@ -105,15 +105,15 @@ Window* GLFW_VideoDriver::CreateWindow(const WindowConfiguration& wc)
 			glewStarted = true;
 			glewExperimental = GL_TRUE;
 			if (glewInit() != GLEW_OK) {
-				LOG(SELFLOG(), BE_LOG_ERROR) << "Video: Failed to initialize opengl!";
+				LOGCLASS(BE_LOG_ERROR) << "Video: Failed to initialize opengl!";
 				glfwTerminate();
 				return nullptr;
 			}
 
 			// Log to error to force output on all build versions
-			LOG(SELFLOG(), BE_LOG_INFO) << "Vendor: " << glGetString(GL_VENDOR);
-			LOG(SELFLOG(), BE_LOG_INFO) << "Renderer: " << glGetString(GL_RENDERER);
-			LOG(SELFLOG(), BE_LOG_INFO) << "Version: " << glGetString(GL_VERSION);
+			LOGCLASS(BE_LOG_INFO) << "Vendor: " << glGetString(GL_VENDOR);
+			LOGCLASS(BE_LOG_INFO) << "Renderer: " << glGetString(GL_RENDERER);
+			LOGCLASS(BE_LOG_INFO) << "Version: " << glGetString(GL_VERSION);
 		}
 
 		Channel::Broadcast<WindowCreated>(WindowCreated(window));
@@ -143,7 +143,7 @@ bool GLFW_VideoDriver::CreateGLFWWindow(Window_glfw* window)
 	//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	if (window->m_glfwWindow) {
-		LOG(SELFLOG(), BE_LOG_ERROR) << "VideoSystem does not support work with more than one window for now!";
+		LOGCLASS(BE_LOG_ERROR) << "VideoSystem does not support work with more than one window for now!";
 		return false;
 	}
 
@@ -165,7 +165,7 @@ bool GLFW_VideoDriver::CreateGLFWWindow(Window_glfw* window)
 	window->m_glfwWindow = glfwCreateWindow(window->m_Width, window->m_Height, window->m_Title.c_str(), monitor, NULL);
 	if (!window->m_glfwWindow)
 	{
-		LOG(SELFLOG(), BE_LOG_ERROR) << "Failed to create window!";
+		LOGCLASS(BE_LOG_ERROR) << "Failed to create window!";
 		return false;
 	}
 
@@ -196,7 +196,7 @@ void GLFW_VideoDriver::GlfwFrameResizeCallback(GLFWwindow* window, int width, in
 
 	if (resizedWindow == nullptr)
 	{
-		LOG(SELFLOG(), BE_LOG_WARNING) << "Unhandled window resize event!";
+		LOGCLASS(BE_LOG_WARNING) << "Unhandled window resize event!";
 		return;
 	}
 
@@ -205,7 +205,7 @@ void GLFW_VideoDriver::GlfwFrameResizeCallback(GLFWwindow* window, int width, in
 		it->second->OnWindowResize(resizedWindow, width, height);
 	}
 	else {
-		LOG(SELFLOG(), BE_LOG_WARNING) << "No handler registered for window resize event!";
+		LOGCLASS(BE_LOG_WARNING) << "No handler registered for window resize event!";
 	}
 }
 

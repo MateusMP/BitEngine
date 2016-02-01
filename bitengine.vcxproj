@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\bitengine\Common\ErrorCodes.h" />
+    <ClInclude Include="include\bitengine\Common\MacroHelpers.h" />
     <ClInclude Include="include\bitengine\Common\MathUtils.h" />
     <ClInclude Include="include\bitengine\Common\VectorBool.h" />
     <ClInclude Include="include\bitengine\Core\Color.h" />

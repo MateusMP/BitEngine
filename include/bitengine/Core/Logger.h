@@ -7,7 +7,8 @@
 #include <ctime>
 #include <thread>
 
-#include "Timer.h"
+#include "Core/Timer.h"
+#include "Common/MacroHelpers.h"
 
 //#define LOG_PERFORMANCE 1
 
@@ -23,6 +24,12 @@
 #define BE_LOG_VERBOSE 7
 #define BE_LOG_PERFORMANCE 9
 #define BE_LOG_ALL 128
+
+#ifndef BE_LOG_SHOW_CALL_PLACE
+	#ifdef _DEBUG
+		#define BE_LOG_SHOW_CALL_PLACE
+	#endif
+#endif
 
 #ifndef BE_LOG_ENABLE_PERFORMANCE
 	#ifdef _DEBUG
@@ -40,17 +47,27 @@
 	#endif
 #endif
 
-#define LOG_STATIC(logname, output)									\
-		public:														\
-			static BitEngine::Logger& SELFLOG() {					\
-				static BitEngine::Logger _log(logname, output);	\
-				return _log;										\
-			}														\
-		private:
 
-#define LOG(logger,severity)						\
-		if (severity > LOG_LOGGING_THRESHOLD) ;		\
-		else BitEngine::LogLine(logger, severity)
+#define LOG_CLASS(output)														\
+		private:																\
+			void __getselfclassfunc__(){};										\
+			static BitEngine::Logger& CL() {									\
+				static BitEngine::Logger _log(GetClassName(&__getselfclassfunc__), output);			\
+				return _log;													\
+			}																	
+
+#ifdef BE_LOG_SHOW_CALL_PLACE
+	#define LOG(logger,severity)						\
+			if (severity > LOG_LOGGING_THRESHOLD) ;		\
+			else BitEngine::LogLine(logger, severity) << __FUNCTION__ << ":" << __LINE__ << " | "
+#else
+	#define LOG(logger,severity)						\
+			if (severity > LOG_LOGGING_THRESHOLD) ;		\
+			else BitEngine::LogLine(logger, severity)
+#endif
+
+#define LOGCLASS(severity)							\
+		LOG(CL(),severity)
 
 #if BE_LOG_ENABLE_PERFORMANCE == 1
 #define LOG_SCOPE_TIME(logto, description)		\

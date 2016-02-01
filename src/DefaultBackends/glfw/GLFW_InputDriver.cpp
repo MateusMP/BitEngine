@@ -65,10 +65,10 @@ void GLFW_InputDriver::poolEvents()
 void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_UNKNOWN) {
-		LOG(SELFLOG(), BE_LOG_WARNING) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods;
+		LOGCLASS(BE_LOG_WARNING) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods;
 	}
 
-	// LOG(SELFLOG(), VERBOSE) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods;
+	// LOGCLASS(VERBOSE) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods;
 	
 	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()) 
@@ -86,13 +86,13 @@ void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode
 				act = BitEngine::InputReceiver::KeyAction::RELEASE;
 				break;
 			default:
-				LOG(SELFLOG(), BE_LOG_WARNING) << "Invalid key action: " << action;
+				LOGCLASS(BE_LOG_WARNING) << "Invalid key action: " << action;
 				return;
 		}
 		it->second.keyboardInput(key, scancode, act, mods);
 	}
 	else {
-		LOG(SELFLOG(), BE_LOG_ERROR) << "Invalid window input!";
+		LOGCLASS(BE_LOG_ERROR) << "Invalid window input!";
 	}
 }
 
@@ -111,14 +111,14 @@ void GLFW_InputDriver::GlfwMouseCallback(GLFWwindow* window, int button, int act
 				act = BitEngine::InputReceiver::MouseAction::RELEASE;
 				break;
 			default:
-				LOG(SELFLOG(), BE_LOG_WARNING) << "Invalid mouse action: " << action;
+				LOGCLASS(BE_LOG_WARNING) << "Invalid mouse action: " << action;
 				return;
 		}
 		it->second.mouseInput(button, act, mods);
 	}
 	else 
 	{
-		LOG(SELFLOG(), BE_LOG_ERROR) << "Invalid window input!";
+		LOGCLASS(BE_LOG_ERROR) << "Invalid window input!";
 	}
 }
 
@@ -129,6 +129,6 @@ void GLFW_InputDriver::GlfwMousePosCallback(GLFWwindow* window, double x, double
 		it->second.mouseInput(x, y);
 	}
 	else {
-		LOG(SELFLOG(), BE_LOG_ERROR) << "Invalid window input!";
+		LOGCLASS(BE_LOG_ERROR) << "Invalid window input!";
 	}
 }

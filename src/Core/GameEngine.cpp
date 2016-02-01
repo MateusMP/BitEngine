@@ -97,7 +97,7 @@ bool GameEngine::Run()
 {
 	CreateSystems();
 
-    LOG(EngineLog, BE_LOG_WARNING) << "GameEngine::Run";
+    LOG(EngineLog, BE_LOG_INFO) << "Run Started";
    
     running = true;
 

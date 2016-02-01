@@ -71,6 +71,7 @@
     <ClInclude Include="include\bitengine\Core\ITexture.h" />
     <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
     <ClInclude Include="include\bitengine\Core\ThreadSafeQueue.h" />
+    <ClInclude Include="include\bitengine\Common\MacroHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
