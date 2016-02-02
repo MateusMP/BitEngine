@@ -4,6 +4,8 @@
 
 namespace BitEngine{
 
+	COMPONENT_CLASS_IMPLEMENTATION(Sprite2DComponent);
+
 
 Sprite2DHolder::Sprite2DHolder()
 {

@@ -56,22 +56,24 @@ namespace BitEngine{
 
 	class GameLogicComponent : public Component
 	{
-	public:
-		GameLogicComponent(){}
-			//: EntityHolderComponent(0, nullptr) {}
-		GameLogicComponent(EntityHandle ent){}
-			//: EntityHolderComponent(ent, sys) {}
+        public:
+            COMPONENT_CLASS();
 
-		void addLogicPiece(GameLogic* logic){
-			m_gamelogics.emplace_back(logic);
-			logic->m_myEntity = getEntity();
-			logic->e_sys = e_sys;
-		}
+            GameLogicComponent(){}
+                //: EntityHolderComponent(0, nullptr) {}
+            GameLogicComponent(EntityHandle ent){}
+                //: EntityHolderComponent(ent, sys) {}
 
-	private:
-		friend class GameLogicProcessor;
-		BaseEntitySystem* e_sys;
-		std::vector<GameLogic*> m_gamelogics;
+            void addLogicPiece(GameLogic* logic){
+                m_gamelogics.emplace_back(logic);
+                logic->m_myEntity = getEntity();
+                logic->e_sys = e_sys;
+            }
+
+        private:
+            friend class GameLogicProcessor;
+            BaseEntitySystem* e_sys;
+            std::vector<GameLogic*> m_gamelogics;
 	};
 
 }

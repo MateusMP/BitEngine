@@ -2,6 +2,8 @@
 
 namespace BitEngine{
 
+	COMPONENT_CLASS_IMPLEMENTATION(GameLogicComponent);
+
 	GameLogicProcessor::GameLogicProcessor()
 	{
 	}

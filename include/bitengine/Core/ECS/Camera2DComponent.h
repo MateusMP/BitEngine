@@ -11,8 +11,10 @@ namespace BitEngine {
 		: public Component
 	{
 		public:
+		    COMPONENT_CLASS();
+
 			Camera2DComponent();
-			
+
 			// Set camera focus position
 			// This position will be at the center of the camera bounding view
 			// To zoom on the center of the screen, use (screen_width/2, screen_height/2)
@@ -30,13 +32,13 @@ namespace BitEngine {
 			void setActive(bool a);
 
 			/**
-			 * 
+			 *
 			 * @return vec4( bottomLeftX, bottomLeftY, topRightX, topRightY )
 			 */
 			glm::vec4 getWorldViewArea() const;
 
 			const glm::vec2 screenToWorldCoordinates(const glm::vec2& screenCoord) const;
-			
+
 		private:
 			friend class Camera2DProcessor;
 
@@ -46,7 +48,7 @@ namespace BitEngine {
 
 			glm::vec3 m_lookAt;
 			float m_zoom;
-			
+
 			glm::mat4 m_cameraMatrix;
 			glm::mat4 m_orthoMatrix;
 

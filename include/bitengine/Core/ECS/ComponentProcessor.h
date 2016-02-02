@@ -40,7 +40,7 @@ class ComponentHolder
 				}
 			}
 		}
-	
+
 		virtual ComponentHandle CreateComponent(EntityHandle entity) {
 			auto it = m_componentByEntity.find(entity);
 			if (it == m_componentByEntity.end()) {
@@ -58,7 +58,7 @@ class ComponentHolder
 		virtual void ReleaseComponentFor(EntityHandle entity)
 		{
 			auto it = m_componentByEntity.find(entity);
-			if (it != m_componentByEntity.end()) 
+			if (it != m_componentByEntity.end())
 			{
 				m_toDestroy.emplace_back(it->second);
 				CallOnDestroyListeners(entity, it->second);
@@ -151,7 +151,7 @@ class ComponentHolder
 			}
 
 			ComponentType componentType; // component ID on entity system
-			int globalID; // component type global ID
+			GlobalComponentID globalID; // component type global ID
 };
 
 }

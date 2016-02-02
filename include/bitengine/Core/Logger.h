@@ -47,6 +47,8 @@
 	#endif
 #endif
 
+#define LOG_IF_SHOULD_LOG(severity)                 \
+    if (severity > LOG_LOGGING_THRESHOLD) ;  else   \
 
 #define LOG_CLASS(output)														\
 		private:																\
@@ -54,17 +56,27 @@
 			static BitEngine::Logger& CL() {									\
 				static BitEngine::Logger _log(GetClassName(&__getselfclassfunc__), output);			\
 				return _log;													\
-			}																	
+			}
 
 #ifdef BE_LOG_SHOW_CALL_PLACE
 	#define LOG(logger,severity)						\
-			if (severity > LOG_LOGGING_THRESHOLD) ;		\
-			else BitEngine::LogLine(logger, severity) << __FUNCTION__ << ":" << __LINE__ << " | "
+        LOG_IF_SHOULD_LOG(severity)		                \
+			BitEngine::LogLine(logger, severity) << __FUNCTION__ << ":" << __LINE__ << " | "
 #else
 	#define LOG(logger,severity)						\
-			if (severity > LOG_LOGGING_THRESHOLD) ;		\
-			else BitEngine::LogLine(logger, severity)
+        LOG_IF_SHOULD_LOG(severity)		                \
+			BitEngine::LogLine(logger, severity)
 #endif
+
+#define LOGIFTRUE(logger,severity,expression)               \
+    LOG_IF_SHOULD_LOG(severity)                             \
+        if (expression){                                     \
+            LOG(logger, severity) << ##expression is true!;}
+
+#define LOGIFNULL(logger,severity,expression)               \
+    LOG_IF_SHOULD_LOG(severity)                             \
+        if (expression == nullptr){                          \
+            LOG(logger, severity) << #expression "is NULL!";}
 
 #define LOGCLASS(severity)							\
 		LOG(CL(),severity)

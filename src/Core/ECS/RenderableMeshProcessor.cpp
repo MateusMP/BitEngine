@@ -2,6 +2,8 @@
 
 namespace BitEngine{
 
+	COMPONENT_CLASS_IMPLEMENTATION(RenderableMeshComponent);
+
 	RenderableMeshProcessor::RenderableMeshProcessor()
 	{
 	}

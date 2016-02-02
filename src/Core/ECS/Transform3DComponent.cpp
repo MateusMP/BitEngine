@@ -2,6 +2,8 @@
 
 namespace BitEngine{
 
+    COMPONENT_CLASS_IMPLEMENTATION(Transform3DComponent);
+
 	const glm::vec3 Transform3DComponent::FORWARD(0.0f, 0.0f, -1.0f);
 	const glm::vec3 Transform3DComponent::UP(0.0f, 1.0f, 0.0f);
 	const glm::vec3 Transform3DComponent::RIGHT(1.0f, 0.0f, 0.0f);

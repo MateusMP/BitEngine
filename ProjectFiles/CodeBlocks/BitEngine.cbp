@@ -7,7 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/BitEngineD" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/BitEngineD" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin" />
 				<Option object_output="obj/debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -16,12 +17,10 @@
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
-				<Linker>
-					<Add option="-lglew32" />
-				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/BitEngine" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/BitEngine" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin" />
 				<Option object_output="obj/release/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -32,7 +31,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-lglew32" />
 				</Linker>
 			</Target>
 		</Build>
@@ -46,9 +44,10 @@
 			<Add directory="$(STB_HOME)" />
 		</Compiler>
 		<Linker>
+			<Add option="-lopengl32" />
 			<Add option="-lglfw3" />
 			<Add option="-lgdi32" />
-			<Add option="-lopengl32" />
+			<Add option="-lglew32" />
 			<Add directory="$(GLFW_LIB)" />
 			<Add directory="$(GLEW_LIB)" />
 		</Linker>

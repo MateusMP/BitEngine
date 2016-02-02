@@ -13,6 +13,8 @@ namespace BitEngine{
 		public Component
 	{
 	public:
+	    COMPONENT_CLASS();
+
 		const static glm::vec3 FORWARD;
 		const static glm::vec3 UP;
 		const static glm::vec3 RIGHT;

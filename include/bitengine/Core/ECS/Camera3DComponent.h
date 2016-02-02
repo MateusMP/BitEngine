@@ -9,60 +9,54 @@ namespace BitEngine{
 
 	class Camera3DComponent : public Component
 	{
-	public:
-		enum ProjectionMode{
-			ORTHOGONAL = 1,
-			PERSPECTIVE,
+        public:
+            COMPONENT_CLASS();
 
-		};
+            enum ProjectionMode{
+                ORTHOGONAL = 1,
+                PERSPECTIVE,
 
-		Camera3DComponent()
-			: m_projectionType(PERSPECTIVE),
-			m_width(1280), m_height(720),
-			m_fov(45.0f), m_aspect(16.0f / 9.0f), m_near(1.0f), m_far(1000.0f),
-			m_lookAt(0.0f, 0.0f, 0.0f), m_up(0.0f, 1.0f, 0.0f)
-		{
-			recalculateProjection();
-		}
+            };
 
-		~Camera3DComponent(){}
+            Camera3DComponent()
+                : m_projectionType(PERSPECTIVE),
+                m_width(1280), m_height(720),
+                m_fov(45.0f), m_aspect(16.0f / 9.0f), m_near(1.0f), m_far(1000.0f),
+                m_lookAt(0.0f, 0.0f, 0.0f), m_up(0.0f, 1.0f, 0.0f)
+            {
+                recalculateProjection();
+            }
 
-		void setView(int width, int height){ m_width = width; m_height = height; }
+            ~Camera3DComponent(){}
 
-		void setFOV(float fov) { m_fov = fov; }
-		void setNearFar(float n, float f) { m_near = n; m_far = f; }
-		void setLookAt(const glm::vec3& lookAt) { m_lookAt = lookAt; }
-		void setUp(const glm::vec3& up) { m_up = up; }
+            void setView(int width, int height){ m_width = width; m_height = height; }
 
-		const glm::mat4& getProjection() const { return m_projection; }
-		const glm::mat4& getView() const { return m_viewMatrix; }
+            void setFOV(float fov) { m_fov = fov; }
+            void setNearFar(float n, float f) { m_near = n; m_far = f; }
+            void setLookAt(const glm::vec3& lookAt) { m_lookAt = lookAt; }
+            void setUp(const glm::vec3& up) { m_up = up; }
 
-	private:
-		friend class Camera3DProcessor;
+            const glm::mat4& getProjection() const { return m_projection; }
+            const glm::mat4& getView() const { return m_viewMatrix; }
 
-		ProjectionMode m_projectionType;
-		int m_width;
-		int m_height;
-		float m_fov;
-		float m_aspect;
-		float m_near;
-		float m_far;
+        private:
+            friend class Camera3DProcessor;
 
-		glm::vec3 m_lookAt;
-		glm::vec3 m_up;
+			void recalculateProjection();
 
-		glm::mat4 m_viewMatrix;
-		glm::mat4 m_projection;
+            ProjectionMode m_projectionType;
+            int m_width;
+            int m_height;
+            float m_fov;
+            float m_aspect;
+            float m_near;
+            float m_far;
 
-		void recalculateProjection()
-		{
-			if (m_projectionType == PERSPECTIVE){
-				m_projection = glm::perspective(m_fov, m_aspect, m_near, m_far);
-			}
-			else {
-				m_projection = glm::ortho(0.0f, (float)m_width, 0.0f, (float)m_height, m_near, m_far);
-			}
-		}
+            glm::vec3 m_lookAt;
+            glm::vec3 m_up;
+
+            glm::mat4 m_viewMatrix;
+            glm::mat4 m_projection;
 	};
 
 

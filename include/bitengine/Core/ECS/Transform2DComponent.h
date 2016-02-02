@@ -7,50 +7,50 @@
 
 namespace BitEngine{
 
-class Transform2DComponent :
-	public Component
-{
-public:
-	Transform2DComponent();
-	~Transform2DComponent();
+    class Transform2DComponent :
+        public Component
+    {
+        public:
+            COMPONENT_CLASS();
 
-	// Position
-	const glm::vec2& getLocalPosition() const; // returns LOCAL position
-	template<typename T>
-	void setLocalPosition(T x, T y) // sets LOCAL position
-	{
-		position.x = (float)x;
-		position.y = (float)y;
-		m_dirty = true;
-	}
-	void setLocalPosition(const glm::vec2& p); // sets LOCAL position
+            Transform2DComponent();
+            ~Transform2DComponent();
 
-	// Scale
-	const glm::vec2& getLocalScale() const; // get LOCAL scale
-	void setLocalScale(const glm::vec2& s); // sets LOCAL scale
+            // Position
+            const glm::vec2& getLocalPosition() const; // returns LOCAL position
+            template<typename T>
+            void setLocalPosition(T x, T y) // sets LOCAL position
+            {
+                position.x = (float)x;
+                position.y = (float)y;
+                m_dirty = true;
+            }
+            void setLocalPosition(const glm::vec2& p); // sets LOCAL position
 
-	// Rotation
-	float getLocalRotation() const; // get LOCAL rotation
-	void setLocalRotation(float rad); // sets LOCAL rotation
+            // Scale
+            const glm::vec2& getLocalScale() const; // get LOCAL scale
+            void setLocalScale(const glm::vec2& s); // sets LOCAL scale
 
-	/* // TODO ADD THIS AGAIN SOMEWHERE
-	float getWorldAngle() const {
-		return atan2(m_modelMatrix[0][1], m_modelMatrix[1][1]);
-	}
+            // Rotation
+            float getLocalRotation() const; // get LOCAL rotation
+            void setLocalRotation(float rad); // sets LOCAL rotation
 
-	glm::vec2 getRight() const {
-		return glm::mat2(m_modelMatrix) * glm::vec2(1, 0);
-	}
-	*/
-private:
-	friend class Transform2DProcessor;
+            /* // TODO ADD THIS AGAIN SOMEWHERE
+            float getWorldAngle() const {
+                return atan2(m_modelMatrix[0][1], m_modelMatrix[1][1]);
+            }
 
-	glm::vec2 position;
-	glm::vec2 scale;
-	float rotation;
+            glm::vec2 getRight() const {
+                return glm::mat2(m_modelMatrix) * glm::vec2(1, 0);
+            }
+            */
+        private:
+            friend class Transform2DProcessor;
 
-	bool m_dirty;
-};
+            glm::vec2 position;
+            glm::vec2 scale;
+            float rotation;
 
-
+            bool m_dirty;
+    };
 }

@@ -82,6 +82,7 @@
     <ClCompile Include="src\Core\ECS\BaseEntitySystem.cpp" />
     <ClCompile Include="src\Core\ECS\Camera2DComponent.cpp" />
     <ClCompile Include="src\Core\ECS\Camera2DProcessor.cpp" />
+    <ClCompile Include="src\Core\ECS\Camera3DComponent.cpp" />
     <ClCompile Include="src\Core\ECS\Camera3DProcessor.cpp" />
     <ClCompile Include="src\Core\ECS\GameLogicProcessor.cpp" />
     <ClCompile Include="src\Core\ECS\RenderableMeshProcessor.cpp" />

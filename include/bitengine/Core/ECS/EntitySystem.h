@@ -72,16 +72,18 @@ class EntitySystem : public BaseEntitySystem
 				bool del = true;
 				for (auto it = m_processors.begin(); it != m_processors.end(); ++it)
 				{
+					// Remove duplicates, because some Processors are Holders too
 					if ((void*)(*it) == (void*)h)
 					{
 						delete h;
 						del = false;
-						m_processors.erase(it);
+						it = m_processors.erase(it);
 						break;
 					}
 				}
 
-				if (del) {
+				if (del) 
+				{
 					delete h;
 				}
 			}
@@ -93,7 +95,7 @@ class EntitySystem : public BaseEntitySystem
 		bool RegisterComponentHolder(ComponentHolder* ch)
 		{
 			const ComponentType type = ComponentIDProvider::template ID<CompClass>();
-			const int globalID = ComponentGlobalID::ID<CompClass>();
+			GlobalComponentID globalID = getGlobalComponentID<CompClass>();
 
 			if (!RegisterHolder(ch, type, globalID))
 			{
@@ -106,20 +108,25 @@ class EntitySystem : public BaseEntitySystem
 
 		bool RegisterComponentProcessor(int pipeline, ComponentProcessor* cp, ComponentProcessor::processFunc func)
 		{
-			if (pipeline >= 4) {
+			if (pipeline >= 4) { // limit pipelines
 				return false;
 			}
 			process_order[pipeline].emplace_back(cp, func);
 
 			bool inside = false;
-			for (ComponentProcessor* p : m_processors) {
-				if (p == cp) {
+			for (ComponentProcessor* p : m_processors) 
+			{
+				if (p == cp) 
+				{
 					inside = true;
 					break;
 				}
 			}
-			if (!inside)
+
+			if (!inside) 
+			{
 				m_processors.emplace_back(cp);
+			}
 
 			return true;
 		}
@@ -128,8 +135,8 @@ class EntitySystem : public BaseEntitySystem
 			return m_dataHolder.size() > type && m_dataHolder[type] != nullptr;
 		}
 
-		void Update() {
-
+		void Update() 
+		{
 			int finish = 0;
 			size_t lasts[4] = { 0,0,0,0 };
 
@@ -138,11 +145,14 @@ class EntitySystem : public BaseEntitySystem
 			{
 				for (int i = 0; i < 4; ++i)
 				{
-					if (!(finish & (1 << i))) {
-						if (lasts[i] < process_order[i].size()) {
+					if (!(finish & (1 << i))) 
+					{
+						if (lasts[i] < process_order[i].size()) 
+						{
 							process_order[i][lasts[i]++].Run();
 						}
-						else {
+						else 
+						{
 							finish |= (1 << i);
 						}
 					}
@@ -355,19 +365,22 @@ class EntitySystem : public BaseEntitySystem
 			return (CompClass*)m_dataHolder[type].getComponentRefFor(entity);
 		}
 		*/
-		struct PipelineProcess {
+		struct PipelineProcess 
+		{
 			PipelineProcess(ComponentProcessor* c, ComponentProcessor::processFunc f) :
 				cs(c), func(f)
 			{}
+
 			ComponentProcessor* cs;
 			ComponentProcessor::processFunc func;
 
-			void Run() {
+			void Run() 
+			{
 				(cs->*func)();
 			}
 		};
-		std::array< std::vector<PipelineProcess>, 4 > process_order;
 
+		std::array< std::vector<PipelineProcess>, 4 > process_order;
 		std::vector<ComponentProcessor* > m_processors; // Unique component processors
 };
 

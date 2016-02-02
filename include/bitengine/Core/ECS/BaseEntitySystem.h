@@ -46,24 +46,15 @@ namespace BitEngine {
 		ComponentHolder* holder;
 	};
 
-
-	/**
-	 * Creates a Global Unique ID for the given component inside the application
-	 */
-	class ComponentGlobalID
-	{
-		public:
-			template<typename T>
-			static int ID()
-			{
-				static int theID;
-				return (int)&theID;
-			}
-	};
-
 	class BaseEntitySystem : public System
 	{
 		public:
+			template<typename CompClass>
+			inline static GlobalComponentID getGlobalComponentID()
+			{
+				return CompClass::getGlobalComponentID();
+			}
+
 			BaseEntitySystem()
 				: System("Entity"){
 				m_entities.emplace_back(0); // First entity is invalid.
@@ -82,17 +73,32 @@ namespace BitEngine {
 			*/
 			void DestroyEntity(EntityHandle entity);
 
+            /**
+			 * Get the component holder of given ComponentType
+			 */
+			inline ComponentHolder* getHolder(ComponentType type) {
+				return m_dataHolder[type];
+			}
+
+			inline const ComponentHolder* getHolder(ComponentType type) const {
+				return m_dataHolder[type];
+			}
+
 			template<typename CompClass>
 			bool AddComponent(EntityHandle entity, ComponentType type, ComponentRef<CompClass>& ref)
 			{
-				if (!hasEntity(entity)) {
+				if (!hasEntity(entity))
+                {
 					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to attach component of type " << type << " to unknown entity: " << entity << "!";
 					return false;
 				}
 
-				ComponentHolder* holder = m_dataHolder[type];
+				ComponentHolder* holder = getHolder(type);
+				LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
+
 				ComponentHandle hdl = holder->CreateComponent(entity);
-				if (hdl == 0) {
+				if (hdl == NO_COMPONENT_HANDLE)
+                {
 					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Entity " << entity << " already has a component of type: " << type << "!";
 					return false;
 				}
@@ -104,8 +110,10 @@ namespace BitEngine {
 			}
 
 			template<typename CompClass>
-			bool RemoveComponent(EntityHandle entity, ComponentType type, const ComponentRef<CompClass>& ref) {
-				if (!hasEntity(ref->getEntity())) {
+			bool RemoveComponent(EntityHandle entity, ComponentType type, const ComponentRef<CompClass>& ref)
+			{
+				if (!hasEntity(ref->getEntity()))
+                {
 					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to remove component of type " << type << " with handle: " << ref.handle << "!";
 					return false;
 				}
@@ -114,22 +122,11 @@ namespace BitEngine {
 				return true;
 			}
 
-			/**
-			 * Get the component holder of given ComponentType
-			 */
-			inline ComponentHolder* getHolder(ComponentType type) {
-				return m_dataHolder[type];
-			}
-
-			inline const ComponentHolder* getHolder(ComponentType type) const {
-				return m_dataHolder[type];
-			}
-
 			// [Expensive] Avoid calling this multiple times!
 			template<typename CompClass>
 			ComponentType getComponentType() const
 			{
-				int id = ComponentGlobalID::ID<CompClass>();
+				GlobalComponentID id = getGlobalComponentID<CompClass>();
 
 				// TODO: Implement a better search?
 				for (ComponentHolder* h : m_dataHolder)
@@ -139,7 +136,7 @@ namespace BitEngine {
 					}
 				}
 
-				return ~0;
+				return NO_COMPONENT_TYPE;
 			}
 
 			/**
@@ -152,8 +149,10 @@ namespace BitEngine {
 			bool getComponentRef(EntityHandle entity, ComponentType type, ComponentRef<CompClass>& ref) const
 			{
 				ComponentHolder* holder = m_dataHolder[type];
+				LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
+
 				ComponentHandle hdl = holder->getComponentHandleFor(entity);
-				if (hdl != 0)
+				if (hdl != NO_COMPONENT_HANDLE)
 				{
 					ref.holder = holder;
 					ref.handle = hdl;
@@ -188,7 +187,7 @@ namespace BitEngine {
 			{
 				// Verify if component type is valid
 				ComponentType type = getComponentType<CompClass>();
-				if (type == ~0) {
+				if (type == NO_COMPONENT_TYPE) {
 					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Unregistered type: " << type;
 					return false;
 				}
@@ -204,7 +203,7 @@ namespace BitEngine {
 			 *			based on the ComponentClass only.
 			 *	See: getComponentRef
 			 */
-			bool RegisterHolder(ComponentHolder* holder, int id, int globalID);
+			bool RegisterHolder(ComponentHolder* holder, ComponentType id, GlobalComponentID globalID);
 
 			// TODO: Make this a DebugAssert?
 			inline bool hasEntity(EntityHandle entity) const {

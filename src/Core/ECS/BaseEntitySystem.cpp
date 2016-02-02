@@ -4,12 +4,12 @@
 
 namespace BitEngine {
 
-	bool BaseEntitySystem::RegisterHolder(ComponentHolder* holder, int id, int globalID)
+	bool BaseEntitySystem::RegisterHolder(ComponentHolder* holder, ComponentType type, GlobalComponentID globalID)
 	{
-		if (m_dataHolder[id] == nullptr)
+		if (m_dataHolder[type] == nullptr)
 		{
-			m_dataHolder[id] = holder;
-			holder->componentType = id;
+			m_dataHolder[type] = holder;
+			holder->componentType = type;
 			holder->globalID = globalID;
 			return true;
 		}

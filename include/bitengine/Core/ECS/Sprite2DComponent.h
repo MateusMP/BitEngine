@@ -7,17 +7,18 @@
 
 namespace BitEngine{
 
-class Sprite2DComponent : public Component
-{
-public:
+    class Sprite2DComponent : public Component
+    {
+        public:
+            COMPONENT_CLASS();
 
-	Sprite2DComponent()
-		: depth(0), sprite(0)
-	{}
+            Sprite2DComponent()
+                : depth(0), sprite(0)
+            {}
 
-	int depth;
-	SpriteHandle sprite;
+            int depth;
+            SpriteHandle sprite;
 
-};
+    };
 
 }

@@ -4,6 +4,8 @@
 
 namespace BitEngine{
 
+COMPONENT_CLASS_IMPLEMENTATION(Transform2DComponent);
+
 Transform2DComponent::Transform2DComponent()
 	: scale(1.0f, 1.0f), rotation(0.0f), m_dirty(true)
 {

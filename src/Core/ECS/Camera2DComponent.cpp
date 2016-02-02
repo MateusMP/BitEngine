@@ -1,6 +1,7 @@
 #include "Core/ECS/Camera2DComponent.h"
 
 namespace BitEngine{
+    COMPONENT_CLASS_IMPLEMENTATION(Camera2DComponent);
 
 	Camera2DComponent::Camera2DComponent()
 		: m_zoom(1.0f), changed(true)

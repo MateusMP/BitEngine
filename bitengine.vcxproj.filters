@@ -105,5 +105,6 @@
     <ClCompile Include="src\DefaultBackends\opengl\GLTextureManager.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\error_texture.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\OpenGL.cpp" />
+    <ClCompile Include="src\Core\ECS\Camera3DComponent.cpp" />
   </ItemGroup>
 </Project>

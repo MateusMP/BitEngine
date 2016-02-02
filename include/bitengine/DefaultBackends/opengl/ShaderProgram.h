@@ -22,7 +22,7 @@ namespace BitEngine
 #define LOAD_UNIFORM(var, name)																						\
 				var = getUniformLocation(name);																		\
 				if (var < 0)																						\
-					LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Shader: Failed to load "#var" [\""name"\"] uniform.";	\
+					LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Shader: Failed to load "#var" [\""#name"\"] uniform.";	\
 				else																								\
 					LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "Uniform "#var" loaded with id: "<< var << "."
 #else
@@ -35,7 +35,7 @@ namespace BitEngine
 	// If using matrices, some macros to help define the correct attribute sizes
 #define VERTEX_MATRIX3_ATTIBUTE_SIZE 3
 #define VERTEX_MATRIX4_ATTIBUTE_SIZE 4
-	
+
 class ShaderProgram
 {
     public:
@@ -147,7 +147,7 @@ class ShaderProgram
 
 		/// \param errorLog If any error is encountered during shader compilation
 		/// 	A log will be generated inside errorLog
-		/// 
+		///
 		int compile(GLuint &hdl, GLenum type, const char* data, std::string& errorLog);
 		int retrieveSourceFromFile(const std::string& file, std::string& out) const;
 
