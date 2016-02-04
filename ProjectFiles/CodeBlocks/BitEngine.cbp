@@ -16,6 +16,7 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-D_DEBUG" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -28,6 +29,7 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-D_NDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -119,6 +121,7 @@
 		<Unit filename="../../src/Core/ECS/BaseEntitySystem.cpp" />
 		<Unit filename="../../src/Core/ECS/Camera2DComponent.cpp" />
 		<Unit filename="../../src/Core/ECS/Camera2DProcessor.cpp" />
+		<Unit filename="../../src/Core/ECS/Camera3DComponent.cpp" />
 		<Unit filename="../../src/Core/ECS/Camera3DProcessor.cpp" />
 		<Unit filename="../../src/Core/ECS/GameLogicProcessor.cpp" />
 		<Unit filename="../../src/Core/ECS/RenderableMeshProcessor.cpp" />
