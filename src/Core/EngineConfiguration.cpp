@@ -32,7 +32,7 @@ namespace BitEngine{
 			std::string line;
 			line.resize(1024);
 
-			auto& linestream = inFile.getline(&line[0], line.capacity());
+			/*auto& linestream = */inFile.getline(&line[0], line.capacity());
 			line.resize(strlen(line.c_str()));
 
 			readLine(line, workingSystem);

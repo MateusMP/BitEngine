@@ -54,7 +54,7 @@ namespace BitEngine{
 				// Add child for new parent
 				hierarchy[parent].addChild(a);
 			}
-			
+
 			// Processor result outputs
 			const std::vector<glm::mat3>& getGlobalTransforms() const {
 				return globalTransform;
@@ -79,11 +79,11 @@ namespace BitEngine{
 					parent = 0;
 				}
 
-				void removeChild(ComponentHandle a) 
+				void removeChild(ComponentHandle a)
 				{
-					for (ComponentHandle& h : childs) 
+					for (ComponentHandle& h : childs)
 					{
-						if (h == a) 
+						if (h == a)
 						{
 							h = childs.back();
 							childs.pop_back();
@@ -96,6 +96,7 @@ namespace BitEngine{
 					childs.push_back(a);
 				}
 
+				// Members
 				ComponentHandle self;
 				ComponentHandle parent;
 				bool dirty;
@@ -104,7 +105,7 @@ namespace BitEngine{
 
 			// TODO: Make iterative version
 			void RecalcGlobal(Hierarchy &t);
-			
+
 		private: // Attributes
 
 				 // Holder

@@ -3,7 +3,6 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <chrono>
 #include <ctime>
 #include <thread>
 
@@ -25,11 +24,26 @@
 #define BE_LOG_PERFORMANCE 9
 #define BE_LOG_ALL 128
 
+// Force to output more information while on development, even for release build
+#define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
+#define BE_LOG_SHOW_CALL_PLACE
+#define BE_LOG_FORCE_OUTPUT_CONSOLE
+//
+
 #ifndef BE_LOG_SHOW_CALL_PLACE
 	#ifdef _DEBUG
 		#define BE_LOG_SHOW_CALL_PLACE
 	#endif
 #endif
+
+// Get correct preprocessor define based on compiler
+#if defined(__GNUC__) || defined(__GNUG__)
+    #define BE_FUNCTION_FULL_NAME __PRETTY_FUNCTION__
+#elif defined(_MSC_VER)
+    #define BE_FUNCTION_FULL_NAME __FUNCTION__
+#else
+    #define BE_FUNCTION_FULL_NAME __FUNCTION__
+#endif // defined
 
 #ifndef BE_LOG_ENABLE_PERFORMANCE
 	#ifdef _DEBUG
@@ -39,16 +53,16 @@
 	#endif
 #endif
 
-#ifndef LOG_LOGGING_THRESHOLD
+#ifndef BE_LOG_LOGGING_THRESHOLD
 	#ifdef _DEBUG
-		#define LOG_LOGGING_THRESHOLD BE_LOG_ALL
+		#define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
 	#else
-		#define LOG_LOGGING_THRESHOLD BE_LOG_INFO
+		#define BE_LOG_LOGGING_THRESHOLD BE_LOG_INFO
 	#endif
 #endif
 
 #define LOG_IF_SHOULD_LOG(severity)                 \
-    if (severity > LOG_LOGGING_THRESHOLD) ;  else   \
+    if (severity > BE_LOG_LOGGING_THRESHOLD) ;  else   \
 
 #define LOG_CLASS(output)														\
 		private:																\
@@ -61,7 +75,7 @@
 #ifdef BE_LOG_SHOW_CALL_PLACE
 	#define LOG(logger,severity)						\
         LOG_IF_SHOULD_LOG(severity)		                \
-			BitEngine::LogLine(logger, severity) << __FUNCTION__ << ":" << __LINE__ << " | "
+			BitEngine::LogLine(logger, severity) << BE_FUNCTION_FULL_NAME << ":" << __LINE__ << " | "
 #else
 	#define LOG(logger,severity)						\
         LOG_IF_SHOULD_LOG(severity)		                \

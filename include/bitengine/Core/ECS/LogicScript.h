@@ -44,7 +44,7 @@ namespace BitEngine{
 			// Prefer the variation above
 			template<typename CompClass>
 			bool getComponent_ex(ComponentRef<CompClass>& ref){
-				return e_sys->getComponentRef<CompClass>(m_myEntity, ref);
+				return e_sys->getComponentRef_ex<CompClass>(m_myEntity, ref);
 			}
 
 

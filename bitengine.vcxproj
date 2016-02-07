@@ -47,10 +47,11 @@
     <ClInclude Include="include\bitengine\Core\Logger.h" />
     <ClInclude Include="include\bitengine\Core\Mesh.h" />
     <ClInclude Include="include\bitengine\Core\MessageChannel.h" />
+    <ClInclude Include="include\bitengine\Core\MessageSystem.h" />
     <ClInclude Include="include\bitengine\Core\MessageType.h" />
     <ClInclude Include="include\bitengine\Core\ModelManager.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSystem.h" />
-    <ClInclude Include="include\bitengine\Core\ThreadSafeQueue.h" />
+    <ClInclude Include="include\bitengine\Common\ThreadSafeQueue.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\FrameBuffer.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GLTextureManager.h" />
@@ -78,6 +79,7 @@
     <ClInclude Include="include\bitengine\bitengine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\MessageSystem.cpp" />
     <ClCompile Include="src\Core\CommandSystem.cpp" />
     <ClCompile Include="src\Core\ECS\BaseEntitySystem.cpp" />
     <ClCompile Include="src\Core\ECS\Camera2DComponent.cpp" />

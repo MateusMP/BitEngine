@@ -10,111 +10,112 @@ namespace BitEngine{
 	class ComponentCollection
 	{
 	public:
-		ComponentCollection() :validRef(true){
+		ComponentCollection()
+            : validRef(false)
+		{
 			components.emplace_back(); // element 0 is invalid
 		}
 
 		template<typename... Args>
-		ComponentHandle newComponent(Args ... args){
+		ComponentHandle newComponent(Args ... args)
+		{
 			if (freeHandles.empty())
 			{
 				ComponentHandle hdl = components.size();
-				if (validRef){ // Needs to guarantee if the final vector address did not change
-					T* _reallocTest = &components[0];
+
+				// Needs to guarantee if the final vector address did not change
+				if (validRef)
+                {
+					const T* _reallocTest = &components[0];
 					components.emplace_back(args...);
-					T* _reallocTestEnd = &components[0];
-				
-					validComponents.push_back(hdl);
-					if (_reallocTest != _reallocTestEnd){ // Vector realloc! Invalid references!
+					const T* _reallocTestEnd = &components[0];
+
+					// Vector realloc! Invalid references!
+					if (_reallocTest != _reallocTestEnd)
+                    {
 						validRef = false;
-					} else { // Add reference if the vector continues at the same address
+					}
+					else // Add reference if the vector continues at the same address
+					{
+                        validComponents.push_back(hdl);
 						validComponentsRef.push_back(&components[hdl]);
 					}
 				} else { // References are invalid, so just ignore them for now
 					components.emplace_back(args...);
-					validComponents.push_back(hdl);
 				}
 
 				return hdl;
 			}
-			else 
+			else
 			{
 				ComponentHandle hdl = freeHandles.back();
 				components.emplace(components.begin() + hdl);
 				freeHandles.pop_back();
 
-				validComponents.push_back(hdl);
-				validComponentsRef.push_back(&components[hdl]);
+                validRef = false;
+
 				return hdl;
 			}
 		}
 
 		void removeComponent(ComponentHandle hdl)
 		{
-			unsigned int index;
-			for (index = 0; index < validComponents.size(); ++index){
-				if (validComponents[index] == hdl){
-					break;
-				}
-			}
-
-			// Not found? Should not happen.
-			if (index == validComponents.size())
-				return;
-
 			freeHandles.push_back(hdl);
+			components[hdl].entity = 0;
 
-			// Put something on the cleaned space to mantain a sequential order
-			if (index < validComponents.size())
-			{
-				// NOTE: THE REAL COMPONENT DATA DO NOT CHANGE POSITION
-				// Last valid index now ocuppy the freed index
-				ComponentHandle substBy = validComponents.back();
-
-				// components[hdl] = components[substBy];
-				validComponents[index] = substBy;
-				validComponents.pop_back();
-
-				if (index < validComponentsRef.size()) 
-				{
-					validComponentsRef[index] = &components[substBy];
-					validComponentsRef.pop_back();
-				}
-			}
+            validRef = false;
 		}
 
-		const std::vector<ComponentHandle>& getValidComponents() const{
+		inline const std::vector<ComponentHandle>& getValidComponents() const {
+		    orderLists();
 			return validComponents;
 		}
 
-		std::vector<T*>& getValidComponentsRef(){
-			if (!validRef)
-			{
-				validComponentsRef.clear();
-				for (ComponentHandle h : validComponents){
-					validComponentsRef.emplace_back( &components[h] );
-				}
-				validRef = true;
-			}
-
+		inline const std::vector<T*>& getValidComponentsRef() const {
+            orderLists();
 			return validComponentsRef;
 		}
 
-		T* getComponent(ComponentHandle hdl){
+		inline T* getComponent(ComponentHandle hdl){
 			return &components[hdl];
 		}
 
-		const T* getComponent(ComponentHandle hdl) const {
+		inline const T* getComponent(ComponentHandle hdl) const {
 			return &components[hdl];
 		}
 
 	private:
+	    void orderLists() const
+	    {
+            if (!validRef)
+			{
+			    // Rebuild the validComponents and validComponentsRef lists in order
+			    uint32 totalComponents = components.size() - freeHandles.size() - 1;
+			    validComponentsRef.resize(totalComponents);
+			    validComponents.resize(totalComponents);
+
+			    // First component is always invalid
+				for (uint32 i = 1; totalComponents != 0; ++i)
+                {
+                    if (components[i].entity != 0)
+                    {
+                        const uint32 id1 = i-1;
+                        validComponents[id1] = i;
+                        validComponentsRef[id1] = const_cast<T*>(&components[i]);
+                        --totalComponents;
+                    }
+				}
+				validRef = true;
+			}
+	    }
+
 		std::vector<T> components;
-		std::vector<T*> validComponentsRef;
-		std::vector<ComponentHandle> validComponents;
+		mutable std::vector<T*> validComponentsRef; // always in memory order
+		mutable std::vector<ComponentHandle> validComponents;
+
 		std::vector<ComponentHandle> freeHandles;
 
-		bool validRef;
+		mutable bool validRef;
 	};
 
 }

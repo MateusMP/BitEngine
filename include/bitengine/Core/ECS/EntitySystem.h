@@ -344,6 +344,13 @@ class EntitySystem : public BaseEntitySystem
 		}
 
 		template<typename CompClass>
+		bool AddComponent(EntityHandle entity)
+		{
+			ComponentRef<CompClass> ref;
+			return BaseEntitySystem::AddComponent(entity, ComponentIDProvider::template ID<CompClass>(), ref);
+		}
+
+		template<typename CompClass>
 		bool RemoveComponent(EntityHandle entity, const ComponentRef<CompClass>& ref)
 		{
 			return BaseEntitySystem::RemoveComponent(entity, ComponentIDProvider::template ID<CompClass>(), ref);

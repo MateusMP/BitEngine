@@ -10,6 +10,7 @@
 #include "Core/CommandSystem.h"
 #include "Core/InputSystem.h"
 #include "Core/ECS/EntitySystem.h"
+#include "Core/ECS/Components.h"
 
 #include "Core/Mesh.h"
 #include "Core/ITexture.h"

@@ -4,7 +4,7 @@
 
 namespace BitEngine {
 
-#ifdef _DEBUG
+#if defined(_DEBUG) || defined(BE_LOG_FORCE_OUTPUT_CONSOLE)
 	Logger EngineLog("EngineLog", std::cout);
 #else
 	std::ofstream file("EngineLog.log", std::ios_base::app);

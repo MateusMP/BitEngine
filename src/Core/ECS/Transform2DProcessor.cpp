@@ -60,14 +60,16 @@ namespace BitEngine{
 	{
 		if (t.dirty)
 		{
-			if (t.parent != 0)
+			if (t.parent != 0) {
 				globalTransform[t.self] = globalTransform[t.parent] * localTransform[t.self];
-			else
+			} else {
 				globalTransform[t.self] = localTransform[t.self];
+			}
 
 			t.dirty = false;
 
-			for (const ComponentHandle c : t.childs) {
+			for (const ComponentHandle c : t.childs)
+            {
 				hierarchy[c].dirty = true;
 				RecalcGlobal(hierarchy[c]);
 			}
@@ -89,5 +91,4 @@ namespace BitEngine{
 	const std::vector<ComponentHandle>& Transform2DProcessor::getComponents() const {
 		return components.getValidComponents();
 	}
-
 }

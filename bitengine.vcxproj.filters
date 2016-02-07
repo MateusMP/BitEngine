@@ -70,8 +70,9 @@
     <ClInclude Include="include\bitengine\Core\IResourceManager.h" />
     <ClInclude Include="include\bitengine\Core\ITexture.h" />
     <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
-    <ClInclude Include="include\bitengine\Core\ThreadSafeQueue.h" />
     <ClInclude Include="include\bitengine\Common\MacroHelpers.h" />
+    <ClInclude Include="include\bitengine\Common\ThreadSafeQueue.h" />
+    <ClInclude Include="include\bitengine\Core\MessageSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -106,5 +107,6 @@
     <ClCompile Include="src\DefaultBackends\opengl\error_texture.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\OpenGL.cpp" />
     <ClCompile Include="src\Core\ECS\Camera3DComponent.cpp" />
+    <ClCompile Include="src\Core\MessageSystem.cpp" />
   </ItemGroup>
 </Project>

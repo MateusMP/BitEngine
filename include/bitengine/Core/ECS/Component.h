@@ -34,6 +34,7 @@ namespace BitEngine{
 
 	private:
 		friend class ComponentHolder;
+		template <typename T> friend class ComponentCollection;
 		EntityHandle entity;
 	};
 

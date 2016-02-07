@@ -8,7 +8,7 @@
 
 #include "Core/ITexture.h"
 #include "Core/IResourceManager.h"
-#include "Core/ThreadSafeQueue.h"
+#include "Common/ThreadSafeQueue.h"
 
 class OpenGLTexture : public BitEngine::ITexture
 {
