@@ -1,17 +1,18 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "Common/TypeDefinition.h"
 
+#include "Core/Messenger.h"
 #include "Core/ECS/Component.h"
 #include "Core/ECS/ComponentCollection.h"
-
-#include <unordered_map>
 
 namespace BitEngine{
 
 class BaseEntitySystem;
 
-class ComponentProcessor
+class ComponentProcessor : public MessengerEndpoint
 {
 public:
 	typedef void (ComponentProcessor::* processFunc)(void);

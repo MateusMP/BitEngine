@@ -23,6 +23,8 @@
 #include "Core/ECS/Sprite2DHolder.h"
 #include "Core/ECS/RenderableMeshProcessor.h"
 
+#include "Core/Messenger.h"
+
 
 namespace BitEngine{
 
@@ -34,13 +36,15 @@ class GameEngine
 
         bool Run();
 
-        void Message(const WindowClosed& msg);
+        void StopRunning();
 
     protected:
 		virtual void CreateSystems() = 0;
 
         void AddSystem(System *sys);
 		System* getSystem(const std::string& name) const;
+
+		Messenger* getMessenger() { return &messenger; }
 
     private:
         bool InitSystems();
@@ -51,6 +55,7 @@ class GameEngine
         bool running;
 		int lastSystemInitialized;
 
+		Messenger messenger;
 		EngineConfiguration configuration;
 };
 

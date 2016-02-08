@@ -77,7 +77,9 @@
 			<Add directory="$(GLEW_LIB)" />
 		</Linker>
 		<Unit filename="../../include/bitengine/Common/ErrorCodes.h" />
+		<Unit filename="../../include/bitengine/Common/MacroHelpers.h" />
 		<Unit filename="../../include/bitengine/Common/MathUtils.h" />
+		<Unit filename="../../include/bitengine/Common/ThreadSafeQueue.h" />
 		<Unit filename="../../include/bitengine/Common/TypeDefinition.h" />
 		<Unit filename="../../include/bitengine/Common/VectorBool.h" />
 		<Unit filename="../../include/bitengine/Core/Color.h" />
@@ -112,8 +114,9 @@
 		<Unit filename="../../include/bitengine/Core/InputSystem.h" />
 		<Unit filename="../../include/bitengine/Core/Logger.h" />
 		<Unit filename="../../include/bitengine/Core/Mesh.h" />
-		<Unit filename="../../include/bitengine/Core/MessageChannel.h" />
+		<Unit filename="../../include/bitengine/Core/Message.h" />
 		<Unit filename="../../include/bitengine/Core/MessageType.h" />
+		<Unit filename="../../include/bitengine/Core/Messenger.h" />
 		<Unit filename="../../include/bitengine/Core/ModelManager.h" />
 		<Unit filename="../../include/bitengine/Core/ResourceSystem.h" />
 		<Unit filename="../../include/bitengine/Core/SmartManager.h" />
@@ -124,7 +127,6 @@
 		<Unit filename="../../include/bitengine/Core/SystemConfiguration.h" />
 		<Unit filename="../../include/bitengine/Core/Task.h" />
 		<Unit filename="../../include/bitengine/Core/TaskManager.h" />
-		<Unit filename="../../include/bitengine/Core/ThreadSafeQueue.h" />
 		<Unit filename="../../include/bitengine/Core/Timer.h" />
 		<Unit filename="../../include/bitengine/Core/VideoSystem.h" />
 		<Unit filename="../../include/bitengine/Core/Window.h" />
@@ -157,7 +159,8 @@
 		<Unit filename="../../src/Core/GameEngine.cpp" />
 		<Unit filename="../../src/Core/InputSystem.cpp" />
 		<Unit filename="../../src/Core/Logger.cpp" />
-		<Unit filename="../../src/Core/MessageChannel.cpp" />
+		<Unit filename="../../src/Core/MessageType.cpp" />
+		<Unit filename="../../src/Core/Messenger.cpp" />
 		<Unit filename="../../src/Core/ModelManager.cpp" />
 		<Unit filename="../../src/Core/ResourceSystem.cpp" />
 		<Unit filename="../../src/Core/Sprite2DShader.cpp" />

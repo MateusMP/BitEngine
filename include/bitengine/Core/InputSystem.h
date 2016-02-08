@@ -3,13 +3,11 @@
 #include <unordered_map>
 
 #include "Core/System.h"
-#include "Core/MessageChannel.h"
 #include "Core/MessageType.h"
-
 
 namespace BitEngine{
 
-class InputReceiver
+class InputReceiver : public MessengerEndpoint
 {
 	public:
 		enum class KeyMod : unsigned char{
@@ -55,7 +53,7 @@ class InputReceiver
 		};
 
 		// Message
-		struct KeyboardInput{
+		struct KeyboardInput : Message<KeyboardInput>{
 			KeyboardInput() : key(0), keyAction(KeyAction::NONE), keyMod(KeyMod::KFALSE){}
 			KeyboardInput(int k, KeyAction ka, KeyMod km)
 			: key(k), keyAction(ka), keyMod(km){}
@@ -65,7 +63,7 @@ class InputReceiver
 			KeyMod keyMod;
 		};
 
-		struct MouseInput{
+		struct MouseInput : Message<KeyboardInput> {
 			MouseInput()
 				: button(0), action(MouseAction::NONE), keyMod(KeyMod::KFALSE), x(0), y(0){}
 			MouseInput(double _x, double _y)
@@ -104,10 +102,12 @@ class InputReceiver
 		double cursorInScreenY;
 };
 
-class IInputDriver
+class IInputDriver : public MessengerEndpoint
 {
 public:
 	virtual ~IInputDriver(){}
+
+	virtual bool Init() = 0;
 
 	virtual void inputWindowCreated(BitEngine::Window* window) = 0;
 	virtual void inputWindowDestroyed(BitEngine::Window* window) = 0;
@@ -132,8 +132,8 @@ class InputSystem
         void Shutdown() override;
         void Update() override;
 
-        void Message(const WindowCreated& wndcr);
-		void Message(const WindowClosed& wndcr);
+        void Message_WindowCreated(const BaseMessage& wndcr);
+		void Message_WindowClosed(const BaseMessage& wndcr);
 
 	private:
 		IInputDriver *driver;

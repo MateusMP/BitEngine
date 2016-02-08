@@ -54,6 +54,7 @@ class EntitySystem : public BaseEntitySystem
 		{
 			for (ComponentProcessor* p : m_processors)
 			{
+				p->setMessenger(getMessenger());
 				p->Init(this);
 			}
 

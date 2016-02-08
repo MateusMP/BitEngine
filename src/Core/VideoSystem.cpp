@@ -25,6 +25,8 @@ namespace BitEngine {
 		windowConfig.m_DepthBits = 8;
 		windowConfig.m_StencilBits = 8;
 
+		m_driver->setMessenger(getMessenger());
+
 		if (m_driver->Init(config))
 		{
 			m_window = m_driver->CreateWindow(windowConfig);

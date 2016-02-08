@@ -11,6 +11,8 @@
 class GLFW_InputDriver : public BitEngine::IInputDriver
 {
 public:
+	bool Init() override;
+
 	void inputWindowCreated(BitEngine::Window* window) override;
 	void inputWindowDestroyed(BitEngine::Window* window) override;
 

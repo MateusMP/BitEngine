@@ -15,7 +15,7 @@ namespace BitEngine{
 		virtual void OnCollision() = 0;
 	};
 
-	class GameLogic
+	class GameLogic : public MessengerEndpoint
 	{
 		public:
 			enum RunEvents : uint16 {

@@ -1,7 +1,6 @@
 
 #include "Core/InputSystem.h"
 
-#include "Core/MessageChannel.h"
 #include "Core/Logger.h"
 
 namespace BitEngine{
@@ -9,8 +8,6 @@ namespace BitEngine{
 InputSystem::InputSystem(IInputDriver *input)
     : System("Input"), driver(input)
 {
-    Channel::AddListener<WindowCreated>(this);
-	Channel::AddListener<WindowClosed>(this);
 }
 
 InputSystem::~InputSystem(){
@@ -18,6 +15,12 @@ InputSystem::~InputSystem(){
 
 bool InputSystem::Init()
 {
+	driver->setMessenger(getMessenger());
+	driver->Init();
+
+	getMessenger()->RegisterListener<WindowCreated>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowCreated));
+	getMessenger()->RegisterListener<WindowClosed>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowClosed));
+
 	return true;
 }
 
@@ -32,14 +35,16 @@ void InputSystem::Shutdown()
 }
 
 
-void InputSystem::Message(const WindowCreated& wndcr)
+void InputSystem::Message_WindowCreated(const BaseMessage& wndcr)
 {
-	driver->inputWindowCreated(wndcr.window);
+	const WindowCreated& msg = static_cast<const WindowCreated&>(wndcr);
+	driver->inputWindowCreated(msg.window);
 }
 
-void InputSystem::Message(const WindowClosed& wndcr)
+void InputSystem::Message_WindowClosed(const BaseMessage& wndcr)
 {
-	driver->inputWindowDestroyed(wndcr.window);
+	const WindowClosed& msg = static_cast<const WindowClosed&>(wndcr);
+	driver->inputWindowDestroyed(msg.window);
 }
 
 
@@ -67,7 +72,7 @@ void InputReceiver::keyboardInput(int key, int scancode, KeyAction action, int m
 			return;
 	}
 
-	Channel::Broadcast<KeyboardInput>(KeyboardInput(key, action, (KeyMod)mods));
+	getMessenger()->SendMessage(KeyboardInput(key, action, (KeyMod)mods));
 }
 
 void InputReceiver::mouseInput(int button, MouseAction action, int mods)
@@ -89,7 +94,7 @@ void InputReceiver::mouseInput(int button, MouseAction action, int mods)
 			return;
 	}
 
-	Channel::Broadcast<MouseInput>(MouseInput(button, action, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
+	getMessenger()->SendMessage(MouseInput(button, action, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
 }
 
 void InputReceiver::mouseInput(double x, double y)
@@ -97,7 +102,7 @@ void InputReceiver::mouseInput(double x, double y)
 	cursorInScreenX = x;
 	cursorInScreenY = y;
 
-	Channel::Broadcast<MouseInput>(MouseInput(cursorInScreenX, cursorInScreenY));
+	getMessenger()->SendMessage(MouseInput(cursorInScreenX, cursorInScreenY));
 }
 
 InputReceiver::KeyMod InputReceiver::isKeyPressed(int key)

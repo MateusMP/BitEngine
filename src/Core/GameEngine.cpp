@@ -11,7 +11,6 @@ uint64 Time::ticks = 0;
 GameEngine::GameEngine(const std::string& configFile)
 	: configuration(configFile)
 {
-    Channel::AddListener<WindowClosed>(this);
 }
 
 GameEngine::~GameEngine()
@@ -19,7 +18,7 @@ GameEngine::~GameEngine()
 
 }
 
-void GameEngine::Message(const WindowClosed& msg)
+void GameEngine::StopRunning()
 {
     running = false;
 }
@@ -30,6 +29,8 @@ void GameEngine::AddSystem(System *sys)
 		return;
 
     systems.push_back(sys);
+
+	sys->setMessenger(&messenger);
 
 	configuration.AddConfiguration(sys->getName(), sys->getConfiguration());
 }
@@ -107,6 +108,8 @@ bool GameEngine::Run()
 
         while (running)
 		{
+			messenger.Update();
+
             for (System *s : systems){
                 s->Update();
             }

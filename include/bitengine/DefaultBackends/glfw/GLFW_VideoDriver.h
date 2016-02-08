@@ -4,7 +4,10 @@
 #include "Core/VideoSystem.h"
 #include "Core/Logger.h"
 
+#include "Core/Messenger.h"
+
 #include <GLFW/glfw3.h>
+
 
 class GLFW_VideoDriver : public BitEngine::IVideoDriver
 {

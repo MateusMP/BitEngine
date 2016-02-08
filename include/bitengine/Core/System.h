@@ -2,11 +2,12 @@
 
 #include <string>
 
+#include "Core/Messenger.h"
 #include "Core/SystemConfiguration.h"
 
 namespace BitEngine{
 
-class System
+class System : public MessengerEndpoint
 {
     public:
         System(const std::string& name);
@@ -24,12 +25,10 @@ class System
 
         const std::string& getName() const;
 
-
     protected:
 		std::string m_name;
-
 		SystemConfiguration configuration;
-		
+
 };
 
 

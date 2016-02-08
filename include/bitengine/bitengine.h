@@ -2,6 +2,7 @@
 
 #include "Common/TypeDefinition.h"
 
+#include "Core/Messenger.h"
 #include "Core/ResourceSystem.h"
 #include "Core/FileResourceLoader.h"
 

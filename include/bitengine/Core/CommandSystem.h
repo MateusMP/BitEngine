@@ -4,15 +4,16 @@
 
 #include "Core/System.h"
 #include "Core/InputSystem.h"
-#include "Core/MessageChannel.h"
+#include "Core/Message.h"
 
 namespace BitEngine{
 
 	class CommandSystem : public System
 	{
 		public:
-			struct CommandInput
+			class CommandInput : public Message<CommandInput>
 			{
+			public:
 				CommandInput(int _id, float _intensity, int _other);
 				CommandInput(int _id, float _intensity, InputReceiver::KeyAction _other);
 				CommandInput(int _id, float _intensity, InputReceiver::MouseAction _other, double x, double y);
@@ -66,8 +67,8 @@ namespace BitEngine{
 				return RegisterMouseCommand(commandID, commandState, 0, InputReceiver::MouseAction::MOVE, mod);
 			}
 
-			void Message(const InputReceiver::KeyboardInput& msg);
-			void Message(const InputReceiver::MouseInput& msg);
+			void Message_KeyboardInput(const BaseMessage& msg_);
+			void Message_MouseInput(const BaseMessage& msg);
 
 		private:
 			enum class InputType : int{

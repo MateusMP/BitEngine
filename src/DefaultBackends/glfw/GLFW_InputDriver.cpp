@@ -2,12 +2,17 @@
 
 std::unordered_map<GLFWwindow*, BitEngine::InputReceiver> GLFW_InputDriver::inputReceivers;
 
+bool GLFW_InputDriver::Init()
+{
+	return true;
+}
+
 void GLFW_InputDriver::inputWindowCreated(BitEngine::Window* window)
 {
 	GLFW_VideoDriver::Window_glfw* w = static_cast<GLFW_VideoDriver::Window_glfw*>(window);
 
 	// Creates instance for this window
-	inputReceivers[w->m_glfwWindow];
+	inputReceivers[w->m_glfwWindow].setMessenger(getMessenger());
 
 	// Define callback for functions
 	glfwSetKeyCallback(w->m_glfwWindow, GlfwKeyCallback);

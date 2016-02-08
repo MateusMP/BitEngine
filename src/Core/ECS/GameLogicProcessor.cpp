@@ -46,6 +46,7 @@ namespace BitEngine{
 			for (size_t i = 0; i < pieces.size(); ++i)
 			{
 				GameLogic* logic = pieces[i];
+				logic->setMessenger(getMessenger());
 				GameLogic::RunEvents ev = logic->getRunEvents();
 				if (ev & GameLogic::RunEvents::EFrameStart){
 					m_onFrameStart.emplace_back(logic);

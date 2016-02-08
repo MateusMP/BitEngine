@@ -1,23 +1,26 @@
 #pragma once
 
+#include "Core/Message.h"
 #include "Core/Window.h"
 
 namespace BitEngine{
 
-struct WindowClosed
-{
-	WindowClosed(Window *w) :window(w)
-	{}
+	class  WindowClosed : public Message<WindowClosed>
+	{
+	public:
+		WindowClosed(Window *w) :window(w)
+		{}
 
-	Window* window;
-};
+		Window* window;
+	};
 
-struct WindowCreated
-{
-    WindowCreated(Window *w): window(w){
-    }
-    Window* window;
-};
+	class WindowCreated : public Message<WindowCreated>
+	{
+	public:
+		WindowCreated(Window *w): window(w){
+		}
+		Window* window;
+	};
 
 
 }
