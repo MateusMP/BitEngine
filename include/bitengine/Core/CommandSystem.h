@@ -38,8 +38,13 @@ namespace BitEngine{
 			bool Init() override;
 			void Shutdown() override;
 			void Update() override;
-		
+
 			void setCommandState(int state);
+
+			/**
+			 * Remove all keybinds to given command
+			 */
+			void UnregisterCommand(int commandID);
 
 			/** \param commandID	the command ID returned when given key/action/mod combination ocurrs
 			  * \param commandState		CommandSystem state necessary for processing this command
@@ -48,6 +53,19 @@ namespace BitEngine{
 			  * Note that this function will register the commandID for both inputs: RELEASE and PRESS
 			  */
 			bool RegisterKeyboardCommand(int commandID, int commandState, int key);
+
+			/** \param commandID	the command ID returned when given key/action/mod combination ocurrs
+			  * \param commandState		CommandSystem state necessary for processing this command
+			  *							Use -1 to assign it as a "Global" command. Useful for debug purposes.
+			  * \param key	keyboard key needed
+			  * Note that this function will register the commandID for both inputs: RELEASE and PRESS and to be accepted with any keymod combination
+			  * 
+			  * If an ambiguous keybind is found, it wont be overwritten and the command being bind will not be fully binded.
+			  * In this case, the function returns false.
+			  * It's recommended that all commands for the requested commandID are cleared if this function fails. 
+			  * Left optional for the caller, so no other binding will be silently removed.
+			  */
+			bool RegisterKeyCommandForAllMods(int commandID, int commandState, int key);
 
 			/** \param commandID	Command ID returned when given key/action/mod combination ocurrs
 			  * \param commandState		CommandSystem state necessary for processing this command
@@ -71,7 +89,7 @@ namespace BitEngine{
 			void Message_MouseInput(const BaseMessage& msg);
 
 		private:
-			enum class InputType : int{
+			enum class InputType : char{
 				keyboard,
 				mouse,
 				joystick
@@ -80,24 +98,27 @@ namespace BitEngine{
 			struct CommandIdentifier{
 				CommandIdentifier()
 				{}
+
 				CommandIdentifier(int s, const InputReceiver::KeyboardInput& k)
 					: commandState(s), commandInputType(InputType::keyboard), keyboard(k){}
+
 				CommandIdentifier(int s, const InputReceiver::MouseInput& m)
 					: commandState(s), commandInputType(InputType::mouse), mouse(m){}
+
 				int commandState;
 				InputType commandInputType;
-				
+
 				InputReceiver::KeyboardInput keyboard;
 				InputReceiver::MouseInput mouse;
 			};
-			
+
 			// CommandIdentifier Hash and Equal
 			class CIHash{
 			public:
 				std::size_t operator()(const CommandIdentifier& k) const
 				{
 					if (k.commandInputType == InputType::keyboard)
-						return (std::hash<int>()(k.commandState << 24) 
+						return (std::hash<int>()(k.commandState << 24)
 							 ^ (std::hash<int>()((int)k.commandInputType) << 16))
 							 ^ (std::hash<int>()(k.keyboard.key) << 8)
 							 ^ (std::hash<int>()((int)k.keyboard.keyAction) << 4)

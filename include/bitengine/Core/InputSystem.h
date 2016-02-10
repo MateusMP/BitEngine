@@ -19,11 +19,23 @@ class InputReceiver : public MessengerEndpoint
 			ALT = 0x0004,
 			SUPER = 0x0008,
 
-			KTRUE = 0x0080
+			ALT_SHIFT = ALT | SHIFT,
+			CTRL_ALT = CTRL | ALT,
+			CTRL_SHIFT = CTRL | SHIFT,
+			SUPER_ALT = SUPER | ALT,
+			SUPER_CTRL = SUPER | CTRL,
+			SUPER_SHIFT = SUPER | SHIFT,
+
+			ALT_SHIFT_SUPER = ALT | SHIFT | SUPER,
+			SHIFT_CTRL_SUPER = SHIFT | CTRL | SUPER,
+			CTRL_ALT_SHIFT = CTRL | ALT | SHIFT,
+			CTRL_ALT_SUPER = CTRL | ALT | SUPER,
+
+			KTRUE = 0x0080  // Used to find out the current state of the key_press/release/ispressed events
 
 			// Example: KeyPress/Release with no modifiers
 			// 1000 0000 => x = KTRUE
-			// Example: KeyPress/Release with no CTRL+ALT
+			// Example: KeyPress/Release with CTRL+ALT
 			// 1000 0110 => x = KTRUE | CTRL | ALT
 
 			// Receiving the value:
@@ -75,7 +87,7 @@ class InputReceiver : public MessengerEndpoint
 			int button;
 			MouseAction action;
 			KeyMod keyMod;
-			
+
 			double x;
 			double y;
 		};
@@ -127,7 +139,7 @@ class InputSystem
     public:
         InputSystem(IInputDriver *input);
         ~InputSystem();
-		
+
         bool Init() override;
         void Shutdown() override;
         void Update() override;

@@ -53,9 +53,11 @@ class OpenGLTexture : public BitEngine::ITexture
 class GLTextureManager : public BitEngine::ITextureManager
 {
 public:
-	GLTextureManager(BitEngine::IResourceLoader* loader);
+	GLTextureManager();
 
 	bool Init() override;
+
+	void setResourceLoader(BitEngine::IResourceLoader* loader) override;
 
 	// Load textures that are ready to be sent to the GPU
 	void Update() override;

@@ -60,6 +60,64 @@ namespace BitEngine
 		m_commandState = state;
 	}
 
+	void CommandSystem::UnregisterCommand(int commandID)
+	{
+		for (auto it = m_commands.begin(); it != m_commands.end(); ++it)
+		{
+			if (it->second == commandID)
+				it = m_commands.erase(it);
+		}
+	}
+
+	bool CommandSystem::RegisterKeyCommandForAllMods(int commandID, int commandState, int key)
+	{
+		const int cmd = commandID;
+		const int cmdS = commandState;
+		uint32 s = 1;
+		uint32 f = 0;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::NONE)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::ALT_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SUPER_ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SUPER_CTRL)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SUPER_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::ALT_SHIFT_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SHIFT_CTRL_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_ALT_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_ALT_SUPER)) { f |= s; } s <<= 1;
+
+		if ( f != 0b0111'1111'1111'1111 ) {
+			LOG(EngineLog, BE_LOG_WARNING) << "Failed to register key for all press mods: " << f << ". Ambiguos key?";
+		}
+
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::NONE)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::ALT_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SUPER_ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SUPER_CTRL)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SUPER_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::ALT_SHIFT_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SHIFT_CTRL_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_ALT_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_ALT_SUPER)) { f |= s; } s <<= 1;
+
+		if ( (f >> 15) != 0b0111'1111'1111'1111) {
+			LOG(EngineLog, BE_LOG_WARNING) << "Failed to register key for all release mods: " << f << ". Ambiguos key?";
+		}
+
+		return f == 0x3FFFFFFF;
+	}
+
 	bool CommandSystem::RegisterKeyboardCommand(int commandID, int commandState, int key)
 	{
 		CommandIdentifier idtf;

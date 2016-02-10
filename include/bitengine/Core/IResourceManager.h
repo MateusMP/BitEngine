@@ -66,7 +66,8 @@ namespace BitEngine {
 	class IResourceLoader
 	{
 		public:
-			virtual void releaseAll(uint32 id) = 0;
+			virtual void releaseAll() = 0;
+			virtual void releaseResource(uint32 id) = 0;
 
 			// Returns the request ID
 			// Queue the request to be loaded by another thread
@@ -81,6 +82,8 @@ namespace BitEngine {
 	{
 		public:
 			virtual bool Init() = 0;
+
+			virtual void setResourceLoader(IResourceLoader* loader) = 0;
 
 			virtual void onResourceLoaded(uint32 resourceID) = 0;
 			virtual void onResourceLoadFail(uint32 resourceID) = 0;

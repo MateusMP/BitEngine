@@ -21,7 +21,12 @@ namespace BitEngine
 				m_thLoader = std::thread(&FileResourceLoader::work, this);
 			}
 
-			void releaseAll(uint32 id) override
+			void releaseAll() override
+			{
+
+			}
+
+			void releaseResource(uint32 id) override
 			{
 
 			}

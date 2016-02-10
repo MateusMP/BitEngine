@@ -37,8 +37,8 @@ GLuint GLTextureManager::GenerateErrorTexture()
 
 //
 
-GLTextureManager::GLTextureManager(BitEngine::IResourceLoader* loader)
-	: ITextureManager(), m_currentIndex(0), m_loader(loader)
+GLTextureManager::GLTextureManager()
+	: ITextureManager(), m_currentIndex(0), m_loader(nullptr)
 {
 	ramInUse = 0;
 	gpuMemInUse = 0;
@@ -65,6 +65,11 @@ bool GLTextureManager::Init()
 	return true;
 }
 
+void GLTextureManager::setResourceLoader(BitEngine::IResourceLoader* loader)
+{
+	m_loader = loader;
+}
+
 void GLTextureManager::Update()
 {
 	uint16 localID;
@@ -75,16 +80,22 @@ void GLTextureManager::Update()
 		OpenGLTexture& data = m_textures[localID];
 
 		// load texture
-		loadTexture2D(data.imgData, data);
+		if (data.imgData.pixelData != nullptr)
+		{
+			loadTexture2D(data.imgData, data);
+		}
+		else {
+			data.m_textureID = m_textures[0].m_textureID;
+		}
 
 		// do not need the file data anymore
 		data.clearBaseData();
-
-		m_textures[0].m_textureID = 0;
-
+		
 		// delete pixel data too
-		stbi_image_free(data.imgData.pixelData);
-		data.imgData.pixelData = nullptr;
+		if (data.imgData.pixelData != nullptr) {
+			stbi_image_free(data.imgData.pixelData);
+			data.imgData.pixelData = nullptr;
+		}
 
 		const uint32 ram = data.getUsingRamMemory();
 		const uint32 gpuMem = data.getUsingGPUMemory();
@@ -191,9 +202,19 @@ void GLTextureManager::loadTexture2D(const OpenGLTexture::StbiImageData& data, O
 {
 	GLuint textureID = 0;
 
+	if (texture.m_textureID != m_textures[0].m_textureID)
+	{
+		// Use the same GL index
+		textureID = texture.m_textureID;
+	}
+	else
+	{
+		// Generate new texture index
+		glGenTextures(1, &textureID);
+	}
+
 	if (data.color == 3) // RGBA
 	{
-		glGenTextures(1, &textureID);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.pixelData);
 
@@ -208,7 +229,6 @@ void GLTextureManager::loadTexture2D(const OpenGLTexture::StbiImageData& data, O
 	}
 	else if (data.color == 4)
 	{
-		glGenTextures(1, &textureID);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.pixelData);
 

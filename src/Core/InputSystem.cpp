@@ -10,7 +10,8 @@ InputSystem::InputSystem(IInputDriver *input)
 {
 }
 
-InputSystem::~InputSystem(){
+InputSystem::~InputSystem()
+{
 }
 
 bool InputSystem::Init()
@@ -32,6 +33,7 @@ void InputSystem::Update()
 void InputSystem::Shutdown()
 {
 	delete driver;
+	driver = nullptr;
 }
 
 

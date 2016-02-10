@@ -16,7 +16,7 @@ namespace BitEngine{
 class ResourceSystem : public System
 {
     public:
-		ResourceSystem(ITextureManager* tmng);
+		ResourceSystem(IResourceLoader* loader, ITextureManager* tmng);
 		~ResourceSystem();
 
 		bool Init() override;
@@ -28,6 +28,7 @@ class ResourceSystem : public System
 		ModelManager* getModelManager() const;
 
     private:
+		IResourceLoader* m_resourceLoader;
 		ITextureManager* m_textureManager;
 		SpriteManager* m_spriteManager;
 		ModelManager* m_modelManager;

@@ -25,7 +25,8 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 		GLFW_VideoDriver(BitEngine::IVideoRenderer* renderer)
 			: BitEngine::IVideoDriver(renderer), glewStarted(false), m_currentContext(nullptr)
 		{}
-		~GLFW_VideoDriver(){}
+		~GLFW_VideoDriver(){
+		}
 
 		/**
 		* Initializes a window and openGL related stuff (Extensions and functions)

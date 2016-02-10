@@ -22,7 +22,9 @@ namespace BitEngine {
 			IVideoDriver(IVideoRenderer* renderer)
 				: m_renderer(renderer) 
 			{}
-			virtual ~IVideoDriver(){}
+			virtual ~IVideoDriver(){
+				delete m_renderer;
+			}
 		
 			virtual bool Init(const VideoConfiguration& config) = 0;
 			virtual void Shutdown() = 0;
@@ -57,7 +59,7 @@ namespace BitEngine {
 
 			virtual ~VideoSystem()
 			{
-
+				delete m_driver;
 			}
 
 			IVideoDriver* getDriver() {
