@@ -91,7 +91,7 @@ namespace BitEngine
 		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_ALT_SHIFT)) { f |= s; } s <<= 1;
 		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_ALT_SUPER)) { f |= s; } s <<= 1;
 
-		if ( f != 0b0111'1111'1111'1111 ) {
+		if ( f != 0x7FFF ) {
 			LOG(EngineLog, BE_LOG_WARNING) << "Failed to register key for all press mods: " << f << ". Ambiguos key?";
 		}
 
@@ -111,7 +111,7 @@ namespace BitEngine
 		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_ALT_SHIFT)) { f |= s; } s <<= 1;
 		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_ALT_SUPER)) { f |= s; } s <<= 1;
 
-		if ( (f >> 15) != 0b0111'1111'1111'1111) {
+		if ( (f >> 15) != 0x7FFFF ) {
 			LOG(EngineLog, BE_LOG_WARNING) << "Failed to register key for all release mods: " << f << ". Ambiguos key?";
 		}
 

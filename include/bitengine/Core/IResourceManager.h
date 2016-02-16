@@ -27,11 +27,10 @@ namespace BitEngine {
 			// Original path name used in the request for loading this resource
 			std::string path;
 
-			// TODO: add extra resource information retrieved from package data?
-
-			// Takes owner ship of pointer
+			// Takes ownership of pointer
 			void setBaseData(char* data, int size)
 			{
+				clearBaseData();
 				dataPtr = data;
 				dataSize = size;
 			}
@@ -66,6 +65,10 @@ namespace BitEngine {
 	class IResourceLoader
 	{
 		public:
+		    virtual ~IResourceLoader(){}
+
+			virtual void Shutdown() = 0;
+
 			virtual void releaseAll() = 0;
 			virtual void releaseResource(uint32 id) = 0;
 

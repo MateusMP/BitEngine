@@ -8,6 +8,9 @@ namespace BitEngine {
 
 	class OpenGLRenderer : public IVideoRenderer
 	{
+	public:
+		~OpenGLRenderer() {}
+
 		void ClearBuffer(IRenderBuffer* buffer, BufferClearBitMask mask) override
 		{
 			GLbitfield bitfield = 0;

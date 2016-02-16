@@ -8,9 +8,6 @@ namespace BitEngine{
 	{
 	}
 
-	System::~System(){
-	}
-
 	const std::string& System::getName() const
 	{
 		return m_name;

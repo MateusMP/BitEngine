@@ -11,7 +11,7 @@ class System : public MessengerEndpoint
 {
     public:
         System(const std::string& name);
-        virtual ~System();
+        virtual ~System(){}
 
 		/**
 		 * Should be ready with all default configurations 

@@ -3,7 +3,7 @@
 namespace BitEngine {
 
 	template<unsigned channels, unsigned R, unsigned G, unsigned B, unsigned A>
-	struct Color 
+	struct Color
 	{
 		static_assert(R != G && G != B && B != A, "Invalid color index");
 
@@ -23,7 +23,7 @@ namespace BitEngine {
 	typedef Color<4, 0, 1, 2, 3> ColorRGBA;
 	typedef Color<3, 0, 1, 2, 3> ColorRGB;
 
-	enum BufferClearBitMask 
+	enum BufferClearBitMask
 	{
 		COLOR,
 		DEPTH,
@@ -41,6 +41,7 @@ namespace BitEngine {
 	class IVideoRenderer
 	{
 		public:
+            virtual ~IVideoRenderer(){};
 
 			/**
 			 * Clear buffer on defined options

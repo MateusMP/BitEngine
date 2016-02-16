@@ -21,14 +21,30 @@ namespace BitEngine
 				m_thLoader = std::thread(&FileResourceLoader::work, this);
 			}
 
-			void releaseAll() override
+			~FileResourceLoader()
 			{
-
 			}
 
+			void Shutdown() override
+			{
+				stop = true;
+				m_requests.push("", nullptr, nullptr, 0); // stop processing request
+				
+				m_thLoader.join();
+			}
+
+			// Release all preloaded resource memory
+			void releaseAll() override
+			{
+				for (auto &it : m_resources) {
+					it.second->clearBaseData();
+				}
+			}
+
+			// Release all preloaded memory for this resource
 			void releaseResource(uint32 id) override
 			{
-
+				m_resources[id]->clearBaseData();
 			}
 
 			// Returns the request ID
@@ -72,6 +88,10 @@ namespace BitEngine
 				while (!stop)
 				{
 					Request request = m_requests.pop();
+					if (request.into == nullptr && request.callback == nullptr) {
+						m_completed.notify_all();
+						continue;
+					}
 
 					// Process request
 					std::ifstream file(request.file, std::ios_base::in | std::ios_base::binary);
@@ -88,7 +108,6 @@ namespace BitEngine
 					d->resourceId = request.resourceID;
 					request.callback->onResourceLoaded(d->resourceId);
 					
-
 					if (m_requests.empty())
 					{
 						m_completed.notify_all();
@@ -96,6 +115,8 @@ namespace BitEngine
 
 					LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Resource " << d->resourceId << " loaded";
 				}
+
+				LOG(BitEngine::EngineLog, BE_LOG_INFO) << "File Load Thread finished!";
 			}
 
 			struct Request 
@@ -116,5 +137,6 @@ namespace BitEngine
 			std::mutex m_mutex;
 			std::unordered_map<uint32, BaseResource*> m_resources;
 			bool stop;
+			bool onLoading;
 	};
 }

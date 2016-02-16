@@ -40,7 +40,7 @@ void ResourceSystem::Shutdown()
 	delete m_spriteManager;
 	delete m_textureManager;
 
-	m_resourceLoader->waitForAll();
+	m_resourceLoader->Shutdown();
 	delete m_resourceLoader;
 }
 

@@ -84,7 +84,8 @@ void GLTextureManager::Update()
 		{
 			loadTexture2D(data.imgData, data);
 		}
-		else {
+		else // Use error texture
+		{
 			data.m_textureID = m_textures[0].m_textureID;
 		}
 
