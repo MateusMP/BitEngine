@@ -1,5 +1,5 @@
 #include "Core/ECS/Transform3DProcessor.h"
-
+#include "Core/ECS/EntitySystem.h"
 #include <algorithm>
 
 namespace BitEngine{
@@ -12,13 +12,11 @@ namespace BitEngine{
 	{
 	}
 
-	bool Transform3DProcessor::Init(BaseEntitySystem* es) {
-		RegisterListener(this);
+	bool Transform3DProcessor::Init() {
 		return true;
 	}
 
 	void Transform3DProcessor::Stop() {
-		UnregisterListener(this);
 	}
 
 	void Transform3DProcessor::CalculateLocalModelMatrix(const Transform3DComponent* comp, glm::mat4& mat)
@@ -31,22 +29,27 @@ namespace BitEngine{
 	void Transform3DProcessor::Process() 
 	{
 		// Recalculate localTransform
-		for (ComponentHandle c : components.getValidComponents())
-		{
-			Transform3DComponent* t = (Transform3DComponent*)getComponent(c);
-			if ( t->m_dirty ) 
+		//for (ComponentHandle c : components.getValidComponents())
+		getES()->forAll<Transform3DComponent, Transform3DProcessor*>(
+			[](ComponentHandle c, Transform3DComponent& transform, Transform3DProcessor* self)
 			{
-				t->m_dirty = false;
-				CalculateLocalModelMatrix(t, localTransform[c]);
-				hierarchy[c].dirty = true;
-			} 
-		}
+				Transform3DComponent* t = &transform;
+				if ( t->m_dirty ) 
+				{
+					t->m_dirty = false;
+					CalculateLocalModelMatrix(t, self->localTransform[c]);
+					self->hierarchy[c].dirty = true;
+				}
+			}, this
+		);
 
 		// Update globalTransform of valid components
-		for (ComponentHandle c : getComponents())
-		{
-			RecalcGlobal(hierarchy[c]);
-		}
+		getES()->forAll<Transform3DComponent, Transform3DProcessor*>(
+			[](ComponentHandle c, Transform3DComponent& transform, Transform3DProcessor* self)
+			{
+				self->RecalcGlobal(self->hierarchy[c]);
+			}, this
+		);
 	}
 
 	void Transform3DProcessor::RecalcGlobal(Hierarchy &t)
@@ -65,22 +68,6 @@ namespace BitEngine{
 				RecalcGlobal(hierarchy[c]);
 			}
 		}
-	}
-
-	ComponentHandle Transform3DProcessor::AllocComponent() {
-		return components.newComponent();
-	}
-
-	void Transform3DProcessor::DeallocComponent(ComponentHandle component) {
-		components.removeComponent(component);
-	}
-
-	Component* Transform3DProcessor::getComponent(ComponentHandle component) {
-		return components.getComponent(component);
-	}
-
-	const std::vector<ComponentHandle>& Transform3DProcessor::getComponents() const {
-		return components.getValidComponents();
 	}
 
 }

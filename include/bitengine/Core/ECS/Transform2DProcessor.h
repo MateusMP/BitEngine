@@ -6,17 +6,14 @@
 namespace BitEngine{
 
 	// TODO: Fix parents on childs when a parent Transform is destroyed
-	class Transform2DProcessor : public ComponentProcessor, public ComponentHolder
+	class Transform2DProcessor : public ComponentProcessor
 	{
 		public:
 			Transform2DProcessor();
 			~Transform2DProcessor();
-
-			/// Holder
-			Component* getComponent(ComponentHandle component) override;
-
+			
 			/// Processor
-			bool Init(BaseEntitySystem* es) override;
+			bool Init() override;
 			void Stop() override;
 			void Process();
 
@@ -64,12 +61,7 @@ namespace BitEngine{
 			}
 
 		private: // Functions
-				 // Holder
-			ComponentHandle AllocComponent() override;
-			void DeallocComponent(ComponentHandle component) override;
-
-			const std::vector<ComponentHandle>& getComponents() const override;
-
+				 
 			// Processor
 			static void CalculateLocalModelMatrix(const Transform2DComponent* component, glm::mat3& mat);
 
@@ -107,11 +99,7 @@ namespace BitEngine{
 			void RecalcGlobal(Hierarchy &t);
 
 		private: // Attributes
-
-				 // Holder
-			ComponentCollection<Transform2DComponent> components;
-
-
+		
 			// Processor
 			std::vector<Hierarchy> hierarchy;
 			std::vector<glm::mat3> localTransform; // used only to calculate globalTransform

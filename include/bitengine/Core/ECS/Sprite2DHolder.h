@@ -12,53 +12,30 @@
 
 namespace BitEngine{
 
-class Sprite2DHolder : public ComponentHolder
-{
-	public:
-		Sprite2DHolder();
-		~Sprite2DHolder();
-
-		// Holder
-		Component* getComponent(ComponentHandle hdl) override;
-
-	private: // Functions
-		// Holder
-		ComponentHandle AllocComponent() override;
-		void DeallocComponent(ComponentHandle component) override;
-
-		const std::vector<ComponentHandle>& getComponents() const override;
-
-	private: // members
-		// Holder
-		ComponentCollection<Sprite2DComponent> components;
-};
-
 class Sprite2DRendererBasic : public ComponentProcessor
 {
 	public:
-		Sprite2DRendererBasic(const SpriteManager* sprManager) 
-			: renderCamera(0)
+		Sprite2DRendererBasic(Transform2DProcessor *t2dp, const SpriteManager* sprManager)
+			: renderCamera(0), transform2DProcessor(t2dp)
 		{
 			m_spriteManager = sprManager;
 		}
 
 		// Processor
-		bool Init(BaseEntitySystem* es) override 
+		bool Init() override
 		{
-			sprite2DType = es->getComponentType<Sprite2DComponent>();
-			transform2DType = es->getComponentType<Transform2DComponent>();
-			camera2DType = es->getComponentType<Camera2DComponent>();
-	
-			holderSprite = static_cast<Sprite2DHolder*>(es->getHolder(sprite2DType));
-			holderTransform = static_cast<Transform2DProcessor*>(es->getHolder(transform2DType));
-			holderCamera = static_cast<Camera2DProcessor*>(es->getHolder(camera2DType));
+			sprite2DType = Sprite2DComponent::getComponentType(); // es->getComponentType<Sprite2DComponent>();
+			transform2DType = Transform2DComponent::getComponentType(); // es->getComponentType<Transform2DComponent>();
+			camera2DType = Camera2DComponent::getComponentType(); // es->getComponentType<Camera2DComponent>();
+
+			holderSprite = getES()->getHolder<Sprite2DComponent>();
+			holderTransform = getES()->getHolder<Transform2DComponent>();
+			holderCamera = getES()->getHolder<Camera2DComponent>();
 			if (holderSprite == nullptr || holderTransform == nullptr || holderCamera == nullptr)
 				return false;
 
-			holderSprite->RegisterListener(this);
-
 			spr2DShader = BitEngine::Sprite2DShader::CreateShader();
-			if (spr2DShader->Init() == BE_NO_ERROR) 
+			if (spr2DShader->Init() == BE_NO_ERROR)
 			{
 				spr2Dbatch = spr2DShader->CreateRenderer();
 				if (spr2Dbatch == nullptr) {
@@ -66,7 +43,7 @@ class Sprite2DRendererBasic : public ComponentProcessor
 					return false;
 				}
 			}
-			else 
+			else
 			{
 				return false;
 			}
@@ -74,11 +51,10 @@ class Sprite2DRendererBasic : public ComponentProcessor
 			return true;
 		}
 
-		void Stop() override {
+		void Stop() override
+		{
 			delete spr2Dbatch;
 			delete spr2DShader;
-
-			holderSprite->UnregisterListener(this);
 		}
 
 		void setActiveCamera(ComponentHandle handle)
@@ -100,12 +76,12 @@ class Sprite2DRendererBasic : public ComponentProcessor
 			{
 				//printf("Sprite %d\n", i);
 				const Sprite2DComponent* spr = static_cast<Sprite2DComponent*>( holderSprite->getComponent(e.sprite2d) );
-				const glm::mat3& transform = holderTransform->getGlobalTransformFor(e.transform2d);
+				const glm::mat3& transform = transform2DProcessor->getGlobalTransformFor(e.transform2d);
 				const Sprite* sprite = m_spriteManager->getSprite(spr->sprite);
 
 				if (insideScreen(viewScreen, transform, sprite->getMaxRadius()))
 				{
-					spr2Dbatch->DrawSprite( sprite, 
+					spr2Dbatch->DrawSprite( sprite,
 											&transform,
 											spr->depth);
 				}
@@ -128,8 +104,8 @@ class Sprite2DRendererBasic : public ComponentProcessor
 		}
 
 		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override {
-			ComponentHandle sprite = holderSprite->getComponentHandleFor(entity);
-			ComponentHandle transform = holderTransform->getComponentHandleFor(entity);
+			ComponentHandle sprite = holderSprite->getComponentForEntity(entity);
+			ComponentHandle transform = holderTransform->getComponentForEntity(entity);
 
 			if (sprite && transform) {
 				processEntries.emplace_back(entity, sprite, transform);
@@ -187,9 +163,10 @@ class Sprite2DRendererBasic : public ComponentProcessor
 
 		ComponentHandle renderCamera;
 
-		Sprite2DHolder *holderSprite;
-		Transform2DProcessor *holderTransform;
-		Camera2DProcessor *holderCamera;
+		ComponentHolder<Sprite2DComponent> *holderSprite;
+		ComponentHolder<Transform2DComponent> *holderTransform;
+		ComponentHolder<Camera2DComponent> *holderCamera;
+		Transform2DProcessor *transform2DProcessor;
 
 		std::vector<Entry> processEntries;
 		std::unordered_set<EntityHandle> invalidatedEntries;

@@ -36,30 +36,21 @@ namespace BitEngine{
 
 			virtual void End() = 0;
 
-			template<typename ComponentIDProvider, typename CompClass>
-			bool getComponent(ComponentRef<CompClass>& ref) {
-				return e_sys->getComponentRef<ComponentIDProvider, CompClass>(m_myEntity, ref);
-			}
-
-			// Prefer the variation above
 			template<typename CompClass>
-			bool getComponent_ex(ComponentRef<CompClass>& ref){
-				return e_sys->getComponentRef_ex<CompClass>(m_myEntity, ref);
+			ComponentRef<CompClass> getComponent() {
+				return e_sys->getComponentRef<CompClass>(m_myEntity);
 			}
-
 
 		private:
 			friend class GameLogicComponent;
 			EntityHandle m_myEntity;
-			BaseEntitySystem* e_sys;
+			EntitySystem* e_sys;
 	};
 
-	class GameLogicComponent : public Component
+	class GameLogicComponent : public Component<GameLogicComponent>
 	{
         public:
-            COMPONENT_CLASS();
-
-            GameLogicComponent(){}
+	        GameLogicComponent(){}
                 //: EntityHolderComponent(0, nullptr) {}
             GameLogicComponent(EntityHandle ent){}
                 //: EntityHolderComponent(ent, sys) {}
@@ -70,9 +61,11 @@ namespace BitEngine{
                 logic->e_sys = e_sys;
             }
 
+			// std::vector<GameLogic*>& getLogics() { return m_gamelogics; }
+
         private:
             friend class GameLogicProcessor;
-            BaseEntitySystem* e_sys;
+            EntitySystem* e_sys;
             std::vector<GameLogic*> m_gamelogics;
 	};
 

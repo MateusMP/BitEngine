@@ -37,4 +37,13 @@ namespace BitEngine
 	inline float BytesToKB(uint32 bytes) {
 		return bytes / 1000.0f;
 	}
+
+	template<typename T>
+	inline T rotl(T c, uint16 by) {
+		return (c << by) | (c >> (sizeof(T) * 8 - by));
+	}
+	template<typename T>
+	inline T rotr(T c, uint16 by) {
+		return (c >> by) | (c << (sizeof(T) * 8 - by));
+	}
 }

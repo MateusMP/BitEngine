@@ -13,7 +13,7 @@ namespace BitEngine {
 	public:
 
 	    static constexpr baseType BIT_AT(baseType b){
-	        return BIT_MASK << b;
+	        return BIT_MASK << (b);
 	    }
 
 		enum {
@@ -40,7 +40,7 @@ namespace BitEngine {
 			data[i / Nb] &= ~BIT_AT(i%Nb);
 		}
 
-		bool test(uint32 i) {
+		bool test(uint32 i) const {
 			return (data[i / Nb] & BIT_AT(i%Nb)) > 0;
 		}
 
@@ -50,7 +50,7 @@ namespace BitEngine {
 		}
 
 		template<typename T>
-		T getAtIndex(uint32 i) const{
+		T getAtIndex(uint32 i) const {
             return *(reinterpret_cast<const T*>(&data[i]));
 		}
 

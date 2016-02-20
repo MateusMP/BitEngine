@@ -8,11 +8,10 @@
 namespace BitEngine {
 
 	class Camera2DComponent
-		: public Component
+		: public Component<Camera2DComponent>
 	{
 		public:
-		    COMPONENT_CLASS();
-
+		    
 			Camera2DComponent();
 
 			// Set camera focus position

@@ -16,6 +16,9 @@
 					<Add option="-g" />
 					<Add option="-D_DEBUG" />
 				</Compiler>
+				<Linker>
+					<Add option="-lglfw3" />
+				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/BitEngine" prefix_auto="1" extension_auto="1" />
@@ -29,7 +32,16 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-lglfw3" />
 				</Linker>
+			</Target>
+			<Target title="TestBitset">
+				<Option output="bitset" prefix_auto="1" extension_auto="1" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
 			</Target>
 		</Build>
 		<Compiler>
@@ -43,12 +55,12 @@
 		</Compiler>
 		<Linker>
 			<Add option="-lopengl32" />
-			<Add option="-lglfw3" />
 			<Add option="-lgdi32" />
 			<Add option="-lglew32" />
 			<Add directory="$(GLFW_LIB)" />
 			<Add directory="$(GLEW_LIB)" />
 		</Linker>
+		<Unit filename="../../include/bitengine/Common/BitFieldVector.h" />
 		<Unit filename="../../include/bitengine/Common/ErrorCodes.h" />
 		<Unit filename="../../include/bitengine/Common/MacroHelpers.h" />
 		<Unit filename="../../include/bitengine/Common/MathUtils.h" />
@@ -63,7 +75,6 @@
 		<Unit filename="../../include/bitengine/Core/ECS/Camera3DComponent.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/Camera3DProcessor.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/Component.h" />
-		<Unit filename="../../include/bitengine/Core/ECS/ComponentCollection.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/ComponentProcessor.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/Components.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/EntitySystem.h" />
@@ -103,17 +114,50 @@
 		<Unit filename="../../include/bitengine/Core/Timer.h" />
 		<Unit filename="../../include/bitengine/Core/VideoSystem.h" />
 		<Unit filename="../../include/bitengine/Core/Window.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/glfw/GLFW_InputDriver.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/glfw/GLFW_VideoDriver.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/opengl/FrameBuffer.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/opengl/GLTextureManager.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/opengl/OpenGL.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/opengl/OpenGLRenderer.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/opengl/OpenGLheaders.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/opengl/ShaderProgram.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/opengl/Sprite2DGL2.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/opengl/Sprite2DGL4.h" />
-		<Unit filename="../../include/bitengine/DefaultBackends/opengl/VertexArrayObject.h" />
+		<Unit filename="../../include/bitengine/DefaultBackends/glfw/GLFW_InputDriver.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/glfw/GLFW_VideoDriver.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/opengl/FrameBuffer.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/opengl/GLTextureManager.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/opengl/OpenGL.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/opengl/OpenGLRenderer.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/opengl/OpenGLheaders.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/opengl/ShaderProgram.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/opengl/Sprite2DGL2.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/opengl/Sprite2DGL4.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../include/bitengine/DefaultBackends/opengl/VertexArrayObject.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="../../include/bitengine/bitengine.h" />
 		<Unit filename="../../src/Core/CommandSystem.cpp" />
 		<Unit filename="../../src/Core/ECS/BaseEntitySystem.cpp" />
@@ -123,7 +167,6 @@
 		<Unit filename="../../src/Core/ECS/Camera3DProcessor.cpp" />
 		<Unit filename="../../src/Core/ECS/GameLogicProcessor.cpp" />
 		<Unit filename="../../src/Core/ECS/RenderableMeshProcessor.cpp" />
-		<Unit filename="../../src/Core/ECS/Sprite2DHolder.cpp" />
 		<Unit filename="../../src/Core/ECS/Transform2DComponent.cpp" />
 		<Unit filename="../../src/Core/ECS/Transform2DProcessor.cpp" />
 		<Unit filename="../../src/Core/ECS/Transform3DComponent.cpp" />
@@ -136,18 +179,42 @@
 		<Unit filename="../../src/Core/Messenger.cpp" />
 		<Unit filename="../../src/Core/ModelManager.cpp" />
 		<Unit filename="../../src/Core/ResourceSystem.cpp" />
-		<Unit filename="../../src/Core/Sprite2DShader.cpp" />
+		<Unit filename="../../src/Core/Sprite2DShader.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="../../src/Core/SpriteManager.cpp" />
 		<Unit filename="../../src/Core/System.cpp" />
 		<Unit filename="../../src/Core/Task.cpp" />
 		<Unit filename="../../src/Core/Timer.cpp" />
 		<Unit filename="../../src/Core/VideoSystem.cpp" />
-		<Unit filename="../../src/DefaultBackends/glfw/GLFW_InputDriver.cpp" />
-		<Unit filename="../../src/DefaultBackends/glfw/GLFW_VideoDriver.cpp" />
-		<Unit filename="../../src/DefaultBackends/opengl/GLTextureManager.cpp" />
-		<Unit filename="../../src/DefaultBackends/opengl/OpenGL.cpp" />
-		<Unit filename="../../src/DefaultBackends/opengl/ShaderProgram.cpp" />
-		<Unit filename="../../src/DefaultBackends/opengl/error_texture.cpp" />
+		<Unit filename="../../src/DefaultBackends/glfw/GLFW_InputDriver.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../src/DefaultBackends/glfw/GLFW_VideoDriver.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../src/DefaultBackends/opengl/GLTextureManager.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../src/DefaultBackends/opengl/OpenGL.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../src/DefaultBackends/opengl/ShaderProgram.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../src/DefaultBackends/opengl/error_texture.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="../../src/Tests/bitset.cpp">
+			<Option target="TestBitset" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />

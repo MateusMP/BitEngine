@@ -8,11 +8,9 @@
 namespace BitEngine{
 
     class Transform2DComponent :
-        public Component
+        public Component<Transform2DComponent>
     {
         public:
-            COMPONENT_CLASS();
-
             Transform2DComponent();
             ~Transform2DComponent();
 

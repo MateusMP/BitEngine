@@ -6,7 +6,7 @@
 namespace BitEngine{
 
 	// TODO: Fix parents on childs when a parent Transform is destroyed
-	class Transform3DProcessor : public ComponentProcessor, public ComponentHolder
+	class Transform3DProcessor : public ComponentProcessor
 	{
 	private:
 		struct Hierarchy;
@@ -15,11 +15,8 @@ namespace BitEngine{
 		Transform3DProcessor();
 		~Transform3DProcessor();
 
-		// Holder
-		Component* getComponent(ComponentHandle component) override;
-
 		// Processor
-		bool Init(BaseEntitySystem* es) override;
+		bool Init() override;
 		void Stop() override;
 		void Process();
 
@@ -48,11 +45,6 @@ namespace BitEngine{
 		}
 
 	private: // Functions
-		// Holder
-		ComponentHandle AllocComponent() override;
-		void DeallocComponent(ComponentHandle component) override;
-
-		const std::vector<ComponentHandle>& getComponents() const override;
 
 		// Processor
 		static void CalculateLocalModelMatrix(const Transform3DComponent* component, glm::mat4& mat);
@@ -105,11 +97,7 @@ namespace BitEngine{
 		}
 
 	private: // Attributes
-
-		// Holder
-		ComponentCollection<Transform3DComponent> components;
-
-
+	
 		// Processor
 		std::vector<Hierarchy> hierarchy;
 		std::vector<glm::mat4> localTransform; // used only to calculate globalTransform

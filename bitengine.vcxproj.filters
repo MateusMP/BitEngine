@@ -18,7 +18,6 @@
     <ClInclude Include="include\bitengine\Core\ECS\Camera3DComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Camera3DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Component.h" />
-    <ClInclude Include="include\bitengine\Core\ECS\ComponentCollection.h" />
     <ClInclude Include="include\bitengine\Core\ECS\ComponentProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Components.h" />
     <ClInclude Include="include\bitengine\Core\ECS\EntitySystem.h" />
@@ -73,6 +72,7 @@
     <ClInclude Include="include\bitengine\Common\ThreadSafeQueue.h" />
     <ClInclude Include="include\bitengine\Core\Message.h" />
     <ClInclude Include="include\bitengine\Core\Messenger.h" />
+    <ClInclude Include="include\bitengine\Common\BitFieldVector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -82,7 +82,6 @@
     <ClCompile Include="src\Core\ECS\Camera3DProcessor.cpp" />
     <ClCompile Include="src\Core\ECS\GameLogicProcessor.cpp" />
     <ClCompile Include="src\Core\ECS\RenderableMeshProcessor.cpp" />
-    <ClCompile Include="src\Core\ECS\Sprite2DHolder.cpp" />
     <ClCompile Include="src\Core\ECS\Transform2DComponent.cpp" />
     <ClCompile Include="src\Core\ECS\Transform2DProcessor.cpp" />
     <ClCompile Include="src\Core\ECS\Transform3DComponent.cpp" />
@@ -108,5 +107,6 @@
     <ClCompile Include="src\Core\ECS\Camera3DComponent.cpp" />
     <ClCompile Include="src\Core\Messenger.cpp" />
     <ClCompile Include="src\Core\MessageType.cpp" />
+    <ClCompile Include="src\Tests\bitset.cpp" />
   </ItemGroup>
 </Project>

@@ -2,21 +2,18 @@
 
 namespace BitEngine{
 
-	Camera3DProcessor::Camera3DProcessor()
+	Camera3DProcessor::Camera3DProcessor(Transform3DProcessor* t3dp)
+		: transform3DProcessor(t3dp)
 	{
 	}
 
-	bool Camera3DProcessor::Init(BaseEntitySystem* es){
+	bool Camera3DProcessor::Init()
+	{
+		Transform3DType = Transform3DComponent::getComponentType();	// baseES->getComponentType<Transform3DComponent>();
+		Camera3DType = Camera3DComponent::getComponentType();	// baseES->getComponentType<Camera3DComponent>();
 
-		baseES = es;
-		Transform3DType = baseES->getComponentType<Transform3DComponent>();
-		Camera3DType = baseES->getComponentType<Camera3DComponent>();
-
-		holderCamera = (Camera3DProcessor*) baseES->getHolder(Camera3DType);
-		holderTransform = (Transform3DProcessor*)baseES->getHolder(Transform3DType);
-
-		holderCamera->RegisterListener(this);
-		holderTransform->RegisterListener(this);
+		holderTransform = getES()->getHolder<Transform3DComponent>();
+		holderCamera = getES()->getHolder<Camera3DComponent>();
 
 		return true;
 	}
@@ -28,9 +25,9 @@ namespace BitEngine{
 
 	void Camera3DProcessor::OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component)
 	{
-		ComponentHandle camera = holderCamera->getComponentHandleFor(entity);
-		ComponentHandle transform = holderTransform->getComponentHandleFor(entity);
-		
+		ComponentHandle camera = holderCamera->getComponentForEntity(entity);
+		ComponentHandle transform = holderTransform->getComponentForEntity(entity);
+
 		if (camera && transform) {
 			processEntries.emplace_back(entity, camera, transform);
 		}
@@ -51,12 +48,12 @@ namespace BitEngine{
 	void Camera3DProcessor::Process()
 	{
 		// Remove invalidated entries
-		if (!invalidatedEntries.empty()) 
+		if (!invalidatedEntries.empty())
 		{
-			for (unsigned i = 0; i < processEntries.size(); ++i) 
+			for (unsigned i = 0; i < processEntries.size(); ++i)
 			{
 				auto it = invalidatedEntries.find(processEntries[i].entity);
-				if (it != invalidatedEntries.end()) 
+				if (it != invalidatedEntries.end())
 				{
 					processEntries[i] = processEntries.back();
 					processEntries.pop_back();
@@ -67,33 +64,13 @@ namespace BitEngine{
 
 			invalidatedEntries.clear();
 		}
-				
+
 		for (const Entry& entry : processEntries)
 		{
 			Camera3DComponent* cam = (Camera3DComponent*)holderCamera->getComponent(entry.camera3d);
-			
-			recalculateViewMatrix(cam, holderTransform->getGlobalTransformFor(entry.transform3d) );
+
+			recalculateViewMatrix(cam, transform3DProcessor->getGlobalTransformFor(entry.transform3d) );
 		}
-	}
-
-	ComponentHandle Camera3DProcessor::AllocComponent()
-	{
-		return components.newComponent();
-	}
-
-	void Camera3DProcessor::DeallocComponent(ComponentHandle component)
-	{
-		components.removeComponent(component);
-	}
-
-	Component* Camera3DProcessor::getComponent(ComponentHandle component)
-	{
-		return components.getComponent(component);
-	}
-
-	const std::vector<ComponentHandle>& Camera3DProcessor::getComponents() const
-	{
-		return components.getValidComponents();
 	}
 
 }

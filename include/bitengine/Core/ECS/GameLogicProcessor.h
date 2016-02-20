@@ -5,14 +5,14 @@
 
 namespace BitEngine{
 
-	class GameLogicProcessor : public ComponentProcessor, public ComponentHolder
+	class GameLogicProcessor : public ComponentProcessor
 	{
 	public:
 		GameLogicProcessor();
 		~GameLogicProcessor();
 
 		/// Processor
-		bool Init(BaseEntitySystem* es) override;
+		bool Init() override;
 		void Stop() override;
 
 		void FrameStart();
@@ -24,31 +24,19 @@ namespace BitEngine{
 
 	private:
 
-		/// Holder
-		ComponentHandle AllocComponent() override;
-		void DeallocComponent(ComponentHandle component) override;
-
-		Component* getComponent(ComponentHandle hdl) override;
-
-		const std::vector<ComponentHandle>& getComponents() const override;
-
 		/// Processor
 		void removeFrom(GameLogic* l, std::vector<GameLogic*>& vec);
 
 	private:
-		/// Holder
-		ComponentCollection<GameLogicComponent> components;
-
 		/// Processor
-		BaseEntitySystem* e_sys;
+		ComponentType GameLogicComponentType;
+		ComponentHolder<GameLogicComponent>* gameLogicHolder;
 
 		std::vector<ComponentHandle> m_notInitialized;
 
 		std::vector<GameLogic*> m_onFrameStart;
 		std::vector<GameLogic*> m_onFrameMiddle;
 		std::vector<GameLogic*> m_onFrameEnd;
-
-		ComponentType GameLogicComponentType;
 	};
 
 }

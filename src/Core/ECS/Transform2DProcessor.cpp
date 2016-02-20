@@ -13,15 +13,13 @@ namespace BitEngine{
 	{
 	}
 
-	bool Transform2DProcessor::Init(BaseEntitySystem* es) {
-		RegisterListener(this);
-
+	bool Transform2DProcessor::Init()
+	{
 		return true;
 	}
 
 	void Transform2DProcessor::Stop()
 	{
-		UnregisterListener(this);
 	}
 
 
@@ -38,22 +36,22 @@ namespace BitEngine{
 	void Transform2DProcessor::Process()
 	{
 		// Recalculate localTransform
-		for (ComponentHandle c : components.getValidComponents())
-		{
-			Transform2DComponent* t = (Transform2DComponent*)getComponent(c);
-			if (t->m_dirty)
-			{
-				t->m_dirty = false;
-				CalculateLocalModelMatrix(t, localTransform[c]);
-				hierarchy[c].dirty = true;
-			}
-		}
-
-		// Update globalTransform of valid components
-		for (ComponentHandle c : getComponents())
-		{
-			RecalcGlobal(hierarchy[c]);
-		}
+		//for (ComponentHandle c : components.getValidComponents())
+		//{
+		//	Transform2DComponent* t = (Transform2DComponent*)getComponent(c);
+		//	if (t->m_dirty)
+		//	{
+		//		t->m_dirty = false;
+		//		CalculateLocalModelMatrix(t, localTransform[c]);
+		//		hierarchy[c].dirty = true;
+		//	}
+		//}
+		//
+		//// Update globalTransform of valid components
+		//for (ComponentHandle c : getComponents())
+		//{
+		//	RecalcGlobal(hierarchy[c]);
+		//}
 	}
 
 	void Transform2DProcessor::RecalcGlobal(Hierarchy &t)
@@ -74,21 +72,5 @@ namespace BitEngine{
 				RecalcGlobal(hierarchy[c]);
 			}
 		}
-	}
-
-	ComponentHandle Transform2DProcessor::AllocComponent() {
-		return components.newComponent();
-	}
-
-	void Transform2DProcessor::DeallocComponent(ComponentHandle component) {
-		components.removeComponent(component);
-	}
-
-	Component* Transform2DProcessor::getComponent(ComponentHandle component) {
-		return components.getComponent(component);
-	}
-
-	const std::vector<ComponentHandle>& Transform2DProcessor::getComponents() const {
-		return components.getValidComponents();
 	}
 }

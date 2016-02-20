@@ -2,37 +2,35 @@
 
 namespace BitEngine{
 
-	COMPONENT_CLASS_IMPLEMENTATION(GameLogicComponent);
-
 	GameLogicProcessor::GameLogicProcessor()
 	{
 	}
 
-	GameLogicProcessor::~GameLogicProcessor(){
+	GameLogicProcessor::~GameLogicProcessor()
+	{
 
-		auto& C = components.getValidComponents();
-		for (ComponentHandle component : C)
-		{
-			auto& pieces = components.getComponent(component)->m_gamelogics;
-			for (GameLogic* logic : pieces){
-				logic->End();
-			}
-		}
 	}
 
-	bool GameLogicProcessor::Init(BaseEntitySystem* es){
-		e_sys = es;
+	bool GameLogicProcessor::Init()
+	{
+		gameLogicHolder = getES()->getHolder<GameLogicComponent>();
 
-		// GameLogicComponentType = es->getComponentType<GameLogicComponent>();
 		// es->getHolder(GameLogicComponentType)->RegisterListener(this);
-		RegisterListener(this); // Self register
+		// RegisterListener(this); // Self register
 
 		return true;
 	}
-
+	
 	void GameLogicProcessor::Stop()
 	{
-		UnregisterListener(this);
+		getES()->forAll<GameLogicComponent>(
+			[](ComponentHandle handle, GameLogicComponent& l) {
+				auto& pieces = l.m_gamelogics;
+				for (GameLogic* logic : pieces) {
+					logic->End();
+				}
+			}
+		);
 	}
 
 	void GameLogicProcessor::FrameStart()
@@ -42,7 +40,7 @@ namespace BitEngine{
 		// Initialize all components not yet initialized
 		for (ComponentHandle hdl : m_notInitialized)
 		{
-			auto& pieces = components.getComponent(hdl)->m_gamelogics;
+			auto& pieces = gameLogicHolder->getComponent(hdl)->m_gamelogics;
 			for (size_t i = 0; i < pieces.size(); ++i)
 			{
 				GameLogic* logic = pieces[i];
@@ -89,15 +87,15 @@ namespace BitEngine{
 
 	void GameLogicProcessor::OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component)
 	{
-		GameLogicComponent* glc = components.getComponent(component);
-		glc->e_sys = e_sys;
+		GameLogicComponent* glc =  gameLogicHolder->getComponent(component);
+		glc->e_sys = getES();
 
 		m_notInitialized.emplace_back(component);
 	}
 
 	void GameLogicProcessor::OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component)
 	{
-		GameLogicComponent* comp = components.getComponent(component);
+		GameLogicComponent* comp = gameLogicHolder->getComponent(component);
 		auto& pieces = comp->m_gamelogics;
 		for (size_t i = 0; i < pieces.size(); ++i)
 		{
@@ -119,11 +117,11 @@ namespace BitEngine{
 		}
 	}
 
-	void GameLogicProcessor::removeFrom(GameLogic* l, std::vector<GameLogic*>& vec) 
+	void GameLogicProcessor::removeFrom(GameLogic* l, std::vector<GameLogic*>& vec)
 	{
-		for (size_t i = 0; i < vec.size(); ++i) 
+		for (size_t i = 0; i < vec.size(); ++i)
 		{
-			if (vec[i] == l) 
+			if (vec[i] == l)
 			{
 				vec[i] = vec.back();
 				vec.pop_back();
@@ -131,26 +129,5 @@ namespace BitEngine{
 			}
 		}
 	}
-
-	ComponentHandle GameLogicProcessor::AllocComponent()
-	{
-		return components.newComponent();
-	}
-
-	void GameLogicProcessor::DeallocComponent(ComponentHandle component)
-	{
-		components.removeComponent(component);
-	}
-
-	Component* GameLogicProcessor::getComponent(ComponentHandle hdl)
-	{
-		return components.getComponent(hdl);
-	}
-
-	const std::vector<ComponentHandle>& GameLogicProcessor::getComponents() const
-	{
-		return components.getValidComponents();
-	}
-
 
 }

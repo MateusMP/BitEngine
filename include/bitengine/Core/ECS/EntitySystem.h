@@ -3,6 +3,7 @@
 #include <array>
 #include <map>
 #include <unordered_map>
+#include <functional>
 
 #include <algorithm>
 
@@ -14,48 +15,26 @@
 
 namespace BitEngine{
 
-template <typename T, typename... Ts> struct get_index;
-
-template <typename T, typename... Ts>
-struct get_index<T, T, Ts...> : std::integral_constant<std::size_t, 0> {};
-
-template <typename T, typename Tail, typename... Ts>
-struct get_index<T, Tail, Ts...> :
-	std::integral_constant<std::size_t, 1 + get_index<T, Ts...>::value> {};
-
-template<typename ... T>
-class ComponentIDProvider
-{
-public:
-	template<typename A>
-	static constexpr ComponentType ID() {
-		return get_index<A, T...>();
-	}
-
-	static constexpr int TotalComponents() {
-		return sizeof...(T);
-	}
-};
-
-
 /**
 * Entity Handle and Component Handle are fixed and won't change at anytime after creation.
+* Type safe interface
 */
-template<typename ComponentIDProvider>
 class EntitySystem : public BaseEntitySystem
 {
 	public:
 		EntitySystem()
 		{
-			m_dataHolder.resize(ComponentIDProvider::TotalComponents(), nullptr);
 		}
 
 		bool Init()
 		{
+			BaseEntitySystem::Init();
+
 			for (ComponentProcessor* p : m_processors)
 			{
+				p->m_es = this;
 				p->setMessenger(getMessenger());
-				p->Init(this);
+				p->Init();
 			}
 
 			return true;
@@ -68,44 +47,10 @@ class EntitySystem : public BaseEntitySystem
 				p->Stop();
 			}
 
-			for (ComponentHolder* h : m_dataHolder)
-			{
-				bool del = true;
-				for (auto it = m_processors.begin(); it != m_processors.end(); ++it)
-				{
-					// Remove duplicates, because some Processors are Holders too
-					if ((void*)(*it) == (void*)h)
-					{
-						delete h;
-						del = false;
-						it = m_processors.erase(it);
-						break;
-					}
-				}
-
-				if (del) 
-				{
-					delete h;
-				}
-			}
+			BaseEntitySystem::shutdown();
 		}
 
 		// Register
-
-		template<typename CompClass>
-		bool RegisterComponentHolder(ComponentHolder* ch)
-		{
-			const ComponentType type = ComponentIDProvider::template ID<CompClass>();
-			GlobalComponentID globalID = getGlobalComponentID<CompClass>();
-
-			if (!RegisterHolder(ch, type, globalID))
-			{
-				LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to register two holders for the component type: " << type;
-				return false;
-			}
-
-			return true;
-		}
 
 		bool RegisterComponentProcessor(int pipeline, ComponentProcessor* cp, ComponentProcessor::processFunc func)
 		{
@@ -115,16 +60,16 @@ class EntitySystem : public BaseEntitySystem
 			process_order[pipeline].emplace_back(cp, func);
 
 			bool inside = false;
-			for (ComponentProcessor* p : m_processors) 
+			for (ComponentProcessor* p : m_processors)
 			{
-				if (p == cp) 
+				if (p == cp)
 				{
 					inside = true;
 					break;
 				}
 			}
 
-			if (!inside) 
+			if (!inside)
 			{
 				m_processors.emplace_back(cp);
 			}
@@ -132,11 +77,8 @@ class EntitySystem : public BaseEntitySystem
 			return true;
 		}
 
-		bool isComponentOfTypeValid(ComponentType type) const {
-			return m_dataHolder.size() > type && m_dataHolder[type] != nullptr;
-		}
 
-		void Update() 
+		void Update()
 		{
 			int finish = 0;
 			size_t lasts[4] = { 0,0,0,0 };
@@ -146,13 +88,13 @@ class EntitySystem : public BaseEntitySystem
 			{
 				for (int i = 0; i < 4; ++i)
 				{
-					if (!(finish & (1 << i))) 
+					if (!(finish & (1 << i)))
 					{
-						if (lasts[i] < process_order[i].size()) 
+						if (lasts[i] < process_order[i].size())
 						{
 							process_order[i][lasts[i]++].Run();
 						}
-						else 
+						else
 						{
 							finish |= (1 << i);
 						}
@@ -164,30 +106,156 @@ class EntitySystem : public BaseEntitySystem
 			FrameFinished();
 		}
 
-		// Add
-
 		template<typename CompClass>
-		bool AddComponent(EntityHandle entity, ComponentRef<CompClass>& ref)
+		bool RegisterComponent()
 		{
-			return BaseEntitySystem::AddComponent(entity, ComponentIDProvider::template ID<CompClass>(), ref);
+			ComponentHolder<CompClass>* ptr = new ComponentHolder<CompClass>();
+			if (!registerComponentHolder(CompClass::getComponentType(), ptr)) {
+				delete ptr;
+				return false;
+			}
+
+			return true;
 		}
 
 		template<typename CompClass>
-		bool AddComponent(EntityHandle entity)
+		ComponentHolder<CompClass>* getHolder()
 		{
-			ComponentRef<CompClass> ref;
-			return BaseEntitySystem::AddComponent(entity, ComponentIDProvider::template ID<CompClass>(), ref);
+			return static_cast<ComponentHolder<CompClass>*>(BaseEntitySystem::getHolder(CompClass::getComponentType()));
+		}
+
+		// Add component
+		template<typename CompClass, typename ... Args>
+		ComponentRef<CompClass> AddComponent(EntityHandle entity, Args... args)
+		{
+			CompClass *comp = nullptr;
+			ComponentHolder<CompClass>* holder;
+			ComponentHandle compID = NO_COMPONENT_HANDLE;
+			ComponentType type = CompClass::getComponentType();
+
+			if (BaseEntitySystem::addComponent(entity, type))
+			{
+				holder = getHolder<CompClass>();
+				compID = holder->createComponent(comp, args...);
+			}
+
+			return ComponentRef<CompClass>(entity, compID, this, comp);
 		}
 
 		template<typename CompClass>
 		bool RemoveComponent(EntityHandle entity, const ComponentRef<CompClass>& ref)
 		{
-			return BaseEntitySystem::RemoveComponent(entity, ComponentIDProvider::template ID<CompClass>(), ref);
+			return BaseEntitySystem::removeComponent(entity, CompClass::getComponentType(), ref.m_componentID);
 		}
 
-	private:
+		/**
+		* Get a ComponentRef for given entity
+		*
+		* \param entity Entity to get the component from
+		* @return Returns true when a component reference was found (and returned in ref).
+		*/
+		template<typename CompClass>
+		ComponentRef<CompClass> getComponentRef(EntityHandle entity) const
+		{
+			ComponentHolder<CompClass>* holder = getHolder<CompClass>();
+			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
 
-		struct PipelineProcess 
+			ComponentHandle compID = holder->getComponentForEntity(entity);
+			CompClass* comp = static_cast<CompClass*>(holder->getComponent(compID));
+
+			return ComponentRef<CompClass>(entity, compID, this, comp);
+		}
+
+
+		template <typename T> struct identity{ typedef T type; };
+		template<typename Base, typename ... Args>
+		void forEach(typename identity<std::function<void(EntityHandle, Base&, Args&...)>>::type f)
+		{
+			ComponentType types[] = { Args::getComponentType()... };
+
+            ComponentHolder<Base>* holder = getHolder<Base>();
+			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
+			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
+			const auto& allComponents = holder->getAllComponents();
+			uint32 curFree = 0;
+
+			uint32 validComponents = holder->getNumValidComponents();
+
+			// loop through base components searching for matching pairs on Args types
+			for (uint32 compID = 1; compID <= validComponents; ++compID)
+			{
+				const EntityHandle entity = allComponents[compID];
+
+				if (curFree < freeIDs.size() && freeIDs[curFree] != compID)
+				{
+				    // Test to see if this entity has all needed components
+                    if (testBitfieldArray<sizeof...(Args)>(entity, types))
+                    {
+                        Base* comp = holder->getComponent(compID);
+                        f(entity, *comp, getComponentRefE<Args>(entity)...); // TODO: avoid getHolder<>() every time
+                    }
+				}
+				else
+                {
+					++curFree;
+					++validComponents;
+				}
+			}
+		}
+
+		template<typename CompClass, typename ...Others>
+		void forAll(typename identity<std::function<void(ComponentHandle, CompClass&, Others...)>>::type f, Others ... others)
+		{
+			ComponentHolder<CompClass>* holder = getHolder<CompClass>();
+			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
+
+			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
+			//const auto& allComponents = holder->getAllComponents();
+			uint32 curFree = 0;
+
+
+			uint32 validComponents = holder->getNumValidComponents();
+			for (uint32 compID = 1; compID <= validComponents; ++compID)
+			{
+				// const EntityHandle entity = allComponents[compID];
+
+				if (curFree < freeIDs.size() && freeIDs[curFree] != compID)
+				{
+					CompClass* comp = holder->getComponent(compID);
+					f(compID, *comp, others...);
+				} else {
+					++curFree;
+					++validComponents;
+				}
+			}
+		}
+
+
+	private:
+		template<typename CompClass>
+		CompClass& getComponentRefE(EntityHandle entity)
+		{
+			ComponentHolder<CompClass>* holder = getHolder<CompClass>();
+			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
+
+			ComponentHandle compID = holder->getComponentForEntity(entity);
+			CompClass* comp = static_cast<CompClass*>(holder->getComponent(compID));
+
+			return *comp;
+		}
+
+		template<int n>
+		bool testBitfieldArray(EntityHandle e, ComponentType *types)
+		{
+			for (int i = 0; i < n; ++i) {
+				if (!m_objBitField->test(e, types[i])) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		struct PipelineProcess
 		{
 			PipelineProcess(ComponentProcessor* c, ComponentProcessor::processFunc f) :
 				cs(c), func(f)
@@ -196,7 +264,7 @@ class EntitySystem : public BaseEntitySystem
 			ComponentProcessor* cs;
 			ComponentProcessor::processFunc func;
 
-			void Run() 
+			void Run()
 			{
 				(cs->*func)();
 			}

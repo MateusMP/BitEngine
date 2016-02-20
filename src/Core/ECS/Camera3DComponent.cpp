@@ -2,8 +2,6 @@
 
 namespace BitEngine{
 
-	COMPONENT_CLASS_IMPLEMENTATION(Camera3DComponent);
-	
 	void Camera3DComponent::recalculateProjection()
 	{
 		if (m_projectionType == PERSPECTIVE) {

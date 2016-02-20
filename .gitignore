@@ -17,3 +17,6 @@ ProjectFiles/CodeBlocks/bin/
 ProjectFiles/CodeBlocks/BitEngine.depend
 ProjectFiles/CodeBlocks/BitEngine.layout
 ProjectFiles/CodeBlocks/BitEngine_build_log.html
+TestBitfield/
+Tests/
+ProjectFiles/CodeBlocks/bitset.exe

@@ -10,16 +10,13 @@
 
 namespace BitEngine{
 
-class Camera2DProcessor : public ComponentProcessor, public ComponentHolder
+class Camera2DProcessor : public ComponentProcessor
 {
 	public: // Methods
-		Camera2DProcessor();
-
-		/// Holder
-		Component* getComponent(ComponentHandle component) override;
+		Camera2DProcessor(Transform2DProcessor* t2dp);
 
 		/// Processor
-		bool Init(BaseEntitySystem* es) override;
+		bool Init() override;
 		void Stop() override;
 		void Process();
 
@@ -28,20 +25,10 @@ class Camera2DProcessor : public ComponentProcessor, public ComponentHolder
 		
 	private: // Methods
 
-		/// Component Holder
-		ComponentHandle AllocComponent() override;
-		void DeallocComponent(ComponentHandle component) override;
-		
-		const std::vector<ComponentHandle>& getComponents() const override;
-
 		/// Processor
-		void recalculateMatrix(Camera2DComponent* c, const Transform2DComponent* t);
+		static void recalculateMatrix(Camera2DComponent* c, const Transform2DComponent* t);
 		
 	private: // Member variables
-
-		/// ComponentHolder part
-		// The collection of components
-		ComponentCollection<Camera2DComponent> components;
 
 		/// Component processor
 
@@ -50,14 +37,12 @@ class Camera2DProcessor : public ComponentProcessor, public ComponentHolder
 		ComponentType Camera2DType;
 
 		// Hold the ComponentHolders for all ComponentTypes cared by this processor
-		ComponentHolder* holderCamera;
-		ComponentHolder* holderTransform;
+		ComponentHolder<Camera2DComponent>* holderCamera;
+		ComponentHolder<Transform2DComponent>* holderTransform;
+		Transform2DProcessor* transform2DProcessor;
 
 		// All entities that currently have the required components to be processed by this processor
 		std::vector<EntityHandle> processEntities;
-
-		// The BaseEntitySystem this processor is working for
-		BaseEntitySystem* baseES;
 };
 
 }

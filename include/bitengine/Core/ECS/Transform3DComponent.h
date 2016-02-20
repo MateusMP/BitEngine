@@ -10,11 +10,9 @@ namespace BitEngine{
 
 
 	class Transform3DComponent :
-		public Component
+		public Component<Transform3DComponent>
 	{
 	public:
-	    COMPONENT_CLASS();
-
 		const static glm::vec3 FORWARD;
 		const static glm::vec3 UP;
 		const static glm::vec3 RIGHT;

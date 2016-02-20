@@ -7,11 +7,10 @@
 
 namespace BitEngine{
 
-	class Camera3DComponent : public Component
+	class Camera3DComponent : public Component<Camera3DComponent>
 	{
         public:
-            COMPONENT_CLASS();
-
+            
             enum ProjectionMode{
                 ORTHOGONAL = 1,
                 PERSPECTIVE,

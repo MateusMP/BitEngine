@@ -2,40 +2,49 @@
 
 #include "Common/TypeDefinition.h"
 
-#define COMPONENT_CLASS() \
-    static GlobalComponentID getGlobalComponentID();
-
-#define COMPONENT_CLASS_IMPLEMENTATION(className)           \
-    GlobalComponentID className::getGlobalComponentID(){    \
-        static int x=0;										\
-        return &x;											\
-    }
-
 namespace BitEngine{
 
-	class ComponentHolder;
+	class BaseComponentHolder;
 
 	typedef uint32 EntityHandle;
 	typedef uint32 ComponentHandle;
-	typedef uint32 ComponentType;
-	typedef int* GlobalComponentID;
+	typedef uint16 ComponentType;
+	typedef uint16* GlobalComponentID;
 
 	const uint32 NO_COMPONENT_HANDLE = 0;
 	const uint32 NO_COMPONENT_TYPE = ~0;
 
-	class Component
+	class BaseComponent
 	{
-	public:
-		virtual ~Component(){}
+		friend class BaseComponentHolder;
 
-		EntityHandle getEntity() const {
-			return entity;
-		}
+		public:
+			virtual ~BaseComponent(){}
 
-	private:
-		friend class ComponentHolder;
-		template <typename T> friend class ComponentCollection;
-		EntityHandle entity;
+			EntityHandle getEntity() const {
+				return entity;
+			}
+
+		protected:
+			static ComponentType componentTypeCounter;
+		
+		private:
+			EntityHandle entity;
+	};
+
+	template<typename T>
+	class Component : public BaseComponent
+	{
+		public:
+			static GlobalComponentID getGlobalComponentID()
+			{
+				static ComponentType type = ++componentTypeCounter;
+				return &type;
+			}
+
+			static ComponentType getComponentType() {
+				return *getGlobalComponentID();
+			}
 	};
 
 }

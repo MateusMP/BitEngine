@@ -1,158 +1,235 @@
 #pragma once
 
 #include <unordered_map>
+#include <algorithm>
 
 #include "Common/TypeDefinition.h"
 
 #include "Core/Messenger.h"
 #include "Core/ECS/Component.h"
-#include "Core/ECS/ComponentCollection.h"
 
 namespace BitEngine{
 
-class BaseEntitySystem;
+class EntitySystem;
+
+class ComponentCreated : Message<ComponentCreated>
+{
+	public:
+		EntityHandle entity;
+		ComponentHandle component;
+		ComponentType componentType;
+};
+
+class ComponentDestroyed : Message<ComponentDestroyed>
+{
+	public:
+		EntityHandle entity;
+		ComponentHandle component;
+		ComponentType componentType;
+};
+
+class EntityCreated : Message<ComponentDestroyed>
+{
+	public:
+		EntityHandle entity;
+};
 
 class ComponentProcessor : public MessengerEndpoint
 {
-public:
-	typedef void (ComponentProcessor::* processFunc)(void);
-	virtual ~ComponentProcessor() {}
+	friend class EntitySystem;
+	public:
+		typedef void (ComponentProcessor::* processFunc)(void);
+		virtual ~ComponentProcessor() {}
 
-	virtual bool Init(BaseEntitySystem* es) = 0; // Usually used to register listener to ComponentHolders
-	virtual void Stop() = 0; // Usually used to unregister listeners from ComponentHolders
+		virtual bool Init() = 0; // Usually used to register listener to ComponentHolders
+		virtual void Stop() = 0; // Usually used to unregister listeners from ComponentHolders
 
-	virtual void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) = 0;
-	virtual void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) = 0;
+		virtual void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) = 0;
+		virtual void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) = 0;
+
+	protected:
+		EntitySystem* getES() { return m_es; }
+
+	private:
+		EntitySystem* m_es;
+
 };
 
-class ComponentHolder
+class BaseComponentHolder
 {
+	friend class BaseEntitySystem;
 	public:
-		virtual ~ComponentHolder() {}
-
-		void RegisterListener(ComponentProcessor* listener) {
-			m_listeners.emplace_back(listener);
-		}
-		void UnregisterListener(ComponentProcessor* listener) {
-			for (auto it = m_listeners.begin(); it != m_listeners.end(); ++it) {
-				if (*it == listener) {
-					m_listeners.erase(it);
-					break;
-				}
-			}
-		}
-
-		virtual ComponentHandle CreateComponent(EntityHandle entity) {
-			auto it = m_componentByEntity.find(entity);
-			if (it == m_componentByEntity.end()) {
-				ComponentHandle h = AllocComponent();
-				m_componentByEntity.emplace(entity, h);
-				ComponentCreated(entity, h);
-				return h;
-			} else { // Not allowing multiple instances of the same component type
-				return it->second;
-			}
-		}
-
-		// Release component owned by given entity
-		// Tell all listeners that the component is been released
-		virtual void ReleaseComponentFor(EntityHandle entity)
+		BaseComponentHolder(uint32 componentSize, uint32 nCompPerPool=100)
+			: m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool),
+				m_IDcurrent(1), m_pools(16), m_byEntity(128,0)
 		{
-			auto it = m_componentByEntity.find(entity);
-			if (it != m_componentByEntity.end())
+			m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]); // init first pool
+			m_freeSorted = true;
+		}
+
+		virtual ~BaseComponentHolder(){}
+
+		uint32 newComponentID(EntityHandle entity)
+		{
+			ComponentHandle id = NO_COMPONENT_HANDLE;
+
+			// resize vector
+			if (entity >= m_byEntity.size()) {
+				m_byEntity.resize(entity + 128, 0);
+			}
+
+			// find the new ID
+			if (m_freeIDs.empty())
 			{
-				m_toDestroy.emplace_back(it->second);
-				CallOnDestroyListeners(entity, it->second);
+				if (m_IDcurrent >= m_IDcapacity)
+					resize(m_IDcapacity*2);
 
-				m_componentByEntity.erase(it);
+				id = m_IDcurrent++;
 			}
-		}
-
-		// Release component
-		virtual void ReleaseComponent(ComponentHandle component)
-		{
-			EntityHandle entity = getComponent(component)->getEntity();
-			auto it = m_componentByEntity.find(entity);
-			if (it != m_componentByEntity.end())
+			else
 			{
-				// BitEngine::DebugAssert(it->second == component);
-
-				m_toDestroy.emplace_back(component);
-				CallOnDestroyListeners(entity, component);
-
-				m_componentByEntity.erase(it);
+				id = m_freeIDs.back();
+				m_freeIDs.pop_back();
 			}
+			
+			m_byEntity[entity] = id;
+			m_byComponent[id] = entity;
+			return id;
 		}
 
-		virtual const std::vector<ComponentHandle>& getComponents() const = 0;
-
-		virtual Component* getComponent(ComponentHandle component) = 0;
-
-		Component* getComponentFor(EntityHandle entity)
+		inline void releaseComponentID(ComponentHandle componentID)
 		{
-			auto it = m_componentByEntity.find(entity);
-			//if (it != m_componentByEntity.end()) {
-			return getComponent(it->second);
-			//}
+			if (!m_freeIDs.empty()) {
+				if (m_freeIDs.back() > componentID)
+					m_freeSorted = false;
+			}
+
+			m_freeIDs.emplace_back(componentID);
+
+			m_byEntity[m_byComponent[componentID]] = NO_COMPONENT_HANDLE;
+			m_byComponent[componentID] = 0;
 		}
 
-		// returns 0 if there is no component for this entity. ComponentHandle id otherwise.
-		ComponentHandle getComponentHandleFor(EntityHandle entity)
+		void releaseComponentForEntity(EntityHandle entity)
 		{
-			auto it = m_componentByEntity.find(entity);
-			if (it == m_componentByEntity.end())
-				return 0;
-			return it->second;
+			ComponentHandle comp = m_byEntity[entity];
+
+			releaseComponentID(comp);
+		}
+
+		void* getComponent(ComponentHandle componentID)
+		{
+			return &m_pools[componentID / m_nComponentsPerPool][ (componentID % m_nComponentsPerPool) * m_componentSize];
+		}
+
+		ComponentHandle getComponentForEntity(EntityHandle entity)
+		{
+			if (entity >= m_byEntity.size())
+				m_byEntity.resize(entity + 128, 0);
+
+			return m_byEntity[entity];
+		}
+
+		EntityHandle getEntityForComponent(ComponentHandle component)
+		{
+			return m_byComponent[component];
+		}
+
+		const std::vector<ComponentHandle>& getFreeIDs() {
+			if (!m_freeSorted) {
+				std::sort(m_freeIDs.begin(), m_freeIDs.end());
+				m_freeSorted = true;
+			}
+
+			return m_freeIDs;
+		}
+
+		const std::vector<EntityHandle>& getAllComponents() {
+			return m_byComponent;
+		}
+
+		uint32 getNumValidComponents() {
+			return m_IDcurrent - m_freeIDs.size();
+		}
+
+		// resize to be able to contain up to given component id
+		void resize(uint32 id)
+		{
+			while (m_IDcapacity <= id)
+			{
+				m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]);
+				m_byComponent.resize(m_byComponent.size() + m_nComponentsPerPool, 0);
+				m_IDcapacity += m_nComponentsPerPool;
+			}
 		}
 
 	protected:
-		void ComponentCreated(EntityHandle entity, ComponentHandle componentHdl) {
-			getComponent(componentHdl)->entity = entity;
-			m_componentByEntity[entity] = componentHdl;
+		const uint32 m_componentSize;
+		const uint32 m_nComponentsPerPool;
 
-			// Tell listeners
-			for (ComponentProcessor* l : m_listeners) {
-				l->OnComponentCreated(entity, componentType, componentHdl);
-			}
-		}
-
-	private:
-		virtual ComponentHandle AllocComponent() = 0;
-		virtual void DeallocComponent(ComponentHandle component) = 0;
-
-		void CallOnDestroyListeners(EntityHandle entity, ComponentHandle component) {
-			for (ComponentProcessor* l : m_listeners) {
-				l->OnComponentDestroyed(entity, componentType, component);
-			}
-		}
-
-	private:
-		std::vector<ComponentProcessor*> m_listeners;
-		std::unordered_map<EntityHandle, ComponentHandle> m_componentByEntity;
-		std::vector<ComponentHandle> m_toDestroy;
-
-		friend class BaseEntitySystem;
-			ComponentHandle getComponentHandleFor(EntityHandle entity) const
-			{
-				auto it = m_componentByEntity.find(entity);
-				if (it != m_componentByEntity.end()) {
-					return it->second;
-				}
-
-				return 0;
-			}
-
-			// Called on frame end
-			void DestroyComponents()
-			{
-				for (ComponentHandle c : m_toDestroy) {
-					DeallocComponent(c);
-				}
-				m_toDestroy.clear();
-			}
-
-			ComponentType componentType; // component ID on entity system
-			GlobalComponentID globalID; // component type global ID
+		uint32 m_IDcapacity;
+		uint32 m_IDcurrent;
+		std::vector<char*> m_pools;
+		std::vector<ComponentHandle> m_freeIDs;
+		std::vector<EntityHandle> m_byComponent; // given component get the entity
+		std::vector<ComponentHandle> m_byEntity; // given entity get the component
+		bool m_freeSorted;
 };
+
+template <typename T>
+class ComponentHolder : public BaseComponentHolder
+{
+	public:
+		T* getComponent(ComponentHandle componentID)
+		{
+			return static_cast<T*>(BaseComponentHolder::getComponent(componentID));
+		}
+
+		template<typename ... Args>
+		ComponentHandle createComponent(T*& outPtr, Args ...args)
+		{
+			uint32 id = newComponentID();
+			T* ptr = static_cast<T*>(BaseComponentHolder::getComponent(id));
+
+			new (ptr) T(args...);
+
+			return ptr;
+		}
+};
+
+template<typename CompClass>
+class ComponentRef
+{
+	public:
+		ComponentRef(const ComponentRef& h)
+			: m_entity(h.m_entity), m_componentID(h.m_componentID), m_es(h.m_es), m_component(h.m_component)
+		{}
+		ComponentRef(ComponentRef&& h) noexcept
+			: m_entity(h.m_entity), m_componentID(h.m_componentID), m_es(h.m_es), m_component(h.m_component)
+		{}
+
+		ComponentRef(EntityHandle entity, ComponentHandle componentID, EntitySystem* entitySys, CompClass* component) noexcept
+			: m_entity(entity), m_componentID(componentID), m_es(entitySys), m_component(component)
+		{}
+
+		operator CompClass*() {
+			return m_component;
+		}
+
+		CompClass* operator->() {
+			return m_component;
+		}
+
+		const CompClass* operator ->() const {
+			return m_component;
+		}
+
+	private:
+		EntityHandle m_entity;
+		ComponentHandle m_componentID;
+		EntitySystem* m_es;
+		CompClass* m_component;
+};
+
 
 }

@@ -3,31 +3,22 @@
 #include "Core/ECS/ComponentProcessor.h"
 
 namespace BitEngine {
-
-	bool BaseEntitySystem::RegisterHolder(ComponentHolder* holder, ComponentType type, GlobalComponentID globalID)
-	{
-		if (m_dataHolder[type] == nullptr)
-		{
-			m_dataHolder[type] = holder;
-			holder->componentType = type;
-			holder->globalID = globalID;
-			return true;
-		}
-
-		return false;
-	}
+	ComponentType BaseComponent::componentTypeCounter(0);
 
 	EntityHandle BaseEntitySystem::CreateEntity()
 	{
-		if (m_freeEntities.empty()) {
+		if (m_freeEntities.empty()) 
+		{
 			EntityHandle newHandle = m_entities.size();
 			m_entities.emplace_back(newHandle);
+			m_objBitField->push();
 
 			return newHandle;
 		}
 
 		EntityHandle newHandle = m_freeEntities.back();
 		m_entities[newHandle] = newHandle;
+		m_objBitField->unsetAll(newHandle);
 
 		return newHandle;
 	}
@@ -39,24 +30,27 @@ namespace BitEngine {
 
 		m_toBeDestroyed.emplace_back(entity);
 
-		for (EntityHandle entity : m_toBeDestroyed)
-		{
-			for (ComponentHolder* h : m_dataHolder) {
-				h->ReleaseComponentFor(entity);
-			}
-		}
+		// TODO notify all that entity is destroyed?
 	}
 
 	void BaseEntitySystem::FrameFinished()
 	{
-		for (ComponentHolder* h : m_dataHolder) {
-			h->DestroyComponents();
-		}
+		for (EntityHandle entity : m_toBeDestroyed)
+		{
+			for (auto& h : m_holders) 
+			{
+				if (m_objBitField->test(entity, h.first)) 
+				{
+					h.second->releaseComponentForEntity(entity);
+				}
+				// TODO notify all that component is destroyed?
+			}
+			m_objBitField->unsetAll(entity);
 
-		for (EntityHandle entity : m_toBeDestroyed){
 			m_entities[entity] = 0;
 			m_freeEntities.emplace_back(entity);
 		}
+
 		m_freeEntities.clear();
 	}
 

@@ -2,49 +2,13 @@
 
 #include <vector>
 
+#include "Common/BitFieldVector.h"
 #include "Core/System.h"
 #include "Core/ECS/Component.h"
 #include "Core/ECS/ComponentProcessor.h"
 #include "Core/Logger.h"
 
 namespace BitEngine {
-
-	class ComponentHolder;
-
-
-	template<typename CompClass>
-	class ComponentRef
-	{
-	public:
-		ComponentRef()
-			: handle(0), holder(nullptr)
-		{}
-
-		ComponentRef(ComponentHandle hdl, ComponentHolder* ho)
-			: handle(hdl), holder(ho)
-		{}
-
-		const CompClass* operator -> () const {
-			// printf("Calling CONST operator\n");
-			return (const CompClass*)holder->getComponent(handle);
-		}
-
-		CompClass* operator -> () {
-			// printf("Calling NORMAL operator\n");
-			return static_cast<CompClass*>(holder->getComponent(handle));
-		}
-
-		// Some components need to be passed as parameters for other functions
-		// The component handle should be passed.
-		ComponentHandle getComponentHandle() const {
-			return handle;
-		}
-
-	private:
-		friend class BaseEntitySystem;
-		ComponentHandle handle;
-		ComponentHolder* holder;
-	};
 
 	class BaseEntitySystem : public System
 	{
@@ -56,8 +20,17 @@ namespace BitEngine {
 			}
 
 			BaseEntitySystem()
-				: System("Entity"){
+				: System("Entity")
+			{
+				m_objBitField = nullptr;
 				m_entities.emplace_back(0); // First entity is invalid.
+			}
+
+			bool Init() override
+			{
+				m_objBitField = new ObjBitField(static_cast<uint16>(m_holders.size()));
+
+				return true;
 			}
 
 			/**
@@ -73,19 +46,7 @@ namespace BitEngine {
 			*/
 			void DestroyEntity(EntityHandle entity);
 
-            /**
-			 * Get the component holder of given ComponentType
-			 */
-			inline ComponentHolder* getHolder(ComponentType type) {
-				return m_dataHolder[type];
-			}
-
-			inline const ComponentHolder* getHolder(ComponentType type) const {
-				return m_dataHolder[type];
-			}
-
-			template<typename CompClass>
-			bool AddComponent(EntityHandle entity, ComponentType type, ComponentRef<CompClass>& ref)
+			bool addComponent(EntityHandle entity, ComponentType type)
 			{
 				if (!hasEntity(entity))
                 {
@@ -93,117 +54,67 @@ namespace BitEngine {
 					return false;
 				}
 
-				ComponentHolder* holder = getHolder(type);
-				LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
-
-				ComponentHandle hdl = holder->CreateComponent(entity);
-				if (hdl == NO_COMPONENT_HANDLE)
-                {
-					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Entity " << entity << " already has a component of type: " << type << "!";
-					return false;
-				}
-
-				ref.handle = hdl;
-				ref.holder = holder;
+				m_objBitField->set(entity, type);
 
 				return true;
 			}
 
-			template<typename CompClass>
-			bool RemoveComponent(EntityHandle entity, ComponentType type, const ComponentRef<CompClass>& ref)
+			bool removeComponent(EntityHandle entity, ComponentType type, ComponentHandle handle)
 			{
-				if (!hasEntity(ref->getEntity()))
+				if (!hasEntity(entity))
                 {
-					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to remove component of type " << type << " with handle: " << ref.handle << "!";
+					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to remove component of type " << type << " with handle: " << handle << " from entity " << entity << "!";
 					return false;
 				}
 
-				ref.holder->ReleaseComponent(ref.handle);
+				m_holders[type]->releaseComponentID(handle);
+
 				return true;
 			}
 
-			// [Expensive] Avoid calling this multiple times!
-			template<typename CompClass>
-			ComponentType getComponentType() const
-			{
-				GlobalComponentID id = getGlobalComponentID<CompClass>();
-
-				// TODO: Implement a better search?
-				for (ComponentHolder* h : m_dataHolder)
-				{
-					if (h->globalID == id){
-						return h->componentType;
-					}
-				}
-
-				return NO_COMPONENT_TYPE;
+			bool isComponentOfTypeValid(ComponentType type) const {
+				return m_holders.find(type) != m_holders.end();
 			}
 
 			/**
-			* Get a ComponentRef for given entity
-			*
-			* \param entity Entity to get the component from
-			* @return Returns true when a component reference was found (and returned in ref).
+			* Get the component holder of given ComponentType
 			*/
-			template<typename CompClass>
-			bool getComponentRef(EntityHandle entity, ComponentType type, ComponentRef<CompClass>& ref) const
-			{
-				ComponentHolder* holder = m_dataHolder[type];
-				LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
-
-				ComponentHandle hdl = holder->getComponentHandleFor(entity);
-				if (hdl != NO_COMPONENT_HANDLE)
-				{
-					ref.holder = holder;
-					ref.handle = hdl;
-					return true;
-				}
-
-				return false;
+			inline BaseComponentHolder* getHolder(ComponentType type) {
+				return m_holders[type];
 			}
 
-			/**
-			* Get a ComponentRef for given entity
-			*
-			* \param entity Entity to get the component from
-			* @return Returns true when a component reference was found (and returned in ref).
-			*/
-			template<typename ComponentIDProvider, typename CompClass>
-			bool getComponentRef(EntityHandle entity, ComponentRef<CompClass>& ref) const
+			inline const BaseComponentHolder* getHolder(ComponentType type) const
 			{
-				return this->template getComponentRef<CompClass>(entity, ComponentIDProvider::template ID<CompClass>(), ref);
-			}
-
-			/**
-			* [Expensive] Avoid calling multiple times!
-			* Get a ComponentRef for given entity
-			* Prefer one of the two variations above if the ComponentType ID is known
-			*
-			* \param entity Entity to get the component from
-			* @return Returns true when a component reference was found (and returned in ref).
-			*/
-			template<typename CompClass>
-			bool getComponentRef_ex(EntityHandle entity, ComponentRef<CompClass>& ref) const
-			{
-				// Verify if component type is valid
-				ComponentType type = getComponentType<CompClass>();
-				if (type == NO_COMPONENT_TYPE) {
-					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Unregistered type: " << type;
-					return false;
-				}
-
-				return getComponentRef(entity, type, ref);
+				auto it = m_holders.find(type);
+				if (it != m_holders.end())
+					return it->second;
+				return nullptr;
 			}
 
 		protected:
-			/* Register holder with given ids
-			 * \param id is the sequential ID inside the BaseEntitySystem
-			 * \param globalID is an unique application global component class identificator
-			 *			this is used to discover the ComponentHolder inside this class
-			 *			based on the ComponentClass only.
-			 *	See: getComponentRef
-			 */
-			bool RegisterHolder(ComponentHolder* holder, ComponentType id, GlobalComponentID globalID);
+			bool hasComponent(EntityHandle entity, ComponentType type)
+			{
+				return m_objBitField->test(entity, type);
+			}
+
+			void shutdown()
+			{
+				for (auto& h : m_holders)
+				{
+					delete h.second;
+				}
+			}
+
+			bool registerComponentHolder(ComponentType type, BaseComponentHolder* holder)
+			{
+				auto it = m_holders.find(type);
+				if (it != m_holders.end()) {
+					return false;
+				}
+
+				m_holders[type] = holder;
+				return true;
+			}
 
 			// TODO: Make this a DebugAssert?
 			inline bool hasEntity(EntityHandle entity) const {
@@ -220,8 +131,10 @@ namespace BitEngine {
 			std::vector< EntityHandle > m_entities;
 			std::vector< EntityHandle > m_freeEntities;
 			std::vector< EntityHandle > m_toBeDestroyed;
+			ObjBitField *m_objBitField;
 
-			std::vector<ComponentHolder*> m_dataHolder;
+		private:
+			std::unordered_map< ComponentType, BaseComponentHolder* > m_holders;
 	};
 
 }

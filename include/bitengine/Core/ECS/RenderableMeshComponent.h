@@ -9,11 +9,9 @@
 
 namespace BitEngine{
 
-	class RenderableMeshComponent : public Component
+	class RenderableMeshComponent : public Component<RenderableMeshComponent>
 	{
         public:
-            COMPONENT_CLASS();
-
             RenderableMeshComponent()
                 : mesh(nullptr), material(nullptr)
             {}
