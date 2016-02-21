@@ -22,18 +22,6 @@ namespace BitEngine{
 	{
 	}
 
-	void Camera2DProcessor::OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component)
-	{
-		if (holderCamera->getComponentForEntity(entity) && holderTransform->getComponentForEntity(entity)) {
-			processEntities.emplace_back(entity);
-		}
-	}
-
-	void Camera2DProcessor::OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component)
-	{
-
-	}
-
 	void Camera2DProcessor::recalculateMatrix(Camera2DComponent* c, const Transform2DComponent* t)
 	{
 		// Uses look at as focal point
@@ -51,10 +39,6 @@ namespace BitEngine{
 		getES()->forEach<Camera2DComponent, Transform2DComponent>(
             [](EntityHandle entity, Camera2DComponent& camera, const Transform2DComponent& transform)
             {
-                // ComponentHandle componentID = holderCamera->getComponentForEntity(entity);
-                // Camera2DComponent* cam = holderCamera->getComponent(componentID);
-                // componentID = holderTransform->getComponentForEntity(entity);
-                // const Transform2DComponent* camTransform = holderTransform->getComponent(componentID);
                 if (camera.changed)
                 {
                     recalculateMatrix(&camera, &transform);

@@ -19,10 +19,9 @@ namespace BitEngine{
 		void FrameMiddle();
 		void FrameEnd();
 
-		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override;
-		void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) override;
-
 	private:
+		void onGameLogicComponentCreated(const BaseMessage& msg_);
+		void onGameLogicComponentDestroyed(const BaseMessage& msg_);
 
 		/// Processor
 		void removeFrom(GameLogic* l, std::vector<GameLogic*>& vec);

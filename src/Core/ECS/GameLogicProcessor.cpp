@@ -14,17 +14,17 @@ namespace BitEngine{
 	bool GameLogicProcessor::Init()
 	{
 		gameLogicHolder = getES()->getHolder<GameLogicComponent>();
-
-		// es->getHolder(GameLogicComponentType)->RegisterListener(this);
-		// RegisterListener(this); // Self register
+		getMessenger()->RegisterListener<MsgComponentCreated<GameLogicComponent> >(this, BE_MESSAGE_HANDLER(GameLogicProcessor::onGameLogicComponentCreated));
+		getMessenger()->RegisterListener<MsgComponentDestroyed<GameLogicComponent> >(this, BE_MESSAGE_HANDLER(GameLogicProcessor::onGameLogicComponentDestroyed));
 
 		return true;
 	}
-	
+
 	void GameLogicProcessor::Stop()
 	{
 		getES()->forAll<GameLogicComponent>(
-			[](ComponentHandle handle, GameLogicComponent& l) {
+			[](ComponentHandle handle, GameLogicComponent& l)
+			{
 				auto& pieces = l.m_gamelogics;
 				for (GameLogic* logic : pieces) {
 					logic->End();
@@ -69,33 +69,38 @@ namespace BitEngine{
 		}
 	}
 
-	void GameLogicProcessor::FrameMiddle(){
-		// LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameMiddle\n";
+	void GameLogicProcessor::FrameMiddle()
+	{
+		// LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameMiddle";
 
 		for (GameLogic* l : m_onFrameMiddle){
 			l->FrameMiddle();
 		}
 	}
 
-	void GameLogicProcessor::FrameEnd(){
-		// LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameEnd\n";
+	void GameLogicProcessor::FrameEnd()
+	{
+		// LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameEnd";
 
 		for (GameLogic* l : m_onFrameEnd){
 			l->FrameEnd();
 		}
 	}
 
-	void GameLogicProcessor::OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component)
+	void GameLogicProcessor::onGameLogicComponentCreated(const BaseMessage& msg_)
 	{
-		GameLogicComponent* glc =  gameLogicHolder->getComponent(component);
+		const MsgComponentCreated<GameLogicComponent> msg = static_cast<const MsgComponentCreated<GameLogicComponent>&>(msg_);
+		GameLogicComponent* glc =  gameLogicHolder->getComponent(msg.component);
 		glc->e_sys = getES();
+		glc->m_entity = msg.entity;
 
-		m_notInitialized.emplace_back(component);
+		m_notInitialized.emplace_back(msg.component);
 	}
 
-	void GameLogicProcessor::OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component)
+	void GameLogicProcessor::onGameLogicComponentDestroyed(const BaseMessage& msg_)
 	{
-		GameLogicComponent* comp = gameLogicHolder->getComponent(component);
+		const MsgComponentDestroyed<GameLogicComponent> msg = static_cast<const MsgComponentDestroyed<GameLogicComponent>&>(msg_);
+		GameLogicComponent* comp = gameLogicHolder->getComponent(msg.component);
 		auto& pieces = comp->m_gamelogics;
 		for (size_t i = 0; i < pieces.size(); ++i)
 		{

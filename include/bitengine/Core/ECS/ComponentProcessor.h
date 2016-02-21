@@ -11,27 +11,48 @@
 namespace BitEngine{
 
 class EntitySystem;
+template<typename CompClass> class ComponentRef;
 
-class ComponentCreated : Message<ComponentCreated>
+template<typename CompClass>
+class MsgComponentCreated : public Message<MsgComponentCreated<CompClass> >
 {
 	public:
+		MsgComponentCreated(EntityHandle entity_, ComponentType componentType_, ComponentHandle component_)
+			: entity(entity_), componentType(componentType_), component(component_) {}
+
 		EntityHandle entity;
-		ComponentHandle component;
 		ComponentType componentType;
+		ComponentHandle component;
 };
 
-class ComponentDestroyed : Message<ComponentDestroyed>
+template<typename CompClass>
+class MsgComponentDestroyed : public Message<MsgComponentDestroyed<CompClass> >
 {
 	public:
+		MsgComponentDestroyed(EntityHandle entity_, ComponentType componentType_, ComponentHandle component_)
+			: entity(entity_), componentType(componentType_), component(component_) {}
+
 		EntityHandle entity;
-		ComponentHandle component;
 		ComponentType componentType;
+		ComponentHandle component;
 };
 
-class EntityCreated : Message<ComponentDestroyed>
+class MsgEntityCreated : public Message<MsgEntityCreated>
 {
 	public:
+		MsgEntityCreated(EntityHandle entity_)
+			: entity(entity_) {}
+
 		EntityHandle entity;
+};
+
+class MsgEntityDestroyed : public Message<MsgEntityDestroyed>
+{
+public:
+	MsgEntityDestroyed(EntityHandle entity_)
+		: entity(entity_) {}
+
+	EntityHandle entity;
 };
 
 class ComponentProcessor : public MessengerEndpoint
@@ -44,123 +65,72 @@ class ComponentProcessor : public MessengerEndpoint
 		virtual bool Init() = 0; // Usually used to register listener to ComponentHolders
 		virtual void Stop() = 0; // Usually used to unregister listeners from ComponentHolders
 
-		virtual void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) = 0;
-		virtual void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) = 0;
-
 	protected:
 		EntitySystem* getES() { return m_es; }
+
+		template<typename CompClass>
+		static ComponentHandle getComponentHandle(const ComponentRef<CompClass>& ref) {
+			return ref.m_componentID;
+		}
 
 	private:
 		EntitySystem* m_es;
 
 };
 
-class BaseComponentHolder
+class BaseComponentHolder : public MessengerEndpoint
 {
 	friend class BaseEntitySystem;
 	public:
-		BaseComponentHolder(uint32 componentSize, uint32 nCompPerPool=100)
-			: m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool),
-				m_IDcurrent(1), m_pools(16), m_byEntity(128,0)
-		{
-			m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]); // init first pool
-			m_freeSorted = true;
-		}
+		BaseComponentHolder(uint32 componentSize, uint32 nCompPerPool = 128);
 
 		virtual ~BaseComponentHolder(){}
 
-		uint32 newComponentID(EntityHandle entity)
-		{
-			ComponentHandle id = NO_COMPONENT_HANDLE;
+		// Returns the released component
+		void releaseComponentForEntity(EntityHandle entity);
+		
+		// Returns the component pointer
+		void* getComponent(ComponentHandle componentID);
 
-			// resize vector
-			if (entity >= m_byEntity.size()) {
-				m_byEntity.resize(entity + 128, 0);
-			}
+		// Returns the component handle for given entity
+		// BE_NO_COMPONENT_HANDLE if there is no such entity/component
+		ComponentHandle getComponentForEntity(EntityHandle entity);
 
-			// find the new ID
-			if (m_freeIDs.empty())
-			{
-				if (m_IDcurrent >= m_IDcapacity)
-					resize(m_IDcapacity*2);
-
-				id = m_IDcurrent++;
-			}
-			else
-			{
-				id = m_freeIDs.back();
-				m_freeIDs.pop_back();
-			}
-			
-			m_byEntity[entity] = id;
-			m_byComponent[id] = entity;
-			return id;
+		inline EntityHandle getEntityForComponent(ComponentHandle component) {
+			return m_byComponent[component];
 		}
 
+		const std::vector<ComponentHandle>& getFreeIDs();
+
+		inline const std::vector<EntityHandle>& getAllComponents() {
+			return m_byComponent;
+		}
+
+		inline uint32 getNumValidComponents() const {
+			return m_IDcurrent - m_freeIDs.size();
+		}
+
+		// resize to be able to contain up to given component id
+		void resize(uint32 id);
+
+	protected:
+		virtual void sendDestroyMessage(EntityHandle entity, ComponentHandle component) = 0;
+
+		uint32 newComponentID(EntityHandle entity);
+
+	private:
 		inline void releaseComponentID(ComponentHandle componentID)
 		{
-			if (!m_freeIDs.empty()) {
+			if (!m_freeIDs.empty()) 
+			{
 				if (m_freeIDs.back() > componentID)
 					m_freeSorted = false;
 			}
 
 			m_freeIDs.emplace_back(componentID);
 
-			m_byEntity[m_byComponent[componentID]] = NO_COMPONENT_HANDLE;
+			m_byEntity[m_byComponent[componentID]] = BE_NO_COMPONENT_HANDLE;
 			m_byComponent[componentID] = 0;
-		}
-
-		void releaseComponentForEntity(EntityHandle entity)
-		{
-			ComponentHandle comp = m_byEntity[entity];
-
-			releaseComponentID(comp);
-		}
-
-		void* getComponent(ComponentHandle componentID)
-		{
-			return &m_pools[componentID / m_nComponentsPerPool][ (componentID % m_nComponentsPerPool) * m_componentSize];
-		}
-
-		ComponentHandle getComponentForEntity(EntityHandle entity)
-		{
-			if (entity >= m_byEntity.size())
-				m_byEntity.resize(entity + 128, 0);
-
-			return m_byEntity[entity];
-		}
-
-		EntityHandle getEntityForComponent(ComponentHandle component)
-		{
-			return m_byComponent[component];
-		}
-
-		const std::vector<ComponentHandle>& getFreeIDs() {
-			if (!m_freeSorted) {
-				std::sort(m_freeIDs.begin(), m_freeIDs.end());
-				m_freeSorted = true;
-			}
-
-			return m_freeIDs;
-		}
-
-		const std::vector<EntityHandle>& getAllComponents() {
-			return m_byComponent;
-		}
-
-		uint32 getNumValidComponents() {
-			return m_IDcurrent - m_freeIDs.size();
-		}
-
-		// resize to be able to contain up to given component id
-		void resize(uint32 id)
-		{
-			while (m_IDcapacity <= id)
-			{
-				m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]);
-				m_byComponent.resize(m_byComponent.size() + m_nComponentsPerPool, 0);
-				m_IDcapacity += m_nComponentsPerPool;
-			}
 		}
 
 	protected:
@@ -176,31 +146,48 @@ class BaseComponentHolder
 		bool m_freeSorted;
 };
 
-template <typename T>
+template <typename CompClass>
 class ComponentHolder : public BaseComponentHolder
 {
+	friend class EntitySystem;
 	public:
-		T* getComponent(ComponentHandle componentID)
+		ComponentHolder()
+			: BaseComponentHolder(sizeof(CompClass))
+		{}
+
+		CompClass* getComponent(ComponentHandle componentID)
 		{
-			return static_cast<T*>(BaseComponentHolder::getComponent(componentID));
+			return static_cast<CompClass*>(BaseComponentHolder::getComponent(componentID));
 		}
 
+	private:
 		template<typename ... Args>
-		ComponentHandle createComponent(T*& outPtr, Args ...args)
+		ComponentHandle createComponent(EntityHandle entity, CompClass*& outPtr, Args ...args)
 		{
-			uint32 id = newComponentID();
-			T* ptr = static_cast<T*>(BaseComponentHolder::getComponent(id));
+			uint32 id = newComponentID(entity);
+			outPtr = static_cast<CompClass*>(BaseComponentHolder::getComponent(id));
 
-			new (ptr) T(args...);
+			new (outPtr) CompClass(args...);
+			
+			return id;
+		}
 
-			return ptr;
+		void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override
+		{
+			getMessenger()->SendMessage(MsgComponentDestroyed<CompClass>(entity, CompClass::getComponentType(), component));
 		}
 };
 
 template<typename CompClass>
 class ComponentRef
 {
+	// Let processors access internal data from Component References
+	friend class ComponentProcessor;
+
 	public:
+		ComponentRef()
+			: m_entity(0), m_componentID(0), m_es(nullptr), m_component(nullptr)
+		{}
 		ComponentRef(const ComponentRef& h)
 			: m_entity(h.m_entity), m_componentID(h.m_componentID), m_es(h.m_es), m_component(h.m_component)
 		{}
@@ -212,6 +199,14 @@ class ComponentRef
 			: m_entity(entity), m_componentID(componentID), m_es(entitySys), m_component(component)
 		{}
 
+		ComponentRef& operator =(const ComponentRef& h) {
+			m_entity = h.m_entity;
+			m_componentID = h.m_componentID;
+			m_es = h.m_es;
+			m_component = h.m_component;
+			return *this;
+		}
+
 		operator CompClass*() {
 			return m_component;
 		}
@@ -222,6 +217,10 @@ class ComponentRef
 
 		const CompClass* operator ->() const {
 			return m_component;
+		}
+
+		bool isValid() const {
+			return m_entity != 0 && m_componentID != 0 && m_es != nullptr && m_component != nullptr;
 		}
 
 	private:

@@ -7,18 +7,21 @@ namespace BitEngine {
 
 	EntityHandle BaseEntitySystem::CreateEntity()
 	{
+		EntityHandle newHandle;
 		if (m_freeEntities.empty()) 
 		{
-			EntityHandle newHandle = m_entities.size();
+			newHandle = m_entities.size();
 			m_entities.emplace_back(newHandle);
 			m_objBitField->push();
-
-			return newHandle;
+		}
+		else 
+		{
+			newHandle = m_freeEntities.back();
+			m_entities[newHandle] = newHandle;
+			m_objBitField->unsetAll(newHandle);
 		}
 
-		EntityHandle newHandle = m_freeEntities.back();
-		m_entities[newHandle] = newHandle;
-		m_objBitField->unsetAll(newHandle);
+		getMessenger()->SendMessage(MsgEntityCreated(newHandle));
 
 		return newHandle;
 	}
@@ -30,7 +33,7 @@ namespace BitEngine {
 
 		m_toBeDestroyed.emplace_back(entity);
 
-		// TODO notify all that entity is destroyed?
+		getMessenger()->SendMessage(MsgEntityDestroyed(entity));
 	}
 
 	void BaseEntitySystem::FrameFinished()
@@ -43,7 +46,6 @@ namespace BitEngine {
 				{
 					h.second->releaseComponentForEntity(entity);
 				}
-				// TODO notify all that component is destroyed?
 			}
 			m_objBitField->unsetAll(entity);
 

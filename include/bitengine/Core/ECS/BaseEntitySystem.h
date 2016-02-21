@@ -30,6 +30,11 @@ namespace BitEngine {
 			{
 				m_objBitField = new ObjBitField(static_cast<uint16>(m_holders.size()));
 
+				for (auto& h : m_holders)
+				{
+					h.second->setMessenger(getMessenger());
+				}
+
 				return true;
 			}
 

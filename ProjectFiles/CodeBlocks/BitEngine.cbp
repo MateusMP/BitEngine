@@ -83,7 +83,6 @@
 		<Unit filename="../../include/bitengine/Core/ECS/RenderableMeshComponent.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/RenderableMeshProcessor.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/Sprite2DComponent.h" />
-		<Unit filename="../../include/bitengine/Core/ECS/Sprite2DHolder.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/Transform2DComponent.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/Transform2DProcessor.h" />
 		<Unit filename="../../include/bitengine/Core/ECS/Transform3DComponent.h" />
@@ -165,6 +164,10 @@
 		<Unit filename="../../src/Core/ECS/Camera2DProcessor.cpp" />
 		<Unit filename="../../src/Core/ECS/Camera3DComponent.cpp" />
 		<Unit filename="../../src/Core/ECS/Camera3DProcessor.cpp" />
+		<Unit filename="../../src/Core/ECS/ComponentProcessor.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="../../src/Core/ECS/GameLogicProcessor.cpp" />
 		<Unit filename="../../src/Core/ECS/RenderableMeshProcessor.cpp" />
 		<Unit filename="../../src/Core/ECS/Transform2DComponent.cpp" />
@@ -175,7 +178,6 @@
 		<Unit filename="../../src/Core/GameEngine.cpp" />
 		<Unit filename="../../src/Core/InputSystem.cpp" />
 		<Unit filename="../../src/Core/Logger.cpp" />
-		<Unit filename="../../src/Core/MessageType.cpp" />
 		<Unit filename="../../src/Core/Messenger.cpp" />
 		<Unit filename="../../src/Core/ModelManager.cpp" />
 		<Unit filename="../../src/Core/ResourceSystem.cpp" />

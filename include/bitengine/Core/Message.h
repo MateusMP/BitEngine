@@ -2,13 +2,6 @@
 
 #include "Common/TypeDefinition.h"
 
-
-#define CREATE_MESSAGE_TYPE(className)										\
-	template<> uint32 BitEngine::Message<className>::MessageType(){					\
-		static uint32 ID = BitEngine::BaseMessage::getNextMessageType();	\
-		return ID;															\
-	}
-
 #define BE_MESSAGE_HANDLER(handlerFunction)		\
 	std::bind(&handlerFunction, this, std::placeholders::_1)
 
@@ -42,8 +35,10 @@ namespace BitEngine {
 			: BaseMessage(MessageType())
 		{}
 
-	private:
-		static uint32 MessageType();
+		static uint32 MessageType() {
+			static uint32 type = getNextMessageType();
+			return type;
+		}
 	};
 
 }

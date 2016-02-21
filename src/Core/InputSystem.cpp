@@ -19,8 +19,8 @@ bool InputSystem::Init()
 	driver->setMessenger(getMessenger());
 	driver->Init();
 
-	getMessenger()->RegisterListener<WindowCreated>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowCreated));
-	getMessenger()->RegisterListener<WindowClosed>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowClosed));
+	getMessenger()->RegisterListener<MsgWindowCreated>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowCreated));
+	getMessenger()->RegisterListener<MsgWindowClosed>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowClosed));
 
 	return true;
 }
@@ -39,13 +39,13 @@ void InputSystem::Shutdown()
 
 void InputSystem::Message_WindowCreated(const BaseMessage& wndcr)
 {
-	const WindowCreated& msg = static_cast<const WindowCreated&>(wndcr);
+	const MsgWindowCreated& msg = static_cast<const MsgWindowCreated&>(wndcr);
 	driver->inputWindowCreated(msg.window);
 }
 
 void InputSystem::Message_WindowClosed(const BaseMessage& wndcr)
 {
-	const WindowClosed& msg = static_cast<const WindowClosed&>(wndcr);
+	const MsgWindowClosed& msg = static_cast<const MsgWindowClosed&>(wndcr);
 	driver->inputWindowDestroyed(msg.window);
 }
 
@@ -74,7 +74,7 @@ void InputReceiver::keyboardInput(int key, int scancode, KeyAction action, int m
 			return;
 	}
 
-	getMessenger()->SendMessage(KeyboardInput(key, action, (KeyMod)mods));
+	getMessenger()->SendMessage(MsgKeyboardInput(key, action, (KeyMod)mods));
 }
 
 void InputReceiver::mouseInput(int button, MouseAction action, int mods)
@@ -96,7 +96,7 @@ void InputReceiver::mouseInput(int button, MouseAction action, int mods)
 			return;
 	}
 
-	getMessenger()->SendMessage(MouseInput(button, action, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
+	getMessenger()->SendMessage(MsgMouseInput(button, action, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
 }
 
 void InputReceiver::mouseInput(double x, double y)
@@ -104,7 +104,7 @@ void InputReceiver::mouseInput(double x, double y)
 	cursorInScreenX = x;
 	cursorInScreenY = y;
 
-	getMessenger()->SendMessage(MouseInput(cursorInScreenX, cursorInScreenY));
+	getMessenger()->SendMessage(MsgMouseInput(cursorInScreenX, cursorInScreenY));
 }
 
 InputReceiver::KeyMod InputReceiver::isKeyPressed(int key)

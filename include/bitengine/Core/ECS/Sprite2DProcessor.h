@@ -16,7 +16,7 @@ class Sprite2DRendererBasic : public ComponentProcessor
 {
 	public:
 		Sprite2DRendererBasic(Transform2DProcessor *t2dp, const SpriteManager* sprManager)
-			: renderCamera(0), transform2DProcessor(t2dp)
+			: transform2DProcessor(t2dp)
 		{
 			m_spriteManager = sprManager;
 		}
@@ -24,14 +24,8 @@ class Sprite2DRendererBasic : public ComponentProcessor
 		// Processor
 		bool Init() override
 		{
-			sprite2DType = Sprite2DComponent::getComponentType(); // es->getComponentType<Sprite2DComponent>();
-			transform2DType = Transform2DComponent::getComponentType(); // es->getComponentType<Transform2DComponent>();
-			camera2DType = Camera2DComponent::getComponentType(); // es->getComponentType<Camera2DComponent>();
-
-			holderSprite = getES()->getHolder<Sprite2DComponent>();
-			holderTransform = getES()->getHolder<Transform2DComponent>();
 			holderCamera = getES()->getHolder<Camera2DComponent>();
-			if (holderSprite == nullptr || holderTransform == nullptr || holderCamera == nullptr)
+			if (holderCamera == nullptr)
 				return false;
 
 			spr2DShader = BitEngine::Sprite2DShader::CreateShader();
@@ -57,35 +51,36 @@ class Sprite2DRendererBasic : public ComponentProcessor
 			delete spr2DShader;
 		}
 
-		void setActiveCamera(ComponentHandle handle)
+		void setActiveCamera(ComponentRef<Camera2DComponent>& handle)
 		{
-			renderCamera = handle;
+			activeCamera = handle;
 		}
 
 		void Render()
 		{
-			if (renderCamera == 0)
+			if (!activeCamera.isValid())
 				return;
 
-			Camera2DComponent* activeCamera = static_cast<Camera2DComponent*>(holderCamera->getComponent(renderCamera));
-			const glm::vec4& viewScreen = activeCamera->getWorldViewArea();
+			m_viewScreen = activeCamera->getWorldViewArea();
 
 			spr2Dbatch->Begin();
 
-			for (const Entry& e : processEntries)
-			{
-				//printf("Sprite %d\n", i);
-				const Sprite2DComponent* spr = static_cast<Sprite2DComponent*>( holderSprite->getComponent(e.sprite2d) );
-				const glm::mat3& transform = transform2DProcessor->getGlobalTransformFor(e.transform2d);
-				const Sprite* sprite = m_spriteManager->getSprite(spr->sprite);
-
-				if (insideScreen(viewScreen, transform, sprite->getMaxRadius()))
+			getES()->forEachRef<Sprite2DRendererBasic, Sprite2DComponent, Transform2DComponent>(
+				*this,
+				[](Sprite2DRendererBasic& self, EntityHandle entity, Sprite2DComponent& spr2d, ComponentRef<Transform2DComponent>&& transform2d)
 				{
-					spr2Dbatch->DrawSprite( sprite,
-											&transform,
-											spr->depth);
+					//printf("Sprite %d\n", i);
+					const glm::mat3& transform = self.transform2DProcessor->getGlobalTransformFor(getComponentHandle(transform2d));
+					const Sprite* sprite = self.m_spriteManager->getSprite(spr2d.sprite);
+
+					if (insideScreen(self.m_viewScreen, transform, sprite->getMaxRadius()))
+					{
+						self.spr2Dbatch->DrawSprite(sprite,
+							&transform,
+							spr2d.depth);
+					}
 				}
-			}
+			);
 
 			spr2Dbatch->End();
 
@@ -101,23 +96,6 @@ class Sprite2DRendererBasic : public ComponentProcessor
 			spr2Dbatch->Render();
 
 			glDisable(GL_CULL_FACE);
-		}
-
-		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override {
-			ComponentHandle sprite = holderSprite->getComponentForEntity(entity);
-			ComponentHandle transform = holderTransform->getComponentForEntity(entity);
-
-			if (sprite && transform) {
-				processEntries.emplace_back(entity, sprite, transform);
-			}
-		}
-
-		void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) override {
-			invalidatedEntries.emplace(entity);
-		}
-
-		void setRenderCamera(ComponentHandle handle) {
-			renderCamera = handle;
 		}
 
 		static bool insideScreen(const glm::vec4& screen, const glm::mat3& matrix, float radius)
@@ -157,20 +135,12 @@ class Sprite2DRendererBasic : public ComponentProcessor
 			ComponentHandle transform2d;
 		};
 
-		ComponentType sprite2DType;
-		ComponentType transform2DType;
-		ComponentType camera2DType;
+		ComponentRef<Camera2DComponent> activeCamera;
 
-		ComponentHandle renderCamera;
-
-		ComponentHolder<Sprite2DComponent> *holderSprite;
-		ComponentHolder<Transform2DComponent> *holderTransform;
 		ComponentHolder<Camera2DComponent> *holderCamera;
 		Transform2DProcessor *transform2DProcessor;
 
-		std::vector<Entry> processEntries;
-		std::unordered_set<EntityHandle> invalidatedEntries;
-
+		glm::vec4 m_viewScreen;
 
 		const BitEngine::SpriteManager *m_spriteManager;
 		BitEngine::Sprite2DShader *spr2DShader;

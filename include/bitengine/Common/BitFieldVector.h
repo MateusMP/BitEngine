@@ -78,7 +78,6 @@ namespace BitEngine{
 
 		BitMask getObj(uint32 objIndex) const
 		{
-		    const constexpr uint32 BitMax = 64;
 			const uint32 bitIndex = objIndex*m_numBitsPerObj;
 			const uint32 byteIndex = bitIndex/8;
             const uint32 rotation = bitIndex%8;

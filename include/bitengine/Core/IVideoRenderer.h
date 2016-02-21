@@ -25,8 +25,10 @@ namespace BitEngine {
 
 	enum BufferClearBitMask
 	{
-		COLOR,
-		DEPTH,
+		COLOR = 1,
+		DEPTH = 2,
+
+		COLOR_DEPTH = COLOR | DEPTH
 	};
 
 	class IRenderBuffer

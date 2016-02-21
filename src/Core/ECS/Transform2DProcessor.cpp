@@ -1,3 +1,4 @@
+#include "Core/ECS/EntitySystem.h"
 #include "Core/ECS/Transform2DProcessor.h"
 
 #include <algorithm>
@@ -15,6 +16,11 @@ namespace BitEngine{
 
 	bool Transform2DProcessor::Init()
 	{
+		getMessenger()->RegisterListener<MsgComponentCreated<Transform2DComponent> >
+			(this, BE_MESSAGE_HANDLER(Transform2DProcessor::onTransform2DComponentCreated));
+		getMessenger()->RegisterListener<MsgComponentDestroyed<Transform2DComponent> >
+			(this, BE_MESSAGE_HANDLER(Transform2DProcessor::onTransform2DComponentDestroyed));
+
 		return true;
 	}
 
@@ -23,45 +29,88 @@ namespace BitEngine{
 	}
 
 
-	void Transform2DProcessor::CalculateLocalModelMatrix(const Transform2DComponent* comp, glm::mat3& mat)
+	void Transform2DProcessor::CalculateLocalModelMatrix(const Transform2DComponent& comp, glm::mat3& mat)
 	{
 		// T R S
-		float cosx = cos(comp->rotation);
-		float sinx = sin(comp->rotation);
-		mat = glm::transpose(glm::mat3(  comp->scale.x*cosx, comp->scale.y*sinx, comp->position.x,
-										-comp->scale.x*sinx, comp->scale.y*cosx, comp->position.y,
+		float cosx = cos(comp.rotation);
+		float sinx = sin(comp.rotation);
+		mat = glm::transpose(glm::mat3(  comp.scale.x*cosx, comp.scale.y*sinx, comp.position.x,
+										-comp.scale.x*sinx, comp.scale.y*cosx, comp.position.y,
 										 0.0f,				 0.0f,				 1.0f));
 	}
 
-	void Transform2DProcessor::Process()
+	void Transform2DProcessor::onTransform2DComponentCreated(const BaseMessage& msg_)
 	{
-		// Recalculate localTransform
-		//for (ComponentHandle c : components.getValidComponents())
-		//{
-		//	Transform2DComponent* t = (Transform2DComponent*)getComponent(c);
-		//	if (t->m_dirty)
-		//	{
-		//		t->m_dirty = false;
-		//		CalculateLocalModelMatrix(t, localTransform[c]);
-		//		hierarchy[c].dirty = true;
-		//	}
-		//}
-		//
-		//// Update globalTransform of valid components
-		//for (ComponentHandle c : getComponents())
-		//{
-		//	RecalcGlobal(hierarchy[c]);
-		//}
+		const MsgComponentCreated<Transform2DComponent>& msg = static_cast<const MsgComponentCreated<Transform2DComponent>&>(msg_);
+		const uint32 nComponents = msg.component;
+
+		if (localTransform.size() <= nComponents)
+		{
+			localTransform.resize(nComponents + 1);
+			globalTransform.resize(nComponents + 1);
+			hierarchy.resize(nComponents + 1);
+		}
 	}
 
-	void Transform2DProcessor::RecalcGlobal(Hierarchy &t)
+	void Transform2DProcessor::onTransform2DComponentDestroyed(const BaseMessage& msg_)
+	{
+		const MsgComponentDestroyed<Transform2DComponent>& msg = static_cast<const MsgComponentDestroyed<Transform2DComponent>&>(msg_);
+
+		// Childs lost their parent. Let them to the previous parent root.
+		for (ComponentHandle c : hierarchy[msg.component].childs)
+		{
+			setParentOf(c, hierarchy[msg.component].parent);
+		}
+	}
+
+	void Transform2DProcessor::setParentOf(ComponentHandle a, ComponentHandle parent)
+    {
+        const ComponentHandle prevParent = hierarchy[a].parent;
+        if (prevParent == parent)
+            return;
+
+        // Remove child from previous parent
+        hierarchy[prevParent].removeChild(a);
+
+        // Set parent for given component
+        hierarchy[a].parent = parent;
+        hierarchy[a].dirty = true;
+
+        // Add child for new parent
+        hierarchy[parent].addChild(a);
+    }
+
+	void Transform2DProcessor::Process()
+	{
+		getES()->forAll<Transform2DProcessor, Transform2DComponent>(*this,
+			[](Transform2DProcessor& self, ComponentHandle c, Transform2DComponent& transform)
+			{
+				if (transform.m_dirty)
+				{
+					transform.m_dirty = false;
+					CalculateLocalModelMatrix(transform, self.localTransform[c]);
+					self.hierarchy[c].dirty = true;
+				}
+			}
+		);
+
+		// Update globalTransform of valid components
+		getES()->forAll<Transform2DProcessor, Transform2DComponent>(*this,
+			[](Transform2DProcessor& self, ComponentHandle c, Transform2DComponent& transform)
+			{
+				self.recalcGlobalTransform(c, self.hierarchy[c]);
+			}
+		);
+	}
+
+	void Transform2DProcessor::recalcGlobalTransform(ComponentHandle handle, Hierarchy &t)
 	{
 		if (t.dirty)
 		{
 			if (t.parent != 0) {
-				globalTransform[t.self] = globalTransform[t.parent] * localTransform[t.self];
+				globalTransform[handle] = globalTransform[t.parent] * localTransform[handle];
 			} else {
-				globalTransform[t.self] = localTransform[t.self];
+				globalTransform[handle] = localTransform[handle];
 			}
 
 			t.dirty = false;
@@ -69,7 +118,7 @@ namespace BitEngine{
 			for (const ComponentHandle c : t.childs)
             {
 				hierarchy[c].dirty = true;
-				RecalcGlobal(hierarchy[c]);
+				recalcGlobalTransform(c, hierarchy[c]);
 			}
 		}
 	}

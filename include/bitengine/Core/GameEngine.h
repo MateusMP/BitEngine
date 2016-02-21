@@ -20,7 +20,7 @@
 #include "Core/ECS/Transform3DProcessor.h"
 #include "Core/ECS/Camera2DProcessor.h"
 #include "Core/ECS/Camera3DProcessor.h"
-#include "Core/ECS/Sprite2DHolder.h"
+#include "Core/ECS/Sprite2DProcessor.h"
 #include "Core/ECS/RenderableMeshProcessor.h"
 
 #include "Core/Messenger.h"

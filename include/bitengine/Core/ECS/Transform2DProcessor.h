@@ -11,63 +11,37 @@ namespace BitEngine{
 		public:
 			Transform2DProcessor();
 			~Transform2DProcessor();
-			
+
 			/// Processor
 			bool Init() override;
 			void Stop() override;
 			void Process();
 
-			void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override
-			{
-				if (localTransform.size() <= component) {
-					localTransform.resize(component + 1);
-					globalTransform.resize(component + 1);
-					hierarchy.resize(component + 1);
-					hierarchy[component].self = component;
-				}
-			}
-
-			void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) override
-			{
-				// Childs lost their parent. Let them to the previous parent root.
-				for (ComponentHandle c : hierarchy[component].childs)
-					setParentOf(c, hierarchy[component].parent);
-			}
+			void onTransform2DComponentCreated(const BaseMessage& msg_);
+			void onTransform2DComponentDestroyed(const BaseMessage& msg_);
 
 			// Processor input
-			void setParentOf(ComponentHandle a, ComponentHandle parent)
-			{
-				const ComponentHandle prevParent = hierarchy[a].parent;
-				if (prevParent == parent)
-					return;
-
-				// Remove child from previous parent
-				hierarchy[prevParent].removeChild(a);
-
-				// Set parent for given component
-				hierarchy[a].parent = parent;
-				hierarchy[a].dirty = true;
-
-				// Add child for new parent
-				hierarchy[parent].addChild(a);
+			inline void setParentOf(ComponentRef<Transform2DComponent>& a, ComponentRef<Transform2DComponent>& parent){
+				setParentOf(ComponentProcessor::getComponentHandle(a), ComponentProcessor::getComponentHandle(parent));
 			}
 
 			// Processor result outputs
-			const std::vector<glm::mat3>& getGlobalTransforms() const {
+			inline const std::vector<glm::mat3>& getGlobalTransforms() const {
 				return globalTransform;
 			}
-			const glm::mat3& getGlobalTransformFor(ComponentHandle hdl) const {
+			inline const glm::mat3& getGlobalTransformFor(ComponentHandle hdl) const {
 				return globalTransform[hdl];
 			}
 
 		private: // Functions
-				 
+			void setParentOf(ComponentHandle a, ComponentHandle parent);
+
 			// Processor
-			static void CalculateLocalModelMatrix(const Transform2DComponent* component, glm::mat3& mat);
+			static void CalculateLocalModelMatrix(const Transform2DComponent& component, glm::mat3& mat);
 
 			struct Hierarchy {
 				Hierarchy() {
-					self = 0;
+					//self = 0;
 					parent = 0;
 				}
 
@@ -89,17 +63,17 @@ namespace BitEngine{
 				}
 
 				// Members
-				ComponentHandle self;
+				//ComponentHandle self;
 				ComponentHandle parent;
 				bool dirty;
 				std::vector<ComponentHandle> childs;
 			};
 
 			// TODO: Make iterative version
-			void RecalcGlobal(Hierarchy &t);
+			void recalcGlobalTransform(ComponentHandle handle, Hierarchy &t);
 
 		private: // Attributes
-		
+
 			// Processor
 			std::vector<Hierarchy> hierarchy;
 			std::vector<glm::mat3> localTransform; // used only to calculate globalTransform

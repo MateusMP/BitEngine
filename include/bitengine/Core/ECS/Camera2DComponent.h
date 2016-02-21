@@ -11,7 +11,6 @@ namespace BitEngine {
 		: public Component<Camera2DComponent>
 	{
 		public:
-		    
 			Camera2DComponent();
 
 			// Set camera focus position

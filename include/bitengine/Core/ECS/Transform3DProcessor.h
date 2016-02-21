@@ -8,9 +8,6 @@ namespace BitEngine{
 	// TODO: Fix parents on childs when a parent Transform is destroyed
 	class Transform3DProcessor : public ComponentProcessor
 	{
-	private:
-		struct Hierarchy;
-
 	public:
 		Transform3DProcessor();
 		~Transform3DProcessor();
@@ -20,22 +17,6 @@ namespace BitEngine{
 		void Stop() override;
 		void Process();
 
-		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override
-		{
-			if (localTransform.size() <= component) {
-				localTransform.resize(component + 1);
-				globalTransform.resize(component + 1);
-				hierarchy.resize(component+1);
-				hierarchy[component].self = component;
-			}
-		}
-		void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) override
-		{
-			// Childs lost their parent. Let them to the previous parent root.
-			for (ComponentHandle c : hierarchy[component].childs)
-				setParentOf(c, hierarchy[component].parent);
-		}
-
 		// Processor result outputs
 		const std::vector<glm::mat4>& getGlobalTransforms() const {
 			return globalTransform;
@@ -44,19 +25,32 @@ namespace BitEngine{
 			return globalTransform[hdl];
 		}
 
-	private: // Functions
+		// Make 'a' become child of 'parent
+		void setParentOf(ComponentRef<Transform3DComponent>& a, ComponentRef<Transform3DComponent>& parent)
+		{
+			setParentOf(ComponentProcessor::getComponentHandle(a), ComponentProcessor::getComponentHandle(parent));
+		}
 
-		// Processor
-		static void CalculateLocalModelMatrix(const Transform3DComponent* component, glm::mat4& mat);
+	private: // Functions
+        struct Hierarchy;
+		static void CalculateLocalModelMatrix(const Transform3DComponent& component, glm::mat4& mat);
+
+		// Message handlers
+		void onTransform3DComponentCreated(const BaseMessage& msg_);
+		void onTransform3DComponentDestroyed(const BaseMessage& msg_);
+
+		// TODO: Make iterative version
+		void recalcGlobalTransform(ComponentHandle handle, Hierarchy &t);
+
+		void setParentOf(ComponentHandle a, ComponentHandle parent);
 
 		struct Hierarchy {
 			Hierarchy() {
-				self = 0;
 				parent = 0;
 			}
 
 			void removeChild(ComponentHandle a) {
-				for (ComponentHandle& h : childs) 
+				for (ComponentHandle& h : childs)
 				{
 					if (h == a) {
 						h = childs.back();
@@ -70,34 +64,13 @@ namespace BitEngine{
 				childs.push_back(a);
 			}
 
-			ComponentHandle self;
 			ComponentHandle parent;
 			bool dirty;
 			std::vector<ComponentHandle> childs;
 		};
 
-		// TODO: Make iterative version
-		void RecalcGlobal(Hierarchy &t);
-
-		void setParentOf(ComponentHandle a, ComponentHandle parent)
-		{
-			const ComponentHandle prevParent = hierarchy[a].parent;
-			if (prevParent == parent)
-				return;
-
-			// Remove child from previous parent
-			hierarchy[prevParent].removeChild(a);
-
-			// Set parent for given component
-			hierarchy[a].parent = parent;
-			hierarchy[a].dirty = true;
-
-			// Add child for new parent
-			hierarchy[parent].addChild(a);
-		}
-
 	private: // Attributes
-	
+
 		// Processor
 		std::vector<Hierarchy> hierarchy;
 		std::vector<glm::mat4> localTransform; // used only to calculate globalTransform

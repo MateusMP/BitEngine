@@ -26,7 +26,6 @@
     <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Sprite2DComponent.h" />
-    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DHolder.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform2DComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform2DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform3DComponent.h" />
@@ -73,6 +72,7 @@
     <ClInclude Include="include\bitengine\Core\Message.h" />
     <ClInclude Include="include\bitengine\Core\Messenger.h" />
     <ClInclude Include="include\bitengine\Common\BitFieldVector.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DProcessor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -106,7 +106,7 @@
     <ClCompile Include="src\DefaultBackends\opengl\OpenGL.cpp" />
     <ClCompile Include="src\Core\ECS\Camera3DComponent.cpp" />
     <ClCompile Include="src\Core\Messenger.cpp" />
-    <ClCompile Include="src\Core\MessageType.cpp" />
     <ClCompile Include="src\Tests\bitset.cpp" />
+    <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
   </ItemGroup>
 </Project>

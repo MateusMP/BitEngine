@@ -11,13 +11,13 @@ namespace BitEngine{
 	class CommandSystem : public System
 	{
 		public:
-			class CommandInput : public Message<CommandInput>
+			class MsgCommandInput : public Message<MsgCommandInput>
 			{
 			public:
-				CommandInput(int _id, float _intensity, int _other);
-				CommandInput(int _id, float _intensity, InputReceiver::KeyAction _other);
-				CommandInput(int _id, float _intensity, InputReceiver::MouseAction _other, double x, double y);
-				CommandInput(int _id, float _intensity);
+				MsgCommandInput(int _id, float _intensity, int _other);
+				MsgCommandInput(int _id, float _intensity, InputReceiver::KeyAction _other);
+				MsgCommandInput(int _id, float _intensity, InputReceiver::MouseAction _other, double x, double y);
+				MsgCommandInput(int _id, float _intensity);
 
 				const int commandID;
 				const float intensity;
@@ -99,17 +99,17 @@ namespace BitEngine{
 				CommandIdentifier()
 				{}
 
-				CommandIdentifier(int s, const InputReceiver::KeyboardInput& k)
-					: commandState(s), commandInputType(InputType::keyboard), keyboard(k){}
+				CommandIdentifier(int s, const InputReceiver::MsgKeyboardInput& k)
+					: commandState(s), MsgCommandInputType(InputType::keyboard), keyboard(k){}
 
-				CommandIdentifier(int s, const InputReceiver::MouseInput& m)
-					: commandState(s), commandInputType(InputType::mouse), mouse(m){}
+				CommandIdentifier(int s, const InputReceiver::MsgMouseInput& m)
+					: commandState(s), MsgCommandInputType(InputType::mouse), mouse(m){}
 
 				int commandState;
-				InputType commandInputType;
+				InputType MsgCommandInputType;
 
-				InputReceiver::KeyboardInput keyboard;
-				InputReceiver::MouseInput mouse;
+				InputReceiver::MsgKeyboardInput keyboard;
+				InputReceiver::MsgMouseInput mouse;
 			};
 
 			// CommandIdentifier Hash and Equal
@@ -117,15 +117,15 @@ namespace BitEngine{
 			public:
 				std::size_t operator()(const CommandIdentifier& k) const
 				{
-					if (k.commandInputType == InputType::keyboard)
+					if (k.MsgCommandInputType == InputType::keyboard)
 						return (std::hash<int>()(k.commandState << 24)
-							 ^ (std::hash<int>()((int)k.commandInputType) << 16))
+							 ^ (std::hash<int>()((int)k.MsgCommandInputType) << 16))
 							 ^ (std::hash<int>()(k.keyboard.key) << 8)
 							 ^ (std::hash<int>()((int)k.keyboard.keyAction) << 4)
 							 ^ (std::hash<int>()((int)k.keyboard.keyMod));
-					else if (k.commandInputType == InputType::mouse)
+					else if (k.MsgCommandInputType == InputType::mouse)
 						return (std::hash<int>()(k.commandState << 24)
-							^ (std::hash<int>()((int)k.commandInputType) << 16))
+							^ (std::hash<int>()((int)k.MsgCommandInputType) << 16))
 							^ (std::hash<int>()(k.mouse.button) << 8)
 							^ (std::hash<int>()((int)k.mouse.action) << 4)
 							^ (std::hash<int>()((int)k.mouse.keyMod));
@@ -137,12 +137,12 @@ namespace BitEngine{
 			public:
 				bool operator() (const CommandIdentifier& t1, const CommandIdentifier& t2) const
 				{
-					if (t1.commandInputType == InputType::keyboard && t2.commandInputType == InputType::keyboard)
+					if (t1.MsgCommandInputType == InputType::keyboard && t2.MsgCommandInputType == InputType::keyboard)
 						return (t1.commandState == t2.commandState
 							&& t1.keyboard.key == t2.keyboard.key
 							&& t1.keyboard.keyAction == t2.keyboard.keyAction
 							&& t1.keyboard.keyMod == t2.keyboard.keyMod);
-					else if (t1.commandInputType == InputType::mouse && t2.commandInputType == InputType::mouse)
+					else if (t1.MsgCommandInputType == InputType::mouse && t2.MsgCommandInputType == InputType::mouse)
 						return (t1.commandState == t2.commandState
 							&& t1.mouse.button == t2.mouse.button
 							&& t1.mouse.action == t2.mouse.action

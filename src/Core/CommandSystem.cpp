@@ -3,25 +3,25 @@
 
 namespace BitEngine
 {
-	CommandSystem::CommandInput::CommandInput(int _id, float _intensity, int _other)
+	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, int _other)
 		: commandID(_id), intensity(_intensity)
 	{
 		other.other = _other;
 	}
 
-	CommandSystem::CommandInput::CommandInput(int _id, float _intensity, InputReceiver::KeyAction _other)
+	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, InputReceiver::KeyAction _other)
 		: commandID(_id), intensity(_intensity)
 	{
 		other.fromButton = _other;
 	}
 
-	CommandSystem::CommandInput::CommandInput(int _id, float _intensity, InputReceiver::MouseAction _other, double x, double y)
+	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, InputReceiver::MouseAction _other, double x, double y)
 		: commandID(_id), intensity(_intensity), mouse_x(x), mouse_y(y)
 	{
 		other.fromMouse = _other;
 	}
 
-	CommandSystem::CommandInput::CommandInput(int _id, float _intensity)
+	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity)
 		: commandID(_id), intensity(_intensity)
 	{
 		other.other = 0;
@@ -41,8 +41,8 @@ namespace BitEngine
 
 	bool CommandSystem::Init()
 	{
-		getMessenger()->RegisterListener<InputReceiver::KeyboardInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_KeyboardInput));
-		getMessenger()->RegisterListener<InputReceiver::MouseInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_MouseInput));
+		getMessenger()->RegisterListener<InputReceiver::MsgKeyboardInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_KeyboardInput));
+		getMessenger()->RegisterListener<InputReceiver::MsgMouseInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_MouseInput));
 		return true;
 	}
 
@@ -122,7 +122,7 @@ namespace BitEngine
 	{
 		CommandIdentifier idtf;
 		idtf.commandState = commandState;
-		idtf.commandInputType = InputType::keyboard;
+		idtf.MsgCommandInputType = InputType::keyboard;
 
 		idtf.keyboard.key = key;
 		idtf.keyboard.keyAction = InputReceiver::KeyAction::PRESS;
@@ -154,7 +154,7 @@ namespace BitEngine
 	{
 		CommandIdentifier idtf;
 		idtf.commandState = commandState;
-		idtf.commandInputType = InputType::keyboard;
+		idtf.MsgCommandInputType = InputType::keyboard;
 
 		idtf.keyboard.key = key;
 		idtf.keyboard.keyAction = action;
@@ -173,7 +173,7 @@ namespace BitEngine
 	{
 		CommandIdentifier idtf;
 		idtf.commandState = commandState;
-		idtf.commandInputType = InputType::mouse;
+		idtf.MsgCommandInputType = InputType::mouse;
 
 		idtf.mouse.button = button;
 		idtf.mouse.action = action;
@@ -190,7 +190,7 @@ namespace BitEngine
 
 	void CommandSystem::Message_KeyboardInput(const BaseMessage& msg_)
 	{
-		const InputReceiver::KeyboardInput& msg = static_cast<const InputReceiver::KeyboardInput&>(msg_);
+		const InputReceiver::MsgKeyboardInput& msg = static_cast<const InputReceiver::MsgKeyboardInput&>(msg_);
 
 		// Verify for global commands
 		{
@@ -202,7 +202,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getMessenger()->SendMessage(CommandInput(cmdID, 1, msg.keyAction));
+				getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.keyAction));
 			}
 			else
 			{
@@ -221,7 +221,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getMessenger()->SendMessage(CommandInput(cmdID, 1, msg.keyAction));
+				getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.keyAction));
 			}
 			else {
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for input key: " << msg.key << " action: " << (int)(msg.keyAction) << " mod: " << (int)msg.keyMod;
@@ -231,7 +231,7 @@ namespace BitEngine
 
 	void CommandSystem::Message_MouseInput(const BaseMessage& msg_)
 	{
-		const InputReceiver::MouseInput& msg = static_cast<const InputReceiver::MouseInput&>(msg_);
+		const InputReceiver::MsgMouseInput& msg = static_cast<const InputReceiver::MsgMouseInput&>(msg_);
 		// Verify for global commands
 		{
 			CommandIdentifier idtf(-1, msg);
@@ -243,7 +243,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getMessenger()->SendMessage(CommandInput(cmdID, 1, msg.action, msg.x, msg.y));
+				getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this mouse input.";
@@ -261,7 +261,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getMessenger()->SendMessage(CommandInput(cmdID, 1, msg.action, msg.x, msg.y));
+				getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this mouse input.";

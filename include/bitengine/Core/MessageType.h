@@ -5,19 +5,19 @@
 
 namespace BitEngine{
 
-	class  WindowClosed : public Message<WindowClosed>
+	class  MsgWindowClosed : public Message<MsgWindowClosed>
 	{
 	public:
-		WindowClosed(Window *w) :window(w)
+		MsgWindowClosed(Window *w) :window(w)
 		{}
 
 		Window* window;
 	};
 
-	class WindowCreated : public Message<WindowCreated>
+	class MsgWindowCreated : public Message<MsgWindowCreated>
 	{
 	public:
-		WindowCreated(Window *w): window(w){
+		MsgWindowCreated(Window *w): window(w){
 		}
 		Window* window;
 	};

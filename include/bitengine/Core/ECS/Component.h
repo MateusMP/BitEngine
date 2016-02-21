@@ -11,8 +11,8 @@ namespace BitEngine{
 	typedef uint16 ComponentType;
 	typedef uint16* GlobalComponentID;
 
-	const uint32 NO_COMPONENT_HANDLE = 0;
-	const uint32 NO_COMPONENT_TYPE = ~0;
+	const uint32 BE_NO_COMPONENT_HANDLE = 0;
+	const uint32 BE_NO_COMPONENT_TYPE = ~0;
 
 	class BaseComponent
 	{
@@ -21,15 +21,8 @@ namespace BitEngine{
 		public:
 			virtual ~BaseComponent(){}
 
-			EntityHandle getEntity() const {
-				return entity;
-			}
-
 		protected:
 			static ComponentType componentTypeCounter;
-		
-		private:
-			EntityHandle entity;
 	};
 
 	template<typename T>

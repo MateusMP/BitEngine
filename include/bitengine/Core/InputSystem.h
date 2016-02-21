@@ -65,22 +65,27 @@ class InputReceiver : public MessengerEndpoint
 		};
 
 		// Message
-		struct KeyboardInput : Message<KeyboardInput>{
-			KeyboardInput() : key(0), keyAction(KeyAction::NONE), keyMod(KeyMod::KFALSE){}
-			KeyboardInput(int k, KeyAction ka, KeyMod km)
-			: key(k), keyAction(ka), keyMod(km){}
+		class MsgKeyboardInput : public Message<MsgKeyboardInput>
+		{
+		public:
+			MsgKeyboardInput() 
+				: key(0), keyAction(KeyAction::NONE), keyMod(KeyMod::KFALSE){}
+			MsgKeyboardInput(int k, KeyAction ka, KeyMod km)
+				: key(k), keyAction(ka), keyMod(km){}
 
 			int key;
 			KeyAction keyAction;
 			KeyMod keyMod;
 		};
 
-		struct MouseInput : Message<KeyboardInput> {
-			MouseInput()
+		class MsgMouseInput : public Message<MsgMouseInput>
+		{
+		public:
+			MsgMouseInput()
 				: button(0), action(MouseAction::NONE), keyMod(KeyMod::KFALSE), x(0), y(0){}
-			MouseInput(double _x, double _y)
+			MsgMouseInput(double _x, double _y)
 				: button(0), action(MouseAction::MOVE), keyMod(KeyMod::KFALSE), x(_x), y(_y){}
-			MouseInput(int b, MouseAction ma, KeyMod km, double _x, double _y)
+			MsgMouseInput(int b, MouseAction ma, KeyMod km, double _x, double _y)
 				: button(b), action(ma), keyMod(km), x(_x), y(_y){}
 
 

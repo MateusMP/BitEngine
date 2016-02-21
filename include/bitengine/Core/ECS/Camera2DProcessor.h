@@ -20,9 +20,6 @@ class Camera2DProcessor : public ComponentProcessor
 		void Stop() override;
 		void Process();
 
-		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override;
-		void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) override;
-		
 	private: // Methods
 
 		/// Processor
@@ -40,9 +37,6 @@ class Camera2DProcessor : public ComponentProcessor
 		ComponentHolder<Camera2DComponent>* holderCamera;
 		ComponentHolder<Transform2DComponent>* holderTransform;
 		Transform2DProcessor* transform2DProcessor;
-
-		// All entities that currently have the required components to be processed by this processor
-		std::vector<EntityHandle> processEntities;
 };
 
 }

@@ -36,7 +36,7 @@
     <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Sprite2DComponent.h" />
-    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DHolder.h" />
+    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform2DComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform2DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform3DComponent.h" />
@@ -83,6 +83,7 @@
     <ClInclude Include="include\bitengine\bitengine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
     <ClCompile Include="src\Core\Messenger.cpp" />
     <ClCompile Include="src\Core\CommandSystem.cpp" />
     <ClCompile Include="src\Core\ECS\BaseEntitySystem.cpp" />
@@ -103,7 +104,6 @@
     <ClCompile Include="src\Core\GameEngine.cpp" />
     <ClCompile Include="src\Core\InputSystem.cpp" />
     <ClCompile Include="src\Core\Logger.cpp" />
-    <ClCompile Include="src\Core\MessageType.cpp" />
     <ClCompile Include="src\Core\ModelManager.cpp" />
     <ClCompile Include="src\Core\ResourceSystem.cpp" />
     <ClCompile Include="src\Core\Sprite2DShader.cpp">

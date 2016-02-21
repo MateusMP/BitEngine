@@ -50,21 +50,26 @@ namespace BitEngine{
 	class GameLogicComponent : public Component<GameLogicComponent>
 	{
         public:
-	        GameLogicComponent(){}
-                //: EntityHolderComponent(0, nullptr) {}
-            GameLogicComponent(EntityHandle ent){}
-                //: EntityHolderComponent(ent, sys) {}
+	        GameLogicComponent()
+                : m_entity(0) {}
+            GameLogicComponent(EntityHandle ent)
+                : m_entity(ent) {}
 
             void addLogicPiece(GameLogic* logic){
                 m_gamelogics.emplace_back(logic);
-                logic->m_myEntity = getEntity();
+                logic->m_myEntity = m_entity;
                 logic->e_sys = e_sys;
+            }
+
+            EntityHandle getEntity() const{
+                return m_entity;
             }
 
 			// std::vector<GameLogic*>& getLogics() { return m_gamelogics; }
 
         private:
             friend class GameLogicProcessor;
+            EntityHandle m_entity;
             EntitySystem* e_sys;
             std::vector<GameLogic*> m_gamelogics;
 	};

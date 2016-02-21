@@ -15,24 +15,21 @@ namespace BitEngine{
 	{
 	public:
 		Camera3DProcessor(Transform3DProcessor* t3dp);
-		
+
 		/// Processor
 		bool Init() override;
 		void Stop() override;
 		void Process();
 
-		void OnComponentCreated(EntityHandle entity, ComponentType type, ComponentHandle component) override;
-		void OnComponentDestroyed(EntityHandle entity, ComponentType type, ComponentHandle component) override;
-
 	private:
 
 		//
-		void recalculateViewMatrix(Camera3DComponent* c, const glm::mat4& t);
+		static void recalculateViewMatrix(Camera3DComponent& c, const glm::mat4& t);
 
 	private:
 		// Processor
 		struct Entry {
-			Entry(EntityHandle ent, ComponentHandle cam, ComponentHandle transf) 
+			Entry(EntityHandle ent, ComponentHandle cam, ComponentHandle transf)
 				: entity(ent), camera3d(cam), transform3d(transf) {}
 			EntityHandle entity;
 			ComponentHandle camera3d;
@@ -47,10 +44,6 @@ namespace BitEngine{
 		ComponentHolder<Camera3DComponent>* holderCamera;
 		ComponentHolder<Transform3DComponent>* holderTransform;
 		Transform3DProcessor* transform3DProcessor;
-
-		// All entities that currently have the required components to be processed by this processor
-		std::vector<Entry> processEntries;
-		std::unordered_set<EntityHandle> invalidatedEntries;
 	};
 
 }
