@@ -10,8 +10,7 @@
 #endif
 
 #ifdef _USE_GLEW_
-	#define GLEW_STATIC
-	#include <GL/glew.h>
+	#include "DefaultBackends/opengl/OpenGL.h"
 #endif
 
 #ifdef _BITENGINE_USE_GL4_

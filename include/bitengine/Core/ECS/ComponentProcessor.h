@@ -69,7 +69,7 @@ class ComponentProcessor : public MessengerEndpoint
 		EntitySystem* getES() { return m_es; }
 
 		template<typename CompClass>
-		static ComponentHandle getComponentHandle(const ComponentRef<CompClass>& ref) {
+		inline static ComponentHandle getComponentHandle(const ComponentRef<CompClass>& ref) {
 			return ref.m_componentID;
 		}
 
@@ -107,7 +107,7 @@ class BaseComponentHolder : public MessengerEndpoint
 		}
 
 		inline uint32 getNumValidComponents() const {
-			return m_IDcurrent - m_freeIDs.size();
+			return m_workingComponents;
 		}
 
 		// resize to be able to contain up to given component id
@@ -131,6 +131,8 @@ class BaseComponentHolder : public MessengerEndpoint
 
 			m_byEntity[m_byComponent[componentID]] = BE_NO_COMPONENT_HANDLE;
 			m_byComponent[componentID] = 0;
+
+			--m_workingComponents;
 		}
 
 	protected:
@@ -139,6 +141,7 @@ class BaseComponentHolder : public MessengerEndpoint
 
 		uint32 m_IDcapacity;
 		uint32 m_IDcurrent;
+		uint32 m_workingComponents;
 		std::vector<char*> m_pools;
 		std::vector<ComponentHandle> m_freeIDs;
 		std::vector<EntityHandle> m_byComponent; // given component get the entity
@@ -221,6 +224,10 @@ class ComponentRef
 
 		bool isValid() const {
 			return m_entity != 0 && m_componentID != 0 && m_es != nullptr && m_component != nullptr;
+		}
+
+		const CompClass& ref() const {
+			return *m_component;
 		}
 
 	private:
