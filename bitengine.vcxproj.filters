@@ -108,5 +108,6 @@
     <ClCompile Include="src\Core\Messenger.cpp" />
     <ClCompile Include="src\Tests\bitset.cpp" />
     <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
+    <ClCompile Include="src\Tests\testES.cpp" />
   </ItemGroup>
 </Project>

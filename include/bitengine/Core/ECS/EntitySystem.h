@@ -84,14 +84,6 @@ class EntitySystem : public BaseEntitySystem
 			return true;
 		}
 
-		void runUpdate(int pipeline)
-		{
-			for (uint32 i = 0; i < process_order[pipeline].size(); ++i)
-			{
-				process_order[pipeline][i].Run();
-			}
-		}
-
 		void Update()
 		{
 			int finish = 0;
@@ -131,6 +123,7 @@ class EntitySystem : public BaseEntitySystem
 		template<typename CompClass>
 		bool RegisterComponent()
 		{
+			static_assert(!std::is_pod<CompClass>::value, "Components should be POD!");
 			ComponentHolder<CompClass>* ptr = new ComponentHolder<CompClass>();
 			if (!registerComponentHolder(CompClass::getComponentType(), ptr))
 			{
@@ -203,6 +196,9 @@ class EntitySystem : public BaseEntitySystem
 		template<typename Base, typename ... ContainComps>
 		void forEach(typename identity<std::function<void(EntityHandle, Base&, ContainComps&...)>>::type f)
 		{
+			// TODO: otimize calls of getComponentRefE with this:
+			// std::tuple<ComponentHolder<ContainComps>*... > holders = std::make_tuple{ getHolder<ContainComps>()... };
+
 			ComponentType types[] = { ContainComps::getComponentType()... };
 
             ComponentHolder<Base>* holder = getHolder<Base>();
@@ -215,7 +211,7 @@ class EntitySystem : public BaseEntitySystem
 
 			BitMask componentMask{0};
 			for (ComponentType t : types){
-                componentMask.b64 |= VectorBool::BIT_AT(t);
+                componentMask.b64 |= 1ull << t;
 			}
 
 			// loop through base components searching for matching pairs on Args types
@@ -240,8 +236,6 @@ class EntitySystem : public BaseEntitySystem
 			}
 		}
 
-
-
 		template<typename Caller, typename Base, typename ... ContainComps>
 		void forEach(Caller& caller, typename identity<std::function<void(Caller&, EntityHandle, Base&, ContainComps&...)>>::type f)
 		{
@@ -257,7 +251,7 @@ class EntitySystem : public BaseEntitySystem
 
 			BitMask componentMask{0};
 			for (ComponentType t : types){
-                componentMask.b64 |= VectorBool::BIT_AT(t);
+                componentMask.b64 |= 1ull << t;
 			}
 
 			// loop through base components searching for matching pairs on Args types
@@ -284,6 +278,103 @@ class EntitySystem : public BaseEntitySystem
 		}
 
 
+		/*template< typename T>
+		struct ComponentRefExtractor : public std::false_type {
+			static ComponentRef<T> getRef(EntitySystem& es, EntityHandle entity) {
+			}
+		};
+
+		template< typename CompClass>
+		struct ComponentRefExtractor< Component<CompClass> >
+		{
+            static CompClass& getRef(EntitySystem& es, EntityHandle entity)
+            {
+                ComponentHolder<CompClass>* holder = es.getHolder<CompClass>();
+                LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
+
+                ComponentHandle compID = holder->getComponentForEntity(entity);
+                return *static_cast<CompClass*>(holder->getComponent(compID));
+            }
+		};
+
+		template< typename CompClass>
+		struct ComponentRefExtractor< ComponentRef<CompClass> >
+		{
+            static ComponentRef<CompClass> getRef(EntitySystem& es, EntityHandle entity)
+            {
+                ComponentHolder<CompClass>* holder = es.getHolder<CompClass>();
+                LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
+
+                ComponentHandle compID = holder->getComponentForEntity(entity);
+                CompClass* comp = static_cast<CompClass*>(holder->getComponent(compID));
+
+                return ComponentRef<CompClass>(entity, compID, &es, comp);
+            }
+		};
+
+		template< typename T>
+		struct ComponentTypeExtrator : public std::false_type {
+
+		};
+
+		template<typename X>
+		struct ComponentTypeExtrator< Component<X> >
+		{
+			constexpr static ComponentType type() {
+				return X::getComponentType();
+			}
+		};
+
+		template<typename X>
+		struct ComponentTypeExtrator< ComponentRef<X> >
+		{
+			constexpr static ComponentType type() {
+				return X::getComponentType();
+			}
+		};
+
+
+		template<typename Caller, typename Base, typename ... ContainComps>
+		void forEachGeneric(Caller& caller, typename identity<std::function<void(Caller&, EntityHandle, Base&, ContainComps&&...)>>::type f)
+		{
+			ComponentType types[] = { ComponentTypeExtrator<ContainComps>::type()... };
+
+			ComponentHolder<Base>* holder = getHolder<Base>();
+			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
+			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
+			const auto& allComponents = holder->getAllComponents();
+			uint32 curFree = 0;
+
+			uint32 validComponents = holder->getNumValidComponents();
+
+			BitMask componentMask{ 0 };
+			for (ComponentType t : types) {
+				componentMask.b64 |= 1ull << t;
+			}
+
+			// loop through base components searching for matching pairs on Args types
+			for (uint32 compID = 1; compID <= validComponents; ++compID)
+			{
+				const EntityHandle entity = allComponents[compID];
+
+				if ((curFree < freeIDs.size() && freeIDs[curFree] != compID) || curFree >= freeIDs.size())
+				{
+					// Test to see if this entity has all needed components
+					if ((m_objBitField->getObj(entity).b64 & componentMask.b64) == componentMask.b64)
+					{
+						Base* comp = holder->getComponent(compID);
+						f(caller, entity, *comp, std::forward<ContainComps>(ComponentRefExtractor<ContainComps>::getRef(*this, entity))...); // TODO: avoid getHolder<>() every time
+					}
+				}
+				else
+				{
+					++curFree;
+					++validComponents;
+				}
+			}
+		}*/
+
+
 		template<typename Caller, typename Base, typename ... ContainComps>
 		void forEachRef(Caller& caller, typename identity<std::function<void(Caller&, EntityHandle, Base&, ComponentRef<ContainComps>&&...)>>::type f)
 		{
@@ -299,7 +390,7 @@ class EntitySystem : public BaseEntitySystem
 
 			BitMask componentMask{0};
 			for (ComponentType t : types){
-                componentMask.b64 |= VectorBool::BIT_AT(t);
+                componentMask.b64 |= 1ull << t;
 			}
 
 			// loop through base components searching for matching pairs on Args types
@@ -331,15 +422,11 @@ class EntitySystem : public BaseEntitySystem
 			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
 
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
-														//const auto& allComponents = holder->getAllComponents();
 			uint32 curFree = 0;
-
 
 			uint32 validComponents = holder->getNumValidComponents();
 			for (uint32 compID = 1; compID <= validComponents; ++compID)
 			{
-				// const EntityHandle entity = allComponents[compID];
-
 				if ((curFree < freeIDs.size() && freeIDs[curFree] != compID) || curFree >= freeIDs.size())
 				{
 					CompClass* comp = holder->getComponent(compID);
@@ -359,15 +446,11 @@ class EntitySystem : public BaseEntitySystem
 			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
 
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
-			//const auto& allComponents = holder->getAllComponents();
 			uint32 curFree = 0;
-
 
 			uint32 validComponents = holder->getNumValidComponents();
 			for (uint32 compID = 1; compID <= validComponents; ++compID)
 			{
-				// const EntityHandle entity = allComponents[compID];
-
 				if ((curFree < freeIDs.size() && freeIDs[curFree] != compID) || curFree >= freeIDs.size())
 				{
 					CompClass* comp = holder->getComponent(compID);
@@ -386,6 +469,15 @@ class EntitySystem : public BaseEntitySystem
 		}
 
 	private:
+		void runUpdate(int pipeline)
+		{
+			for (uint32 i = 0; i < process_order[pipeline].size(); ++i)
+			{
+				process_order[pipeline][i].Run();
+			}
+		}
+
+
 		template<typename CompClass>
 		CompClass& getComponentRefE(EntityHandle entity)
 		{
@@ -396,17 +488,6 @@ class EntitySystem : public BaseEntitySystem
 			CompClass* comp = static_cast<CompClass*>(holder->getComponent(compID));
 
 			return *comp;
-		}
-
-		template<int n>
-		bool testBitfieldArray(EntityHandle e, ComponentType *types)
-		{
-			for (int i = 0; i < n; ++i) {
-				if (!m_objBitField->test(e, types[i])) {
-					return false;
-				}
-			}
-			return true;
 		}
 
 		struct PipelineProcess

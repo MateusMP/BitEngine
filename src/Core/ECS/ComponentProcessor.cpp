@@ -5,7 +5,7 @@ namespace BitEngine {
 
 	BaseComponentHolder::BaseComponentHolder(uint32 componentSize, uint32 nCompPerPool /*= 100*/)
 		: m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool),
-		m_IDcurrent(1), m_pools(), m_byEntity(128, 0)
+		m_IDcurrent(1), m_workingComponents(0), m_pools(), m_byEntity(128, 0)
 	{
 		m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]); // init first pool
 		m_freeSorted = true;
@@ -84,6 +84,8 @@ namespace BitEngine {
 
 		m_byEntity[entity] = id;
 		m_byComponent[id] = entity;
+
+		++m_workingComponents;
 
 		return id;
 	}

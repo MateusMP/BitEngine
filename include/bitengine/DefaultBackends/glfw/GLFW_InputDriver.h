@@ -33,5 +33,5 @@ private:
 
 	static std::unordered_map<GLFWwindow*, BitEngine::InputReceiver> inputReceivers;
 
-	LOG_CLASS(BitEngine::EngineLog);
+	LOG_CLASS(BitEngine::EngineLog.getOutputSink());
 };

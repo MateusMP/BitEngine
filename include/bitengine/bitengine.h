@@ -15,3 +15,4 @@
 
 #include "Core/Mesh.h"
 #include "Core/ITexture.h"
+#include "Core/GameEngine.h"

@@ -11,7 +11,8 @@ namespace BitEngine {
 	    typedef uint8 baseType;
 	    static constexpr uint32 Nb = sizeof(baseType)*8;
 	public:
-
+		
+		/// Must be [0, 7]
 	    static constexpr baseType BIT_AT(baseType b){
 	        return BIT_MASK << (b);
 	    }

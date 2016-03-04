@@ -20,3 +20,6 @@ ProjectFiles/CodeBlocks/BitEngine_build_log.html
 TestBitfield/
 Tests/
 ProjectFiles/CodeBlocks/bitset.exe
+*.exe
+*.lib
+*.*~
