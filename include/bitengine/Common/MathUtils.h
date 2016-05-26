@@ -39,6 +39,13 @@ namespace BitEngine
 	}
 
 	template<typename T>
+	T sign(T x)
+	{
+		static_assert(std::is_signed<T>::value, "Not a signed type!");
+		return static_cast<T>( static_cast<int>(x > static_cast<T>(0.0)) - static_cast<int>(x < static_cast<T>(0.0)));
+	}
+
+	template<typename T>
 	inline T rotl(T c, uint16 by) {
 		return (c << by) | (c >> (sizeof(T) * 8 - by));
 	}
