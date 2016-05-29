@@ -12,6 +12,8 @@
 
 namespace BitEngine
 {
+	/// Load resources from file path
+	/// This class load files from the file system
 	class FileResourceLoader : public IResourceLoader
 	{
 		public:
@@ -53,8 +55,10 @@ namespace BitEngine
 			{
 				uint32 rid = ++m_globalResourceID;
 
-				m_resources[rid] = into; // create the resource data
+				// Create the resource data reference
+				m_resources[rid] = into; 
 
+				// Queue the request
 				m_requests.push(path, into, callback, rid);
 
 				return rid;
@@ -65,7 +69,7 @@ namespace BitEngine
 				auto it = m_resources.find(resourceID);
 				if (it != m_resources.end()) 
 				{
-					m_requests.push(it->second->path, it->second, callback, resourceID);
+					m_requests.push(it->second->getPath(), it->second, callback, resourceID);
 
 					return true;
 				}
@@ -84,7 +88,8 @@ namespace BitEngine
 		private:
 			void work()
 			{
-				char* buffer;
+				std::vector<char> buffer;
+
 				while (!stop)
 				{
 					Request request = m_requests.pop();
@@ -97,23 +102,24 @@ namespace BitEngine
 					std::ifstream file(request.file, std::ios_base::in | std::ios_base::binary);
 					file.seekg(0, std::ios::end);
 					uint32 size = (uint32)file.tellg();
-					buffer = new char[size];
+					buffer.resize(size);
 					file.seekg(0, std::ios::beg);
-					file.read(buffer, size);
+					file.read(buffer.data(), size);
 					file.close();
 
+					// Set data on the resource
 					BaseResource* d = m_resources[request.resourceID];
-					d->setBaseData(buffer, size);
-					d->path = request.file;
-					d->resourceId = request.resourceID;
-					request.callback->onResourceLoaded(d->resourceId);
+					d->set(request.resourceID, request.file, buffer);
+
+					// Callback now that resource is loaded.
+					request.callback->onResourceLoaded(d->getResourceId());
 					
 					if (m_requests.empty())
 					{
 						m_completed.notify_all();
 					}
 
-					LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Resource " << d->resourceId << " loaded";
+					LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Resource " << d->getResourceId() << " loaded.";
 				}
 
 				LOG(BitEngine::EngineLog, BE_LOG_INFO) << "File Load Thread finished!";

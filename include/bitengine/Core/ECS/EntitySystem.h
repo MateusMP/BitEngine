@@ -59,6 +59,13 @@ class EntitySystem : public BaseEntitySystem
 			cp->Init();
 		}
 
+		// Register a component processor
+		// pipeline: Which pipeline the processor should be inserted into
+		//			All processors inside a pipeline are executed sequentially.
+		//			Order of execution of processors from different pipelines are not guaranteed
+		// cp: The component processor
+		// func: The function that should be called on the given processor
+		// Return true if the processor was added
 		bool RegisterComponentProcessor(int pipeline, ComponentProcessor* cp, ComponentProcessor::processFunc func)
 		{
 			if (pipeline >= 4) { // limit pipelines
@@ -66,6 +73,7 @@ class EntitySystem : public BaseEntitySystem
 			}
 			process_order[pipeline].emplace_back(cp, func);
 
+			// Verify if it was already added
 			bool inside = false;
 			for (ComponentProcessor* p : m_processors)
 			{

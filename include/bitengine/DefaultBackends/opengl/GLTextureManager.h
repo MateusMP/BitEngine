@@ -22,14 +22,14 @@ class OpenGLTexture : public BitEngine::ITexture
 			void* pixelData;
 		};
 
-		uint32 getTextureID() const override { return m_textureID; }
-		uint32 getTextureType() const override { return m_textureType; }
+		inline uint32 getTextureID() const override { return m_textureID; }
+		inline uint32 getTextureType() const override { return m_textureType; }
 
 		// Aproximate memory use in ram in bytes
-		uint32 getUsingRamMemory() {
-			uint32 mem = 0;
-			if (dataPtr)
-				mem += dataSize;
+		uint32 getUsingRamMemory()
+		{
+			uint32 mem = data.size();
+
 			if (imgData.pixelData)
 				mem += getUsingGPUMemory();
 
@@ -65,11 +65,11 @@ public:
 	BitEngine::ITexture* getTexture(const std::string& str) override;
 	BitEngine::ITexture* getTexture(uint32 id) override;
 
-	uint32 getCurrentRamUsage() override {
+	uint32 getCurrentRamUsage() const override {
 		return ramInUse;
 	}
 
-	uint32 getCurrentGPUMemoryUsage() override {
+	uint32 getCurrentGPUMemoryUsage() const override {
 		return gpuMemInUse;
 	}
 
@@ -81,8 +81,9 @@ private:
 	void onResourceLoaded(uint32 resourceID) override;
 	void onResourceLoadFail(uint32 resourceID) override;
 
-	//
+	// Returns the next free texture index
 	uint16 getNextIndex();
+
 	void loadTexture2D(const OpenGLTexture::StbiImageData& data, OpenGLTexture& texture);
 
 	// Members

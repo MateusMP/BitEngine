@@ -89,7 +89,7 @@ void GLTextureManager::Update()
 			data.m_textureID = m_textures[0].m_textureID;
 		}
 
-		// do not need the file data anymore
+		// Do not need the file data anymore
 		data.clearBaseData();
 		
 		// delete pixel data too
@@ -159,18 +159,18 @@ BitEngine::ITexture* GLTextureManager::getTexture(uint32 resourceId)
 void GLTextureManager::onResourceLoaded(uint32 resourceID)
 {
 	uint16 localID = m_loadRequests[resourceID];
-	OpenGLTexture& data = m_textures[localID];
+	OpenGLTexture& resTexture = m_textures[localID];
 
 	// Working on ResourceLoader thread!
 	{
 		LOG_SCOPE_TIME(BitEngine::EngineLog, "Texture load");
 
-		data.imgData.pixelData = stbi_load_from_memory((unsigned char*)data.dataPtr, data.dataSize, &data.imgData.width, &data.imgData.height, &data.imgData.color, 0);
-		if (data.imgData.pixelData != nullptr) {
-			LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << data.path << " w: " << data.imgData.width << " h: " << data.imgData.height;
+		resTexture.imgData.pixelData = stbi_load_from_memory((unsigned char*)resTexture.data.data(), resTexture.data.size(), &resTexture.imgData.width, &resTexture.imgData.height, &resTexture.imgData.color, 0);
+		if (resTexture.imgData.pixelData != nullptr) {
+			LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << resTexture.getPath() << " w: " << resTexture.imgData.width << " h: " << resTexture.imgData.height;
 		}
 		else {
-			LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "stbi failed to load texture: " << data.path;
+			LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "stbi failed to load texture: " << resTexture.path;
 		}
 	}
 

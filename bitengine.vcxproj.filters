@@ -36,14 +36,11 @@
     <ClInclude Include="include\bitengine\Core\InputSystem.h" />
     <ClInclude Include="include\bitengine\Core\IVideoRenderer.h" />
     <ClInclude Include="include\bitengine\Core\Logger.h" />
-    <ClInclude Include="include\bitengine\Core\Mesh.h" />
     <ClInclude Include="include\bitengine\Core\MessageType.h" />
-    <ClInclude Include="include\bitengine\Core\ModelManager.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSystem.h" />
     <ClInclude Include="include\bitengine\Core\SmartManager.h" />
     <ClInclude Include="include\bitengine\Core\Sprite.h" />
     <ClInclude Include="include\bitengine\Core\Sprite2DShader.h" />
-    <ClInclude Include="include\bitengine\Core\SpriteManager.h" />
     <ClInclude Include="include\bitengine\Core\System.h" />
     <ClInclude Include="include\bitengine\Core\SystemConfiguration.h" />
     <ClInclude Include="include\bitengine\Core\Task.h" />
@@ -64,15 +61,18 @@
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\FrameBuffer.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GLTextureManager.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGLheaders.h" />
-    <ClInclude Include="include\bitengine\Core\IResourceManager.h" />
-    <ClInclude Include="include\bitengine\Core\ITexture.h" />
-    <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
     <ClInclude Include="include\bitengine\Common\MacroHelpers.h" />
     <ClInclude Include="include\bitengine\Common\ThreadSafeQueue.h" />
     <ClInclude Include="include\bitengine\Core\Message.h" />
     <ClInclude Include="include\bitengine\Core\Messenger.h" />
     <ClInclude Include="include\bitengine\Common\BitFieldVector.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Sprite2DProcessor.h" />
+    <ClInclude Include="include\bitengine\Core\SpriteManager.h" />
+    <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
+    <ClInclude Include="include\bitengine\Core\IResourceManager.h" />
+    <ClInclude Include="include\bitengine\Core\ITexture.h" />
+    <ClInclude Include="include\bitengine\Core\Mesh.h" />
+    <ClInclude Include="include\bitengine\Core\ModelManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
