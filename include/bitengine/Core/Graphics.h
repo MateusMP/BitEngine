@@ -5,11 +5,11 @@
 
 // Force dependent libraries when needed
 #ifdef _BITENGINE_USE_GL4_
-	#define _USE_GLEW_
-	#define _USE_GLFW_
+	#define _BITENGINE_USE_GLEW_
+	#define _BITENGINE_USE_GLFW_
 #endif
 
-#ifdef _USE_GLEW_
+#ifdef _BITENGINE_USE_GLEW_
 	#include "DefaultBackends/opengl/OpenGL.h"
 #endif
 

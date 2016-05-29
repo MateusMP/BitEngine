@@ -3,9 +3,14 @@
 #include "Core/ECS/ComponentProcessor.h"
 #include "Core/ECS/Transform2DComponent.h"
 
+#include "Common/MathUtils.h"
+
 namespace BitEngine{
 
 	// TODO: Fix parents on childs when a parent Transform is destroyed
+	// Basic Tranform 2D Implementation
+	// Uses Transform2DComponents
+	// Can create hierarchies and generate local and global transform matrices
 	class Transform2DProcessor : public ComponentProcessor
 	{
 		public:
@@ -15,10 +20,9 @@ namespace BitEngine{
 			/// Processor
 			bool Init() override;
 			void Stop() override;
-			void Process();
 
-			void onTransform2DComponentCreated(const BaseMessage& msg_);
-			void onTransform2DComponentDestroyed(const BaseMessage& msg_);
+			// Recalculate global transforms
+			void Process();
 
 			// Processor input
 			inline void setParentOf(ComponentRef<Transform2DComponent>& a, ComponentRef<Transform2DComponent>& parent){
@@ -33,12 +37,42 @@ namespace BitEngine{
 				return globalTransform[hdl];
 			}
 
+			// Calculate the rotation angle for given matrix
+			static inline glm::mat3::value_type calculateAngleFromTransformMatrix(const glm::mat3& mat)
+			{
+				return atan2(mat[1][0], mat[1][1]);
+			}
+
+			// Calculates the position for given matrix
+			static inline glm::vec2 calculatePositionFromTransformMatrix(const glm::mat3& mat)
+			{
+				return glm::vec2(mat[0][2], mat[1][2]);
+			}
+
+			// Calculates the X,Y scale applied on given matrix
+			static inline glm::vec2 calculateScaleFromTransformMatrix(const glm::mat3& mat)
+			{
+				const auto a = mat[0][0];
+				const auto b = mat[0][1];
+				const auto c = mat[1][0];
+				const auto d = mat[1][1];
+				return glm::vec2(BitEngine::sign(a) * sqrt(a*a + b*b),
+								 BitEngine::sign(d) * sqrt(c*c + d*d) );
+			}
+
+		protected:
+			// Calculate the local model matrix for given Transform2DComponent
+			// This is exposed to simplify implementations of customs Transform2DProcessors
+			static void CalculateLocalModelMatrix(const Transform2DComponent& component, glm::mat3& mat);
+
+			// Message handling
+			void onTransform2DComponentCreated(const BaseMessage& msg_);
+			void onTransform2DComponentDestroyed(const BaseMessage& msg_);
+
 		private: // Functions
 			void setParentOf(ComponentHandle a, ComponentHandle parent);
 
 			// Processor
-			static void CalculateLocalModelMatrix(const Transform2DComponent& component, glm::mat3& mat);
-
 			struct Hierarchy {
 				Hierarchy() {
 					//self = 0;
