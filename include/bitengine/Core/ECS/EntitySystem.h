@@ -125,17 +125,30 @@ class EntitySystem : public BaseEntitySystem
 			//run3.join();
 			//run4.join();
 
-			FrameFinished();
+			frameFinished();
 		}
 
 		template<typename CompClass>
-		bool RegisterComponent()
+		bool RegisterComponent(ComponentHolder<CompClass>* holder = nullptr, bool autoRegisterMsgType = true)
 		{
 			static_assert(!std::is_pod<CompClass>::value, "Components should be POD!");
-			ComponentHolder<CompClass>* ptr = new ComponentHolder<CompClass>();
-			if (!registerComponentHolder(CompClass::getComponentType(), ptr))
+
+			// Register message types
+			if (autoRegisterMsgType)
 			{
-				delete ptr;
+				MsgComponentCreated<CompClass>::MessageType();
+				MsgComponentDestroyed<CompClass>::MessageType();
+			}
+
+			if (holder == nullptr)
+			{
+				LOG(EngineLog, BE_LOG_WARNING) << "Using generic ComponentHolder for " << typeid(CompClass).name();
+				holder = new ComponentHolder<CompClass>();
+			}
+
+			if (!registerComponentHolder(CompClass::getComponentType(), holder))
+			{
+				delete holder;
 				return false;
 			}
 
@@ -159,13 +172,12 @@ class EntitySystem : public BaseEntitySystem
 		ComponentRef<CompClass> AddComponent(EntityHandle entity, Args... args)
 		{
 			CompClass *comp = nullptr;
-			ComponentHolder<CompClass>* holder;
 			ComponentHandle compID = BE_NO_COMPONENT_HANDLE;
 			ComponentType type = CompClass::getComponentType();
 
 			if (BaseEntitySystem::addComponent(entity, type))
 			{
-				holder = getHolder<CompClass>();
+				ComponentHolder<CompClass>* holder = getHolder<CompClass>();
 				compID = holder->createComponent(entity, comp, args...);
 
 				getMessenger()->SendMessage(MsgComponentCreated<CompClass>(entity, type, compID));

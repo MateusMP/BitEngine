@@ -5,7 +5,21 @@
 namespace BitEngine {
 	ComponentType BaseComponent::componentTypeCounter(0);
 
-	EntityHandle BaseEntitySystem::CreateEntity()
+	bool BaseEntitySystem::Init()
+	{
+		m_objBitField = new ObjBitField(static_cast<uint16>(m_holders.size()));
+
+		for (auto& h : m_holders)
+		{
+			h.second->setMessenger(getMessenger());
+		}
+
+		m_initialized = true;
+
+		return true;
+	}
+
+	EntityHandle BaseEntitySystem::createEntity()
 	{
 		EntityHandle newHandle;
 		if (m_freeEntities.empty()) 
@@ -26,7 +40,7 @@ namespace BitEngine {
 		return newHandle;
 	}
 
-	void BaseEntitySystem::DestroyEntity(EntityHandle entity)
+	void BaseEntitySystem::destroyEntity(EntityHandle entity)
 	{
 		if (!hasEntity(entity))
 			return;
@@ -36,7 +50,33 @@ namespace BitEngine {
 		getMessenger()->SendMessage(MsgEntityDestroyed(entity));
 	}
 
-	void BaseEntitySystem::FrameFinished()
+	bool BaseEntitySystem::addComponent(EntityHandle entity, ComponentType type)
+	{
+		if (!hasEntity(entity))
+		{
+			LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to attach component of type " << type << " to unknown entity: " << entity << "!";
+			return false;
+		}
+
+		m_objBitField->set(entity, type);
+
+		return true;
+	}
+
+	bool BaseEntitySystem::removeComponent(EntityHandle entity, ComponentType type, ComponentHandle handle)
+	{
+		if (!hasEntity(entity))
+		{
+			LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to remove component of type " << type << " with handle: " << handle << " from entity " << entity << "!";
+			return false;
+		}
+
+		m_holders[type]->releaseComponentID(handle);
+
+		return true;
+	}
+
+	void BaseEntitySystem::frameFinished()
 	{
 		for (EntityHandle entity : m_toBeDestroyed)
 		{

@@ -22,72 +22,54 @@ namespace BitEngine {
 			BaseEntitySystem()
 				: System("Entity")
 			{
+				m_initialized = false;
 				m_objBitField = nullptr;
 				m_entities.emplace_back(0); // First entity is invalid.
 			}
 
-			bool Init() override
-			{
-				m_objBitField = new ObjBitField(static_cast<uint16>(m_holders.size()));
+			// After this call, no more component types are allowed to be registered
+			// return true if initialized correctly.
+			bool Init() override;
 
-				for (auto& h : m_holders)
-				{
-					h.second->setMessenger(getMessenger());
-				}
+			// Creates a new Entity
+			// @return The entity handle
+			EntityHandle createEntity();
 
-				return true;
-			}
+			// Destroy the entity
+			// All components inside this entity will be destroyed too
+			// @param entity Entity to be destroyed
+			void destroyEntity(EntityHandle entity);
 
-			/**
-			* Creates a new Entity
-			*/
-			EntityHandle CreateEntity();
+			// Add component of given type for an entity entity
+			// @param entity Entity id
+			// @param type Component Type id
+			bool addComponent(EntityHandle entity, ComponentType type);
 
-			/**
-			* Destroy the entity
-			* All components inside this entity will be destroyed too
-			*
-			* \param entity Entity to be destroyed
-			*/
-			void DestroyEntity(EntityHandle entity);
+			// Remove component of type from an entity
+			// @param entity The entity id
+			// @param type The component type id
+			// @param handle The component handle
+			// @return true if component was found and removed
+			bool removeComponent(EntityHandle entity, ComponentType type, ComponentHandle handle);
 
-			bool addComponent(EntityHandle entity, ComponentType type)
-			{
-				if (!hasEntity(entity))
-                {
-					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to attach component of type " << type << " to unknown entity: " << entity << "!";
-					return false;
-				}
-
-				m_objBitField->set(entity, type);
-
-				return true;
-			}
-
-			bool removeComponent(EntityHandle entity, ComponentType type, ComponentHandle handle)
-			{
-				if (!hasEntity(entity))
-                {
-					LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to remove component of type " << type << " with handle: " << handle << " from entity " << entity << "!";
-					return false;
-				}
-
-				m_holders[type]->releaseComponentID(handle);
-
-				return true;
-			}
-
+			// Check if given component type is valid inside this BaseEntitySystem
+			// @param type The type to check
+			// @return true if it is valid
 			bool isComponentOfTypeValid(ComponentType type) const {
 				return m_holders.find(type) != m_holders.end();
 			}
 
-			/**
-			* Get the component holder of given ComponentType
-			*/
+			// Get the component holder for given ComponentType
+			// Assumes a valid type is given @see isComponentOfTypeValid()
+			// @param The component type
+			// @return A raw pointer for the component holder
 			inline BaseComponentHolder* getHolder(ComponentType type) {
 				return m_holders[type];
 			}
 
+			// Get the component holder for given ComponentType.
+			// @param The component type
+			// @return A const pointer for the component holder.
 			inline const BaseComponentHolder* getHolder(ComponentType type) const
 			{
 				auto it = m_holders.find(type);
@@ -97,11 +79,13 @@ namespace BitEngine {
 			}
 
 		protected:
+			// Verify if entity has the component type
 			bool hasComponent(EntityHandle entity, ComponentType type)
 			{
 				return m_objBitField->test(entity, type);
 			}
 
+			// Shut down entity system
 			void shutdown()
 			{
 				for (auto& h : m_holders)
@@ -110,8 +94,13 @@ namespace BitEngine {
 				}
 			}
 
+			// Register a component holder for given component type
 			bool registerComponentHolder(ComponentType type, BaseComponentHolder* holder)
 			{
+				if (m_initialized) {
+					return false;
+				}
+
 				auto it = m_holders.find(type);
 				if (it != m_holders.end()) {
 					return false;
@@ -126,13 +115,12 @@ namespace BitEngine {
 				return m_entities.size() > entity && m_entities[entity] == entity;
 			}
 
-			/**
-			 * Should be called once the Update() is finished, after all Processors have finished execution
-			 * for this frame.
-			 * Releases all memory used by destroyed components/entities
-			 */
-			void FrameFinished();
+			// Should be called once the Update() is finished, after all Processors have 
+			// finished execution for this frame.
+			// Releases all memory used by destroyed components/entities
+			void frameFinished();
 
+			// Member variables
 			std::vector< EntityHandle > m_entities;
 			std::vector< EntityHandle > m_freeEntities;
 			std::vector< EntityHandle > m_toBeDestroyed;
@@ -140,6 +128,8 @@ namespace BitEngine {
 
 		private:
 			std::unordered_map< ComponentType, BaseComponentHolder* > m_holders;
+
+			bool m_initialized;
 	};
 
 }

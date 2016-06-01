@@ -154,8 +154,8 @@ class ComponentHolder : public BaseComponentHolder
 {
 	friend class EntitySystem;
 	public:
-		ComponentHolder()
-			: BaseComponentHolder(sizeof(CompClass))
+		ComponentHolder(uint32 componentSize = sizeof(CompClass))
+			: BaseComponentHolder(componentSize)
 		{}
 
 		CompClass* getComponent(ComponentHandle componentID)
