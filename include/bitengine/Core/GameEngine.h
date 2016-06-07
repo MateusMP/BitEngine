@@ -34,11 +34,18 @@ class GameEngine
         GameEngine(const std::string& configFile);
         ~GameEngine();
 
+		// Will call the @see CreateSystems() method
+		// Load all configurations
+		// Call init() on all systems
+		// Start the main loop and will block until the game is closed. @see StopRunning()
         bool Run();
 
+		// Stop the game main loop.
+		// Will finish as soon as the current frame ends.
         void StopRunning();
 
     protected:
+		// All systems should be created here by calling @see AddSystem
 		virtual void CreateSystems() = 0;
 
         void AddSystem(System *sys);

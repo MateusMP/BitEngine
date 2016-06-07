@@ -7,13 +7,14 @@
 
 namespace BitEngine {
 
+	// Base Message type
+	// This message is never used directly @see Message<T>
 	class BaseMessage
 	{
 		template<typename T> friend class Message;
-
-	public:
 		BaseMessage(uint32 t) : type(t) {}
 
+	public:
 		uint32 getType() const {
 			return type;
 		}
@@ -26,6 +27,13 @@ namespace BitEngine {
 
 	};
 
+	// This is the template message
+	// Any message type should extend this class.
+	// Example:
+	// class MyMessageForSomething : public class Message<MyMessageForSomething> {
+	//		members...
+	//		functions...
+	// }
 	template<typename T>
 	class Message : public BaseMessage
 	{

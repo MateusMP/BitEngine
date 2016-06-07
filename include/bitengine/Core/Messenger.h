@@ -9,6 +9,8 @@
 
 namespace BitEngine {
 	
+	// Used to send messages @See Message<T>
+	// There is one Messenger for each GameEngine.
 	class Messenger
 	{
 		public:
@@ -47,7 +49,8 @@ namespace BitEngine {
 			std::set<BaseMessage*> m_QueuedMessages;
 	};
 
-
+	// This class is a Messenger End Point
+	// Any class that wants to receive messages should come from this
 	class MessengerEndpoint
 	{
 		public:

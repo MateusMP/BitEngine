@@ -100,17 +100,20 @@ class BaseComponentHolder : public MessengerEndpoint
 			return m_byComponent[component];
 		}
 
+		// Return all ids that were freed
 		const std::vector<ComponentHandle>& getFreeIDs();
 
+		// Get all valid component handles
 		inline const std::vector<EntityHandle>& getAllComponents() {
 			return m_byComponent;
 		}
 
+		// Return the number of valid components
 		inline uint32 getNumValidComponents() const {
 			return m_workingComponents;
 		}
 
-		// resize to be able to contain up to given component id
+		// Resize to be able to contain up to given component id
 		void resize(uint32 id);
 
 	protected:

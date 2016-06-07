@@ -48,6 +48,8 @@ namespace BitEngine
 
 	void CommandSystem::Shutdown()
 	{
+		m_commands.clear();
+		m_commandState = 0;
 	}
 
 	void CommandSystem::Update()
