@@ -28,15 +28,7 @@ namespace BitEngine{
 			inline void setParentOf(ComponentRef<Transform2DComponent>& a, ComponentRef<Transform2DComponent>& parent){
 				setParentOf(ComponentProcessor::getComponentHandle(a), ComponentProcessor::getComponentHandle(parent));
 			}
-
-			// Processor result outputs
-			inline const std::vector<glm::mat3>& getGlobalTransforms() const {
-				return globalTransform;
-			}
-			inline const glm::mat3& getGlobalTransformFor(ComponentHandle hdl) const {
-				return globalTransform[hdl];
-			}
-
+			
 			// Calculate the rotation angle for given matrix
 			static inline glm::mat3::value_type calculateAngleFromTransformMatrix(const glm::mat3& mat)
 			{
@@ -104,14 +96,12 @@ namespace BitEngine{
 			};
 
 			// TODO: Make iterative version
-			void recalcGlobalTransform(ComponentHandle handle, Hierarchy &t);
+			void recalcGlobalTransform(ComponentHolder<SceneTransform2DComponent>* holder, SceneTransform2DComponent& scene, Hierarchy &t);
 
 		private: // Attributes
 
 			// Processor
 			std::vector<Hierarchy> hierarchy;
-			std::vector<glm::mat3> localTransform; // used only to calculate globalTransform
-			std::vector<glm::mat3> globalTransform; // information used by external systems
 	};
 
 }

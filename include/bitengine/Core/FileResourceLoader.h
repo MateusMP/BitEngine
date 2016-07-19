@@ -7,14 +7,14 @@
 #include <unordered_map>
 #include <fstream>
 
-#include "Core/IResourceManager.h"
+#include "Core/Resources/ResourceManager.h"
 #include "Core/Logger.h"
 
 namespace BitEngine
 {
 	/// Load resources from file path
 	/// This class load files from the file system
-	class FileResourceLoader : public IResourceLoader
+	class FileResourceLoader : public ResourceLoader
 	{
 		public:
 			FileResourceLoader()
@@ -27,7 +27,7 @@ namespace BitEngine
 			{
 			}
 
-			void Shutdown() override
+			void shutdown() override
 			{
 				stop = true;
 				m_requests.push("", nullptr, nullptr, 0); // stop processing request
@@ -51,7 +51,7 @@ namespace BitEngine
 
 			// Returns the request ID
 			// Queue the request to be loaded by another thread
-			uint32 loadRequest(const std::string& path, BaseResource* into, IResourceManager* callback) override
+/*			uint32 loadRequest(const std::string& path, BaseResource* into, ResourceManager* callback) override
 			{
 				uint32 rid = ++m_globalResourceID;
 
@@ -62,9 +62,9 @@ namespace BitEngine
 				m_requests.push(path, into, callback, rid);
 
 				return rid;
-			}
+			}*/
 
-			bool reloadResource(uint32 resourceID, IResourceManager* callback)
+			bool reloadResource(uint32 resourceID, ResourceManager* callback)
 			{
 				auto it = m_resources.find(resourceID);
 				if (it != m_resources.end()) 
@@ -127,12 +127,12 @@ namespace BitEngine
 
 			struct Request 
 			{
-				Request(const std::string& f, BaseResource* i, IResourceManager* c, uint32 id)
+				Request(const std::string& f, BaseResource* i, ResourceManager* c, uint32 id)
 				: file(f), into(i), callback(c), resourceID(id) {}
 
 				std::string file;
 				BaseResource* into;
-				IResourceManager* callback;
+				ResourceManager* callback;
 				uint32 resourceID;
 			};
 

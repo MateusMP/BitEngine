@@ -1,13 +1,7 @@
 #pragma once
 
 #include "OpenGLheaders.h"
-
-#define check_gl_error() _check_gl_error(__FILE__,__LINE__)
-
-void _check_gl_error(const char *file, int line);
-
-#define GL_CALL_AVAILABLE(call) ((*call)!=nullptr)
-
+#include "Core/Logger.h"
 
 enum RendererVersion {
 	NOT_DEFINED = -1,
@@ -20,7 +14,4 @@ enum RendererVersion {
 
 RendererVersion DetectBestRenderer();
 
-#include "ShaderProgram.h"
-#include "VertexArrayObject.h"
-#include "OpenGLRenderer.h"
-#include "GLTextureManager.h"
+#include "GL2/GL2Pipeline.h"

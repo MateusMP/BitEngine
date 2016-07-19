@@ -16,7 +16,7 @@ namespace BitEngine {
 			{
 				if (!m_queue.empty())
 				{
-					out = m_queue.front();
+					out = std::move(m_queue.front());
 					m_queue.pop();
 					m_mutex.unlock();
 
@@ -38,7 +38,7 @@ namespace BitEngine {
 				m_cond.wait(lock);
 			}
 
-			T a = m_queue.front();
+			T a = std::move(m_queue.front());
 			m_queue.pop();
 
 			return a;

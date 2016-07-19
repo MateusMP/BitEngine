@@ -5,7 +5,7 @@
 #include "Core/Graphics.h"
 #include "Core/System.h"
 #include "Core/Window.h"
-#include "Core/IVideoRenderer.h"
+#include "Core/VideoRenderer.h"
 
 
 namespace BitEngine {
@@ -19,7 +19,7 @@ namespace BitEngine {
 		friend class VideoSystem;
 
 		public:
-			IVideoDriver(IVideoRenderer* renderer)
+			IVideoDriver(VideoRenderer* renderer)
 				: m_renderer(renderer) 
 			{}
 			virtual ~IVideoDriver(){
@@ -36,12 +36,12 @@ namespace BitEngine {
 			
 			virtual void Update() = 0;
 
-			IVideoRenderer* getRenderer() {
+			VideoRenderer* getRenderer() {
 				return m_renderer;
 			}
 
 		protected:
-			IVideoRenderer* m_renderer;
+			VideoRenderer* m_renderer;
 	};
 
 	/** Default class for Video configuration

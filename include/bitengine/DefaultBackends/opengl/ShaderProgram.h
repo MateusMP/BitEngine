@@ -53,6 +53,48 @@ class ShaderProgram
 		/// Unbinds the shader
         void Unbind();
 
+		struct Attribute {
+			GLuint index;
+			GLint location;
+			GLenum type;
+			GLint size;
+			std::string name;
+		};
+		void introspect()
+		{
+			GLint nAttrs;
+			glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTES, &nAttrs);
+			//m_attributes.resize(nAttrs);
+
+			for (int i = 0; i < nAttrs; ++i)
+			{
+				GLint nameRead;
+				Attribute attr;// = m_attributes[i];
+				attr.name.resize(128);
+
+				glGetActiveAttrib(m_programID, i, 128, &nameRead, &attr.size, &attr.type, &attr.name[0]);
+				attr.name.resize(nameRead);
+				attr.location = glGetAttribLocation(m_programID, attr.name.data());
+				LOG(EngineLog, BE_LOG_INFO) << "Attr" << i << " at " << attr.location
+					<< " '" << attr.name << "' is of type: " << attr.type << " size: " << attr.size;
+			}
+
+			GLint nUnif;
+			glGetProgramiv(m_programID, GL_ACTIVE_UNIFORMS, &nUnif);
+			for (int i = 0; i < nUnif; ++i)
+			{
+				GLint nameRead;
+				Attribute unif;// = m_uniforms[i];
+				unif.name.resize(128);
+
+				glGetActiveUniform(m_programID, i, 128, &nameRead, &unif.size, &unif.type, &unif.name[0]);
+				unif.name.resize(nameRead);
+				unif.location = glGetUniformLocation(m_programID, unif.name.data());
+				LOG(EngineLog, BE_LOG_INFO) << "Unif" << i << " at " << unif.location
+					<< " '" << unif.name << "' is of type: " << unif.type << " size: " << unif.size;
+			}
+		}
+
 	protected:
         GLuint m_programID; //!< program unique id
 

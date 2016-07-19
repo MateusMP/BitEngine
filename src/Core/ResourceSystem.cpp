@@ -6,11 +6,9 @@
 
 namespace BitEngine{
 
-ResourceSystem::ResourceSystem(IResourceLoader* loader, ITextureManager* tmng)
-	: System("Resource"), m_resourceLoader(loader), m_textureManager(tmng)
+ResourceSystem::ResourceSystem(ResourceLoader* resourceLoader)
+	: System("Resource"), loader(resourceLoader)
 {
-	m_spriteManager = new SpriteManager(m_textureManager);
-	m_modelManager = new ModelManager(m_textureManager);
 }
 
 ResourceSystem::~ResourceSystem(){
@@ -18,42 +16,22 @@ ResourceSystem::~ResourceSystem(){
 
 bool ResourceSystem::Init()
 {
-	m_textureManager->setResourceLoader(m_resourceLoader);
-	//m_spriteManager->setResourceLoader(m_resourceLoader);
-	//m_modelManager->setResourceLoader(m_resourceLoader);
-
-	m_textureManager->Init();
-	m_spriteManager->Init();
-	m_modelManager->Init();
-
-	return true;
+	return loader->init();
 }
 
 void ResourceSystem::Update()
 {
-	m_textureManager->Update();
+	loader->update();
 }
 
 void ResourceSystem::Shutdown()
 {
-	delete m_modelManager;
-	delete m_spriteManager;
-	delete m_textureManager;
-
-	m_resourceLoader->Shutdown();
-	delete m_resourceLoader;
+	loader->shutdown();
+	delete loader;
 }
 
-SpriteManager* ResourceSystem::getSpriteManager() const{
-	return m_spriteManager;
-}
-
-ITextureManager* ResourceSystem::getTextureManager() const{
-	return m_textureManager;
-}
-
-ModelManager* ResourceSystem::getModelManager() const{
-	return m_modelManager;
+ResourceLoader* ResourceSystem::getResourceLoader() const {
+	return loader;
 }
 
 }

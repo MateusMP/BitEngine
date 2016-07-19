@@ -37,14 +37,13 @@ namespace BitEngine{
 	void Camera2DProcessor::Process()
 	{
 		getES()->forEach<Camera2DComponent, Transform2DComponent>(
-            [](EntityHandle entity, Camera2DComponent& camera, const Transform2DComponent& transform)
+            [](ComponentRef<Camera2DComponent>& camera, const ComponentRef<Transform2DComponent>& transform)
             {
-                if (camera.changed)
+                if (camera->changed)
                 {
-                    recalculateMatrix(&camera, &transform);
-                    camera.changed = false;
+                    recalculateMatrix(&camera.ref(), &transform.ref());
+                    camera->changed = false;
                 }
-
             }
         );
 	}

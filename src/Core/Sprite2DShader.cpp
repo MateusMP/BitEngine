@@ -5,14 +5,14 @@
 static const char* Sprite2D_fragment_GLall = GLSL_(150,
 	in vec2 fragTextureCoord;
 
-out vec4 finalColor;
+	out vec4 finalColor;
 
-uniform sampler2D u_texDiffuse;
+	uniform sampler2D u_texDiffuse;
 
-void main()
-{
-	finalColor = texture(u_texDiffuse, fragTextureCoord);
-}
+	void main()
+	{
+		finalColor = texture(u_texDiffuse, fragTextureCoord);
+	}
 );
 
 #include "DefaultBackends/opengl/Sprite2DGL2.h"

@@ -85,44 +85,54 @@ namespace BitEngine {
 		END_VERTEX_DATA()
 	*/
 
-	class IVertexArrayBuffer
-	{public:
-		static void UnbindBuffer(){
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-		}
+	enum ArrayBufferType {
+		STANDARD,
+		INTERLEAVED,
 	};
 
-	template<bool interleaved, typename VertexData>
-	class VertexArrayBuffer
+	template <ArrayBufferType type, typename VertexData>
+	class ArrayBuffer
+	{public:
+		typedef VertexData vd;
+
+		bool CreateBuffer(uint32 &attributes);
+		bool DestroyBuffer();
+	};
+
+
+	template <typename T>
+	class BufferVector : public std::vector<typename T::Data>
 	{
+		typedef typename T::Data vd;
 	};
 
 	// ------------------------------------------------------------------------------
 	// INTERLEAVED
 	// ------------------------------------------------------------------------------
 	template<typename VertexData>
-	class VertexArrayBuffer<true, VertexData>
+	class ArrayBuffer<INTERLEAVED, VertexData>
 	{
 	public:
-		VertexArrayBuffer()
+		ArrayBuffer()
 			: vbo(0)
 		{}
-		~VertexArrayBuffer(){
+		~ArrayBuffer(){
 
 		}
 
-		void DestroyBuffer()
+		bool DestroyBuffer()
 		{
 			glDeleteBuffers(1, &vbo);
+			return true;
 		}
 
-		void CreateBuffer(uint32 &attributes)
+		bool CreateBuffer(uint32 &attributes)
 		{
 			// Creates VBO
 			glGenBuffers(1, &vbo);
 			if (vbo == 0){
 				LOG(EngineLog, BE_LOG_ERROR) << "VertexBuffer: Could not create VBO.";
-				return;
+				return false;
 			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -156,6 +166,8 @@ namespace BitEngine {
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			elementSize = accumOffset;
+
+			return true;
 		}
 
 		void BindBuffer()
@@ -163,42 +175,60 @@ namespace BitEngine {
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		}
 
-		void LoadBuffer(const typename VertexData::Data* data, uint32 numElements, uint32 mode = GL_DYNAMIC_DRAW)
+		void LoadBufferRange(const BufferVector<VertexData>& data, uint32 offset, uint32 len, uint32 mode = GL_DYNAMIC_DRAW)
 		{
-			glBufferData(GL_ARRAY_BUFFER, elementSize * numElements, nullptr, mode);
-			glBufferData(GL_ARRAY_BUFFER, elementSize * numElements, data, mode);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * len, nullptr, mode);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * len, data.data() + offset, mode);
+		}
+
+		void LoadBuffer(const BufferVector<VertexData>& data, uint32 mode = GL_DYNAMIC_DRAW)
+		{
+			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * data.size(), nullptr, mode);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * data.size(), data.data(), mode);
+		}
+
+		void BindAndLoadBufferRange(const BufferVector<VertexData>& data, uint32 offset, uint32 len, uint32 mode = GL_DYNAMIC_DRAW)
+		{
+			BindBuffer();
+			LoadBufferRange(data, offset, len, mode);
+		}
+
+		void BindAndLoadBuffer(const BufferVector<VertexData>& data, uint32 mode = GL_DYNAMIC_DRAW)
+		{
+			BindBuffer();
+			LoadBuffer(data, mode);
 		}
 
 	private:
 		GLuint vbo;
 		uint32 elementSize;
 	};
-
 	// ------------------------------------------------------------------------------
 	// NOT INTERLEAVED
 	// -----------------------------------------------------------------------------
 	// Each vertex data has it's own vbo
 	template<typename VertexData>
-	class VertexArrayBuffer<false, VertexData>
+	class ArrayBuffer<STANDARD, VertexData>
 	{
 	public:
-		VertexArrayBuffer()
+		ArrayBuffer()
 		{}
-		~VertexArrayBuffer(){
+		~ArrayBuffer(){
 		}
 
-		void DestroyBuffer()
+		bool DestroyBuffer()
 		{
 			glDeleteBuffers(VertexData::NUM_ATTRIBUTES, vbo);
+			return true;
 		}
 
-		void CreateBuffer(uint32 &attributes)
+		bool CreateBuffer(uint32 &attributes)
 		{
 			// Creates VBO
 			glGenBuffers(VertexData::NUM_ATTRIBUTES, vbo);
 			if (vbo[0] == 0){
 				LOG(EngineLog, BE_LOG_ERROR) << "VertexBuffer: Could not create VBOs.";
-				return;
+				return false;
 			}
 
 			// Attributes
@@ -217,6 +247,7 @@ namespace BitEngine {
 
 			attributes += VertexData::NUM_ATTRIBUTES;
 			IVertexArrayBuffer::UnbindBuffer();
+			return true;
 		}
 
 		template<int Attribute>
@@ -225,54 +256,64 @@ namespace BitEngine {
 			glBindBuffer(GL_ARRAY_BUFFER, vbo[Attribute]);
 		}
 
-		template<typename Type>
-		void LoadBuffer(const Type* data, uint32 size, uint32 mode = GL_DYNAMIC_DRAW)
+		void LoadBufferRange(const BufferVector<VertexData>& data, uint32 offset, uint32 len, uint32 mode = GL_DYNAMIC_DRAW)
 		{
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Type) * size, nullptr, mode);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Type) * size, data, mode);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * len, nullptr, mode);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * len, data.data()+offset, mode);
+		}
+
+		void LoadBuffer(const BufferVector<VertexData>& data, uint32 mode = GL_DYNAMIC_DRAW)
+		{
+			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * data.size(), nullptr, mode);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * data.size(), data.data(), mode);
+		}
+
+		void BindAndLoadBufferRange(const BufferVector<VertexData>& data, uint32 offset, uint32 len, uint32 mode = GL_DYNAMIC_DRAW)
+		{
+			BindBuffer();
+			LoadBufferRange(data, offset, len, mode);
+		}
+
+		void BindAndLoadBuffer(const BufferVector<VertexData>& data, uint32 mode = GL_DYNAMIC_DRAW)
+		{
+			BindBuffer();
+			LoadBuffer(data, mode);
 		}
 
 	private:
 		GLuint vbo[VertexData::NUM_ATTRIBUTES];
 	};
 
-
-	template<typename T>
-	class VertexArrayObject_base
-	{
-		public:
-			T vbo;
-		protected:
-			bool CreateBuffer(uint32 &attributes){
-				vbo.CreateBuffer(attributes);
-				return true;
-			}
-
-			bool DestroyBuffer(){
-				vbo.DestroyBuffer();
-				return true;
-			}
-
-	};
-
 	template <typename T>
-	using IVBO = VertexArrayObject_base<VertexArrayBuffer<true, T>>;
+	using IVBO = ArrayBuffer<INTERLEAVED, T>;
 	template <typename T>
-	using SVBO = VertexArrayObject_base<VertexArrayBuffer<false, T>>;
+	using SVBO = ArrayBuffer<STANDARD, T>;
 
-	class IVertexArrayObject
+	class VertexArrayHelper
 	{
 	public:
-		static void Unbind()
+		static void UnbindVBO() 
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		}
+
+		static void UnbindVAO()
 		{
 			glBindVertexArray(0);
 		}
 	};
 
-	template<typename ... B>
+	// Template parameters should be IVBOs and/or SVBOs
+	//template< template <typename VD> typename ... B>
+	//template<typename SVBO<S> ... S1, IVBO<I> ... I1>
+
+
+	template< typename ... B>
 	class VertexArrayObject
 		: public B...
 	{
+		//template<typename VertexData>
+		//using B<VertexData>::BindAndLoadBuffer();
 	public:
 		void Destroy()
 		{
@@ -298,7 +339,7 @@ namespace BitEngine {
 			if (b[0]) // remove "b" not used warning
                 b[0] = b[0];
 
-			IVertexArrayObject::Unbind();
+			VertexArrayHelper::UnbindVAO();
 
 			return true;
 		}

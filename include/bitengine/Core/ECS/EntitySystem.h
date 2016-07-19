@@ -12,6 +12,7 @@
 
 #include "Core/ECS/BaseEntitySystem.h"
 #include "Core/ECS/ComponentProcessor.h"
+#include "Core/ECS/GraphicHolder.h"
 
 namespace BitEngine{
 
@@ -214,7 +215,7 @@ class EntitySystem : public BaseEntitySystem
 		template <typename T> struct identity{ typedef T type; };
 
 		template<typename Base, typename ... ContainComps>
-		void forEach(typename identity<std::function<void(EntityHandle, Base&, ContainComps&...)>>::type f)
+		void forEach(typename identity<std::function<void(ComponentRef<Base>&&, ComponentRef<ContainComps>&&...)>>::type f)
 		{
 			// TODO: otimize calls of getComponentRefE with this:
 			// std::tuple<ComponentHolder<ContainComps>*... > holders = std::make_tuple{ getHolder<ContainComps>()... };
@@ -245,7 +246,7 @@ class EntitySystem : public BaseEntitySystem
                     if ( (m_objBitField->getObj(entity).b64 & componentMask.b64) == componentMask.b64 )
                     {
                         Base* comp = holder->getComponent(compID);
-                        f(entity, *comp, getComponentRefE<ContainComps>(entity)...); // TODO: avoid getHolder<>() every time
+                        f(ComponentRef<Base>(entity, compID, this, comp), getComponentRefE<ContainComps>(entity)...); // TODO: avoid getHolder<>() every time
                     }
 				}
 				else
@@ -285,7 +286,7 @@ class EntitySystem : public BaseEntitySystem
 					if ( (m_objBitField->getObj(entity).b64 & componentMask.b64) == componentMask.b64 )
 					{
 						Base* comp = holder->getComponent(compID);
-
+						
 						f(caller, entity, *comp, getComponentRefE<ContainComps>(entity)...); // TODO: avoid getHolder<>() every time
 					}
 				}
@@ -496,10 +497,9 @@ class EntitySystem : public BaseEntitySystem
 				process_order[pipeline][i].Run();
 			}
 		}
-
-
+		
 		template<typename CompClass>
-		CompClass& getComponentRefE(EntityHandle entity)
+		ComponentRef<CompClass> getComponentRefE(EntityHandle entity)
 		{
 			ComponentHolder<CompClass>* holder = getHolder<CompClass>();
 			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
@@ -507,7 +507,7 @@ class EntitySystem : public BaseEntitySystem
 			ComponentHandle compID = holder->getComponentForEntity(entity);
 			CompClass* comp = static_cast<CompClass*>(holder->getComponent(compID));
 
-			return *comp;
+			return ComponentRef<CompClass>(entity, compID, this, comp);
 		}
 
 		struct PipelineProcess

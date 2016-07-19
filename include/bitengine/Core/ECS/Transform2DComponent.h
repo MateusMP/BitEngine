@@ -42,8 +42,6 @@ namespace BitEngine{
                 return glm::mat2(m_modelMatrix) * glm::vec2(1, 0);
             }
             */
-        private:
-            friend class Transform2DProcessor;
 
             glm::vec2 position;
             glm::vec2 scale;
@@ -51,4 +49,37 @@ namespace BitEngine{
 
             bool m_dirty;
     };
+
+	class SceneTransform2DComponent 
+		: public Component<SceneTransform2DComponent>
+	{
+		public:
+			const ComponentHandle getParent() const {
+				return m_parent;
+			}
+
+			void setParent(ComponentHandle p) {
+				m_parent = p;
+			}
+
+			const glm::mat3& getLocal() const {
+				return m_local;
+			}
+
+			glm::mat3& getLocal() {
+				return m_local;
+			}
+
+			const glm::mat3& getGlobal() const {
+				return m_global;
+			}
+
+			void setGlobal(const glm::mat3& m) {
+				m_global = m;
+			}
+			
+			ComponentHandle m_parent;
+			glm::mat3 m_local;
+			glm::mat3 m_global;
+	};
 }

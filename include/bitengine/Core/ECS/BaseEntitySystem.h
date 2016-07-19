@@ -103,6 +103,7 @@ namespace BitEngine {
 
 				auto it = m_holders.find(type);
 				if (it != m_holders.end()) {
+					LOG(EngineLog, BE_LOG_ERROR) << "There is another component holder already registered for the type " << type;
 					return false;
 				}
 

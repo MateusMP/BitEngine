@@ -1,6 +1,22 @@
 #pragma once
 
+#include "Graphics/IShader.h"
+
 namespace BitEngine {
+
+	enum PipelineType{
+		NONE,
+		OPENGL_2,
+		OPENGL_4,
+
+		VULKAN_1,
+
+		GL_ALL,
+		GL_2_OR_GREATER,
+		GL_4_OR_GREATER,
+
+		VULKAN_ALL,
+	};
 
 	template<unsigned channels, unsigned R, unsigned G, unsigned B, unsigned A>
 	struct Color
@@ -40,10 +56,18 @@ namespace BitEngine {
 		virtual bool Ready() = 0;
 	};
 
-	class IVideoRenderer
+	class VideoRenderer
 	{
 		public:
-            virtual ~IVideoRenderer(){};
+            virtual ~VideoRenderer(){};
+
+			virtual bool init() = 0;
+
+			virtual uint32 getGraphicPipelineType() = 0;
+
+			virtual ResourceManager* getShaderManager() = 0;
+
+			virtual ResourceManager* getTextureManager() = 0;
 
 			/**
 			 * Clear buffer on defined options

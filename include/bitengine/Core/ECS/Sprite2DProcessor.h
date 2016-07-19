@@ -15,7 +15,7 @@ namespace BitEngine{
 class Sprite2DRendererBasic : public ComponentProcessor
 {
 	public:
-		Sprite2DRendererBasic(Transform2DProcessor *t2dp, const SpriteManager* sprManager)
+		Sprite2DRendererBasic(Transform2DProcessor *t2dp, ResourceLoader* sprManager)
 			: transform2DProcessor(t2dp)
 		{
 			m_spriteManager = sprManager;
@@ -64,9 +64,8 @@ class Sprite2DRendererBasic : public ComponentProcessor
 			m_viewScreen = activeCamera->getWorldViewArea();
 
 			spr2Dbatch->Begin();
-
-			getES()->forEachRef<Sprite2DRendererBasic, Sprite2DComponent, Transform2DComponent>(
-				*this,
+			/*
+			getES()->forEachRef<Sprite2DRendererBasic, Sprite2DComponent, SceneTransform2DComponent>(
 				[](Sprite2DRendererBasic& self, EntityHandle entity, Sprite2DComponent& spr2d, ComponentRef<Transform2DComponent>&& transform2d)
 				{
 					//printf("Sprite %d\n", i);
@@ -80,7 +79,7 @@ class Sprite2DRendererBasic : public ComponentProcessor
 							spr2d.depth);
 					}
 				}
-			);
+			);*/
 
 			spr2Dbatch->End();
 
@@ -142,7 +141,7 @@ class Sprite2DRendererBasic : public ComponentProcessor
 
 		glm::vec4 m_viewScreen;
 
-		const BitEngine::SpriteManager *m_spriteManager;
+		const BitEngine::ResourceLoader *m_spriteManager;
 		BitEngine::Sprite2DShader *spr2DShader;
 		BitEngine::Sprite2DShader::Sprite2DBatchRenderer *spr2Dbatch;
 };

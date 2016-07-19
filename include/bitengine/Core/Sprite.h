@@ -5,7 +5,7 @@
 #include <glm/common.hpp>
 
 #include "Common/TypeDefinition.h"
-#include "Core/ITexture.h"
+#include "Core/Graphics/ITexture.h"
 
 
 namespace BitEngine{

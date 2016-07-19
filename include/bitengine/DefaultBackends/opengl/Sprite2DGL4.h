@@ -122,8 +122,6 @@ namespace BitEngine{
 			BindAttribute(3, "a_textureCoord[3]");
 			BindAttribute(4, "a_offset");
 			BindAttribute(5, "a_modelMatrix");
-
-			check_gl_error();
 		}
 
 		void RegisterUniforms() override {
@@ -247,8 +245,6 @@ namespace BitEngine{
 			void createRenderers()
 			{
 				createRenderersGL4GL3();
-
-				check_gl_error();
 			}
 
 			void renderBatches()
@@ -261,14 +257,12 @@ namespace BitEngine{
 				else if (RENDERER_VERSION == USE_GL3){
 					renderGL3();
 				}
-
-				check_gl_error();
 			}
 
 			void createRenderersGL4GL3()
 			{
-				std::vector<Sprite2Dinstanced_VDVertices::Data> vertices_;
-				std::vector<Sprite2Dinstanced_VDModelMatrix::Data> modelMatrices_;
+				BufferVector<Sprite2Dinstanced_VDVertices> vertices_;
+				BufferVector<Sprite2Dinstanced_VDModelMatrix> modelMatrices_;
 
 				vertices_.resize(m_elements.size());
 				modelMatrices_.resize(m_elements.size());
@@ -303,13 +297,10 @@ namespace BitEngine{
 				// Upload data to gpu
 				if (RENDERER_VERSION == USE_GL4)
 				{
-					m_interVAOs[0].IVBO<Sprite2Dinstanced_VDVertices>::vbo.BindBuffer();
-					m_interVAOs[0].IVBO<Sprite2Dinstanced_VDVertices>::vbo.LoadBuffer(vertices_.data(), vertices_.size());
+					m_interVAOs[0].IVBO<Sprite2Dinstanced_VDVertices>::BindAndLoadBuffer(vertices_);
+					m_interVAOs[0].IVBO<Sprite2Dinstanced_VDModelMatrix>::BindAndLoadBuffer(modelMatrices_);
 
-					m_interVAOs[0].IVBO<Sprite2Dinstanced_VDModelMatrix>::vbo.BindBuffer();
-					m_interVAOs[0].IVBO<Sprite2Dinstanced_VDModelMatrix>::vbo.LoadBuffer(modelMatrices_.data(), modelMatrices_.size());
-
-					IVertexArrayBuffer::UnbindBuffer();
+					VertexArrayHelper::UnbindVBO();
 				}
 				else if (RENDERER_VERSION == USE_GL3)
 				{
@@ -324,13 +315,10 @@ namespace BitEngine{
 					{
 						Batch& b = batches[i];
 
-						m_interVAOs[i].IVBO<Sprite2Dinstanced_VDVertices>::vbo.BindBuffer();
-						m_interVAOs[i].IVBO<Sprite2Dinstanced_VDVertices>::vbo.LoadBuffer(&vertices_[b.offset], b.nItems);
-
-						m_interVAOs[i].IVBO<Sprite2Dinstanced_VDModelMatrix>::vbo.BindBuffer();
-						m_interVAOs[i].IVBO<Sprite2Dinstanced_VDModelMatrix>::vbo.LoadBuffer(&modelMatrices_[b.offset], b.nItems);
+						m_interVAOs[i].IVBO<Sprite2Dinstanced_VDVertices>::BindAndLoadBufferRange(vertices_, b.offset, b.nItems);
+						m_interVAOs[i].IVBO<Sprite2Dinstanced_VDModelMatrix>::BindAndLoadBufferRange(modelMatrices_, b.offset, b.nItems);
 					}
-					IVertexArrayBuffer::UnbindBuffer();
+					VertexArrayHelper::UnbindVBO();
 				}
 			}
 
@@ -353,7 +341,7 @@ namespace BitEngine{
 					}
 				}
 
-				IVertexArrayObject::Unbind();
+				VertexArrayHelper::UnbindVAO();
 			}
 
 			void renderGL3()
@@ -377,7 +365,7 @@ namespace BitEngine{
 
 				}
 
-				IVertexArrayObject::Unbind();
+				VertexArrayHelper::UnbindVAO();
 			}
 
 		private:
@@ -393,6 +381,4 @@ namespace BitEngine{
 		};
 
 	};
-
-
 }

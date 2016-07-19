@@ -30,16 +30,16 @@ namespace BitEngine{
 
 	// Creating Vertex Data
 	DECLARE_VERTEXDATA(Sprite2Dbasic_VD, 2)
-	ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 0),
+		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 0),
 		ADD_ATTRIBUTE(GL_FLOAT, 2, GL_FALSE, 0),
 		END_ATTRIBUTES()
 
 		DECLARE_DATA_STRUCTURE()
-	ADD_MEMBER(glm::vec2, vertexPos)
-		ADD_MEMBER(glm::vec2, vertexUV)
-		END_VERTEX_DATA()
+			ADD_MEMBER(glm::vec2, vertexPos)
+			ADD_MEMBER(glm::vec2, vertexUV)
+	END_VERTEX_DATA()
 
-	typedef VertexArrayObject < IVBO<Sprite2Dbasic_VD> > Sprite2Dbasic_VAOinterleaved;
+	typedef VertexArrayObject < IVBO<Sprite2Dbasic_VD> > Sprite2Dbasic_IVAO;
 
 	// Implementation for GL2
 	class Sprite2DGL2 : public Sprite2DShader, protected ShaderProgram
@@ -80,8 +80,6 @@ namespace BitEngine{
 		void BindAttributes() override {
 			BindAttribute(0, "a_position");
 			BindAttribute(1, "a_uvcoord");
-
-			check_gl_error();
 		}
 
 		void RegisterUniforms() override {
@@ -180,7 +178,7 @@ namespace BitEngine{
 
 			void createRenderers()
 			{
-				std::vector<Sprite2Dbasic_VD::Data> vertices_;
+				BufferVector<Sprite2Dbasic_VD> vertices_;
 
 				const uint32 NUM_VERTS = 6;
 
@@ -248,12 +246,9 @@ namespace BitEngine{
 				{
 					Batch& b = batches[i];
 
-					m_basicVAOs[i].IVBO<Sprite2Dbasic_VD>::vbo.BindBuffer();
-					m_basicVAOs[i].IVBO<Sprite2Dbasic_VD>::vbo.LoadBuffer(&vertices_[b.offset], b.nItems);
+					m_basicVAOs[i].IVBO<Sprite2Dbasic_VD>::BindAndLoadBufferRange(vertices_, b.offset, b.nItems);
 				}
-				IVertexArrayBuffer::UnbindBuffer();
-
-				check_gl_error();
+				VertexArrayHelper::UnbindVBO();
 			}
 
 			void renderBatches()
@@ -280,9 +275,7 @@ namespace BitEngine{
 
 				}
 
-				IVertexArrayObject::Unbind();
-
-				check_gl_error();
+				VertexArrayHelper::UnbindVAO();
 			}
 
 		private:
@@ -293,7 +286,7 @@ namespace BitEngine{
 			// Batches
 			std::vector<Batch> batches;
 
-			std::vector<Sprite2Dbasic_VAOinterleaved> m_basicVAOs; // GL2
+			std::vector<Sprite2Dbasic_IVAO> m_basicVAOs; // GL2
 		};
 
 	};

@@ -12,14 +12,14 @@
 
 #include "Core/Logger.h"
 #include "Core/Mesh.h"
-#include "Core/IResourceManager.h"
+#include "Core/Resources/ResourceManager.h"
 
 namespace BitEngine{
 
 	class ModelManager
 	{
 	public:
-		ModelManager(ITextureManager* textureMng) {
+		ModelManager(ResourceLoader* textureMng) {
 			m_textureManager = textureMng;
 		}
 		~ModelManager();
@@ -95,6 +95,6 @@ namespace BitEngine{
 		};
 
 		std::map<uint16, ShaderModelHolder> m_models;
-		ITextureManager* m_textureManager;
+		ResourceLoader* m_textureManager;
 	};
 }

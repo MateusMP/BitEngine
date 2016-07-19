@@ -44,10 +44,8 @@ namespace BitEngine{
 		const MsgComponentCreated<Transform2DComponent>& msg = static_cast<const MsgComponentCreated<Transform2DComponent>&>(msg_);
 		const uint32 nComponents = msg.component;
 
-		if (localTransform.size() <= nComponents)
+		if (hierarchy.size() <= nComponents)
 		{
-			localTransform.resize(nComponents + 1);
-			globalTransform.resize(nComponents + 1);
 			hierarchy.resize(nComponents + 1);
 		}
 	}
@@ -82,35 +80,38 @@ namespace BitEngine{
 
 	void Transform2DProcessor::Process()
 	{
-		getES()->forAll<Transform2DProcessor, Transform2DComponent>(*this,
-			[](Transform2DProcessor& self, ComponentHandle c, Transform2DComponent& transform)
+		getES()->forEach<Transform2DComponent, SceneTransform2DComponent>(
+			[this](ComponentRef<Transform2DComponent>& transform, ComponentRef<SceneTransform2DComponent>& scene)
 			{
-				if (transform.m_dirty)
+				if (transform->m_dirty)
 				{
-					transform.m_dirty = false;
-					CalculateLocalModelMatrix(transform, self.localTransform[c]);
-					self.hierarchy[c].dirty = true;
+					transform->m_dirty = false;
+					CalculateLocalModelMatrix(transform.ref(), scene->m_local);
+					hierarchy[scene.getComponentID()].dirty = true;
 				}
 			}
 		);
 
+		ComponentHolder<SceneTransform2DComponent>* holder = getES()->getHolder<SceneTransform2DComponent>();
+
 		// Update globalTransform of valid components
-		getES()->forAll<Transform2DProcessor, Transform2DComponent>(*this,
-			[](Transform2DProcessor& self, ComponentHandle c, Transform2DComponent& transform)
+		getES()->forEach<Transform2DComponent, SceneTransform2DComponent>(
+			[this, holder](ComponentRef<Transform2DComponent>& transform, ComponentRef<SceneTransform2DComponent>& scene)
 			{
-				self.recalcGlobalTransform(c, self.hierarchy[c]);
+				const ComponentHandle c = scene.getComponentID();
+				recalcGlobalTransform(holder, scene.ref(), hierarchy[c]);
 			}
 		);
 	}
 
-	void Transform2DProcessor::recalcGlobalTransform(ComponentHandle handle, Hierarchy &t)
+	void Transform2DProcessor::recalcGlobalTransform(ComponentHolder<SceneTransform2DComponent>* holder, SceneTransform2DComponent& scene, Hierarchy &t)
 	{
 		if (t.dirty)
 		{
 			if (t.parent != 0) {
-				globalTransform[handle] = globalTransform[t.parent] * localTransform[handle];
+				scene.m_global = holder->getComponent(t.parent)->m_global *scene.m_local;
 			} else {
-				globalTransform[handle] = localTransform[handle];
+				scene.m_global = scene.m_local;
 			}
 
 			t.dirty = false;
@@ -118,7 +119,7 @@ namespace BitEngine{
 			for (const ComponentHandle c : t.childs)
             {
 				hierarchy[c].dirty = true;
-				recalcGlobalTransform(c, hierarchy[c]);
+				recalcGlobalTransform(holder, *(holder->getComponent(c)), hierarchy[c]);
 			}
 		}
 	}

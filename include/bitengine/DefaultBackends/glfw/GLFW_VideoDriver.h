@@ -22,7 +22,7 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 				GLFWwindow* m_glfwWindow;
 		};
 
-		GLFW_VideoDriver(BitEngine::IVideoRenderer* renderer)
+		GLFW_VideoDriver(BitEngine::VideoRenderer* renderer)
 			: BitEngine::IVideoDriver(renderer), glewStarted(false), m_currentContext(nullptr)
 		{}
 		~GLFW_VideoDriver(){

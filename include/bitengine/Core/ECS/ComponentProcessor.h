@@ -166,6 +166,9 @@ class ComponentHolder : public BaseComponentHolder
 			return static_cast<CompClass*>(BaseComponentHolder::getComponent(componentID));
 		}
 
+	protected:
+		virtual void createdComponent(EntityHandle entity, ComponentHandle compId, CompClass* ptr) {}
+
 	private:
 		template<typename ... Args>
 		ComponentHandle createComponent(EntityHandle entity, CompClass*& outPtr, Args ...args)
@@ -174,6 +177,8 @@ class ComponentHolder : public BaseComponentHolder
 			outPtr = static_cast<CompClass*>(BaseComponentHolder::getComponent(id));
 
 			new (outPtr) CompClass(args...);
+
+			createdComponent(entity, id, outPtr);
 			
 			return id;
 		}
@@ -227,6 +232,14 @@ class ComponentRef
 
 		bool isValid() const {
 			return m_entity != 0 && m_componentID != 0 && m_es != nullptr && m_component != nullptr;
+		}
+
+		ComponentHandle getComponentID() const {
+			return m_componentID;
+		}
+
+		CompClass& ref() {
+			return *m_component;
 		}
 
 		const CompClass& ref() const {

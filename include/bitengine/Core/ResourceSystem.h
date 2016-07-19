@@ -7,31 +7,24 @@
 #include "Core/System.h"
 #include "Core/SpriteManager.h"
 #include "Core/ModelManager.h"
-#include "Core/IResourceManager.h"
+#include "Core/Resources/ResourceManager.h"
 
-namespace BitEngine{
+namespace BitEngine {
 
-// EXAMPLE
+	class ResourceSystem : public System
+	{
+		public:
+			ResourceSystem(ResourceLoader* loader);
+			~ResourceSystem();
 
-class ResourceSystem : public System
-{
-    public:
-		ResourceSystem(IResourceLoader* loader, ITextureManager* tmng);
-		~ResourceSystem();
+			bool Init() override;
+			void Update() override;
+			void Shutdown() override;
 
-		bool Init() override;
-		void Update() override;
-		void Shutdown() override;
-		
-		SpriteManager* getSpriteManager() const;
-		ITextureManager* getTextureManager() const;
-		ModelManager* getModelManager() const;
+			ResourceLoader* getResourceLoader() const;
 
-    private:
-		IResourceLoader* m_resourceLoader;
-		ITextureManager* m_textureManager;
-		SpriteManager* m_spriteManager;
-		ModelManager* m_modelManager;
-};
+		private:
+			ResourceLoader* loader;
+	};
 
 }

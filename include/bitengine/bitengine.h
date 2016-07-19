@@ -14,5 +14,5 @@
 #include "Core/ECS/Components.h"
 
 #include "Core/Mesh.h"
-#include "Core/ITexture.h"
+#include "Core/Graphics/ITexture.h"
 #include "Core/GameEngine.h"

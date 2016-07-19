@@ -5,6 +5,7 @@
 #include <sstream>
 #include <ctime>
 #include <thread>
+#include <iomanip>
 
 #include "Core/Timer.h"
 #include "Common/MacroHelpers.h"
@@ -29,6 +30,12 @@
 #define BE_LOG_SHOW_CALL_PLACE
 #define BE_LOG_FORCE_OUTPUT_CONSOLE
 //
+
+#ifdef _DEBUG
+	#define BE_DEBUG 1
+#else
+	#define BE_DEBUG 0
+#endif
 
 #ifndef BE_LOG_SHOW_CALL_PLACE
 	#ifdef _DEBUG

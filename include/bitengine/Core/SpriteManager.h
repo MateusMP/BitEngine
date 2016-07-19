@@ -3,14 +3,14 @@
 #include <vector>
 #include <map>
 
-#include "Core/IResourceManager.h"
+#include "Core/Resources/ResourceManager.h"
 #include "Core/Sprite.h"
 
 namespace BitEngine{
 	
 	class SpriteManager{
 	public:
-		SpriteManager(ITextureManager* textureManager);
+		SpriteManager(ResourceLoader* textureManager);
 
 		bool Init();
 
@@ -64,7 +64,7 @@ namespace BitEngine{
 		std::vector<Sprite> m_sprites;
 		std::vector<SpriteHandle> m_freeSlots;
 
-		ITextureManager* m_textureManager;
+		ResourceLoader* m_textureManager;
 		
 	};
 

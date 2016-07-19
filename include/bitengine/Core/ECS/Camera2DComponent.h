@@ -37,10 +37,7 @@ namespace BitEngine {
 
 			const glm::vec2 screenToWorldCoordinates(const glm::vec2& screenCoord) const;
 
-		private:
-			friend class Camera2DProcessor;
-
-		private:
+			// members
 			int m_width;
 			int m_height;
 

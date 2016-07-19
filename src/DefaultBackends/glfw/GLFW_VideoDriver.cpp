@@ -37,6 +37,8 @@ bool GLFW_VideoDriver::Init(const VideoConfiguration& config)
 		return false;
 	}*/
 
+	m_renderer->init();
+
 	return true;
 }
 
