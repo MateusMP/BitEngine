@@ -39,14 +39,14 @@ namespace BitEngine
 			void releaseAll() override
 			{
 				for (auto &it : m_resources) {
-					it.second->clearBaseData();
+					//it.second->clearBaseData();
 				}
 			}
 
 			// Release all preloaded memory for this resource
 			void releaseResource(uint32 id) override
 			{
-				m_resources[id]->clearBaseData();
+				//m_resources[id]->clearBaseData();
 			}
 
 			// Returns the request ID
@@ -69,7 +69,7 @@ namespace BitEngine
 				auto it = m_resources.find(resourceID);
 				if (it != m_resources.end()) 
 				{
-					m_requests.push(it->second->getPath(), it->second, callback, resourceID);
+					//m_requests.push(it->second->getPath(), it->second, callback, resourceID);
 
 					return true;
 				}
@@ -109,10 +109,10 @@ namespace BitEngine
 
 					// Set data on the resource
 					BaseResource* d = m_resources[request.resourceID];
-					d->set(request.resourceID, request.file, buffer);
+					//d->set(request.resourceID, request.file, buffer);
 
 					// Callback now that resource is loaded.
-					request.callback->onResourceLoaded(d->getResourceId());
+					//request.callback->onResourceLoaded(d->getResourceId());
 					
 					if (m_requests.empty())
 					{

@@ -55,6 +55,7 @@
     <ClInclude Include="include\bitengine\Core\Graphics.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\IShader.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
+    <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSpecification.h" />
     <ClInclude Include="include\bitengine\Core\InputSystem.h" />
     <ClInclude Include="include\bitengine\Core\Resources\DevResourceLoader.h" />
@@ -124,7 +125,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestBitfield|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\Core\GameEngine.cpp" />
+    <ClCompile Include="src\Core\GameEnginePC.cpp" />
     <ClCompile Include="src\Core\InputSystem.cpp" />
     <ClCompile Include="src\Core\Logger.cpp" />
     <ClCompile Include="src\Core\ModelManager.cpp" />
@@ -134,7 +135,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\Core\SpriteManager.cpp" />
-    <ClCompile Include="src\Core\System.cpp" />
     <ClCompile Include="src\Core\Task.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\Core\VideoSystem.cpp" />

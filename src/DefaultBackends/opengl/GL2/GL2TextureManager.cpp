@@ -71,6 +71,29 @@ namespace BitEngine {
 
 	void GL2TextureManager::update()
 	{
+		bool loadedSomething = false;
+		GL2Texture* loadTexture;
+		while (rawData.tryPop(loadTexture))
+		{
+			loadTexture2D(loadTexture->imgData, *loadTexture);
+
+			const uint32 ram = loadTexture->getUsingRamMemory();
+			const uint32 gpuMem = loadTexture->getUsingGPUMemory();
+			ramInUse += ram;
+			gpuMemInUse += gpuMem;
+
+			LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << loadTexture->getResourceId() << "  RAM: " << BitEngine::BytesToMB(ram) << " MB - GPU Memory: " << BitEngine::BytesToMB(gpuMem) << " MB";
+
+			loadedSomething = true;
+		}
+
+		if (loadedSomething) {
+			LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "TextureManager MEMORY: RAM: " << BitEngine::BytesToMB(getCurrentRamUsage()) << " MB - GPU Memory: " << BitEngine::BytesToMB(getCurrentGPUMemoryUsage()) << " MB";
+		}
+	}
+
+	/*void GL2TextureManager::update()
+	{
 		uint16 localID;
 
 		bool loadedSomething = false;
@@ -108,15 +131,14 @@ namespace BitEngine {
 
 			break;
 		}
-
-		if (loadedSomething) {
-			LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "TextureManager MEMORY: RAM: " << BitEngine::BytesToMB(getCurrentRamUsage()) << " MB - GPU Memory: " << BitEngine::BytesToMB(getCurrentGPUMemoryUsage()) << " MB";
-		}
-	}
+	}*/
 
 	BaseResource* GL2TextureManager::loadResource(ResourceMeta* meta)
 	{
 		GL2Texture* texture = textures.findResource(meta);
+
+		// Recreate the texture object
+		new (texture) GL2Texture(meta);
 
 		if (texture == nullptr)
 		{
@@ -124,37 +146,38 @@ namespace BitEngine {
 			texture = &(textures.getResourceAt(id));
 
 			// Make new load request
-			//uint32 request = loader->loadRequest(str, texture, this);
-			//loadRequests[request] = id;
+			loadRawData(loader, meta, this);
 		}
 
 		return texture;
 	}
 
-	void GL2TextureManager::onResourceLoaded(uint32 resourceID)
+	void GL2TextureManager::onResourceLoaded(ResourceLoader::DataRequest& dr)
 	{
-		uint16 localID = loadRequests[resourceID];
-		GL2Texture& resTexture = textures.getResourceAt(localID);
+		GL2Texture* resTexture = textures.findResource(dr.meta);
 
 		// Working on ResourceLoader thread!
 		{
 			LOG_SCOPE_TIME(BitEngine::EngineLog, "Texture load");
 
-			resTexture.imgData.pixelData = stbi_load_from_memory((unsigned char*)resTexture.data.data(), resTexture.data.size(), &resTexture.imgData.width, &resTexture.imgData.height, &resTexture.imgData.color, 0);
-			if (resTexture.imgData.pixelData != nullptr) {
-				LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << resTexture.getPath() << " w: " << resTexture.imgData.width << " h: " << resTexture.imgData.height;
+			resTexture->imgData.pixelData = stbi_load_from_memory((unsigned char*)dr.data.data(), dr.data.size(), &resTexture->imgData.width, &resTexture->imgData.height, &resTexture->imgData.color, 0);
+			if (resTexture->imgData.pixelData != nullptr) {
+				LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << dr.meta->id << " w: " << resTexture->imgData.width << " h: " << resTexture->imgData.height;
 			}
-			else {
-				LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "stbi failed to load texture: " << resTexture.path;
+			else
+			{
+				LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "stbi failed to load texture: " << dr.meta->id << " reason: " << stbi_failure_reason();
 			}
 		}
 
-		resourceLoaded.push(localID);
+		waitingData.erase(dr.meta);
+		rawData.push(resTexture);
 	}
 
-	void GL2TextureManager::onResourceLoadFail(uint32 resourceID)
+	void GL2TextureManager::onResourceLoadFail(ResourceLoader::DataRequest& dr)
 	{
-		LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load " << textures.getResourceAt(loadRequests[resourceID]).path;
+		LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load " << dr.meta->id;
+		waitingData.erase(dr.meta);
 	}
 
 	void GL2TextureManager::loadTexture2D(const GL2Texture::StbiImageData& data, GL2Texture& texture)

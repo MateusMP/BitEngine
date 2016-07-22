@@ -17,11 +17,25 @@ namespace BitEngine
 
 		public:
 		struct StbiImageData {
+			StbiImageData()
+				: pixelData(nullptr)
+			{}
 			int width;
 			int height;
 			int color;
 			void* pixelData;
 		};
+
+		GL2Texture()
+			: ITexture(nullptr)
+		{}
+
+		GL2Texture(ResourceMeta* meta) 
+			: ITexture(meta)
+		{
+			m_textureID = 0;
+			m_textureType = 0;
+		}
 
 		inline uint32 getTextureID() const override { return m_textureID; }
 		inline uint32 getTextureType() const override { return m_textureType; }
@@ -29,17 +43,16 @@ namespace BitEngine
 		// Aproximate memory use in ram in bytes
 		uint32 getUsingRamMemory()
 		{
-			uint32 mem = data.size();
+			if (imgData.pixelData) {
+				return getUsingGPUMemory();
+			}
 
-			if (imgData.pixelData)
-				mem += getUsingGPUMemory();
-
-			return mem;
+			return 0;
 		}
 
 		// Aproximate memory use in gpu in bytes
 		uint32 getUsingGPUMemory() {
-			return imgData.width*imgData.height * 3; // considers 3 colors only
+			return imgData.width*imgData.height * imgData.color;
 		}
 
 		protected:
@@ -61,6 +74,10 @@ namespace BitEngine
 		// Load textures that are ready to be sent to the GPU
 		void update() override;
 
+		void setResourceLoader(ResourceLoader* loader) override {
+			this->loader = loader;
+		}
+
 		BaseResource* loadResource(ResourceMeta* base);
 		
 		uint32 getCurrentRamUsage() const override {
@@ -73,22 +90,24 @@ namespace BitEngine
 
 
 		private:
-		static GLuint GenerateErrorTexture();
+			static GLuint GenerateErrorTexture();
 
-		// IResourceManager
-		void onResourceLoaded(uint32 resourceID) override;
-		void onResourceLoadFail(uint32 resourceID) override;
+			// IResourceManager
+			void onResourceLoaded(ResourceLoader::DataRequest& dr) override;
+			void onResourceLoadFail(ResourceLoader::DataRequest& dr) override;
 		
-		void loadTexture2D(const GL2Texture::StbiImageData& data, GL2Texture& texture);
+			void loadTextureRaw(ResourceLoader::DataRequest& dr);
 
-		// Members
-		ResourceLoader* loader;
-		ResourceIndexer<GL2Texture, 1024> textures;
-		BitEngine::ThreadSafeQueue<uint16> resourceLoaded;
-		std::unordered_map<uint32, uint16> loadRequests;
-		
-		uint32 ramInUse;
-		uint32 gpuMemInUse;
+			void loadTexture2D(const GL2Texture::StbiImageData& data, GL2Texture& texture);
+
+			// Members
+			ResourceLoader* loader;
+			ResourceIndexer<GL2Texture, 1024> textures;
+			ThreadSafeQueue<GL2Texture*> rawData; // raw data loaded and waiting to be sent to gpu
+			std::unordered_map<uint32, uint16> loadRequests;
+				
+			uint32 ramInUse;
+			uint32 gpuMemInUse;
 	};
 
 }

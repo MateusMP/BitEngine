@@ -9,19 +9,19 @@ namespace BitEngine
 	class Time
 	{
 		private:
-			friend class GameEngine;
 			static uint64 ticks;
 
+		public:
+			// Used internally
 			static void Tick(){
 				ticks++;
 			}
 
+			// Used internally
 			static void ResetTicks(){
 				ticks = 0;
 			}
 
-
-		public:
 			inline static std::chrono::system_clock::time_point currentTime() {
 				return std::chrono::system_clock::now();
 			}

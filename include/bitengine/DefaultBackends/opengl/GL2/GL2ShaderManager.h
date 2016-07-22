@@ -19,6 +19,10 @@ namespace BitEngine {
 
 		void update() override;
 
+		void setResourceLoader(ResourceLoader* loader) override {
+			this->loader = loader;
+		}
+
 		BaseResource* loadResource(ResourceMeta* base) override;
 
 		// Shader Manager
@@ -33,23 +37,16 @@ namespace BitEngine {
 		}
 
 		private:
-			void onResourceLoaded(uint32 resourceID) override;
-
-			void onResourceLoadFail(uint32 resourceID) override;
-
-
-			// Always returns a valid pointer.
-			// The shader may be invalid until it is fully loaded
-			IShader* getShader(const std::string& str);
-
-			// by resource id
-			IShader* getShader(uint32 id);
+			void onResourceLoaded(ResourceLoader::DataRequest& dr) override;
+			void onResourceLoadFail(ResourceLoader::DataRequest& dr) override;
 
 		private:
 			ResourceLoader* loader;
 			ResourceIndexer<GL2Shader, 32> shaders;
 			BitEngine::ThreadSafeQueue<uint16> resourceLoaded;
 			std::unordered_map<uint32, uint16> loadRequests;
+
+			std::unordered_map<ResourceMeta*, GL2Shader*> sourceShaderRelation;
 
 			// Basic shader def
 			ShaderDataDefinition basicShaderDef;

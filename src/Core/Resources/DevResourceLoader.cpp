@@ -42,6 +42,14 @@ void BitEngine::DevResourceLoader::shutdown()
 
 void BitEngine::DevResourceLoader::registerResourceManager(const std::string & resourceType, ResourceManager * manager)
 {
+	if (manager == nullptr)
+	{
+		LOG(EngineLog, BE_LOG_ERROR) << "Registering invalid manager for type " << resourceType;
+	}
+	else
+	{
+		manager->setResourceLoader(this);
+	}
 	managers[resourceType] = manager;
 }
 
@@ -77,6 +85,19 @@ void BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
 		log += meta.toString();
 	}
 	LOG(EngineLog, BE_LOG_VERBOSE) << "Loaded Resource Metas:\n" << log;
+}
+
+BitEngine::ResourceMeta* BitEngine::DevResourceLoader::findMeta(const std::string& name)
+{
+	auto& it = byName.find(name);
+	if (it == byName.end())
+	{
+		return nullptr;
+	}
+	else
+	{
+		return &resourceMeta[it->second];
+	}
 }
 
 void BitEngine::DevResourceLoader::loadPackages(nlohmann::json::object_t& data)
@@ -117,16 +138,15 @@ void BitEngine::DevResourceLoader::loadPackages(nlohmann::json::object_t& data)
 
 BitEngine::BaseResource* BitEngine::DevResourceLoader::loadResource(const std::string& name)
 {
-	auto it = byName.find(name);
-	if (it == byName.end())
+	ResourceMeta* meta = findMeta(name);
+	if (meta == nullptr)
 	{
-		// create new entry
 		LOG(EngineLog, BE_LOG_ERROR) << "Couldn't find resource: '" << name << "'";
 		return nullptr;
 	}
 	else
 	{
-		return getResourceFromManager(it->second);
+		return getResourceFromManager(meta);
 	}
 }
 
@@ -157,8 +177,8 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const Res
 
 		ResourceMeta& newRm = resourceMeta.back();
 		newRm.id = id;
-		byName[fullPath] = &newRm;
-		return &newRm;
+		byName[fullPath] = id;
+		return &resourceMeta[id];
 	}
 	else
 	{
@@ -166,7 +186,7 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const Res
 	}
 }
 
-void BitEngine::DevResourceLoader::requestResourceData(ResourceMeta* meta, ThreadSafeQueue<DataRequest>* responseTo)
+void BitEngine::DevResourceLoader::requestResourceData(ResourceMeta* meta, ResourceManager* responseTo)
 {
 	loadRequests.push(LoadRequest(meta, responseTo));
 }
@@ -197,19 +217,26 @@ void BitEngine::DevResourceLoader::dataLoaderLoop()
 			if (file.is_open())
 			{
 				long fSize = file.tellg();
+				file.seekg(0, file.beg);
 				lr.dr.data.resize(fSize);
 				file.read(lr.dr.data.data(), fSize);
-				if (file.eof())
+				if (file)
 				{
 					lr.dr.loadState = DataRequest::LoadState::LOADED;
-					lr.putAt->push(lr.dr);
+					lr.putAt->onResourceLoaded(lr.dr);
+				}
+				else
+				{
+					lr.dr.loadState = DataRequest::LoadState::ERROR;
+					lr.putAt->onResourceLoadFail(lr.dr);
 				}
 			}
 			else
 			{
 				LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
 				lr.dr.loadState = DataRequest::LoadState::ERROR;
-			}
+				lr.putAt->onResourceLoadFail(lr.dr);
+			}	
 		}
 		else
 		{

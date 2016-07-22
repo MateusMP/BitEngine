@@ -12,8 +12,12 @@ namespace BitEngine{
 	{
 	}
 
-	bool EngineConfiguration::AddConfiguration(const std::string& systemName, SystemConfiguration* sysConfig){
-		return systemConfigs.emplace(systemName, sysConfig).second;
+	EngineConfiguration::~EngineConfiguration()
+	{
+		for (auto& it : systemConfigs)
+		{
+			delete it.second;
+		}
 	}
 
 	void EngineConfiguration::LoadConfigurations(){
@@ -66,6 +70,28 @@ namespace BitEngine{
 				// Include description
 				if (!item.getDescription().empty())
 					fileOut << " # " << item.getDescription() << std::endl;
+			}
+		}
+	}
+
+	ConfigurationItem* EngineConfiguration::getConfiguration(const std::string& systemName, const std::string& configName, const std::string& defaultValue)
+	{
+		auto it = systemConfigs.find(systemName);
+		if (it != systemConfigs.end())
+		{
+			return it->second->getConfig(configName);
+		}
+		else
+		{
+			SystemConfiguration* sc = new SystemConfiguration();
+			if (sc->AddConfiguration(configName, "", defaultValue))
+			{
+				systemConfigs[systemName] = sc;
+				return sc->getConfig(configName);
+			}
+			else
+			{
+				return nullptr;
 			}
 		}
 	}

@@ -28,8 +28,8 @@ namespace BitEngine
 	}
 
 
-	CommandSystem::CommandSystem()
-		: System("Command")
+	CommandSystem::CommandSystem(GameEngine* ge)
+		: System(ge)
 	{
 		m_commandState = 0;
 	}
@@ -41,8 +41,8 @@ namespace BitEngine
 
 	bool CommandSystem::Init()
 	{
-		getMessenger()->RegisterListener<InputReceiver::MsgKeyboardInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_KeyboardInput));
-		getMessenger()->RegisterListener<InputReceiver::MsgMouseInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_MouseInput));
+		getEngine()->getMessenger()->RegisterListener<InputReceiver::MsgKeyboardInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_KeyboardInput));
+		getEngine()->getMessenger()->RegisterListener<InputReceiver::MsgMouseInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_MouseInput));
 		return true;
 	}
 
@@ -204,7 +204,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.keyAction));
+				getEngine()->getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.keyAction));
 			}
 			else
 			{
@@ -223,7 +223,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.keyAction));
+				getEngine()->getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.keyAction));
 			}
 			else {
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for input key: " << msg.key << " action: " << (int)(msg.keyAction) << " mod: " << (int)msg.keyMod;
@@ -245,7 +245,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
+				getEngine()->getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this mouse input.";
@@ -263,7 +263,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
+				getEngine()->getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this mouse input.";

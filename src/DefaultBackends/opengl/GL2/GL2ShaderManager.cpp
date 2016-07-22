@@ -26,7 +26,6 @@ namespace BitEngine {
 
 	void GL2ShaderManager::update()
 	{
-
 	}
 
 	/*void GL2ShaderManager::setResourceLoader(BitEngine::ResourceLoader* loader)
@@ -87,20 +86,38 @@ namespace BitEngine {
 		if (shader == nullptr)
 		{
 			uint16 id = shaders.addResource(meta);
-			shader = &(shaders.getResourceAt(id));
+			shader = shaders.getResourceAddress(id);
 
-			// Make new load request
-			//uint32 request = loader->loadRequest(str, shader, this);
-			//loadRequests[request] = id;
+			// Load source files
+			const std::string vertex = meta->properties["gl2"]["vertex"].get<std::string>();
+			const std::string fragment = meta->properties["gl2"]["fragment"].get<std::string>();
+			ResourceMeta* vertexMeta = loader->findMeta(vertex);
+			ResourceMeta* fragmentMeta = loader->findMeta(fragment);
+			sourceShaderRelation.emplace(vertexMeta, shader);
+			sourceShaderRelation.emplace(fragmentMeta, shader);
+			loadRawData(loader, vertexMeta, this);
+			loadRawData(loader, fragmentMeta, this);
 		}
 
 		return shader;
 	}
 		
-	void GL2ShaderManager::onResourceLoaded(uint32 resourceID)
+	void GL2ShaderManager::onResourceLoaded(ResourceLoader::DataRequest& dr)
 	{
-		uint16 localID = loadRequests[resourceID];
-		GL2Shader& resTexture = shaders.getResourceAt(localID);
+		std::string sourceType = dr.meta->properties["source_type"];
+
+		GL2Shader* shader = sourceShaderRelation[dr.meta];
+
+		if (sourceType.compare("VERTEX") == 0)
+		{
+			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading vertex piece" << dr.meta->resourceName;
+		}
+		else if (sourceType.compare("FRAGMENT") == 0)
+		{
+			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading fragment piece" << dr.meta->resourceName;
+		}
+		//uint16 localID = loadRequests[resourceID];
+		//GL2Shader& resTexture = shaders.getResourceAt(localID);
 
 		// Working on ResourceLoader thread!
 		{
@@ -115,10 +132,10 @@ namespace BitEngine {
 			}*/
 		}
 
-		resourceLoaded.push(localID);
+		//resourceLoaded.push(localID);
 	}
 
-	void GL2ShaderManager::onResourceLoadFail(uint32 resourceID)
+	void GL2ShaderManager::onResourceLoadFail(ResourceLoader::DataRequest& dr)
 	{
 		//LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load " << shaders.getResourceAt(loadRequests[resourceID]).path;
 	}

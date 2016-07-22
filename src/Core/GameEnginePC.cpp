@@ -1,44 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Core/GameEngine.h"
+#include "Core/GameEnginePC.h"
 #include "Core/Logger.h"
 
 namespace BitEngine{
 
 uint64 Time::ticks = 0;
 
-GameEngine::GameEngine(const std::string& configFile)
-	: configuration(configFile)
+GameEnginePC::GameEnginePC(const std::string& configFile, ResourceLoader* _loader)
+	: configuration(configFile), loader(_loader)
 {
 }
 
-GameEngine::~GameEngine()
+GameEnginePC::~GameEnginePC()
 {
-
+	delete loader;
 }
 
-void GameEngine::StopRunning()
+void GameEnginePC::stopRunning()
 {
     running = false;
 }
 
-void GameEngine::AddSystem(System *sys)
+void GameEnginePC::addSystem(System *sys)
 {
 	if (std::find(systems.begin(), systems.end(), sys) != systems.end())
 		return;
 
     systems.push_back(sys);
-
-	sys->setMessenger(&messenger);
-
-	configuration.AddConfiguration(sys->getName(), sys->getConfiguration());
 }
 
-System* GameEngine::getSystem(const std::string& name) const
+System* GameEnginePC::getSystem(const std::string& name)
 {
 	for (System* s : systems){
-		if (s->getName().compare(name) == 0){
+		
+		if (name.compare(s->getName()) == 0){
 			return s;
 		}
 	}
@@ -46,7 +43,7 @@ System* GameEngine::getSystem(const std::string& name) const
 	return nullptr;
 }
 
-bool GameEngine::InitSystems()
+bool GameEnginePC::initSystems()
 {
 	LOG(EngineLog, BE_LOG_WARNING) << "Initializing " << systems.size() << " systems ";
 
@@ -72,7 +69,7 @@ bool GameEngine::InitSystems()
     return true;
 }
 
-void GameEngine::ShutdownSystems()
+void GameEnginePC::shutdownSystems()
 {
 	LOG(EngineLog, BE_LOG_WARNING) << "Shutitng down systems...";
 
@@ -94,15 +91,13 @@ void GameEngine::ShutdownSystems()
 	LOG(EngineLog, BE_LOG_WARNING) << "Systems released!";
 }
 
-bool GameEngine::Run()
+bool GameEnginePC::run()
 {
-	CreateSystems();
-
     LOG(EngineLog, BE_LOG_INFO) << "Run Started";
    
     running = true;
-
-    if ( InitSystems() )
+	
+    if ( initSystems() )
     {
 		Time::ResetTicks();
 
@@ -118,7 +113,7 @@ bool GameEngine::Run()
         }
     }
 
-    ShutdownSystems();
+    shutdownSystems();
 
     return running;
 }

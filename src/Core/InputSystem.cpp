@@ -5,8 +5,8 @@
 
 namespace BitEngine{
 
-InputSystem::InputSystem(IInputDriver *input)
-    : System("Input"), driver(input)
+InputSystem::InputSystem(GameEngine* ge, IInputDriver *input)
+    : System(ge), driver(input)
 {
 }
 
@@ -16,11 +16,11 @@ InputSystem::~InputSystem()
 
 bool InputSystem::Init()
 {
-	driver->setMessenger(getMessenger());
+	driver->setMessenger(getEngine()->getMessenger());
 	driver->Init();
 
-	getMessenger()->RegisterListener<MsgWindowCreated>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowCreated));
-	getMessenger()->RegisterListener<MsgWindowClosed>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowClosed));
+	getEngine()->getMessenger()->RegisterListener<MsgWindowCreated>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowCreated));
+	getEngine()->getMessenger()->RegisterListener<MsgWindowClosed>(this, BE_MESSAGE_HANDLER(InputSystem::Message_WindowClosed));
 
 	return true;
 }

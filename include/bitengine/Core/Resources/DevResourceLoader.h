@@ -23,6 +23,8 @@ namespace BitEngine
 
 			virtual void loadIndex(const std::string& indexFilename) override;
 
+			virtual ResourceMeta* findMeta(const std::string& name) override;
+
 		protected:
 			// Retrieve 
 			virtual BaseResource* loadResource(const std::string& name) override;
@@ -36,6 +38,7 @@ namespace BitEngine
 			// Returns nullptr if meta conflicts
 			ResourceMeta* addResourceMeta(const ResourceMeta& meta);
 
+
 		private:
 			struct LoadRequest {
 				LoadRequest(LoadRequest&& lr)
@@ -44,7 +47,7 @@ namespace BitEngine
 				LoadRequest()
 					: dr(nullptr)
 				{}
-				LoadRequest(const DataRequest& d, ThreadSafeQueue<DataRequest>* out)
+				LoadRequest(const DataRequest& d, ResourceManager* out)
 					: dr(d), putAt(out)
 				{}
 				LoadRequest& operator=(LoadRequest&& other) {
@@ -59,10 +62,10 @@ namespace BitEngine
 				}*/
 
 				DataRequest dr;
-				ThreadSafeQueue<DataRequest>* putAt;
+				ResourceManager* putAt;
 			};
 
-			void requestResourceData(ResourceMeta* meta, ThreadSafeQueue<DataRequest>* responseTo) override;
+			void requestResourceData(ResourceMeta* meta, ResourceManager* responseTo) override;
 			
 			bool isManagerForTypeAvailable(const std::string& type);
 			BitEngine::BaseResource* getResourceFromManager(ResourceMeta* meta);
@@ -81,7 +84,7 @@ namespace BitEngine
 			std::thread loaderThread;
 			bool working;
 			std::vector<ResourceMeta> resourceMeta;
-			std::unordered_map<std::string, ResourceMeta*> byName;
+			std::unordered_map<std::string, uint32> byName;
 
 			// Load requests
 			ThreadSafeQueue<LoadRequest> loadRequests;

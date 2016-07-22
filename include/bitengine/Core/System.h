@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "Core/Messenger.h"
-#include "Core/SystemConfiguration.h"
+#include "Core/GameEngine.h"
+#include "Core/EngineConfiguration.h"
 
 namespace BitEngine{
 
@@ -11,28 +11,23 @@ namespace BitEngine{
 // Systems will contain all logic
 // A system can have multiple properties, which should be defined on the constructor.
 // They are loaded (if found) before the Init call
-class System : public MessengerEndpoint
+class System : public EnginePiece
 {
-	friend class GameEngine;
     public:
-        System(const std::string& name);
+        System(GameEngine* engine) : EnginePiece(engine) {}
         virtual ~System(){}
 
-		/**
-		 * Should be ready with all default configurations 
-		 * available even before Init()!
-		 */
-		SystemConfiguration* getConfiguration() { return &configuration; }
+        virtual const char* getName() const = 0;
 
-        const std::string& getName() const;
-
-    protected:
         virtual bool Init() = 0;
         virtual void Shutdown() = 0;
         virtual void Update() = 0;
 
-		std::string m_name;
-		SystemConfiguration configuration;
+		// Helper function to get config for the system.
+		ConfigurationItem* getConfig(const std::string& name, const std::string& defaultValue)
+		{
+			return getEngine()->getConfigurations()->getConfiguration(getName(), name, defaultValue);
+		}
 
 };
 

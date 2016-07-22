@@ -6,6 +6,8 @@
 
 namespace BitEngine
 {
+	struct ResourceMeta;
+
 	template<typename ResourceType, int Maximum>
 	class ResourceIndexer
 	{
@@ -29,18 +31,18 @@ namespace BitEngine
 				return &resources[index];
 			}
 
-			ResourceType* findResource(const std::string& name) {
-				auto it = m_byName.find(name);
-				if (it == m_byName.end()) {
+			ResourceType* findResource(const ResourceMeta* meta) {
+				auto& it = m_byMeta.find(meta);
+				if (it == m_byMeta.end()) {
 					return nullptr;
 				}
 
 				return &(resources[it->second]);
 			}
 
-			uint16 addResource(const std::string& name) {
+			uint16 addResource(const ResourceMeta* meta) {
 				uint16 id = getNextIndex();
-				m_byName.emplace(name, id);
+				m_byMeta.emplace(meta, id);
 				return id;
 			}
 
@@ -65,7 +67,7 @@ namespace BitEngine
 			uint16 m_currentIndex;
 			std::array<ResourceType, Maximum> resources;
 			std::vector<uint16> m_freeIndices;
-			std::unordered_map<std::string, uint16> m_byName;
+			std::unordered_map<const ResourceMeta*, uint16> m_byMeta;
 
 	};
 

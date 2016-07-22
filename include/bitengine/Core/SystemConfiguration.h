@@ -6,7 +6,6 @@
 
 namespace BitEngine
 {
-
 	class ConfigurationItem
 	{
 	public:
@@ -55,6 +54,10 @@ namespace BitEngine
 			return description;
 		}
 
+		void setDescription(const std::string& str) {
+			description = str;
+		}
+
 	private:
 		std::string name;
 		std::string defaultValue;
@@ -78,7 +81,8 @@ namespace BitEngine
 			return configs.insert(std::pair<std::string, ConfigurationItem>(name, ConfigurationItem(name, description, defaultValue))).second;
 		}
 
-		ConfigurationItem* getConfig(const std::string& name){
+		ConfigurationItem* getConfig(const std::string& name)
+		{
 			auto it = configs.find(name);
 			if (it == configs.end())
 				return nullptr;

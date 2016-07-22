@@ -23,7 +23,8 @@ namespace BitEngine{
 class EntitySystem : public BaseEntitySystem
 {
 	public:
-		EntitySystem()
+		EntitySystem(GameEngine* ge)
+			: BaseEntitySystem(ge)
 		{
 		}
 
@@ -34,7 +35,7 @@ class EntitySystem : public BaseEntitySystem
 			for (ComponentProcessor* p : m_processors)
 			{
 				p->m_es = this;
-				p->setMessenger(getMessenger());
+				p->setMessenger(getEngine()->getMessenger());
 				p->Init();
 			}
 
@@ -56,7 +57,7 @@ class EntitySystem : public BaseEntitySystem
 		void InitComponentProcessor(ComponentProcessor* cp)
 		{
 			cp->m_es = this;
-			cp->setMessenger(getMessenger());
+			cp->setMessenger(getEngine()->getMessenger());
 			cp->Init();
 		}
 
@@ -181,7 +182,7 @@ class EntitySystem : public BaseEntitySystem
 				ComponentHolder<CompClass>* holder = getHolder<CompClass>();
 				compID = holder->createComponent(entity, comp, args...);
 
-				getMessenger()->SendMessage(MsgComponentCreated<CompClass>(entity, type, compID));
+				getEngine()->getMessenger()->SendMessage(MsgComponentCreated<CompClass>(entity, type, compID));
 			}
 
 			return ComponentRef<CompClass>(entity, compID, this, comp);

@@ -1,69 +1,36 @@
 #pragma once
 
-#include <vector>
-
-#include "Core/System.h"
-#include "Core/MessageType.h"
-#include "Core/Graphics.h"
-#include "Core/Timer.h"
-#include "Core/EngineConfiguration.h"
-
-// Basic Systems
-#include "Core/VideoSystem.h"
-#include "Core/InputSystem.h"
-#include "Core/CommandSystem.h"
-#include "Core/ResourceSystem.h"
-#include "Core/ECS/EntitySystem.h"
-// Entity System Processors
-#include "Core/ECS/GameLogicProcessor.h"
-#include "Core/ECS/Transform2DProcessor.h"
-#include "Core/ECS/Transform3DProcessor.h"
-#include "Core/ECS/Camera2DProcessor.h"
-#include "Core/ECS/Camera3DProcessor.h"
-#include "Core/ECS/Sprite2DProcessor.h"
-#include "Core/ECS/RenderableMeshProcessor.h"
-
-#include "Core/Messenger.h"
-
+#include <string>
 
 namespace BitEngine{
 
-class GameEngine
-{
-    public:
-        GameEngine(const std::string& configFile);
-        ~GameEngine();
+	class EngineConfiguration;
+	class ResourceLoader;
+	class Messenger;
+	class System;
 
-		// Will call the @see CreateSystems() method
-		// Load all configurations
-		// Call init() on all systems
-		// Start the main loop and will block until the game is closed. @see StopRunning()
-        bool Run();
+	class GameEngine
+	{
+		public:
+		virtual EngineConfiguration* getConfigurations() = 0;
+		virtual ResourceLoader* getResourceLoader() = 0;
+		virtual Messenger* getMessenger() = 0;
+		virtual System* getSystem(const std::string& name) = 0;
+	};
 
-		// Stop the game main loop.
-		// Will finish as soon as the current frame ends.
-        void StopRunning();
+	class EnginePiece
+	{
+		public:
+		EnginePiece(GameEngine* engine)
+			: gameEngine(engine) 
+		{}
 
-    protected:
-		// All systems should be created here by calling @see AddSystem
-		virtual void CreateSystems() = 0;
+		GameEngine* getEngine() {
+			return gameEngine;
+		}
 
-        void AddSystem(System *sys);
-		System* getSystem(const std::string& name) const;
-
-		Messenger* getMessenger() { return &messenger; }
-
-    private:
-        bool InitSystems();
-        void ShutdownSystems();
-
-        std::vector<System*> systems;
-		std::vector<System*> systemsToShutdown;
-        bool running;
-		int lastSystemInitialized;
-
-		Messenger messenger;
-		EngineConfiguration configuration;
-};
+		private:
+			GameEngine* gameEngine;
+	};
 
 }

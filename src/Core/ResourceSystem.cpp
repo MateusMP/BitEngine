@@ -6,32 +6,32 @@
 
 namespace BitEngine{
 
-ResourceSystem::ResourceSystem(ResourceLoader* resourceLoader)
-	: System("Resource"), loader(resourceLoader)
-{
-}
+	ResourceSystem::ResourceSystem(GameEngine* ge)
+		: System(ge)
+	{
+	}
 
-ResourceSystem::~ResourceSystem(){
-}
+	ResourceSystem::~ResourceSystem(){
+	}
 
-bool ResourceSystem::Init()
-{
-	return loader->init();
-}
+	bool ResourceSystem::Init()
+	{
+		loader = getEngine()->getResourceLoader();
+		return loader->init();
+	}
 
-void ResourceSystem::Update()
-{
-	loader->update();
-}
+	void ResourceSystem::Update()
+	{
+		loader->update();
+	}
 
-void ResourceSystem::Shutdown()
-{
-	loader->shutdown();
-	delete loader;
-}
+	void ResourceSystem::Shutdown()
+	{
+		loader->shutdown();
+	}
 
-ResourceLoader* ResourceSystem::getResourceLoader() const {
-	return loader;
-}
+	ResourceLoader* ResourceSystem::getResourceLoader() const {
+		return loader;
+	}
 
 }

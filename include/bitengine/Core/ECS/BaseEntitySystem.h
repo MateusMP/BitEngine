@@ -19,12 +19,16 @@ namespace BitEngine {
 				return CompClass::getGlobalComponentID();
 			}
 
-			BaseEntitySystem()
-				: System("Entity")
+			BaseEntitySystem(GameEngine* ge)
+				: System(ge)
 			{
 				m_initialized = false;
 				m_objBitField = nullptr;
 				m_entities.emplace_back(0); // First entity is invalid.
+			}
+
+			const char* getName() const override {
+				return "Entity";
 			}
 
 			// After this call, no more component types are allowed to be registered

@@ -16,7 +16,7 @@ namespace BitEngine
 	{
 		public:
 			int layer;
-			SpriteHandle sprite;
+			Sprite* sprite;
 			float alpha;
 	};
 
@@ -108,8 +108,8 @@ namespace BitEngine
 	class Sprite2DRenderer : public ComponentProcessor
 	{
 		public: 
-		Sprite2DRenderer(VideoRenderer* pipeline)
-			: m_pipeline(pipeline)
+		Sprite2DRenderer(GameEngine* engine)
+			: m_engine(engine)
 		{
 
 		}
@@ -117,7 +117,7 @@ namespace BitEngine
 		bool Init() override
 		{
 			Sprite2DDataDefinition::init();
-			/*IShader* shader = m_pipeline->getShaderManager()->getShader("sprite2D");
+			IShader* shader = m_engine->getResourceLoader()->getResource<IShader>("data/shaders/sprite2D");
 			if (shader == nullptr)
 			{
 				return false;
@@ -127,7 +127,7 @@ namespace BitEngine
 
 			m_shader = new Sprite2DShaderWrapper(shader);
 			m_batch = shader->createBatch();
-			*/
+			
 			return true;
 		}
 
@@ -163,7 +163,7 @@ namespace BitEngine
 				IBatchSector* currentSector = nullptr;
 				Sprite2DDataDefinition::TextureContainer* texture = nullptr;
 				const ITexture* lastSpriteTexture = nullptr;
-				SpriteHandle lastSprite = ~0;
+				Sprite* lastSprite = nullptr;
 
 				const uint32 instanceCount = batchInstances.size();
 				for (uint32 i = 0; i < instanceCount; ++i)
@@ -173,7 +173,7 @@ namespace BitEngine
 					// Handle batch sectors
 					if (inst.sprite.sprite != lastSprite)
 					{
-						const ITexture* curTexture = m_sprMng->getSprite(inst.sprite.sprite)->getTexture();
+						const ITexture* curTexture = inst.sprite.sprite->getTexture();
 						if (lastSpriteTexture != curTexture) {
 							lastSpriteTexture = curTexture;
 							currentSector = m_batch->addSector(i);
@@ -185,9 +185,8 @@ namespace BitEngine
 
 					m_batch->getVertexDataAddressAs<Sprite2DDataDefinition::ModelMatrixContainer>(m_shader->getModelMatrixContainerRef(), i)->modelMatrix = inst.transform.m_global;
 
-					const Sprite* spr = m_sprMng->getSprite(lastSprite);
 					Sprite2DDataDefinition::PTNContainer* ptn = (m_batch->getVertexDataAddressAs<Sprite2DDataDefinition::PTNContainer>(m_shader->getPTNContainerRef(), i));
-					ptn->textureUV = spr->getUV();
+					ptn->textureUV = lastSprite->getUV();
 				}
 			}
 
@@ -217,10 +216,9 @@ namespace BitEngine
 			};
 			std::vector<SpriteBatchInstance> batchInstances;
 
-			VideoRenderer* m_pipeline;
+			GameEngine* m_engine;
 			IGraphicBatch* m_batch;
 			Sprite2DShaderWrapper* m_shader;
-			SpriteManager* m_sprMng;
 	};
 
 	class Sprite2DHolder : public ComponentHolder<Sprite2DComponent2>

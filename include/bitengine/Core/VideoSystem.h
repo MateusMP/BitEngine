@@ -6,7 +6,8 @@
 #include "Core/System.h"
 #include "Core/Window.h"
 #include "Core/VideoRenderer.h"
-
+#include "Core/Messenger.h"
+#include "Core/EngineConfiguration.h"
 
 namespace BitEngine {
 
@@ -51,21 +52,26 @@ namespace BitEngine {
 	class VideoSystem : public System
 	{
 		public:
-			VideoSystem(const std::string& name, IVideoDriver* driver) 
-				: System(name), m_driver(driver)
+			VideoSystem(GameEngine* ge, IVideoDriver* driver) 
+				: System(ge), m_driver(driver)
 			{
-				configuration.AddConfiguration("Fullscreen", "false");
+				getConfig("Fullscreen", "false")->setDescription("Use fullscreen mode, true, false ");
 			}
+
 
 			virtual ~VideoSystem()
 			{
 				delete m_driver;
 			}
 
+			const char* getName() const override {
+				return "Video";
+			}
+
 			IVideoDriver* getDriver() {
 				return m_driver;
 			}
-					
+
 			/**
 			 * Initializes a window and it's rendering driver
 			 */

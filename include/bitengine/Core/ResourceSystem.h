@@ -14,8 +14,12 @@ namespace BitEngine {
 	class ResourceSystem : public System
 	{
 		public:
-			ResourceSystem(ResourceLoader* loader);
+			ResourceSystem(GameEngine* ge);
 			~ResourceSystem();
+
+			const char* getName() const override{
+				return "Resource";
+			}
 
 			bool Init() override;
 			void Update() override;

@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "Core/System.h"
+#include "Core/Messenger.h"
 #include "Core/MessageType.h"
 
 namespace BitEngine{
@@ -142,8 +143,12 @@ class InputSystem
     : public System
 {
     public:
-        InputSystem(IInputDriver *input);
+        InputSystem(GameEngine* ge, IInputDriver *input);
         ~InputSystem();
+
+		const char* getName() const override {
+			return "Input";
+		}
 
         bool Init() override;
         void Shutdown() override;

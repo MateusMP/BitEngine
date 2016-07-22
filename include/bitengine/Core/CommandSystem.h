@@ -32,8 +32,12 @@ namespace BitEngine{
 
 			};
 
-			CommandSystem();
+			CommandSystem(GameEngine* ge);
 			~CommandSystem();
+
+			const char* getName() const override {
+				return "Command";
+			}
 
 			bool Init() override;
 			void Shutdown() override;
