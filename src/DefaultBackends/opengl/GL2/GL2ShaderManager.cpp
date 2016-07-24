@@ -19,65 +19,96 @@ namespace BitEngine {
 	{
 		// Init error texture
 		GL2Shader& basicShader = shaders.getResourceAt(0);
-		basicShader.init(basicShaderDef);
 
 		return true;
 	}
 
 	void GL2ShaderManager::update()
 	{
+		uint32 shaderIndex;
+		while (resourceLoaded.tryPop(shaderIndex))
+		{
+			GL2Shader* shader = shaders.getResourceAddress(shaderIndex);
+			if (shader->gotAllShaderPiecesLoaded())
+			{
+				shader->init();
+			}
+		}
 	}
 
-	/*void GL2ShaderManager::setResourceLoader(BitEngine::ResourceLoader* loader)
+	BitEngine::DataUseMode useModeFromString(const std::string& str)
 	{
-		this->loader = loader;
-	}*/
+		if (str.compare("VERTEX") == 0) {
+			return DataUseMode::Vertex;
+		}
+		else if (str.compare("UNIFORM") == 0) {
+			return DataUseMode::Uniform;
+		}
 
-	/*void GL2ShaderManager::Update()
+		return DataUseMode::TotalModes;
+	}
+
+	BitEngine::DataType dataTypeFromString(const std::string& str)
 	{
-		uint16 localID;
+		if (str.compare("TEXTURE_1D") == 0) {
+			return DataType::TEXTURE_1D;
+		} else if (str.compare("TEXTURE_2D") == 0) {
+			return DataType::TEXTURE_2D;
+		} else if (str.compare("TEXTURE_3D") == 0) {
+			return DataType::TEXTURE_3D;
+		} else if (str.compare("LONG") == 0) {
+			return DataType::LONG;
+		} else if (str.compare("FLOAT") == 0) {
+			return DataType::FLOAT;
+		} else if (str.compare("VEC2") == 0) {
+			return DataType::VEC2;
+		} else if (str.compare("VEC3") == 0) {
+			return DataType::VEC3;
+		} else if (str.compare("VEC4") == 0) {
+			return DataType::VEC4;
+		} else if (str.compare("MAT3") == 0) {
+			return DataType::MAT3;
+		} else if (str.compare("MAT4") == 0) {
+			return DataType::MAT4;
+		}
 
-		bool loadedSomething = false;
-		while (resourceLoaded.tryPop(localID))
+		return DataType::INVALID_DATA_TYPE;
+	}
+
+	void initShadeDefinition(ShaderDataDefinition& def, ResourceMeta* meta)
+	{
+		ResourcePropertyContainer definition = meta->properties["definition"];
+
+		int nDefs = definition.getNumberOfProperties();
+		for (int i = 0; i < nDefs; ++i)
 		{
-			GL2Shader& data = shaders.getResourceAt(localID);
+			ResourcePropertyContainer container = definition[i];
+			BitEngine::DataUseMode useMode = useModeFromString(container["mode"].getValueString());
+			int instanced = container["instanced"].getValueInt();
+			ShaderDataDefinition::DefinitionContainer& dataDefContainer = def.addContainer(useMode, instanced);
 			
-			// load texture
-			if (data.imgData.pixelData != nullptr)
+			ResourcePropertyContainer dataDefResource = container["defs"];
+			int nDataDef = dataDefResource.getNumberOfProperties();
+
+			for (int j = 0; j < nDataDef; ++j)
 			{
-				loadTexture2D(data.imgData, data);
+				ResourcePropertyContainer dataDef = dataDefResource[j];
+				dataDefContainer.addDataDef(
+					dataDef["name"].getValueString(),
+					dataTypeFromString(dataDef["data"].getValueString()),
+					dataDef["size"].getValueInt());
 			}
-			else // Use error texture
-			{
-				data.m_textureID = shaders.getResourceAt(0).m_textureID;
-			}
-
-			// Do not need the file data anymore
-			data.clearBaseData();
-
-			// delete pixel data too
-			if (data.imgData.pixelData != nullptr) {
-				stbi_image_free(data.imgData.pixelData);
-				data.imgData.pixelData = nullptr;
-			}
-
-			const uint32 ram = data.getUsingRamMemory();
-			const uint32 gpuMem = data.getUsingGPUMemory();
-			ramInUse += ram;
-			gpuMemInUse += gpuMem;
-
-			LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << data.path << "  RAM: " << BitEngine::BytesToMB(ram) << " MB - GPU Memory: " << BitEngine::BytesToMB(gpuMem) << " MB";
-
-			loadedSomething = true;
-			
-			break;
 		}
 
-		if (loadedSomething) {
-			LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "TextureManager MEMORY: RAM: " << BitEngine::BytesToMB(getCurrentRamUsage()) << " MB - GPU Memory: " << BitEngine::BytesToMB(getCurrentGPUMemoryUsage()) << " MB";
-		}
+	}
 
-	}*/
+	void GL2ShaderManager::loadShaderSource(ResourcePropertyContainer& rpc, GL2Shader* shader)
+	{
+		const std::string file = rpc.getValueString();
+		ResourceMeta* shaderSourceMeta = loader->findMeta(file);
+		sourceShaderRelation.emplace(shaderSourceMeta, shader);
+		loadRawData(loader, shaderSourceMeta, this);
+	}
 
 	BaseResource* GL2ShaderManager::loadResource(ResourceMeta* meta)
 	{
@@ -87,16 +118,38 @@ namespace BitEngine {
 		{
 			uint16 id = shaders.addResource(meta);
 			shader = shaders.getResourceAddress(id);
+			shader->setManagerResourceId(id);
 
+			initShadeDefinition(shader->getDefinition(), meta);
+						
 			// Load source files
-			const std::string vertex = meta->properties["gl2"]["vertex"].get<std::string>();
-			const std::string fragment = meta->properties["gl2"]["fragment"].get<std::string>();
-			ResourceMeta* vertexMeta = loader->findMeta(vertex);
-			ResourceMeta* fragmentMeta = loader->findMeta(fragment);
-			sourceShaderRelation.emplace(vertexMeta, shader);
-			sourceShaderRelation.emplace(fragmentMeta, shader);
-			loadRawData(loader, vertexMeta, this);
-			loadRawData(loader, fragmentMeta, this);
+			int expectedTypes = 0;
+			auto gl2Props = meta->properties["gl2"];
+
+			auto vertexProp = gl2Props["vertex"];
+			auto fragmentProp = gl2Props["fragment"];
+			auto geometryProp = gl2Props["geometry"];
+
+			if (vertexProp.isValid() && !vertexProp.getValueString().empty()) {
+				expectedTypes++;
+			}
+			if (fragmentProp.isValid()) {
+				expectedTypes++;
+			}
+			if (geometryProp.isValid()) {
+				expectedTypes++;
+			}
+			shader->setExpectedShaderSources(expectedTypes);
+
+			if (vertexProp.isValid()) {
+				loadShaderSource(vertexProp, shader);
+			}
+			if (fragmentProp.isValid()) {
+				loadShaderSource(fragmentProp, shader);
+			}
+			if (geometryProp.isValid())	{
+				loadShaderSource(geometryProp, shader);
+			}
 		}
 
 		return shader;
@@ -104,39 +157,31 @@ namespace BitEngine {
 		
 	void GL2ShaderManager::onResourceLoaded(ResourceLoader::DataRequest& dr)
 	{
-		std::string sourceType = dr.meta->properties["source_type"];
+		std::string sourceType = dr.meta->properties["source_type"].getValueString();
 
 		GL2Shader* shader = sourceShaderRelation[dr.meta];
 
 		if (sourceType.compare("VERTEX") == 0)
 		{
-			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading vertex piece" << dr.meta->resourceName;
+			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading vertex piece " << dr.meta->resourceName;
+			shader->includeSource(GL_VERTEX_SHADER, dr.data);
 		}
 		else if (sourceType.compare("FRAGMENT") == 0)
 		{
-			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading fragment piece" << dr.meta->resourceName;
+			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading fragment piece " << dr.meta->resourceName;
+			shader->includeSource(GL_FRAGMENT_SHADER, dr.data);
 		}
-		//uint16 localID = loadRequests[resourceID];
-		//GL2Shader& resTexture = shaders.getResourceAt(localID);
-
-		// Working on ResourceLoader thread!
+		else if (sourceType.compare("GEOMETRY") == 0)
 		{
-			LOG_SCOPE_TIME(BitEngine::EngineLog, "Texture load");
-/*
-			resTexture.imgData.pixelData = stbi_load_from_memory((unsigned char*)resTexture.data.data(), resTexture.data.size(), &resTexture.imgData.width, &resTexture.imgData.height, &resTexture.imgData.color, 0);
-			if (resTexture.imgData.pixelData != nullptr) {
-				LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << resTexture.getPath() << " w: " << resTexture.imgData.width << " h: " << resTexture.imgData.height;
-			}
-			else {
-				LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "stbi failed to load texture: " << resTexture.path;
-			}*/
+			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading geometry piece " << dr.meta->resourceName;
+			shader->includeSource(GL_GEOMETRY_SHADER, dr.data);
 		}
 
-		//resourceLoaded.push(localID);
+		resourceLoaded.push(shader->getManagerResourceId());
 	}
 
 	void GL2ShaderManager::onResourceLoadFail(ResourceLoader::DataRequest& dr)
 	{
-		//LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load " << shaders.getResourceAt(loadRequests[resourceID]).path;
+
 	}
 }

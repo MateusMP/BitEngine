@@ -6,9 +6,23 @@
 
 namespace BitEngine
 {
+	enum ShaderSourceTypes : uint8 {
+		SourceNone = 0,
+		SourceVertex = 1,
+		SourceFragment = 2,
+		SourceGeometry = 4,
+	};
+	inline ShaderSourceTypes operator|(ShaderSourceTypes a, ShaderSourceTypes b){
+		return static_cast<ShaderSourceTypes>(static_cast<int>(a) | static_cast<int>(b));
+	}
+	inline bool operator&(ShaderSourceTypes a, ShaderSourceTypes b) {
+		return (static_cast<int>(a) & static_cast<int>(b)) != 0;
+	}
+
 	class GL2Shader : public IShader
 	{
 		public:
+
 			struct AttributeConfig {
 				uint32 container;
 				GLenum type;
@@ -32,9 +46,7 @@ namespace BitEngine
 			GL2Shader();
 			virtual ~GL2Shader();
 
-			/// Init the shader
-			/// Normally calls BuildProgramFromFile/Memory
-			int init(const ShaderDataDefinition& sdd) override;
+			int init();
 
 			/// Binds the shader
 			/// Calls OnBind()
@@ -48,37 +60,30 @@ namespace BitEngine
 			// Load data into uniform referenced with ref
 			void loadConfig(const ShaderDataDefinition::DefinitionReference& ref, void* data);
 
+			void includeSource(GLint type, std::vector<char>& data);
+
+			ShaderDataDefinition& getDefinition() override { return m_shaderDefinition; }
+
+			void setExpectedShaderSources(int amount) { expectedSources = amount; }
+
+			bool gotAllShaderPiecesLoaded();
+
+			void setManagerResourceId(uint16 id) { managerResourceId = id; }
+			uint16 getManagerResourceId() const { return managerResourceId; }
+
 		protected:
+			struct ShaderSource {
+				ShaderSource(GLint t, std::vector<char>& d)
+					: type(t), shader(0)
+				{
+					data.swap(d);
+				}
+
+				GLint type;
+				GLuint shader; // compiled
+				std::vector<char> data;
+			};
 			GLuint m_programID; //!< program unique id
-
-								// BUILDING THE SHADER PROGRAM
-
-								/// \brief Build and link a set of sources from file to create a final Shader Program
-								/// \return Returns BE_NO_ERROR in case of success
-			template <typename ...Args>
-			int BuildProgramFromFile(GLint type, const std::string& file, Args... args) {
-				std::vector<GLuint> shaders;
-
-				if (CompileFromFile(shaders, type, file, args...) == BE_NO_ERROR) {
-					return BuildFinalProgram(shaders);
-				}
-
-				return FAILED_TO_COMPILE;
-			}
-
-			/// \brief Build and link a set of sources from memory to create a final Shader Program
-			/// \return Returns BE_NO_ERROR in case of success
-			template <typename ...Args>
-			int BuildProgramFromMemory(GLint type, const char* source, Args... args) {
-				std::vector<GLuint> shaders;
-
-				if (CompileFromMemory(shaders, type, source, args...) == BE_NO_ERROR) {
-					return BuildFinalProgram(shaders);
-				}
-
-				return FAILED_TO_COMPILE;
-			}
-
 
 			void introspect();
 			// ATTRIBUTE/UNIFORM FUNCTIONS
@@ -120,6 +125,7 @@ namespace BitEngine
 			void configure(const UniformDefinition& def, void* data);
 
 		private:
+			void compileSources();
 			/// VIRTUAL
 			// \param outVBO vector to store all VBO's id
 			// Returns a VAO with all ShaderConfigurations Set
@@ -130,51 +136,14 @@ namespace BitEngine
 			/// \param errorLog If any error is encountered during shader compilation
 			/// 	A log will be generated inside errorLog
 			///
-			int compile(GLenum type, const char* data, GLuint &hdl, std::string& errorLog);
-			int retrieveSourceFromFile(const std::string& file, std::string& out) const;
+			int compile(GLenum type, const std::vector<char>& data, GLuint &hdl, std::string& errorLog);
 
 			int linkShaders(std::vector<GLuint>& shaders);
 
-			//
-			template <typename ...Args>
-			int CompileFromFile(std::vector<GLuint>& shaders) { return BE_NO_ERROR; }
-			template <typename ...Args>
-			int CompileFromMemory(std::vector<GLuint>& shaders) { return BE_NO_ERROR; }
-
 			int buildFinalProgram(std::vector<GLuint>& shaders);
-
-			template <typename ...Args>
-			int CompileFromFile(std::vector<GLuint>& shaders, GLint type, const std::string& file, Args... args)
-			{
-				LOG(EngineLog, BE_LOG_VERBOSE) << "Compiling shader (type: " << type << ") file " << file;
-				std::string source;
-				if (retrieveSourceFromFile(file, source) != BE_NO_ERROR) {
-					LOG(EngineLog, BE_LOG_ERROR) << "Failed to read shader file: " << file;
-					return FAILED_TO_READ;
-				}
-
-				if (CompileFromMemory(shaders, type, source.data()) != BE_NO_ERROR) {
-					return FAILED_TO_COMPILE;
-				}
-
-				return CompileFromFile(shaders, args...);
-			}
-
-			template <typename ...Args>
-			int CompileFromMemory(std::vector<GLuint>& shaders, GLint type, const char* source, Args... args)
-			{
-				if (CompileFromMemory(shaders, type, source) != BE_NO_ERROR) {
-					return FAILED_TO_COMPILE;
-				}
-
-				return CompileFromMemory(shaders, args...);
-			}
-
-			int compileFromMemory(GLint type, const char* source, GLuint& outId);
-
+			
 			/// Destroy shaders
 			void FreeShaders();
-
 
 			void registerAttributes(){}
 			void registerUniforms(){}
@@ -191,6 +160,10 @@ namespace BitEngine
 
 			VAOContainer vaoContainer;
 			UniformContainer uniformContainer;
+
+			std::vector<ShaderSource> sources;
+			int expectedSources;
+			uint16 managerResourceId;
 	};
 
 }

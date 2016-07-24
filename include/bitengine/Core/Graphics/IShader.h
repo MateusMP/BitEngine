@@ -7,6 +7,7 @@ namespace BitEngine {
 
 	enum DataType 
 	{
+		INVALID_DATA_TYPE,
 		TEXTURE_1D,
 		TEXTURE_2D,
 		TEXTURE_3D,
@@ -21,7 +22,7 @@ namespace BitEngine {
 		MAT4,
 	};
 
-	enum DataUseMode {
+	enum DataUseMode : uint32 {
 		Vertex,
 		Uniform,
 
@@ -107,14 +108,14 @@ namespace BitEngine {
 		}
 
 		DefinitionContainer& addContainer(DataUseMode mode = Vertex, int instanced = 0) {
-			const int ct = m_containers[mode].size() - 1;
+			const int ct = m_containers[mode].size();
 			m_containers[mode].emplace_back(ct, mode, instanced);
 			return m_containers[mode].back();
 		}
 
 		DefinitionReference findReference(const std::string& name) const
 		{
-			for (uint32 um = 0; um < TotalModes; um)
+			for (uint32 um = 0; um < TotalModes; ++um)
 			{
 				const std::vector<DefinitionContainer>& v = m_containers[um];
 				for (const DefinitionContainer& dc : v)
@@ -122,7 +123,8 @@ namespace BitEngine {
 					for (uint32 i = 0; i <  dc.definitionData.size(); ++i)
 					{
 						const DefinitionData& d = dc.definitionData[i];
-						if (d.name.compare(name) == 0)
+						// compare with offset of 2 characters. We ignore the shader code prefix.
+						if (name.compare(2, std::string::npos, d.name) == 0)
 						{
 							return DefinitionReference((DataUseMode)um, dc.container, i);
 						}
@@ -140,7 +142,7 @@ namespace BitEngine {
 
 		// Returns true if a reference is valid
 		bool checkRef(const DefinitionReference& r) const {
-			if (r.mode < TotalModes)
+			if (r.mode < DataUseMode::TotalModes)
 			{
 				if (r.container < m_containers[r.mode].size())
 				{
@@ -155,7 +157,7 @@ namespace BitEngine {
 		}
 
 		private:
-			std::vector<DefinitionContainer> m_containers[TotalModes];
+			std::vector<DefinitionContainer> m_containers[DataUseMode::TotalModes];
 	};
 
 	// BATCH
@@ -250,11 +252,6 @@ namespace BitEngine {
 	class IShader : public BaseResource
 	{
 		public:
-
-		/// Init the shader
-		/// Normally calls BuildProgramFromFile/Memory
-		virtual int init(const ShaderDataDefinition& sdd) = 0;
-
 		/// Binds the shader
 		/// Calls OnBind()
 		virtual void Bind() = 0;
@@ -263,6 +260,8 @@ namespace BitEngine {
 		virtual void Unbind() = 0;
 
 		virtual IGraphicBatch* createBatch() = 0;
+
+		virtual ShaderDataDefinition& getDefinition() = 0;
 		
 		protected:
 		static const std::vector<ShaderDataDefinition::DefinitionContainer>& getContainers(DataUseMode mode, const ShaderDataDefinition& def)

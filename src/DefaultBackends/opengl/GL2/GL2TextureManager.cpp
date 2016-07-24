@@ -92,47 +92,6 @@ namespace BitEngine {
 		}
 	}
 
-	/*void GL2TextureManager::update()
-	{
-		uint16 localID;
-
-		bool loadedSomething = false;
-		while (resourceLoaded.tryPop(localID))
-		{
-			GL2Texture& data = textures.getResourceAt(localID);
-
-			// load texture
-			if (data.imgData.pixelData != nullptr)
-			{
-				loadTexture2D(data.imgData, data);
-			}
-			else // Use error texture
-			{
-				data.m_textureID = textures.getResourceAt(0).m_textureID;
-			}
-
-			// Do not need the file data anymore
-			data.clearBaseData();
-
-			// delete pixel data too
-			if (data.imgData.pixelData != nullptr) {
-				stbi_image_free(data.imgData.pixelData);
-				data.imgData.pixelData = nullptr;
-			}
-
-			const uint32 ram = data.getUsingRamMemory();
-			const uint32 gpuMem = data.getUsingGPUMemory();
-			ramInUse += ram;
-			gpuMemInUse += gpuMem;
-
-			LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << data.path << "  RAM: " << BitEngine::BytesToMB(ram) << " MB - GPU Memory: " << BitEngine::BytesToMB(gpuMem) << " MB";
-
-			loadedSomething = true;
-
-			break;
-		}
-	}*/
-
 	BaseResource* GL2TextureManager::loadResource(ResourceMeta* meta)
 	{
 		GL2Texture* texture = textures.findResource(meta);

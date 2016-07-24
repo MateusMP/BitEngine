@@ -45,18 +45,18 @@ System* GameEnginePC::getSystem(const std::string& name)
 
 bool GameEnginePC::initSystems()
 {
-	LOG(EngineLog, BE_LOG_WARNING) << "Initializing " << systems.size() << " systems ";
+	LOG(EngineLog, BE_LOG_INFO) << "Initializing " << systems.size() << " systems ";
 
-	LOG(EngineLog, BE_LOG_WARNING) << "Loadiging system configurations...";
+	LOG(EngineLog, BE_LOG_INFO) << "Loadiging system configurations...";
 	configuration.LoadConfigurations();
 
-	LOG(EngineLog, BE_LOG_WARNING) << "Loadiging systems...";
+	LOG(EngineLog, BE_LOG_INFO) << "Loadiging systems...";
 	lastSystemInitialized = -1;
     for ( System* s : systems )
     {
         if (!s->Init())
         {
-            LOG(EngineLog, BE_LOG_WARNING) << "System " << s->getName() << " failed to initialize!\n";
+            LOG(EngineLog, BE_LOG_INFO) << "System " << s->getName() << " failed to initialize!\n";
             return false;
         }
 
@@ -64,31 +64,31 @@ bool GameEnginePC::initSystems()
 		systemsToShutdown.push_back(s);
     }
 
-	LOG(EngineLog, BE_LOG_WARNING) << "All systems set!";
+	LOG(EngineLog, BE_LOG_INFO) << "All systems set!";
 
     return true;
 }
 
 void GameEnginePC::shutdownSystems()
 {
-	LOG(EngineLog, BE_LOG_WARNING) << "Shutitng down systems...";
+	LOG(EngineLog, BE_LOG_INFO) << "Shutitng down systems...";
 
 	// Shutdown in reverse order
 	for (auto it = systemsToShutdown.rbegin(); it != systemsToShutdown.rend(); ++it){
-		LOG(EngineLog, BE_LOG_WARNING) << "Shutting down " << (*it)->getName();
+		LOG(EngineLog, BE_LOG_INFO) << "Shutting down " << (*it)->getName();
         (*it)->Shutdown();
-		LOG(EngineLog, BE_LOG_WARNING) << "done " << (*it)->getName();
+		LOG(EngineLog, BE_LOG_INFO) << "done " << (*it)->getName();
 		delete *it;
     }
 
-	LOG(EngineLog, BE_LOG_WARNING) << "Finalizing... ";
+	LOG(EngineLog, BE_LOG_INFO) << "Finalizing... ";
 
 	// Delete systems that were not initialized because of failure
 	for (int i = lastSystemInitialized + 1; i < (int)systems.size(); ++i){
 		delete systems[i];
 	}
 	
-	LOG(EngineLog, BE_LOG_WARNING) << "Systems released!";
+	LOG(EngineLog, BE_LOG_INFO) << "Systems released!";
 }
 
 bool GameEnginePC::run()

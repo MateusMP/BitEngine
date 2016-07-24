@@ -214,7 +214,7 @@ namespace BitEngine
 	}
 
 	GL2Shader::GL2Shader()
-		: m_programID(0)
+		: m_programID(0), expectedSources(0)
 	{
 
 	}
@@ -247,16 +247,44 @@ namespace BitEngine
 		return batch;
 	}
 
+	void includeReferenceIfValid(std::vector<GLuint>& vec, GLuint shader)
+	{
+		if (shader != 0)
+		{
+			vec.emplace_back(shader);
+		}
+	}
+
 	/// Init the shader
 	/// Normally calls BuildProgramFromFile/Memory
-	int GL2Shader::init(const ShaderDataDefinition& sdd)
+	int GL2Shader::init()
 	{
-		m_shaderDefinition = sdd;
-
+		LOG(EngineLog, BE_LOG_INFO) << "Initializing shader...";
 		std::vector<GLuint> pieces;
-		// TODO: ADD PIECES
 
-		return buildFinalProgram(pieces) == BE_NO_ERROR;
+		compileSources();
+
+		for (ShaderSource& s : sources)
+		{
+			includeReferenceIfValid(pieces, s.shader);
+		}
+
+		int error = buildFinalProgram(pieces);
+		if (error == BE_NO_ERROR)
+		{
+			for (ShaderSource& s : sources)
+			{
+				glDetachShader(m_programID, s.shader);
+				s.shader = 0;
+			}
+			LOG(EngineLog, BE_LOG_INFO) << "Shader ready!";
+		}
+		else
+		{
+			LOG(EngineLog, BE_LOG_INFO) << "Shader initialization failed " << error;
+		}
+
+		return error;
 	}
 
 	/// Binds the shader
@@ -377,19 +405,6 @@ namespace BitEngine
 		}
 	}
 
-	int GL2Shader::compileFromMemory(GLint type, const char* source, GLuint& outId)
-	{
-		std::string errorlog;
-
-		int error = compile(type, source, outId, errorlog);
-		if (error != BE_NO_ERROR) {
-			LOG(EngineLog, BE_LOG_ERROR) << "Shader Compile Error: Shader <memory> of type '" << type << "\n\t" << errorlog;
-			return FAILED_TO_COMPILE;
-		}
-
-		return BE_NO_ERROR;
-	}
-
 	int GL2Shader::linkShaders(std::vector<GLuint>& shaders)
 	{
 		//Attach our shaders to our program
@@ -443,36 +458,17 @@ namespace BitEngine
 		return BE_NO_ERROR;
 	}
 
-	int GL2Shader::retrieveSourceFromFile(const std::string& file, std::string& out) const
-	{
-		out.clear();
-
-		std::ifstream fdata(file);
-		if (fdata.fail()) {
-			return FAILED_TO_READ;
-		}
-
-		std::string linedata;
-
-		while (std::getline(fdata, linedata))
-		{
-			out += linedata + "\n";
-		}
-
-		fdata.close();
-
-		return BE_NO_ERROR;
-	}
-
 	// \param hdl Where to save the gl id for the shader
-	int GL2Shader::compile(GLenum type, const char* data, GLuint &hdl, std::string& errorLog)
+	int GL2Shader::compile(GLenum type, const std::vector<char>& data, GLuint &hdl, std::string& errorLog)
 	{
 		GLuint shdhdl = glCreateShader(type);
 		if (shdhdl == 0) {
 			return FAILED_TO_CREATE_SHADER;
 		}
 
-		glShaderSource(shdhdl, 1, &data, nullptr);
+		GLint size = data.size();
+		const char* codeData = data.data();
+		glShaderSource(shdhdl, 1, &codeData, &size);
 		glCompileShader(shdhdl);
 
 		GLint status = 0;
@@ -538,6 +534,32 @@ namespace BitEngine
 		{
 			configure(*it, data);
 		}
+	}
+
+	void GL2Shader::includeSource(GLint type, std::vector<char>& data)
+	{		
+		sources.emplace_back(type, data);		
+	}
+
+	void GL2Shader::compileSources()
+	{
+		for (ShaderSource& source : sources)
+		{
+			std::string error;
+			int err = BE_NO_ERROR;
+
+			err = compile(source.type, source.data, source.shader, error);
+
+			if (err != BE_NO_ERROR)
+			{
+				LOG(EngineLog, BE_LOG_ERROR) << "Shader (" << source.type << ") error: " << err << " - " << error;
+			}
+		}
+	}
+
+	bool GL2Shader::gotAllShaderPiecesLoaded()
+	{
+		return sources.size() == expectedSources;
 	}
 
 	void GL2Shader::configure(const UniformDefinition& ud, void* data)

@@ -8,12 +8,52 @@
 #include "Core/Resources/ResourceIndexer.h"
 #include "Core/Logger.h"
 
-#include "json.h"
-
 namespace BitEngine {
 
 	class ResourceManager;
-	typedef nlohmann::json ResourceProperty;
+
+	struct ResourceProperty;
+	struct ResourcePropertyContainer;
+
+	struct ResourceProperty
+	{
+		virtual ~ResourceProperty(){}
+		virtual ResourcePropertyContainer getProperty(const std::string& str) = 0;
+		virtual ResourcePropertyContainer getProperty(int index) = 0;
+		virtual const std::string& getValueString() const = 0;
+		virtual double getValueDouble() const = 0;
+		virtual int getValueInt() const = 0;
+		virtual int getNumberOfProperties() const = 0;
+		//virtual int getKeys(std::vector<std::string>& keys) = 0;
+
+		virtual ResourcePropertyContainer operator[](const std::string& str) = 0; // { return this->getProperty(str); }
+	};
+
+	struct ResourcePropertyContainer
+	{
+		ResourcePropertyContainer()
+		{}
+		ResourcePropertyContainer(ResourceProperty* p) 
+			: prop(p)
+		{}
+
+		
+		ResourcePropertyContainer operator[](const std::string& str) {
+			return prop->getProperty(str);
+		}
+		ResourcePropertyContainer operator[](int index) {
+			return prop->getProperty(index);
+		}
+		std::string getValueString() { return prop->getValueString(); }
+		double getValueDouble() { return prop->getValueDouble(); }
+		int getValueInt() { return prop->getValueInt(); }
+		int getNumberOfProperties() { return prop->getNumberOfProperties(); }
+
+		bool isValid() { return prop.get() != nullptr; }
+
+	private:
+		std::shared_ptr<ResourceProperty> prop;
+	};
 
 	struct ResourceMeta
 	{
@@ -27,7 +67,7 @@ namespace BitEngine {
 		std::string package;
 		std::string resourceName;
 		std::string type;
-		ResourceProperty properties;
+		ResourcePropertyContainer properties;
 	};
 
 	// All resources types should come from this
@@ -73,7 +113,8 @@ namespace BitEngine {
 			// Read a file and map all indices
 			// If any resource override would happen, they're skipped
 			// and a warning is logged.
-			virtual void loadIndex(const std::string& index) = 0;
+			// \return true if succeded
+			virtual bool loadIndex(const std::string& index) = 0;
 			
 			// Find a resource meta for a given name
 			virtual ResourceMeta* findMeta(const std::string& name) = 0;
@@ -104,11 +145,6 @@ namespace BitEngine {
 					LOADED,
 					ERROR,
 				};
-				DataRequest(const DataRequest& dr)
-					: meta(dr.meta), loadState(dr.loadState), data(dr.data)
-				{
-					LOG(EngineLog, BE_LOG_WARNING) << "USE MOVE INSTEAD!";
-				}
 				DataRequest(DataRequest&& dr) noexcept
 					: meta(dr.meta), loadState(dr.loadState), data(std::move(dr.data))
 				{}
@@ -166,6 +202,7 @@ namespace BitEngine {
 
 			// Called assyncronously from loader threads.
 			virtual void onResourceLoaded(ResourceLoader::DataRequest& dr) = 0;
+			// Called assyncronously from loader threads.
 			virtual void onResourceLoadFail(ResourceLoader::DataRequest& dr) = 0;
 
 			// in bytes

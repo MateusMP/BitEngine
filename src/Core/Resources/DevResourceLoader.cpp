@@ -10,12 +10,11 @@ const std::string BitEngine::ResourceMeta::toString() const {
 		"\n\tpackage: " + package +
 		"\n\ttype: " + type +
 		"\n\tfiledDir: " + resourceName +
-		"\n\tprops: " + properties.dump() + "\n");
-
+		"\n\tprops: " + /*properties.dump() + */"\n");
 }
 
 BitEngine::DevResourceLoader::DevResourceLoader()
-	: working(true)
+	: working(true), loadedMetaIndexes(0)
 {}
 
 bool BitEngine::DevResourceLoader::init()
@@ -53,29 +52,46 @@ void BitEngine::DevResourceLoader::registerResourceManager(const std::string & r
 	managers[resourceType] = manager;
 }
 
-void BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
+bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, std::vector<char>& out)
 {
-	LOG(EngineLog, BE_LOG_VERBOSE) << "Loading resource index " << indexFilename;
-	std::ifstream file(indexFilename, std::ios::in | std::ios::ate);
+	LOG(EngineLog, BE_LOG_VERBOSE) << "Loading resource index " << fname;
+	std::ifstream file(fname, std::ios::in | std::ios::binary | std::ios::ate);
+	if (!file.is_open())
+	{
+		LOG(EngineLog, BE_LOG_ERROR) << "Failed to open index file " << fname;
+		return false;
+	}
 	std::streamsize size = file.tellg();
 	file.seekg(0, std::ios::beg);
+	out.resize(size);
 
-	LOG(EngineLog, BE_LOG_VERBOSE) << indexFilename << " size: " << size;
+	LOG(EngineLog, BE_LOG_VERBOSE) << fname << " size: " << size;
 
-	std::vector<char> buffer(size);
-	file.read(buffer.data(), size);
-	if ( file.eof() )
+	file.read(out.data(), size);
+	return file.gcount() == size;
+}
+
+bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
+{
+	uint32 indexId = loadedMetaIndexes;
+	loadedMetaIndexes++;
+
+	std::ifstream file(indexFilename);
+	if (file.is_open())
 	{
-		nlohmann::json j = nlohmann::json::parse(buffer.data());
+		// TODO: Save this to use only referenced ResourceProperty
+		resourceMetaIndexes[indexId] = nlohmann::json(file);
+		nlohmann::json& j = resourceMetaIndexes[indexId];
 		
 		if (!j["data"].empty())
 		{
-			loadPackages(j["data"].get<nlohmann::json::object_t>());
+			loadPackages(j["data"].get_ref<nlohmann::json::object_t&>());
 		}
 	}
 	else
 	{
-		LOG(EngineLog, BE_LOG_ERROR) << "Failed to read file:\n" << buffer.data();
+		LOG(EngineLog, BE_LOG_ERROR) << "Failed to read file:\n" << indexFilename;
+		return false;
 	}
 
 	// Show meta readed from file
@@ -108,15 +124,15 @@ void BitEngine::DevResourceLoader::loadPackages(nlohmann::json::object_t& data)
 		{
 			BitEngine::ResourceMeta tmpResMeta(package.first);
 
-			for (auto &property : resource.get<nlohmann::json::object_t>())
+			for (auto &property : resource.get_ref<nlohmann::json::object_t&>())
 			{
 				if (property.first == "name")
 				{
-					tmpResMeta.resourceName = property.second.get<std::string>();
+					tmpResMeta.resourceName = property.second.get_ref<std::string&>();
 				}
 				else if (property.first == "type")
 				{
-					const std::string& type = property.second.get<std::string>();
+					const std::string& type = property.second.get_ref<std::string&>();
 					tmpResMeta.type = type;
 					if (!isManagerForTypeAvailable(type)) {
 						LOG(EngineLog, BE_LOG_WARNING) << "No resource manager for type " << type;
@@ -124,7 +140,7 @@ void BitEngine::DevResourceLoader::loadPackages(nlohmann::json::object_t& data)
 				}
 				else
 				{
-					tmpResMeta.properties[property.first] = property.second;
+					tmpResMeta.properties = ResourcePropertyContainer(new DevResourcePropertyRef(resource));
 				}
 			}
 
@@ -178,6 +194,7 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const Res
 		ResourceMeta& newRm = resourceMeta.back();
 		newRm.id = id;
 		byName[fullPath] = id;
+		newRm.properties = meta.properties;
 		return &resourceMeta[id];
 	}
 	else
@@ -188,7 +205,7 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const Res
 
 void BitEngine::DevResourceLoader::requestResourceData(ResourceMeta* meta, ResourceManager* responseTo)
 {
-	loadRequests.push(LoadRequest(meta, responseTo));
+	loadRequests.push(meta, responseTo);
 }
 
 bool BitEngine::DevResourceLoader::isManagerForTypeAvailable(const std::string& type)
@@ -213,30 +230,17 @@ void BitEngine::DevResourceLoader::dataLoaderLoop()
 
 			LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
 
-			std::ifstream file(path, std::ios::binary | std::ios::ate);
-			if (file.is_open())
+			if (loadFileToMemory(path, lr.dr.data))
 			{
-				long fSize = file.tellg();
-				file.seekg(0, file.beg);
-				lr.dr.data.resize(fSize);
-				file.read(lr.dr.data.data(), fSize);
-				if (file)
-				{
-					lr.dr.loadState = DataRequest::LoadState::LOADED;
-					lr.putAt->onResourceLoaded(lr.dr);
-				}
-				else
-				{
-					lr.dr.loadState = DataRequest::LoadState::ERROR;
-					lr.putAt->onResourceLoadFail(lr.dr);
-				}
+				lr.dr.loadState = DataRequest::LoadState::LOADED;
+				lr.putAt->onResourceLoaded(lr.dr);
 			}
 			else
 			{
 				LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
 				lr.dr.loadState = DataRequest::LoadState::ERROR;
 				lr.putAt->onResourceLoadFail(lr.dr);
-			}	
+			}
 		}
 		else
 		{

@@ -40,11 +40,12 @@ namespace BitEngine {
 			void onResourceLoaded(ResourceLoader::DataRequest& dr) override;
 			void onResourceLoadFail(ResourceLoader::DataRequest& dr) override;
 
+			void loadShaderSource(ResourcePropertyContainer& rpc, GL2Shader* shader);
+
 		private:
 			ResourceLoader* loader;
 			ResourceIndexer<GL2Shader, 32> shaders;
-			BitEngine::ThreadSafeQueue<uint16> resourceLoaded;
-			std::unordered_map<uint32, uint16> loadRequests;
+			BitEngine::ThreadSafeQueue<uint32> resourceLoaded;
 
 			std::unordered_map<ResourceMeta*, GL2Shader*> sourceShaderRelation;
 

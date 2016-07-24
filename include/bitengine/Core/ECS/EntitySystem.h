@@ -12,7 +12,6 @@
 
 #include "Core/ECS/BaseEntitySystem.h"
 #include "Core/ECS/ComponentProcessor.h"
-#include "Core/ECS/GraphicHolder.h"
 
 namespace BitEngine{
 

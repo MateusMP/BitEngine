@@ -39,31 +39,6 @@ namespace BitEngine
 		struct TextureContainer {
 			const ITexture* diffuse;
 		};
-
-		static const ShaderDataDefinition& getDefinition()
-		{
-			return def;
-		}
-
-		static void init()
-		{
-			def.addContainer(DataUseMode::Vertex, 0)
-				.addDataDef("position", DataType::VEC3, 1)
-				.addDataDef("textureUV", DataType::VEC4, 1);
-
-			def.addContainer(DataUseMode::Vertex, 1)
-				.addDataDef("modelMatrix", DataType::MAT4, 1);
-
-			def.addContainer(DataUseMode::Uniform)
-				.addDataDef("projectionMatrix", DataType::MAT4, 1)
-				.addDataDef("viewMatrix", DataType::MAT4, 1);
-
-			def.addContainer(DataUseMode::Uniform)
-				.addDataDef("diffuse", DataType::TEXTURE_2D, 1);
-		}
-
-		private:
-			static ShaderDataDefinition def;
 	};
 
 	class Sprite2DShaderWrapper
@@ -76,10 +51,10 @@ namespace BitEngine
 			Sprite2DShaderWrapper(IShader* shader)
 				: m_shader(shader)
 			{
-				m_ptnContainer = Sprite2DDataDefinition::getDefinition().getReferenceToContainer(DataUseMode::Vertex, 0);
-				m_modelMatrixContainer = Sprite2DDataDefinition::getDefinition().getReferenceToContainer(DataUseMode::Vertex, 1);
+				m_ptnContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 0);
+				m_modelMatrixContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 1);
 
-				m_textureContainer = Sprite2DDataDefinition::getDefinition().getReferenceToContainer(DataUseMode::Uniform, 0);
+				m_textureContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Uniform, 0);
 			}
 			
 			ShaderDataDefinition::DefinitionReference& getTextureContainerRef() {
@@ -116,15 +91,12 @@ namespace BitEngine
 
 		bool Init() override
 		{
-			Sprite2DDataDefinition::init();
 			IShader* shader = m_engine->getResourceLoader()->getResource<IShader>("data/shaders/sprite2D");
 			if (shader == nullptr)
 			{
 				return false;
 			}
-
-			shader->init(Sprite2DDataDefinition::getDefinition());
-
+			
 			m_shader = new Sprite2DShaderWrapper(shader);
 			m_batch = shader->createBatch();
 			

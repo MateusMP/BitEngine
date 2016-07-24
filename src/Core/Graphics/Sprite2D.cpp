@@ -3,6 +3,5 @@
 
 namespace BitEngine {
 
-	ShaderDataDefinition Sprite2DDataDefinition::def;
 
 }
