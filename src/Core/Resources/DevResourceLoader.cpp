@@ -73,7 +73,7 @@ bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, st
 
 bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
 {
-	uint32 indexId = loadedMetaIndexes;
+	u32 indexId = loadedMetaIndexes;
 	loadedMetaIndexes++;
 
 	std::ifstream file(indexFilename);
@@ -172,7 +172,7 @@ void BitEngine::DevResourceLoader::releaseAll()
 {
 }
 
-void BitEngine::DevResourceLoader::releaseResource(uint32 id)
+void BitEngine::DevResourceLoader::releaseResource(u32 id)
 {
 }
 
@@ -190,7 +190,7 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const Res
 	auto it = byName.find(fullPath);
 	if (it == byName.end())
 	{
-		uint32 id = resourceMeta.size();
+		u32 id = resourceMeta.size();
 		resourceMeta.emplace_back(meta);
 
 		ResourceMeta& newRm = resourceMeta.back();

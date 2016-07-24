@@ -6,8 +6,6 @@
 
 namespace BitEngine{
 
-uint64 Time::ticks = 0;
-
 GameEnginePC::GameEnginePC(const std::string& configFile, ResourceLoader* _loader)
 	: configuration(configFile), loader(_loader)
 {

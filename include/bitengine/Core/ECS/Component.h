@@ -6,13 +6,13 @@ namespace BitEngine{
 
 	class BaseComponentHolder;
 
-	typedef uint32 EntityHandle;
-	typedef uint32 ComponentHandle;
-	typedef uint16 ComponentType;
-	typedef uint16* GlobalComponentID;
+	typedef u32 EntityHandle;
+	typedef u32 ComponentHandle;
+	typedef u16 ComponentType;
+	typedef u16* GlobalComponentID;
 
-	const uint32 BE_NO_COMPONENT_HANDLE = 0;
-	const uint32 BE_NO_COMPONENT_TYPE = ~0;
+	const u32 BE_NO_COMPONENT_HANDLE = 0;
+	const u32 BE_NO_COMPONENT_TYPE = ~0;
 
 	class BaseComponent
 	{

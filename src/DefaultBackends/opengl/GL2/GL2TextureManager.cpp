@@ -77,8 +77,8 @@ namespace BitEngine {
 		{
 			loadTexture2D(loadTexture->imgData, *loadTexture);
 
-			const uint32 ram = loadTexture->getUsingRamMemory();
-			const uint32 gpuMem = loadTexture->getUsingGPUMemory();
+			const u32 ram = loadTexture->getUsingRamMemory();
+			const u32 gpuMem = loadTexture->getUsingGPUMemory();
 			ramInUse += ram;
 			gpuMemInUse += gpuMem;
 
@@ -101,7 +101,7 @@ namespace BitEngine {
 
 		if (texture == nullptr)
 		{
-			uint16 id = textures.addResource(meta);
+			u16 id = textures.addResource(meta);
 			texture = &(textures.getResourceAt(id));
 
 			// Make new load request

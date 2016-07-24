@@ -21,7 +21,7 @@ namespace BitEngine {
 	class OpenGL2Renderer : public VideoRenderer
 	{
 		public:
-		static uint32 sizeOfGlType(GLenum type)
+		static u32 sizeOfGlType(GLenum type)
 		{
 			switch (type)
 			{
@@ -62,7 +62,7 @@ namespace BitEngine {
 			return true;
 		}
 
-		uint32 getGraphicPipelineType() override
+		u32 getGraphicPipelineType() override
 		{
 			return OPENGL_2;
 		}

@@ -226,9 +226,9 @@ class EntitySystem : public BaseEntitySystem
 			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
 			const auto& allComponents = holder->getAllComponents();
-			uint32 curFree = 0;
+			u32 curFree = 0;
 
-			uint32 validComponents = holder->getNumValidComponents();
+			u32 validComponents = holder->getNumValidComponents();
 
 			BitMask componentMask{0};
 			for (ComponentType t : types){
@@ -236,7 +236,7 @@ class EntitySystem : public BaseEntitySystem
 			}
 
 			// loop through base components searching for matching pairs on Args types
-			for (uint32 compID = 1; compID <= validComponents; ++compID)
+			for (u32 compID = 1; compID <= validComponents; ++compID)
 			{
 				const EntityHandle entity = allComponents[compID];
 
@@ -266,9 +266,9 @@ class EntitySystem : public BaseEntitySystem
 			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
 			const auto& allComponents = holder->getAllComponents();
-			uint32 curFree = 0;
+			u32 curFree = 0;
 
-			uint32 validComponents = holder->getNumValidComponents();
+			u32 validComponents = holder->getNumValidComponents();
 
 			BitMask componentMask{0};
 			for (ComponentType t : types){
@@ -276,7 +276,7 @@ class EntitySystem : public BaseEntitySystem
 			}
 
 			// loop through base components searching for matching pairs on Args types
-			for (uint32 compID = 1; compID <= validComponents; ++compID)
+			for (u32 compID = 1; compID <= validComponents; ++compID)
 			{
 				const EntityHandle entity = allComponents[compID];
 
@@ -364,9 +364,9 @@ class EntitySystem : public BaseEntitySystem
 			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
 			const auto& allComponents = holder->getAllComponents();
-			uint32 curFree = 0;
+			u32 curFree = 0;
 
-			uint32 validComponents = holder->getNumValidComponents();
+			u32 validComponents = holder->getNumValidComponents();
 
 			BitMask componentMask{ 0 };
 			for (ComponentType t : types) {
@@ -374,7 +374,7 @@ class EntitySystem : public BaseEntitySystem
 			}
 
 			// loop through base components searching for matching pairs on Args types
-			for (uint32 compID = 1; compID <= validComponents; ++compID)
+			for (u32 compID = 1; compID <= validComponents; ++compID)
 			{
 				const EntityHandle entity = allComponents[compID];
 
@@ -405,9 +405,9 @@ class EntitySystem : public BaseEntitySystem
 			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
 			const auto& allComponents = holder->getAllComponents();
-			uint32 curFree = 0;
+			u32 curFree = 0;
 
-			uint32 validComponents = holder->getNumValidComponents();
+			u32 validComponents = holder->getNumValidComponents();
 
 			BitMask componentMask{0};
 			for (ComponentType t : types){
@@ -415,7 +415,7 @@ class EntitySystem : public BaseEntitySystem
 			}
 
 			// loop through base components searching for matching pairs on Args types
-			for (uint32 compID = 1; compID <= validComponents; ++compID)
+			for (u32 compID = 1; compID <= validComponents; ++compID)
 			{
 				const EntityHandle entity = allComponents[compID];
 
@@ -443,10 +443,10 @@ class EntitySystem : public BaseEntitySystem
 			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
 
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
-			uint32 curFree = 0;
+			u32 curFree = 0;
 
-			uint32 validComponents = holder->getNumValidComponents();
-			for (uint32 compID = 1; compID <= validComponents; ++compID)
+			u32 validComponents = holder->getNumValidComponents();
+			for (u32 compID = 1; compID <= validComponents; ++compID)
 			{
 				if ((curFree < freeIDs.size() && freeIDs[curFree] != compID) || curFree >= freeIDs.size())
 				{
@@ -467,10 +467,10 @@ class EntitySystem : public BaseEntitySystem
 			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
 
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
-			uint32 curFree = 0;
+			u32 curFree = 0;
 
-			uint32 validComponents = holder->getNumValidComponents();
-			for (uint32 compID = 1; compID <= validComponents; ++compID)
+			u32 validComponents = holder->getNumValidComponents();
+			for (u32 compID = 1; compID <= validComponents; ++compID)
 			{
 				if ((curFree < freeIDs.size() && freeIDs[curFree] != compID) || curFree >= freeIDs.size())
 				{
@@ -484,7 +484,7 @@ class EntitySystem : public BaseEntitySystem
 		}
 
 		template<typename CompClass>
-		uint32 getNumberOfValidComponents() const
+		u32 getNumberOfValidComponents() const
 		{
 			return getHolder<CompClass>()->getNumValidComponents();
 		}
@@ -492,7 +492,7 @@ class EntitySystem : public BaseEntitySystem
 	private:
 		void runUpdate(int pipeline)
 		{
-			for (uint32 i = 0; i < process_order[pipeline].size(); ++i)
+			for (u32 i = 0; i < process_order[pipeline].size(); ++i)
 			{
 				process_order[pipeline][i].Run();
 			}

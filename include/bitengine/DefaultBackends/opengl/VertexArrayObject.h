@@ -14,10 +14,10 @@ namespace BitEngine {
 	class VertexAttribute
 	{
 	public:
-		VertexAttribute(uint32 _type, uint32 _count, bool _normalized, GLuint _divisor)
+		VertexAttribute(u32 _type, u32 _count, bool _normalized, GLuint _divisor)
 			: type(_type), count(_count), normalized(_normalized), divisor(_divisor)
 		{
-			uint32 bytes = 4;
+			u32 bytes = 4;
 			if (type == GL_FLOAT) bytes = sizeof(GLfloat);
 			else if (type == GL_BYTE) bytes = sizeof(GLbyte);
 			else if (type == GL_UNSIGNED_BYTE) bytes = sizeof(GLbyte);
@@ -32,17 +32,17 @@ namespace BitEngine {
 			sizeBytes = count * bytes;
 		}
 
-		uint32 type;
-		uint32 count;
+		u32 type;
+		u32 count;
 		bool normalized;
 		GLuint divisor;
-		uint32 sizeBytes;
+		u32 sizeBytes;
 	};
 
 #define DECLARE_VERTEXDATA(name, numAttrs)									\
 	class name {															\
 		public:																\
-		static constexpr uint32 NUM_ATTRIBUTES = numAttrs;						\
+		static constexpr u32 NUM_ATTRIBUTES = numAttrs;						\
 		static const BitEngine::VertexAttribute attributes[NUM_ATTRIBUTES];	\
 		static const BitEngine::VertexAttribute& getAttribute(int index) {	\
 			static const BitEngine::VertexAttribute v[] = {
@@ -95,7 +95,7 @@ namespace BitEngine {
 	{public:
 		typedef VertexData vd;
 
-		bool CreateBuffer(uint32 &attributes);
+		bool CreateBuffer(u32 &attributes);
 		bool DestroyBuffer();
 	};
 
@@ -126,7 +126,7 @@ namespace BitEngine {
 			return true;
 		}
 
-		bool CreateBuffer(uint32 &attributes)
+		bool CreateBuffer(u32 &attributes)
 		{
 			// Creates VBO
 			glGenBuffers(1, &vbo);
@@ -137,7 +137,7 @@ namespace BitEngine {
 
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-			//uint32 strideSize = 0;
+			//u32 strideSize = 0;
 			//for (int i = 0; i < VertexData::NUM_ATTRIBUTES; ++i){
 			//	const VertexAttribute& attr = VertexData::getAttribute(i);
 			//	strideSize += attr.sizeBytes;
@@ -146,10 +146,10 @@ namespace BitEngine {
 
 			LOG(EngineLog, BE_LOG_VERBOSE) << "VBO: " << vbo;
 			// Attributes
-			uint32 accumOffset = 0;
-			for (uint32 i = 0; i < VertexData::NUM_ATTRIBUTES; ++i)
+			u32 accumOffset = 0;
+			for (u32 i = 0; i < VertexData::NUM_ATTRIBUTES; ++i)
 			{
-				uint32 attrID = attributes + i;
+				u32 attrID = attributes + i;
 				const VertexAttribute& attr = VertexData::getAttribute(i);
 
 				glEnableVertexAttribArray(attrID);
@@ -175,25 +175,25 @@ namespace BitEngine {
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		}
 
-		void LoadBufferRange(const BufferVector<VertexData>& data, uint32 offset, uint32 len, uint32 mode = GL_DYNAMIC_DRAW)
+		void LoadBufferRange(const BufferVector<VertexData>& data, u32 offset, u32 len, u32 mode = GL_DYNAMIC_DRAW)
 		{
 			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * len, nullptr, mode);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * len, data.data() + offset, mode);
 		}
 
-		void LoadBuffer(const BufferVector<VertexData>& data, uint32 mode = GL_DYNAMIC_DRAW)
+		void LoadBuffer(const BufferVector<VertexData>& data, u32 mode = GL_DYNAMIC_DRAW)
 		{
 			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * data.size(), nullptr, mode);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * data.size(), data.data(), mode);
 		}
 
-		void BindAndLoadBufferRange(const BufferVector<VertexData>& data, uint32 offset, uint32 len, uint32 mode = GL_DYNAMIC_DRAW)
+		void BindAndLoadBufferRange(const BufferVector<VertexData>& data, u32 offset, u32 len, u32 mode = GL_DYNAMIC_DRAW)
 		{
 			BindBuffer();
 			LoadBufferRange(data, offset, len, mode);
 		}
 
-		void BindAndLoadBuffer(const BufferVector<VertexData>& data, uint32 mode = GL_DYNAMIC_DRAW)
+		void BindAndLoadBuffer(const BufferVector<VertexData>& data, u32 mode = GL_DYNAMIC_DRAW)
 		{
 			BindBuffer();
 			LoadBuffer(data, mode);
@@ -201,7 +201,7 @@ namespace BitEngine {
 
 	private:
 		GLuint vbo;
-		uint32 elementSize;
+		u32 elementSize;
 	};
 	// ------------------------------------------------------------------------------
 	// NOT INTERLEAVED
@@ -222,7 +222,7 @@ namespace BitEngine {
 			return true;
 		}
 
-		bool CreateBuffer(uint32 &attributes)
+		bool CreateBuffer(u32 &attributes)
 		{
 			// Creates VBO
 			glGenBuffers(VertexData::NUM_ATTRIBUTES, vbo);
@@ -232,10 +232,10 @@ namespace BitEngine {
 			}
 
 			// Attributes
-			uint32 accumOffset = 0;
+			u32 accumOffset = 0;
 			for (int i = 0; i < VertexData::NUM_ATTRIBUTES; ++i)
 			{
-				uint32 attrID = attributes + i;
+				u32 attrID = attributes + i;
 				glBindBuffer(GL_ARRAY_BUFFER, vbo[i]);
 
 				const VertexAttribute& attr = VertexData::getAttribute(i);
@@ -256,25 +256,25 @@ namespace BitEngine {
 			glBindBuffer(GL_ARRAY_BUFFER, vbo[Attribute]);
 		}
 
-		void LoadBufferRange(const BufferVector<VertexData>& data, uint32 offset, uint32 len, uint32 mode = GL_DYNAMIC_DRAW)
+		void LoadBufferRange(const BufferVector<VertexData>& data, u32 offset, u32 len, u32 mode = GL_DYNAMIC_DRAW)
 		{
 			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * len, nullptr, mode);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * len, data.data()+offset, mode);
 		}
 
-		void LoadBuffer(const BufferVector<VertexData>& data, uint32 mode = GL_DYNAMIC_DRAW)
+		void LoadBuffer(const BufferVector<VertexData>& data, u32 mode = GL_DYNAMIC_DRAW)
 		{
 			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * data.size(), nullptr, mode);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(typename VertexData::Data) * data.size(), data.data(), mode);
 		}
 
-		void BindAndLoadBufferRange(const BufferVector<VertexData>& data, uint32 offset, uint32 len, uint32 mode = GL_DYNAMIC_DRAW)
+		void BindAndLoadBufferRange(const BufferVector<VertexData>& data, u32 offset, u32 len, u32 mode = GL_DYNAMIC_DRAW)
 		{
 			BindBuffer();
 			LoadBufferRange(data, offset, len, mode);
 		}
 
-		void BindAndLoadBuffer(const BufferVector<VertexData>& data, uint32 mode = GL_DYNAMIC_DRAW)
+		void BindAndLoadBuffer(const BufferVector<VertexData>& data, u32 mode = GL_DYNAMIC_DRAW)
 		{
 			BindBuffer();
 			LoadBuffer(data, mode);
@@ -334,7 +334,7 @@ namespace BitEngine {
 			LOG(EngineLog, BE_LOG_VERBOSE) << "VAO: " << vao;
 			Bind();
 
-			uint32 attributes = 0;
+			u32 attributes = 0;
 			bool b[] = { this->B::CreateBuffer(attributes)... };
 			if (b[0]) // remove "b" not used warning
                 b[0] = b[0];

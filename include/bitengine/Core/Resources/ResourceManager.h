@@ -63,7 +63,7 @@ namespace BitEngine {
 
 		const std::string toString() const;
 
-		uint32 id;
+		u32 id;
 		std::string package;
 		std::string resourceName;
 		std::string type;
@@ -84,7 +84,7 @@ namespace BitEngine {
 				: meta(_meta)
 			{}
 			
-			uint32 getResourceId() const {
+			u32 getResourceId() const {
 				return meta->id;
 			}
 
@@ -120,7 +120,7 @@ namespace BitEngine {
 			virtual ResourceMeta* findMeta(const std::string& name) = 0;
 
 			virtual void releaseAll() = 0;
-			virtual void releaseResource(uint32 id) = 0;
+			virtual void releaseResource(u32 id) = 0;
 
 			template<typename T>
 			T* getResource(const std::string& name) {
@@ -130,8 +130,8 @@ namespace BitEngine {
 
 			// Returns the request ID
 			// Queue the request to be loaded by another thread
-			//virtual uint32 loadRequest(const std::string& path, BaseResource* into, ResourceManager* callback) = 0;
-			//virtual bool reloadResource(uint32 resourceID, ResourceManager* callback) = 0;
+			//virtual u32 loadRequest(const std::string& path, BaseResource* into, ResourceManager* callback) = 0;
+			//virtual bool reloadResource(u32 resourceID, ResourceManager* callback) = 0;
 
 			virtual void waitForAll() = 0;
 			virtual void waitForResource(BaseResource* resource) = 0;
@@ -206,8 +206,8 @@ namespace BitEngine {
 			virtual void onResourceLoadFail(ResourceLoader::DataRequest& dr) = 0;
 
 			// in bytes
-			virtual uint32 getCurrentRamUsage() const = 0;
-			virtual uint32 getCurrentGPUMemoryUsage() const = 0;
+			virtual u32 getCurrentRamUsage() const = 0;
+			virtual u32 getCurrentGPUMemoryUsage() const = 0;
 
 			const std::set<ResourceMeta*>& getPendingToLoad() const {
 				return waitingData;

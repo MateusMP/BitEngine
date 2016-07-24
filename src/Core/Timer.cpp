@@ -6,6 +6,23 @@
 
 namespace BitEngine
 {
+	u64 ticks;
+
+	// Used internally
+	void Time::Tick() {
+		ticks++;
+	}
+
+	// Used internally
+	void Time::ResetTicks() {
+		ticks = 0;
+	}
+
+	u64 Time::getTicks() {
+		return ticks;
+	}
+	
+
 /*
 	int64 Timer::clockNow()
 	{

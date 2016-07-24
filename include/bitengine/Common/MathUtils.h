@@ -31,10 +31,10 @@ namespace BitEngine
 		return rad * RadToDegf;
 	}
 
-	inline float BytesToMB(uint32 bytes) {
+	inline float BytesToMB(u32 bytes) {
 		return bytes / (1000000.0f);
 	}
-	inline float BytesToKB(uint32 bytes) {
+	inline float BytesToKB(u32 bytes) {
 		return bytes / 1000.0f;
 	}
 
@@ -46,11 +46,11 @@ namespace BitEngine
 	}
 
 	template<typename T>
-	inline T rotl(T c, uint16 by) {
+	inline T rotl(T c, u16 by) {
 		return (c << by) | (c >> (sizeof(T) * 8 - by));
 	}
 	template<typename T>
-	inline T rotr(T c, uint16 by) {
+	inline T rotr(T c, u16 by) {
 		return (c >> by) | (c << (sizeof(T) * 8 - by));
 	}
 }

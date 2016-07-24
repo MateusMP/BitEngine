@@ -83,7 +83,7 @@ namespace BitEngine {
 
 		if (shader == nullptr)
 		{
-			uint16 id = shaders.addResource(meta);
+			u16 id = shaders.addResource(meta);
 			shader = shaders.getResourceAddress(id);
 
 			initShadeDefinition(shader->getDefinition(), meta);

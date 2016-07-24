@@ -13,7 +13,7 @@ namespace BitEngine
 	class Sprite2DShader
 	{
 		public:
-			static const uint32 TEXTURE_DIFFUSE = 0;
+			static const u32 TEXTURE_DIFFUSE = 0;
 			
 			static RendererVersion GetRendererVersion(){ return useRenderer; }
 
@@ -37,11 +37,11 @@ namespace BitEngine
 					virtual void Render() = 0;
 
 					struct RenderingElement {
-						RenderingElement(uint32 _depth, const Sprite* _sprite, const glm::mat3* _modelMatrix)
+						RenderingElement(u32 _depth, const Sprite* _sprite, const glm::mat3* _modelMatrix)
 							: depth(_depth), sprite(_sprite), modelMatrix(_modelMatrix)
 						{}
 
-						uint32 depth;
+						u32 depth;
 						const Sprite* sprite;
 						const glm::mat3* modelMatrix;
 					};

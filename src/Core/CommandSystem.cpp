@@ -75,8 +75,8 @@ namespace BitEngine
 	{
 		const int cmd = commandID;
 		const int cmdS = commandState;
-		uint32 s = 1;
-		uint32 f = 0;
+		u32 s = 1;
+		u32 f = 0;
 		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::NONE)) { f |= s; } s <<= 1;
 		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::ALT)) { f |= s; } s <<= 1;
 		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL)) { f |= s; } s <<= 1;

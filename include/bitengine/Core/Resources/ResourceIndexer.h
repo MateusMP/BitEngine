@@ -23,11 +23,11 @@ namespace BitEngine
 				return resources;
 			}
 
-			ResourceType& getResourceAt(uint32 index) {
+			ResourceType& getResourceAt(u32 index) {
 				return resources[index];
 			}
 
-			ResourceType* getResourceAddress(uint32 index) {
+			ResourceType* getResourceAddress(u32 index) {
 				return &resources[index];
 			}
 
@@ -40,16 +40,16 @@ namespace BitEngine
 				return &(resources[it->second]);
 			}
 
-			uint16 addResource(const ResourceMeta* meta) {
-				uint16 id = getNextIndex();
+			u16 addResource(const ResourceMeta* meta) {
+				u16 id = getNextIndex();
 				m_byMeta.emplace(meta, id);
 				return id;
 			}
 
 		private:
-			uint16 getNextIndex()
+			u16 getNextIndex()
 			{
-				uint16 id;
+				u16 id;
 
 				if (m_freeIndices.empty())
 				{
@@ -64,10 +64,10 @@ namespace BitEngine
 				return id;
 			}
 
-			uint16 m_currentIndex;
+			u16 m_currentIndex;
 			std::array<ResourceType, Maximum> resources;
-			std::vector<uint16> m_freeIndices;
-			std::unordered_map<const ResourceMeta*, uint16> m_byMeta;
+			std::vector<u16> m_freeIndices;
+			std::unordered_map<const ResourceMeta*, u16> m_byMeta;
 
 	};
 

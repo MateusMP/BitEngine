@@ -52,8 +52,8 @@ namespace BitEngine
 		GLuint byteSize;
 		GLenum type;
 		GLint size;
-		uint8 instanced;
-		uint8 extraInfo;
+		u8 instanced;
+		u8 extraInfo;
 		char* dataOffset; // as an offset
 	};
 

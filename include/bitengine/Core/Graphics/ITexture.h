@@ -8,7 +8,7 @@ namespace BitEngine
 	{
 		public:
 			ITexture(ResourceMeta* meta) : BaseResource(meta) {}
-			virtual uint32 getTextureID() const = 0;
-			virtual uint32 getTextureType() const = 0;
+			virtual u32 getTextureID() const = 0;
+			virtual u32 getTextureType() const = 0;
 	};
 }

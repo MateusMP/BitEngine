@@ -8,19 +8,11 @@ namespace BitEngine
 {
 	class Time
 	{
-		private:
-			static uint64 ticks;
-
 		public:
 			// Used internally
-			static void Tick(){
-				ticks++;
-			}
-
-			// Used internally
-			static void ResetTicks(){
-				ticks = 0;
-			}
+			static void Tick();
+			static void ResetTicks();
+			static u64 getTicks();
 
 			inline static std::chrono::system_clock::time_point currentTime() {
 				return std::chrono::system_clock::now();
@@ -30,9 +22,6 @@ namespace BitEngine
 				return std::chrono::high_resolution_clock::now();
 			}
 
-			static uint64 getTicks() {
-				return ticks;
-			}
 	};
 
 	// High resolution timer
@@ -47,19 +36,22 @@ namespace BitEngine
 				timeSet = Time::currentTimePrecise();
 			}
 
-			// in milliseconds
-			double timeElapsedMs() const {
-				return std::chrono::duration<double, std::milli>(Time::currentTimePrecise() - timeSet).count();
+			// in milliseconds (ms)
+			template<typename T>
+			T timeElapsedMs() const {
+				return std::chrono::duration<T, std::milli>(Time::currentTimePrecise() - timeSet).count();
 			}
 
-			// in microseconds
-			double timeElapsedMicro() const {
-				return std::chrono::duration<double, std::micro>(Time::currentTimePrecise() - timeSet).count();
+			// in microseconds (us)
+			template<typename T>
+			T timeElapsedMicro() const {
+				return std::chrono::duration<T, std::micro>(Time::currentTimePrecise() - timeSet).count();
 			}
 
 			// in seconds
-			double timeElapsedSec() const {
-				return std::chrono::duration<double>(Time::currentTimePrecise() - timeSet).count();
+			template<typename T>
+			T timeElapsedSec() const {
+				return std::chrono::duration<T>(Time::currentTimePrecise() - timeSet).count();
 			}
 
 
@@ -71,24 +63,24 @@ namespace BitEngine
 	class TimerTicks
 	{
 	public:
-		TimerTicks(){
+		TimerTicks()
+		{}
 
-		}
-
-		void setTime(uint64 t = 0)
+		void setTime(u64 t = 0)
 		{
-			if (t == 0)
+			if (t == 0) {
 				timeSet = Time::getTicks();
-			else
+			} else {
 				timeSet = t;
+			}
 		}
 
-		uint64 timeElapsed() const {
+		u64 timeElapsed() const {
 			return Time::getTicks() - timeSet;
 		}
 
 	private:
-		uint64 timeSet;
+		u64 timeSet;
 	};
 
 

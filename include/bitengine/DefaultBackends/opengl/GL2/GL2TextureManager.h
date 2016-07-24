@@ -37,11 +37,11 @@ namespace BitEngine
 			m_textureType = 0;
 		}
 
-		inline uint32 getTextureID() const override { return m_textureID; }
-		inline uint32 getTextureType() const override { return m_textureType; }
+		inline u32 getTextureID() const override { return m_textureID; }
+		inline u32 getTextureType() const override { return m_textureType; }
 
 		// Aproximate memory use in ram in bytes
-		uint32 getUsingRamMemory()
+		u32 getUsingRamMemory()
 		{
 			if (imgData.pixelData) {
 				return getUsingGPUMemory();
@@ -51,7 +51,7 @@ namespace BitEngine
 		}
 
 		// Aproximate memory use in gpu in bytes
-		uint32 getUsingGPUMemory() {
+		u32 getUsingGPUMemory() {
 			return imgData.width*imgData.height * imgData.color;
 		}
 
@@ -80,11 +80,11 @@ namespace BitEngine
 
 		BaseResource* loadResource(ResourceMeta* base);
 		
-		uint32 getCurrentRamUsage() const override {
+		u32 getCurrentRamUsage() const override {
 			return ramInUse;
 		}
 
-		uint32 getCurrentGPUMemoryUsage() const override {
+		u32 getCurrentGPUMemoryUsage() const override {
 			return gpuMemInUse;
 		}
 
@@ -104,10 +104,9 @@ namespace BitEngine
 			ResourceLoader* loader;
 			ResourceIndexer<GL2Texture, 1024> textures;
 			ThreadSafeQueue<GL2Texture*> rawData; // raw data loaded and waiting to be sent to gpu
-			std::unordered_map<uint32, uint16> loadRequests;
 				
-			uint32 ramInUse;
-			uint32 gpuMemInUse;
+			u32 ramInUse;
+			u32 gpuMemInUse;
 	};
 
 }

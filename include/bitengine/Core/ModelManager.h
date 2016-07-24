@@ -94,7 +94,7 @@ namespace BitEngine{
 			std::map<std::string, Model*> modelsByName;
 		};
 
-		std::map<uint16, ShaderModelHolder> m_models;
+		std::map<u16, ShaderModelHolder> m_models;
 		ResourceLoader* m_textureManager;
 	};
 }

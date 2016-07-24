@@ -43,7 +43,7 @@ void ShaderProgram::BindAttribute(int attrib, const std::string& name)
     glBindAttribLocation(m_programID, attrib, name.c_str() );
 }
 
-int32 ShaderProgram::getUniformLocation(const std::string& name) const
+s32 ShaderProgram::getUniformLocation(const std::string& name) const
 {
 	return glGetUniformLocation(m_programID, name.c_str());
 }

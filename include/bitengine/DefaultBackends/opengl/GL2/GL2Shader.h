@@ -6,7 +6,7 @@
 
 namespace BitEngine
 {
-	enum ShaderSourceTypes : uint8 {
+	enum ShaderSourceTypes : u8 {
 		SourceNone = 0,
 		SourceVertex = 1,
 		SourceFragment = 2,
@@ -24,13 +24,13 @@ namespace BitEngine
 		public:
 
 			struct AttributeConfig {
-				uint32 container;
+				u32 container;
 				GLenum type;
 				GLint size;
-				uint32 location;
+				u32 location;
 
 				bool normalized;
-				uint32 divisor;
+				u32 divisor;
 				std::string name;
 			};
 			struct GlobalConfig {
@@ -91,7 +91,7 @@ namespace BitEngine
 
 			/// Get uniform location on shader
 			/// Usually called inside RegisterUniforms implementation
-			int32 getUniformLocation(const std::string& name) const;
+			s32 getUniformLocation(const std::string& name) const;
 
 
 			// Loading uniform data functions
@@ -160,7 +160,7 @@ namespace BitEngine
 
 			std::vector<ShaderSource> sources;
 			int expectedSources;
-			uint16 managerResourceId;
+			u16 managerResourceId;
 	};
 
 }

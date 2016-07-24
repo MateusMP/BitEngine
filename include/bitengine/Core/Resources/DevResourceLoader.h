@@ -79,7 +79,7 @@ namespace BitEngine
 			virtual BaseResource* loadResource(const std::string& name) override;
 
 			virtual void releaseAll() override;
-			virtual void releaseResource(uint32 id) override;
+			virtual void releaseResource(u32 id) override;
 
 			virtual void waitForAll() override;
 			virtual void waitForResource(BaseResource* resource) override;
@@ -138,8 +138,8 @@ namespace BitEngine
 			bool working;
 			std::vector<ResourceMeta> resourceMeta;
 			std::array<nlohmann::json, 8> resourceMetaIndexes;
-			uint32 loadedMetaIndexes;
-			std::unordered_map<std::string, uint32> byName;
+			u32 loadedMetaIndexes;
+			std::unordered_map<std::string, u32> byName;
 
 			// Load requests
 			ThreadSafeQueue<LoadRequest> loadRequests;

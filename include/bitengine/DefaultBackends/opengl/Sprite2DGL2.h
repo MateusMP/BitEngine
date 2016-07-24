@@ -95,8 +95,8 @@ namespace BitEngine{
 
 	protected:
 		// Locations
-		int32 u_texDiffuseHdl;
-		int32 u_viewMatrixHdl;
+		s32 u_texDiffuseHdl;
+		s32 u_viewMatrixHdl;
 
 	private:
 		// Uniform data
@@ -153,13 +153,13 @@ namespace BitEngine{
 
 		public:
 			struct Batch{
-				Batch(uint32 _offset, int _nI, uint32 _texture, bool tr)
+				Batch(u32 _offset, int _nI, u32 _texture, bool tr)
 					: offset(_offset), nItems(_nI), texture(_texture), transparent(tr)
 				{}
 
-				uint32 offset;
+				u32 offset;
 				int nItems;
-				uint32 texture;
+				u32 texture;
 				bool transparent;
 
 				GLuint iVAO;
@@ -180,7 +180,7 @@ namespace BitEngine{
 			{
 				BufferVector<Sprite2Dbasic_VD> vertices_;
 
-				const uint32 NUM_VERTS = 6;
+				const u32 NUM_VERTS = 6;
 
 				vertices_.resize(m_elements.size()*NUM_VERTS); // Generates NUM_VERTS vertices for each element
 
@@ -195,9 +195,9 @@ namespace BitEngine{
 
 				int offset = 0;
 				const Sprite* lastSpr = nullptr;
-				for (uint32 cg = 0; cg < m_elements.size(); cg++)
+				for (u32 cg = 0; cg < m_elements.size(); cg++)
 				{
-					const uint32 vertexID = cg*NUM_VERTS;
+					const u32 vertexID = cg*NUM_VERTS;
 					const Sprite* spr = m_elements[cg].sprite;
 					const glm::vec4& uvrect = spr->getUV();
 
@@ -242,7 +242,7 @@ namespace BitEngine{
 				}
 
 				// Bind data for each batch
-				for (uint32 i = 0; i < batches.size(); ++i)
+				for (u32 i = 0; i < batches.size(); ++i)
 				{
 					Batch& b = batches[i];
 
@@ -256,7 +256,7 @@ namespace BitEngine{
 				glActiveTexture(GL_TEXTURE0 + Sprite2DShader::TEXTURE_DIFFUSE);
 
 				// Render all batches
-				for (uint32 i = 0; i < batches.size(); ++i)
+				for (u32 i = 0; i < batches.size(); ++i)
 				{
 					m_basicVAOs[i].Bind();
 

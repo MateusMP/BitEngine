@@ -12,9 +12,9 @@ namespace BitEngine
 	{
 		friend class GL2Batch;
 		public:
-		GL2BatchSector(const UniformContainer* uc, uint32 begin);
+		GL2BatchSector(const UniformContainer* uc, u32 begin);
 
-		inline void end(uint32 finalInstance) override {
+		inline void end(u32 finalInstance) override {
 			m_end = finalInstance;
 		}
 
@@ -29,10 +29,10 @@ namespace BitEngine
 
 		std::unordered_map<ShaderDataDefinition::DefinitionReference, UniformData, ShaderDataDefinition::DefinitionReference::Hasher> configs; // uniforms with instanced = 1
 		std::vector<char> data;
-		uint32 uniformSizeTotal;
+		u32 uniformSizeTotal;
 
-		uint32 m_begin;
-		uint32 m_end;
+		u32 m_begin;
+		u32 m_end;
 	};
 
 	// GL BATCH
@@ -58,10 +58,10 @@ namespace BitEngine
 
 		// Prepare the batch to be rendered
 		// Usefull when rendering multiple times the same batch
-		void prepare(uint32 numInstances) override;
+		void prepare(u32 numInstances) override;
 
 		// Add a new sector
-		IBatchSector* addSector(uint32 begin) override;
+		IBatchSector* addSector(u32 begin) override;
 
 		// Load it to the gpu
 		void load() override;
@@ -72,9 +72,9 @@ namespace BitEngine
 		protected:
 		// Load data into internal buffer
 		// This will replace all data from the internal buffer
-		void loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, char *data, uint32 nBytes, uint32 strideSize) override;
+		void loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, char *data, u32 nBytes, u32 strideSize) override;
 
-		void* getVertexDataAddress(const ShaderDataDefinition::DefinitionReference& ref, uint32 inst) override;
+		void* getVertexDataAddress(const ShaderDataDefinition::DefinitionReference& ref, u32 inst) override;
 
 		// Get the uniform config data
 		void* getConfigData(const ShaderDataDefinition::DefinitionReference& ref);
@@ -87,10 +87,10 @@ namespace BitEngine
 		void unbindBuffer();
 
 		// Load data to the current loaded buffer on gpu
-		void loadBufferRange(const char* data, uint32 offset, uint32 len, uint32 mode = GL_DYNAMIC_DRAW);
+		void loadBufferRange(const char* data, u32 offset, u32 len, u32 mode = GL_DYNAMIC_DRAW);
 
 		// Load data to the buffer on gpu
-		void loadBuffer(const std::vector<char>& data, uint32 mode = GL_DYNAMIC_DRAW);
+		void loadBuffer(const std::vector<char>& data, u32 mode = GL_DYNAMIC_DRAW);
 
 		// Bind the VAO related with this batch
 		void bind();

@@ -44,16 +44,16 @@ namespace BitEngine
 			}
 
 			// Release all preloaded memory for this resource
-			void releaseResource(uint32 id) override
+			void releaseResource(u32 id) override
 			{
 				//m_resources[id]->clearBaseData();
 			}
 
 			// Returns the request ID
 			// Queue the request to be loaded by another thread
-/*			uint32 loadRequest(const std::string& path, BaseResource* into, ResourceManager* callback) override
+/*			u32 loadRequest(const std::string& path, BaseResource* into, ResourceManager* callback) override
 			{
-				uint32 rid = ++m_globalResourceID;
+				u32 rid = ++m_globalResourceID;
 
 				// Create the resource data reference
 				m_resources[rid] = into; 
@@ -64,7 +64,7 @@ namespace BitEngine
 				return rid;
 			}*/
 
-			bool reloadResource(uint32 resourceID, ResourceManager* callback)
+			bool reloadResource(u32 resourceID, ResourceManager* callback)
 			{
 				auto it = m_resources.find(resourceID);
 				if (it != m_resources.end()) 
@@ -101,7 +101,7 @@ namespace BitEngine
 					// Process request
 					std::ifstream file(request.file, std::ios_base::in | std::ios_base::binary);
 					file.seekg(0, std::ios::end);
-					uint32 size = (uint32)file.tellg();
+					u32 size = (u32)file.tellg();
 					buffer.resize(size);
 					file.seekg(0, std::ios::beg);
 					file.read(buffer.data(), size);
@@ -127,21 +127,21 @@ namespace BitEngine
 
 			struct Request 
 			{
-				Request(const std::string& f, BaseResource* i, ResourceManager* c, uint32 id)
+				Request(const std::string& f, BaseResource* i, ResourceManager* c, u32 id)
 				: file(f), into(i), callback(c), resourceID(id) {}
 
 				std::string file;
 				BaseResource* into;
 				ResourceManager* callback;
-				uint32 resourceID;
+				u32 resourceID;
 			};
 
-			std::atomic<uint32> m_globalResourceID;
+			std::atomic<u32> m_globalResourceID;
 			std::thread m_thLoader;
 			ThreadSafeQueue<Request> m_requests;
 			std::condition_variable m_completed;
 			std::mutex m_mutex;
-			std::unordered_map<uint32, BaseResource*> m_resources;
+			std::unordered_map<u32, BaseResource*> m_resources;
 			bool stop;
 			bool onLoading;
 	};

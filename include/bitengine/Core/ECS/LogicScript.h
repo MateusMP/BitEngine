@@ -18,7 +18,7 @@ namespace BitEngine{
 	class GameLogic : public MessengerEndpoint
 	{
 		public:
-			enum RunEvents : uint16 {
+			enum RunEvents : u16 {
 				EFrameStart = 1,
 				EFrameMiddle = 2,
 				EFrameEnd = 4,

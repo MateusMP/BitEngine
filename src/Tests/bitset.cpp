@@ -20,14 +20,14 @@ std::string BitMaskStr(const BitMask& s){
 
 bool checkIfAllZeros(const ObjBitField& obf, const std::string& idf)
 {
-    const uint32 nObjs = obf.objCount();
-    const uint32 nBits = obf.getBitPerObj();
+    const u32 nObjs = obf.objCount();
+    const u32 nBits = obf.getBitPerObj();
 
 
     // check every bit
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
-        for (uint16 b = 0; b < nBits; ++b)
+        for (u16 b = 0; b < nBits; ++b)
         {
             if (obf.test(i, b))
             {
@@ -38,9 +38,9 @@ bool checkIfAllZeros(const ObjBitField& obf, const std::string& idf)
     }
 
     // check object mask
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
-        uint64 x = obf.getObj(i).b64;
+        u64 x = obf.getObj(i).b64;
         if (x != 0)
         {
             LOG(TestLog, BE_LOG_INFO) << "ERROR: "<<idf<<" obj at " << i << " not zeroed! Found: " << x;
@@ -51,10 +51,10 @@ bool checkIfAllZeros(const ObjBitField& obf, const std::string& idf)
     return true;
 }
 
-bool testBitCase(uint16 nBits)
+bool testBitCase(u16 nBits)
 {
-    const uint32 nObjs = 10000;
-    uint64 seed = std::chrono::system_clock::now().time_since_epoch().count();
+    const u32 nObjs = 10000;
+    u64 seed = std::chrono::system_clock::now().time_since_epoch().count();
 
     std::mt19937_64 generator(seed);
 
@@ -63,7 +63,7 @@ bool testBitCase(uint16 nBits)
     const BitMask bitmask = bitfield.getBaseBitMask();
     BitMask compareMask;
     compareMask.b64 = 0;
-    for (uint32 i = 0; i < nBits; ++i){
+    for (u32 i = 0; i < nBits; ++i){
         compareMask.b8[i/8] |= VectorBool::BIT_AT(i%8);
     }
     if ( compareMask.b64 != bitmask.b64 ){
@@ -72,14 +72,14 @@ bool testBitCase(uint16 nBits)
     }
 
     //LOG(TestLog, BE_LOG_INFO) << "Creating " << nObjs << " bitfield objects with " << nBits << " each";
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
         bitfield.push();
     }
 
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
-        for (uint16 b = 0; b < nBits; ++b)
+        for (u16 b = 0; b < nBits; ++b)
         {
             bitfield.unset(i, b);
             if (bitfield.test(i, b)){
@@ -104,9 +104,9 @@ bool testBitCase(uint16 nBits)
     //LOG(TestLog, BE_LOG_ERROR) << "BITS: " << std::bitset<8>(bitfield.getObj(0).b8[0]) << std::bitset<8>(bitfield.getObj(0).b8[1]);
 
     //LOG(TestLog, BE_LOG_INFO) << "Set even bits to 1";
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
-        for (uint16 b = 0; b < nBits; ++b)
+        for (u16 b = 0; b < nBits; ++b)
         {
             if (b%2 == 0)
             {
@@ -118,9 +118,9 @@ bool testBitCase(uint16 nBits)
     }
 
     //LOG(TestLog, BE_LOG_INFO) << "Test if even bits are 1";
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
-        for (uint16 b = 0; b < nBits; ++b)
+        for (u16 b = 0; b < nBits; ++b)
         {
             bool test = bitfield.test(i, b);
             bool expected = (b%2==0);
@@ -133,22 +133,22 @@ bool testBitCase(uint16 nBits)
     }
 
     //LOG(TestLog, BE_LOG_INFO) << "Clear bitset for some objects and check if all were changed";
-    //uint32 objClear = 3;// generator()%7 + 1;
-    uint32 objRandom = 5;// generator()%7 + 1;
+    //u32 objClear = 3;// generator()%7 + 1;
+    u32 objRandom = 5;// generator()%7 + 1;
 
-    uint32 nRandomBits = nBits / 2 + 1;
+    u32 nRandomBits = nBits / 2 + 1;
 
-    std::vector<uint16> randomBits;
-    for (uint32 i = 0; i < nRandomBits; ++i){
-        uint16 rbit = ((uint16)generator())%nBits;
+    std::vector<u16> randomBits;
+    for (u32 i = 0; i < nRandomBits; ++i){
+        u16 rbit = ((u16)generator())%nBits;
         randomBits.emplace_back(rbit);
         // LOG(TestLog, BE_LOG_ERROR) << "Random Bit: " << rbit;
     }
 
     // Clear all
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
-        for (uint16 j = 0; j < nBits; ++j)
+        for (u16 j = 0; j < nBits; ++j)
         {
             bitfield.unset(i, j);
         }
@@ -160,11 +160,11 @@ bool testBitCase(uint16 nBits)
     }
 
     // Set random objects, all objects multiple of objRandom are set to a defined bit sequence
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
         if (i % objRandom == 0)
         {
-            for (uint32 j = 0; j < randomBits.size(); ++j)
+            for (u32 j = 0; j < randomBits.size(); ++j)
             {
                 bitfield.set(i, randomBits[j]);
             }
@@ -172,11 +172,11 @@ bool testBitCase(uint16 nBits)
     }
 
     // Verify if all objects have the expected values
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
         if (i % objRandom == 0)
         {
-            for (uint32 j = 0; j < randomBits.size(); ++j)
+            for (u32 j = 0; j < randomBits.size(); ++j)
             {
                 if (!bitfield.test(i, randomBits[j])){
                     LOG(TestLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should have bit " << randomBits[j] << " set!";
@@ -195,18 +195,18 @@ bool testBitCase(uint16 nBits)
     }
 
     // Set all bits to 1
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
-        for (uint16 j = 0; j < nBits; ++j)
+        for (u16 j = 0; j < nBits; ++j)
         {
             bitfield.set(i, j);
         }
     }
 
     // Verify if all objects have all bits set
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
-        for (uint16 j = 0; j < nBits; ++j)
+        for (u16 j = 0; j < nBits; ++j)
         {
             if (!bitfield.test(i, j)){
                 LOG(TestLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should have bit " << randomBits[j] << " set!";
@@ -225,18 +225,18 @@ bool testBitCase(uint16 nBits)
     return true;
 }
 
-bool errorTest(uint32 nBits, uint32 nObjs, uint32 obj)
+bool errorTest(u32 nBits, u32 nObjs, u32 obj)
 {
-    uint64 seed = std::chrono::system_clock::now().time_since_epoch().count();
+    u64 seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937_64 generator(seed);  // mt19937 is a standard mersenne_twister_engine
 
     ObjBitField bitfield(nBits);
-    for (uint32 i = 0; i < nObjs; ++i)
+    for (u32 i = 0; i < nObjs; ++i)
     {
         bitfield.push();
     }
 
-    for (uint16 i = 0; i < nBits; ++i)
+    for (u16 i = 0; i < nBits; ++i)
     {
         bitfield.set(obj, i);
     }
@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
     // errorTest(59, 8, 2);
 	int errors = 0;
 
-    for (uint16 i = 1; i <= 64; ++i)
+    for (u16 i = 1; i <= 64; ++i)
     {
         if (!testBitCase(i)){
             LOG(TestLog, BE_LOG_INFO) << "Failed: testBitCase " << i;

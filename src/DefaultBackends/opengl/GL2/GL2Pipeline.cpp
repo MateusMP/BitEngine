@@ -12,7 +12,7 @@ namespace BitEngine
 			attributeData.emplace(vbc.ref, &vbc);
 		}
 
-		uint32 fullUniformSize = 0;
+		u32 fullUniformSize = 0;
 		for (auto& it = uC.begin(); it != uC.end(); ++it)
 		{
 			if (it->instanced == 0)
@@ -25,13 +25,13 @@ namespace BitEngine
 
 		for (auto& it = uniformConfigs.begin(); it != uniformConfigs.end(); ++it)
 		{
-			it->second.unif.dataOffset = uniformData.data() + (uint32)(it->second.unif.dataOffset);
+			it->second.unif.dataOffset = uniformData.data() + (u32)(it->second.unif.dataOffset);
 		}
 	}
 
 	// Prepare the batch to be rendered
 	// Usefull when rendering multiple times the same batch
-	void GL2Batch::prepare(uint32 numInstances)
+	void GL2Batch::prepare(u32 numInstances)
 	{
 		for (auto it = attributeData.begin(); it != attributeData.end(); ++it)
 		{
@@ -39,7 +39,7 @@ namespace BitEngine
 		}
 	}
 
-	IBatchSector* GL2Batch::addSector(uint32 begin)
+	IBatchSector* GL2Batch::addSector(u32 begin)
 	{
 		sectors.emplace_back(&uniformContainer, begin);
 
@@ -69,13 +69,13 @@ namespace BitEngine
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
-	void GL2Batch::loadBufferRange(const char* data, uint32 offset, uint32 len, uint32 mode)
+	void GL2Batch::loadBufferRange(const char* data, u32 offset, u32 len, u32 mode)
 	{
 		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, len, nullptr, mode));
 		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, len, data + offset, mode));
 	}
 
-	void GL2Batch::loadBuffer(const std::vector<char>& data, uint32 mode)
+	void GL2Batch::loadBuffer(const std::vector<char>& data, u32 mode)
 	{
 		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, data.size(), nullptr, mode));
 		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, data.size(), data.data(), mode));
@@ -98,7 +98,7 @@ namespace BitEngine
 
 		for (auto& it = uniformConfigs.begin(); it != uniformConfigs.end(); ++it)
 		{
-			glShader->loadConfig(it->second.unif.ref, uniformData.data() + (uint32)it->second.unif.dataOffset);
+			glShader->loadConfig(it->second.unif.ref, uniformData.data() + (u32)it->second.unif.dataOffset);
 		}
 
 		for (GL2BatchSector& bs : sectors)
@@ -123,7 +123,7 @@ namespace BitEngine
 	}
 
 
-	void GL2Batch::loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, char *data, uint32 nBytes, uint32 strideSize)
+	void GL2Batch::loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, char *data, u32 nBytes, u32 strideSize)
 	{
 		auto it = attributeData.find(ref);
 		if (it == attributeData.end() || it->second.vbo->stride != strideSize)
@@ -137,7 +137,7 @@ namespace BitEngine
 		memcpy(&it->second.data[0], data, nBytes);
 	}
 
-	void* GL2Batch::getVertexDataAddress(const ShaderDataDefinition::DefinitionReference& ref, uint32 inst)
+	void* GL2Batch::getVertexDataAddress(const ShaderDataDefinition::DefinitionReference& ref, u32 inst)
 	{
 		auto it = attributeData.find(ref);
 		if (it == attributeData.end())
@@ -158,6 +158,6 @@ namespace BitEngine
 			return nullptr;
 		}
 
-		return uniformData.data() + (uint32)it->second.unif.dataOffset;
+		return uniformData.data() + (u32)it->second.unif.dataOffset;
 	}
 }

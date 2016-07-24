@@ -29,10 +29,10 @@ namespace BitEngine {
 		//void Update() override;
 
 		// in bytes
-		virtual uint32 getCurrentRamUsage() const override {
+		virtual u32 getCurrentRamUsage() const override {
 			return ramInUse;
 		}
-		virtual uint32 getCurrentGPUMemoryUsage() const override {
+		virtual u32 getCurrentGPUMemoryUsage() const override {
 			return gpuMemInUse;
 		}
 
@@ -52,8 +52,8 @@ namespace BitEngine {
 			// Basic shader def
 			ShaderDataDefinition basicShaderDef;
 
-			uint32 ramInUse;
-			uint32 gpuMemInUse;
+			u32 ramInUse;
+			u32 gpuMemInUse;
 	};
 
 }

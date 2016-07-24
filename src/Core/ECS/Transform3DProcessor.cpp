@@ -35,7 +35,7 @@ namespace BitEngine{
 	void Transform3DProcessor::onTransform3DComponentCreated(const BaseMessage& msg_)
 	{
 		const MsgComponentCreated<Transform3DComponent>& msg = static_cast<const MsgComponentCreated<Transform3DComponent>&>(msg_);
-		const uint32 nComponents = msg.component;
+		const u32 nComponents = msg.component;
 
 		if (localTransform.size() <= nComponents)
 		{

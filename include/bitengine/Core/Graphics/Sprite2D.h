@@ -137,8 +137,8 @@ namespace BitEngine
 				const ITexture* lastSpriteTexture = nullptr;
 				Sprite* lastSprite = nullptr;
 
-				const uint32 instanceCount = batchInstances.size();
-				for (uint32 i = 0; i < instanceCount; ++i)
+				const u32 instanceCount = batchInstances.size();
+				for (u32 i = 0; i < instanceCount; ++i)
 				{
 					const SpriteBatchInstance& inst = batchInstances[i];
 

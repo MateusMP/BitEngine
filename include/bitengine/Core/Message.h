@@ -12,18 +12,18 @@ namespace BitEngine {
 	class BaseMessage
 	{
 		template<typename T> friend class Message;
-		BaseMessage(uint32 t) : type(t) {}
+		BaseMessage(u32 t) : type(t) {}
 
 	public:
-		uint32 getType() const {
+		u32 getType() const {
 			return type;
 		}
 
 	protected:
-		uint32 type;
+		u32 type;
 
 	private:
-		static uint32 getNextMessageType();
+		static u32 getNextMessageType();
 
 	};
 
@@ -43,8 +43,8 @@ namespace BitEngine {
 			: BaseMessage(MessageType())
 		{}
 
-		static uint32 MessageType() {
-			static uint32 type = getNextMessageType();
+		static u32 MessageType() {
+			static u32 type = getNextMessageType();
 			return type;
 		}
 	};

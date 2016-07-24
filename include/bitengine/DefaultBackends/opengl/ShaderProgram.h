@@ -135,7 +135,7 @@ class ShaderProgram
 
 		/// Get uniform location on shader
 		/// Usually called inside RegisterUniforms implementation
-		int32 getUniformLocation(const std::string& name) const;
+		s32 getUniformLocation(const std::string& name) const;
 
 
 		// Loading uniform data functions

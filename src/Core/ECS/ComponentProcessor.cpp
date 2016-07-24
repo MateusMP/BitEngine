@@ -3,7 +3,7 @@
 
 namespace BitEngine {
 
-	BaseComponentHolder::BaseComponentHolder(uint32 componentSize, uint32 nCompPerPool /*= 100*/)
+	BaseComponentHolder::BaseComponentHolder(u32 componentSize, u32 nCompPerPool /*= 100*/)
 		: m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool),
 		m_IDcurrent(1), m_workingComponents(0), m_pools(), m_byEntity(128, 0)
 	{
@@ -47,7 +47,7 @@ namespace BitEngine {
 	}
 
 	// resize to be able to contain up to given component id
-	void BaseComponentHolder::resize(uint32 id)
+	void BaseComponentHolder::resize(u32 id)
 	{
 		while (m_IDcapacity <= id)
 		{
@@ -58,7 +58,7 @@ namespace BitEngine {
 	}
 
 
-	uint32 BaseComponentHolder::newComponentID(EntityHandle entity)
+	u32 BaseComponentHolder::newComponentID(EntityHandle entity)
 	{
 		ComponentHandle id = BE_NO_COMPONENT_HANDLE;
 

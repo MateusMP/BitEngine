@@ -22,7 +22,7 @@ namespace BitEngine {
 		MAT4,
 	};
 
-	enum DataUseMode : uint32 {
+	enum DataUseMode : u32 {
 		Vertex,
 		Uniform,
 
@@ -67,7 +67,7 @@ namespace BitEngine {
 			};
 
 			DefinitionReference(){}
-			DefinitionReference(DataUseMode m, uint32 at, uint32 id)
+			DefinitionReference(DataUseMode m, u32 at, u32 id)
 			: mode(m), container(at), index(id)
 			{}
 			bool operator==(const DefinitionReference& o) const {
@@ -75,8 +75,8 @@ namespace BitEngine {
 			}
 
 			DataUseMode mode;
-			uint32 container;
-			uint32 index;
+			u32 container;
+			u32 index;
 		};
 
 		struct DefinitionData {
@@ -92,7 +92,7 @@ namespace BitEngine {
 		{
 			friend class ShaderDataDefinition;
 
-			DefinitionContainer(uint32 id, DataUseMode m, int inst)
+			DefinitionContainer(u32 id, DataUseMode m, int inst)
 				: container(id), mode(m), instanced(inst)
 			{}
 
@@ -103,7 +103,7 @@ namespace BitEngine {
 
 			//protected:
 				std::vector<DefinitionData> definitionData;
-				uint32 container;
+				u32 container;
 				DataUseMode mode;
 				int instanced;
 		};
@@ -120,12 +120,12 @@ namespace BitEngine {
 
 		DefinitionReference findReference(const std::string& name) const
 		{
-			for (uint32 um = 0; um < TotalModes; ++um)
+			for (u32 um = 0; um < TotalModes; ++um)
 			{
 				const std::vector<DefinitionContainer>& v = m_containers[um];
 				for (const DefinitionContainer& dc : v)
 				{
-					for (uint32 i = 0; i <  dc.definitionData.size(); ++i)
+					for (u32 i = 0; i <  dc.definitionData.size(); ++i)
 					{
 						const DefinitionData& d = dc.definitionData[i];
 						// compare with offset of 2 characters. We ignore the shader code prefix.
@@ -157,7 +157,7 @@ namespace BitEngine {
 			return false;
 		}
 
-		DefinitionReference getReferenceToContainer(DataUseMode mode, uint32 container) const {
+		DefinitionReference getReferenceToContainer(DataUseMode mode, u32 container) const {
 			return DefinitionReference(mode, container, 0);
 		}
 
@@ -179,7 +179,7 @@ namespace BitEngine {
 				return (T*)getConfigValue(ref);
 			}
 			
-			virtual void end(uint32 finalInstance) = 0;
+			virtual void end(u32 finalInstance) = 0;
 
 			virtual void configure(Shader* shader) = 0;
 
@@ -207,16 +207,16 @@ namespace BitEngine {
 
 			// Prepare the batch to be rendered, resize internal buffers
 			// to fit at least numberOfInstances.
-			virtual void prepare(uint32 numberOfInstances) = 0;
+			virtual void prepare(u32 numberOfInstances) = 0;
 
 			/// \param begin The instance number the sector starts at
-			virtual IBatchSector* addSector(uint32 begin) = 0;
+			virtual IBatchSector* addSector(u32 begin) = 0;
 
 			// Retrieve the data address for given instance on the internal buffer
 			// \param ref The reference related with the shader data definition
 			// \inst the instance to get data for
 			template<typename T>
-			T* getVertexDataAddressAs(const ShaderDataDefinition::DefinitionReference& ref, uint32 inst) {
+			T* getVertexDataAddressAs(const ShaderDataDefinition::DefinitionReference& ref, u32 inst) {
 				return (T*)getVertexDataAddress(ref, inst);
 			}
 
@@ -244,10 +244,10 @@ namespace BitEngine {
 			// The vector may be changed
 			// Implementation will usually swap the vector with an internal one
 			// so we avoid extra copies
-			virtual void loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, char *data, uint32 nBytes, uint32 strideSize) = 0;
+			virtual void loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, char *data, u32 nBytes, u32 strideSize) = 0;
 
 			// Get the address for a vertex data for given instance
-			virtual void* getVertexDataAddress(const ShaderDataDefinition::DefinitionReference& ref, uint32 inst) = 0;
+			virtual void* getVertexDataAddress(const ShaderDataDefinition::DefinitionReference& ref, u32 inst) = 0;
 
 			// Get the address for a config
 			virtual void* getConfigData(const ShaderDataDefinition::DefinitionReference& ref) = 0;
@@ -291,7 +291,7 @@ namespace BitEngine {
 			virtual IShader* getShader(const std::string& str) = 0;
 
 			// by resource id
-			virtual IShader* getShader(uint32 id) = 0;
+			virtual IShader* getShader(u32 id) = 0;
 	};*/
 
 

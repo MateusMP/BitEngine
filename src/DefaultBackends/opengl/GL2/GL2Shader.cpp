@@ -21,7 +21,7 @@ namespace BitEngine
 		}
 	}
 
-	uint32 sizeofDataType(DataType dt)
+	u32 sizeofDataType(DataType dt)
 	{
 		switch (dt)
 		{
@@ -54,7 +54,7 @@ namespace BitEngine
 	// ###############################################################
 	// GL2BatchSector
 
-	GL2BatchSector::GL2BatchSector(const UniformContainer* uc, uint32 begin)
+	GL2BatchSector::GL2BatchSector(const UniformContainer* uc, u32 begin)
 		: m_begin(begin)
 	{
 		uniformSizeTotal = 0;
@@ -188,7 +188,7 @@ namespace BitEngine
 	{
 		const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Uniform);
 
-		uint32 fullSize = 0;
+		u32 fullSize = 0;
 		for (const ShaderDataDefinition::DefinitionContainer& def : containers)
 		{
 			for (const ShaderDataDefinition::DefinitionData& dd : def.definitionData)
@@ -196,7 +196,7 @@ namespace BitEngine
 				const GL2Shader::GlobalConfig* gc = findUniformConfigByName(dd.name);
 				if (gc != nullptr)
 				{
-					uint32 partialSize = sizeofDataType(dd.type) * dd.size;
+					u32 partialSize = sizeofDataType(dd.type) * dd.size;
 					UniformDefinition ud;
 					ud.instanced = def.instanced;
 					ud.byteSize = partialSize;
@@ -383,7 +383,7 @@ namespace BitEngine
 		GL_CHECK(glBindAttribLocation(m_programID, attrib, name.c_str()));
 	}
 
-	int32 GL2Shader::getUniformLocation(const std::string& name) const
+	s32 GL2Shader::getUniformLocation(const std::string& name) const
 	{
 		return glGetUniformLocation(m_programID, name.c_str());
 	}

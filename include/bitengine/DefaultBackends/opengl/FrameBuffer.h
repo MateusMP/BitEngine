@@ -62,7 +62,7 @@ public:
 		return fbo != 0 && glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
-	uint32 AttachTexture2D(int width, int height, int format = GL_RGB, int attachMode = GL_COLOR_ATTACHMENT0)
+	u32 AttachTexture2D(int width, int height, int format = GL_RGB, int attachMode = GL_COLOR_ATTACHMENT0)
 	{
 		GLuint tbo = 0;
 
@@ -85,7 +85,7 @@ public:
 		return tbo;
 	}
 
-	uint32 AttachRenderBuffer(int width, int height, int format = GL_DEPTH24_STENCIL8, int attachMode = GL_DEPTH_STENCIL_ATTACHMENT)
+	u32 AttachRenderBuffer(int width, int height, int format = GL_DEPTH24_STENCIL8, int attachMode = GL_DEPTH_STENCIL_ATTACHMENT)
 	{
 		GLuint rbo = 0;
 		Bind();

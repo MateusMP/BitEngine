@@ -8,8 +8,8 @@ namespace BitEngine {
 
 	class VectorBool
 	{
-	    typedef uint8 baseType;
-	    static constexpr uint32 Nb = sizeof(baseType)*8;
+	    typedef u8 baseType;
+	    static constexpr u32 Nb = sizeof(baseType)*8;
 	public:
 		
 		/// Must be [0, 7]
@@ -27,36 +27,36 @@ namespace BitEngine {
 		}
 
 		// number of bits in use
-		uint32 size() const {
+		u32 size() const {
 			return numElements;
 		}
 
 		// set given bit index to 1
-		void set(uint32 i) {
+		void set(u32 i) {
 			data[i / Nb] |= BIT_AT(i%Nb);
 		}
 
 		// set given bit index to 0
-		void unset(uint32 i) {
+		void unset(u32 i) {
 			data[i / Nb] &= ~BIT_AT(i%Nb);
 		}
 
-		bool test(uint32 i) const {
+		bool test(u32 i) const {
 			return (data[i / Nb] & BIT_AT(i%Nb)) > 0;
 		}
 
 		// get bit value at index i
-		bool operator[](uint32 i) const {
+		bool operator[](u32 i) const {
 			return (data[i / Nb] & BIT_AT(i%Nb)) > 0;
 		}
 
 		template<typename T>
-		T getAtIndex(uint32 i) const {
+		T getAtIndex(u32 i) const {
             return *(reinterpret_cast<const T*>(&data[i]));
 		}
 
 		// Resize to contain at least size bits
-		void resize(uint32 size)
+		void resize(u32 size)
 		{
 			int nBytes = size / Nb;
 			if (size % Nb != 0)
@@ -88,7 +88,7 @@ namespace BitEngine {
 
 	private:
 		std::vector<baseType> data;
-		uint32 numElements;
+		u32 numElements;
 	};
 
 }

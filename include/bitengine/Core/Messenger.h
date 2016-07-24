@@ -19,7 +19,7 @@ namespace BitEngine {
 			Messenger();
 			void Update();
 
-			void RegisterListener(uint32 msgType, void* handler, Callback call);
+			void RegisterListener(u32 msgType, void* handler, Callback call);
 			
 			template<typename MessageType>
 			void RegisterListener(void* handler, Callback call) {
@@ -36,14 +36,14 @@ namespace BitEngine {
 			}
 
 		private:
-			void copyMessage(const BaseMessage* msg, uint32 size);
+			void copyMessage(const BaseMessage* msg, u32 size);
 
 			struct Call{
 				void* obj;
 				Callback callback;
 			};
 
-			std::multimap<uint32, Call> m_callbacks;
+			std::multimap<u32, Call> m_callbacks;
 
 			std::vector<char> m_messageQueue;
 			std::set<BaseMessage*> m_QueuedMessages;

@@ -137,8 +137,8 @@ namespace BitEngine{
 
 	protected:
 		// Locations
-		int32 u_texDiffuseHdl;
-		int32 u_viewMatrixHdl;
+		s32 u_texDiffuseHdl;
+		s32 u_viewMatrixHdl;
 
 	private:
 		RendererVersion version;
@@ -219,13 +219,13 @@ namespace BitEngine{
 
 		public:
 			struct Batch{
-				Batch(uint32 _offset, int _nI, uint32 _texture, bool tr)
+				Batch(u32 _offset, int _nI, u32 _texture, bool tr)
 					: offset(_offset), nItems(_nI), texture(_texture), transparent(tr)
 				{}
 
-				uint32 offset;
+				u32 offset;
 				int nItems;
-				uint32 texture;
+				u32 texture;
 				bool transparent;
 
 				GLuint iVAO;
@@ -271,7 +271,7 @@ namespace BitEngine{
 
 				int offset = 0;
 				const Sprite* lastSpr = nullptr;
-				for (uint32 cg = 0; cg < m_elements.size(); cg++)
+				for (u32 cg = 0; cg < m_elements.size(); cg++)
 				{
 					const Sprite* spr = m_elements[cg].sprite;
 					const glm::vec4& uvrect = spr->getUV();
@@ -311,7 +311,7 @@ namespace BitEngine{
 					}
 
 					// Bind data for each batch
-					for (uint32 i = 0; i < batches.size(); ++i)
+					for (u32 i = 0; i < batches.size(); ++i)
 					{
 						Batch& b = batches[i];
 
@@ -346,7 +346,7 @@ namespace BitEngine{
 
 			void renderGL3()
 			{
-				for (uint32 i = 0; i < batches.size(); ++i)
+				for (u32 i = 0; i < batches.size(); ++i)
 				{
 					m_interVAOs[i].Bind();
 

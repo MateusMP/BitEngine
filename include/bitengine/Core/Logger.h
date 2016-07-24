@@ -135,12 +135,8 @@ namespace BitEngine {
 			}
 
 			Logger(const std::string& name, Logger& output)
-				: logName(name), outStream(output.getOutputSink().rdbuf())
-			{
-				std::ostringstream str;
-				str << header() << " LOG STARTED" << std::endl;
-				outStream << str.str();
-			}
+				: Logger(name, output.getOutputSink())
+			{}
 
 			Logger(const std::string& name, const char* file, std::ios_base::openmode mode)
 				: logName(name), outFStream(file, mode), outStream(outFStream.rdbuf())
@@ -221,7 +217,7 @@ namespace BitEngine {
 
 			~ScopeLogger()
 			{
-				double elapsed = timer.timeElapsedMs();
+				double elapsed = timer.timeElapsedMs<double>();
 				BitEngine::LogLine(log, 9) << description << " took " << elapsed << " ms";
 			}
 

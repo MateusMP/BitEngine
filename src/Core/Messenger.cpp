@@ -4,9 +4,9 @@
 
 namespace BitEngine {
 
-	uint32 BaseMessage::getNextMessageType()
+	u32 BaseMessage::getNextMessageType()
 	{
-		static std::atomic<uint32> idGenerator(0);
+		static std::atomic<u32> idGenerator(0);
 		return ++idGenerator;
 	}
 
@@ -27,7 +27,7 @@ namespace BitEngine {
 		m_messageQueue.clear();
 	}
 
-	void Messenger::RegisterListener(uint32 msgType, void* handler, Callback call)
+	void Messenger::RegisterListener(u32 msgType, void* handler, Callback call)
 	{
 		m_callbacks.emplace(msgType, Call{ handler, call });
 	}
@@ -50,9 +50,9 @@ namespace BitEngine {
 		}
 	}
 
-	void Messenger::copyMessage(const BaseMessage* msg, uint32 size)
+	void Messenger::copyMessage(const BaseMessage* msg, u32 size)
 	{
-		uint32 last = m_messageQueue.size();
+		u32 last = m_messageQueue.size();
 		m_messageQueue.resize(m_messageQueue.size() + size);
 
 		void* start = &m_messageQueue[last];

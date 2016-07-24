@@ -63,7 +63,7 @@ namespace BitEngine {
 
 			virtual bool init() = 0;
 
-			virtual uint32 getGraphicPipelineType() = 0;
+			virtual u32 getGraphicPipelineType() = 0;
 
 			virtual ResourceManager* getShaderManager() = 0;
 

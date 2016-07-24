@@ -42,7 +42,7 @@ namespace BitEngine{
 	void Transform2DProcessor::onTransform2DComponentCreated(const BaseMessage& msg_)
 	{
 		const MsgComponentCreated<Transform2DComponent>& msg = static_cast<const MsgComponentCreated<Transform2DComponent>&>(msg_);
-		const uint32 nComponents = msg.component;
+		const u32 nComponents = msg.component;
 
 		if (hierarchy.size() <= nComponents)
 		{

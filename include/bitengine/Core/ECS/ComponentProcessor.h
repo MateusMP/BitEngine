@@ -82,7 +82,7 @@ class BaseComponentHolder : public MessengerEndpoint
 {
 	friend class BaseEntitySystem;
 	public:
-		BaseComponentHolder(uint32 componentSize, uint32 nCompPerPool = 128);
+		BaseComponentHolder(u32 componentSize, u32 nCompPerPool = 128);
 
 		virtual ~BaseComponentHolder(){}
 
@@ -109,17 +109,17 @@ class BaseComponentHolder : public MessengerEndpoint
 		}
 
 		// Return the number of valid components
-		inline uint32 getNumValidComponents() const {
+		inline u32 getNumValidComponents() const {
 			return m_workingComponents;
 		}
 
 		// Resize to be able to contain up to given component id
-		void resize(uint32 id);
+		void resize(u32 id);
 
 	protected:
 		virtual void sendDestroyMessage(EntityHandle entity, ComponentHandle component) = 0;
 
-		uint32 newComponentID(EntityHandle entity);
+		u32 newComponentID(EntityHandle entity);
 
 	private:
 		inline void releaseComponentID(ComponentHandle componentID)
@@ -139,12 +139,12 @@ class BaseComponentHolder : public MessengerEndpoint
 		}
 
 	protected:
-		const uint32 m_componentSize;
-		const uint32 m_nComponentsPerPool;
+		const u32 m_componentSize;
+		const u32 m_nComponentsPerPool;
 
-		uint32 m_IDcapacity;
-		uint32 m_IDcurrent;
-		uint32 m_workingComponents;
+		u32 m_IDcapacity;
+		u32 m_IDcurrent;
+		u32 m_workingComponents;
 		std::vector<char*> m_pools;
 		std::vector<ComponentHandle> m_freeIDs;
 		std::vector<EntityHandle> m_byComponent; // given component get the entity
@@ -157,7 +157,7 @@ class ComponentHolder : public BaseComponentHolder
 {
 	friend class EntitySystem;
 	public:
-		ComponentHolder(uint32 componentSize = sizeof(CompClass))
+		ComponentHolder(u32 componentSize = sizeof(CompClass))
 			: BaseComponentHolder(componentSize)
 		{}
 
@@ -173,7 +173,7 @@ class ComponentHolder : public BaseComponentHolder
 		template<typename ... Args>
 		ComponentHandle createComponent(EntityHandle entity, CompClass*& outPtr, Args ...args)
 		{
-			uint32 id = newComponentID(entity);
+			u32 id = newComponentID(entity);
 			outPtr = static_cast<CompClass*>(BaseComponentHolder::getComponent(id));
 
 			new (outPtr) CompClass(args...);
