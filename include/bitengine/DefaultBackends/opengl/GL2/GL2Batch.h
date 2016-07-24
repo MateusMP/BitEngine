@@ -18,7 +18,7 @@ namespace BitEngine
 			m_end = finalInstance;
 		}
 
-		void configure(IShader* shader) override;
+		void configure(Shader* shader) override;
 
 		void* getConfigValue(const ShaderDataDefinition::DefinitionReference& ref) override;
 
@@ -67,7 +67,7 @@ namespace BitEngine
 		void load() override;
 
 		// Render the loaded data
-		void render(IShader* shader) override;
+		void render(Shader* shader) override;
 
 		protected:
 		// Load data into internal buffer

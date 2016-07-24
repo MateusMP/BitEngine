@@ -91,7 +91,7 @@ namespace BitEngine
 		GL_CHECK(glBindVertexArray(0));
 	}
 
-	void GL2Batch::render(IShader* shader)
+	void GL2Batch::render(Shader* shader)
 	{
 		GL2Shader *glShader = static_cast<GL2Shader*>(shader);
 		bind();

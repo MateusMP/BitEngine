@@ -6,7 +6,7 @@
 #include "Core/ECS/EntitySystem.h"
 #include "Core/SpriteManager.h"
 
-#include "Core/Graphics/IShader.h"
+#include "Core/Graphics/Shader.h"
 #include "Core/ECS/Transform2DProcessor.h"
 
 namespace BitEngine
@@ -48,7 +48,7 @@ namespace BitEngine
 				glm::vec4 uvrect;
 			};
 
-			Sprite2DShaderWrapper(IShader* shader)
+			Sprite2DShaderWrapper(Shader* shader)
 				: m_shader(shader)
 			{
 				m_ptnContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 0);
@@ -69,12 +69,12 @@ namespace BitEngine
 				return m_ptnContainer;
 			}
 
-			IShader* getShader() {
+			Shader* getShader() {
 				return m_shader;
 			}
 
 		private:
-			IShader* m_shader;
+			Shader* m_shader;
 			ShaderDataDefinition::DefinitionReference m_textureContainer;
 			ShaderDataDefinition::DefinitionReference m_ptnContainer;
 			ShaderDataDefinition::DefinitionReference m_modelMatrixContainer;
@@ -91,7 +91,7 @@ namespace BitEngine
 
 		bool Init() override
 		{
-			IShader* shader = m_engine->getResourceLoader()->getResource<IShader>("data/shaders/sprite2D");
+			Shader* shader = m_engine->getResourceLoader()->getResource<Shader>("data/shaders/sprite2D");
 			if (shader == nullptr)
 			{
 				return false;

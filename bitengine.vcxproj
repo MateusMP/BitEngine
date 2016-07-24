@@ -51,9 +51,8 @@
     <ClInclude Include="include\bitengine\Core\EngineConfiguration.h" />
     <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
     <ClInclude Include="include\bitengine\Core\GameEngine.h" />
-    <ClInclude Include="include\bitengine\Core\ECS\GraphicHolder.h" />
     <ClInclude Include="include\bitengine\Core\Graphics.h" />
-    <ClInclude Include="include\bitengine\Core\Graphics\IShader.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSpecification.h" />
@@ -105,8 +104,7 @@
   <ItemGroup>
     <ClCompile Include="src\Core\Resources\DevResourceLoader.cpp" />
     <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
-    <ClCompile Include="src\Core\ECS\GraphicHolder.cpp" />
-    <ClCompile Include="src\Core\Graphics\Sprite2D.cpp" />
+    <ClCompile Include="src\Core\Graphics\Shader.cpp" />
     <ClCompile Include="src\Core\Messenger.cpp" />
     <ClCompile Include="src\Core\CommandSystem.cpp" />
     <ClCompile Include="src\Core\ECS\BaseEntitySystem.cpp" />

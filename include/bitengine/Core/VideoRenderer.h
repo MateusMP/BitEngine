@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Graphics/IShader.h"
+#include "Graphics/Shader.h"
 
 namespace BitEngine {
 

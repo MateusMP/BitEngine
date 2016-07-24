@@ -19,7 +19,7 @@ namespace BitEngine
 		return (static_cast<int>(a) & static_cast<int>(b)) != 0;
 	}
 
-	class GL2Shader : public IShader
+	class GL2Shader : public Shader
 	{
 		public:
 
@@ -67,9 +67,6 @@ namespace BitEngine
 			void setExpectedShaderSources(int amount) { expectedSources = amount; }
 
 			bool gotAllShaderPiecesLoaded();
-
-			void setManagerResourceId(uint16 id) { managerResourceId = id; }
-			uint16 getManagerResourceId() const { return managerResourceId; }
 
 		protected:
 			struct ShaderSource {

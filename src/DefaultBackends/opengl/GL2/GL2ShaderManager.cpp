@@ -25,54 +25,14 @@ namespace BitEngine {
 
 	void GL2ShaderManager::update()
 	{
-		uint32 shaderIndex;
-		while (resourceLoaded.tryPop(shaderIndex))
+		GL2Shader* shader;
+		while (resourceLoaded.tryPop(shader))
 		{
-			GL2Shader* shader = shaders.getResourceAddress(shaderIndex);
 			if (shader->gotAllShaderPiecesLoaded())
 			{
 				shader->init();
 			}
 		}
-	}
-
-	BitEngine::DataUseMode useModeFromString(const std::string& str)
-	{
-		if (str.compare("VERTEX") == 0) {
-			return DataUseMode::Vertex;
-		}
-		else if (str.compare("UNIFORM") == 0) {
-			return DataUseMode::Uniform;
-		}
-
-		return DataUseMode::TotalModes;
-	}
-
-	BitEngine::DataType dataTypeFromString(const std::string& str)
-	{
-		if (str.compare("TEXTURE_1D") == 0) {
-			return DataType::TEXTURE_1D;
-		} else if (str.compare("TEXTURE_2D") == 0) {
-			return DataType::TEXTURE_2D;
-		} else if (str.compare("TEXTURE_3D") == 0) {
-			return DataType::TEXTURE_3D;
-		} else if (str.compare("LONG") == 0) {
-			return DataType::LONG;
-		} else if (str.compare("FLOAT") == 0) {
-			return DataType::FLOAT;
-		} else if (str.compare("VEC2") == 0) {
-			return DataType::VEC2;
-		} else if (str.compare("VEC3") == 0) {
-			return DataType::VEC3;
-		} else if (str.compare("VEC4") == 0) {
-			return DataType::VEC4;
-		} else if (str.compare("MAT3") == 0) {
-			return DataType::MAT3;
-		} else if (str.compare("MAT4") == 0) {
-			return DataType::MAT4;
-		}
-
-		return DataType::INVALID_DATA_TYPE;
 	}
 
 	void initShadeDefinition(ShaderDataDefinition& def, ResourceMeta* meta)
@@ -106,8 +66,15 @@ namespace BitEngine {
 	{
 		const std::string file = rpc.getValueString();
 		ResourceMeta* shaderSourceMeta = loader->findMeta(file);
-		sourceShaderRelation.emplace(shaderSourceMeta, shader);
-		loadRawData(loader, shaderSourceMeta, this);
+		if (shaderSourceMeta != nullptr)
+		{
+			sourceShaderRelation.emplace(shaderSourceMeta, shader);
+			loadRawData(loader, shaderSourceMeta, this);
+		}
+		else
+		{
+			LOG(EngineLog, BE_LOG_ERROR) << "Couldn't load shader source: " << file;
+		}
 	}
 
 	BaseResource* GL2ShaderManager::loadResource(ResourceMeta* meta)
@@ -118,7 +85,6 @@ namespace BitEngine {
 		{
 			uint16 id = shaders.addResource(meta);
 			shader = shaders.getResourceAddress(id);
-			shader->setManagerResourceId(id);
 
 			initShadeDefinition(shader->getDefinition(), meta);
 						
@@ -177,7 +143,7 @@ namespace BitEngine {
 			shader->includeSource(GL_GEOMETRY_SHADER, dr.data);
 		}
 
-		resourceLoaded.push(shader->getManagerResourceId());
+		resourceLoaded.push(shader);
 	}
 
 	void GL2ShaderManager::onResourceLoadFail(ResourceLoader::DataRequest& dr)

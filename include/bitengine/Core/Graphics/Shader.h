@@ -29,6 +29,11 @@ namespace BitEngine {
 		TotalModes
 	};
 
+
+	DataUseMode useModeFromString(const std::string& str);
+	DataType dataTypeFromString(const std::string& str);
+
+
 	enum GraphicAdapterType {
 		NULL_GRAPHIC,
 		SOFTWARE,
@@ -48,7 +53,7 @@ namespace BitEngine {
 	class ShaderDataDefinition
 	{
 		public:
-		friend class IShader;
+		friend class Shader;
 
 		struct DefinitionReference {
 			struct Hasher {
@@ -176,7 +181,7 @@ namespace BitEngine {
 			
 			virtual void end(uint32 finalInstance) = 0;
 
-			virtual void configure(IShader* shader) = 0;
+			virtual void configure(Shader* shader) = 0;
 
 		protected:
 			virtual void* getConfigValue(const ShaderDataDefinition::DefinitionReference& ref) = 0;
@@ -232,7 +237,7 @@ namespace BitEngine {
 			// Do the real rendering
 			// load() must have been called before!
 			// @see load()
-			virtual void render(IShader* shader) = 0;
+			virtual void render(Shader* shader) = 0;
 
 		protected:
 			// Load data into vertex buffer
@@ -249,7 +254,7 @@ namespace BitEngine {
 	};
 
 	// Base shader class for a graphic adapter
-	class IShader : public BaseResource
+	class Shader : public BaseResource
 	{
 		public:
 		/// Binds the shader

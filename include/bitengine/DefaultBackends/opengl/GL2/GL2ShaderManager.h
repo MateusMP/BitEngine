@@ -45,7 +45,7 @@ namespace BitEngine {
 		private:
 			ResourceLoader* loader;
 			ResourceIndexer<GL2Shader, 32> shaders;
-			BitEngine::ThreadSafeQueue<uint32> resourceLoaded;
+			BitEngine::ThreadSafeQueue<GL2Shader*> resourceLoaded;
 
 			std::unordered_map<ResourceMeta*, GL2Shader*> sourceShaderRelation;
 

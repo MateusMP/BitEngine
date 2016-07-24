@@ -69,7 +69,7 @@ namespace BitEngine
 		data.resize(uniformSizeTotal);
 	}
 
-	void GL2BatchSector::configure(IShader* shader)
+	void GL2BatchSector::configure(Shader* shader)
 	{
 		GL2Shader* glShader = static_cast<GL2Shader*>(shader);
 		for (auto it = configs.begin(); it != configs.end(); ++it)

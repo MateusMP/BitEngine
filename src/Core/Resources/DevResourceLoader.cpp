@@ -63,7 +63,7 @@ bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, st
 	}
 	std::streamsize size = file.tellg();
 	file.seekg(0, std::ios::beg);
-	out.resize(size);
+	out.resize(static_cast<size_t>(size));
 
 	LOG(EngineLog, BE_LOG_VERBOSE) << fname << " size: " << size;
 
@@ -101,6 +101,8 @@ bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
 		log += meta.toString();
 	}
 	LOG(EngineLog, BE_LOG_VERBOSE) << "Loaded Resource Metas:\n" << log;
+
+	return true;
 }
 
 BitEngine::ResourceMeta* BitEngine::DevResourceLoader::findMeta(const std::string& name)

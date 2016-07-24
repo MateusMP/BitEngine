@@ -68,11 +68,9 @@
     <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
     <ClInclude Include="include\bitengine\Core\Mesh.h" />
     <ClInclude Include="include\bitengine\Core\ModelManager.h" />
-    <ClInclude Include="include\bitengine\Core\ECS\GraphicHolder.h" />
     <ClInclude Include="include\bitengine\Common\Property.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\ITexture.h" />
-    <ClInclude Include="include\bitengine\Core\Graphics\IShader.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Shader.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Pipeline.h" />
     <ClInclude Include="include\bitengine\Core\Assert.h" />
@@ -89,6 +87,7 @@
     <ClInclude Include="include\bitengine\Core\Resources\DevResourceLoader.h" />
     <ClInclude Include="include\bitengine\Common\Header.h" />
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -122,14 +121,13 @@
     <ClCompile Include="src\Tests\bitset.cpp" />
     <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
     <ClCompile Include="src\Tests\testES.cpp" />
-    <ClCompile Include="src\Core\ECS\GraphicHolder.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Shader.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Pipeline.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2TextureManager.cpp" />
-    <ClCompile Include="src\Core\Graphics\Sprite2D.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2ShaderManager.cpp" />
     <ClCompile Include="src\Core\Resources\DevResourceLoader.cpp" />
     <ClCompile Include="src\Core\GameEnginePC.cpp" />
+    <ClCompile Include="src\Core\Graphics\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\bitengine\Core\Graphics\Shaders\sprite2D_gl2.frag" />
