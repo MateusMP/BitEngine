@@ -9,7 +9,7 @@ namespace BitEngine{
 	class Transform3DProcessor : public ComponentProcessor
 	{
 	public:
-		Transform3DProcessor();
+		Transform3DProcessor(Messaging::Messenger* m);
 		~Transform3DProcessor();
 
 		// Processor
@@ -31,13 +31,14 @@ namespace BitEngine{
 			setParentOf(ComponentProcessor::getComponentHandle(a), ComponentProcessor::getComponentHandle(parent));
 		}
 
+		// Message handlers
+		void onMessage(const MsgComponentCreated<Transform3DComponent>& msg);
+		void onMessage(const MsgComponentDestroyed<Transform3DComponent>& msg);
+
 	private: // Functions
         struct Hierarchy;
 		static void CalculateLocalModelMatrix(const Transform3DComponent& component, glm::mat4& mat);
 
-		// Message handlers
-		void onTransform3DComponentCreated(const BaseMessage& msg_);
-		void onTransform3DComponentDestroyed(const BaseMessage& msg_);
 
 		// TODO: Make iterative version
 		void recalcGlobalTransform(ComponentHandle handle, Hierarchy &t);

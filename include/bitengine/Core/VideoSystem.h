@@ -15,13 +15,13 @@ namespace BitEngine {
 	{
 	};
 
-	class IVideoDriver : public MessengerEndpoint
+	class IVideoDriver : public Messaging::MessengerEndpoint
 	{
 		friend class VideoSystem;
 
 		public:
-			IVideoDriver(VideoRenderer* renderer)
-				: m_renderer(renderer) 
+			IVideoDriver(Messaging::Messenger* m, VideoRenderer* renderer)
+				: MessengerEndpoint(m), m_renderer(renderer)
 			{}
 			virtual ~IVideoDriver(){
 				delete m_renderer;

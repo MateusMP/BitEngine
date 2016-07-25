@@ -8,7 +8,7 @@ namespace BitEngine{
 	class GameLogicProcessor : public ComponentProcessor
 	{
 	public:
-		GameLogicProcessor();
+		GameLogicProcessor(Messaging::Messenger* m);
 		~GameLogicProcessor();
 
 		/// Processor
@@ -19,10 +19,10 @@ namespace BitEngine{
 		void FrameMiddle();
 		void FrameEnd();
 
-	private:
-		void onGameLogicComponentCreated(const BaseMessage& msg_);
-		void onGameLogicComponentDestroyed(const BaseMessage& msg_);
+		void onMessage(const MsgComponentCreated<GameLogicComponent>& msg);
+		void onMessage(const MsgComponentDestroyed<GameLogicComponent>& msg);
 
+	private:
 		/// Processor
 		void removeFrom(GameLogic* l, std::vector<GameLogic*>& vec);
 

@@ -1,6 +1,12 @@
 #include "Defaultbackends/glfw/GLFW_InputDriver.h"
 
-std::unordered_map<GLFWwindow*, BitEngine::InputReceiver> GLFW_InputDriver::inputReceivers;
+std::unordered_map<GLFWwindow*, BitEngine::Input::InputReceiver> GLFW_InputDriver::inputReceivers;
+
+GLFW_InputDriver::GLFW_InputDriver(BitEngine::Messaging::Messenger* m)
+	: IInputDriver(m)
+{
+
+}
 
 bool GLFW_InputDriver::Init()
 {
@@ -12,7 +18,7 @@ void GLFW_InputDriver::inputWindowCreated(BitEngine::Window* window)
 	GLFW_VideoDriver::Window_glfw* w = static_cast<GLFW_VideoDriver::Window_glfw*>(window);
 
 	// Creates instance for this window
-	inputReceivers[w->m_glfwWindow].setMessenger(getMessenger());
+	inputReceivers.emplace(w->m_glfwWindow, getMessenger());
 
 	// Define callback for functions
 	glfwSetKeyCallback(w->m_glfwWindow, GlfwKeyCallback);
@@ -26,20 +32,20 @@ void GLFW_InputDriver::inputWindowDestroyed(BitEngine::Window* window)
 }
 
 
-BitEngine::InputReceiver::KeyMod GLFW_InputDriver::isKeyPressed(int key)
+BitEngine::Input::KeyMod GLFW_InputDriver::isKeyPressed(int key)
 {
 	auto w = inputReceivers.begin();
 	if (w == inputReceivers.end())
-		return BitEngine::InputReceiver::KeyMod::KFALSE;
+		return BitEngine::Input::KeyMod::KFALSE;
 
 	return w->second.isKeyPressed(key);
 }
 
-BitEngine::InputReceiver::KeyMod GLFW_InputDriver::keyReleased(int key)
+BitEngine::Input::KeyMod GLFW_InputDriver::keyReleased(int key)
 {
 	auto w = inputReceivers.begin();
 	if (w == inputReceivers.end())
-		return BitEngine::InputReceiver::KeyMod::KFALSE;
+		return BitEngine::Input::KeyMod::KFALSE;
 
 	return w->second.keyReleased(key);
 }
@@ -78,17 +84,17 @@ void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode
 	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()) 
 	{
-		BitEngine::InputReceiver::KeyAction act = BitEngine::InputReceiver::KeyAction::NONE;
+		BitEngine::Input::KeyAction act = BitEngine::Input::KeyAction::NONE;
 		switch (action) 
 		{
 			case GLFW_REPEAT:
-				act = BitEngine::InputReceiver::KeyAction::REPEAT;
+				act = BitEngine::Input::KeyAction::REPEAT;
 				break;
 			case GLFW_PRESS:
-				act = BitEngine::InputReceiver::KeyAction::PRESS;
+				act = BitEngine::Input::KeyAction::PRESS;
 				break;
 			case GLFW_RELEASE:
-				act = BitEngine::InputReceiver::KeyAction::RELEASE;
+				act = BitEngine::Input::KeyAction::RELEASE;
 				break;
 			default:
 				LOGCLASS(BE_LOG_WARNING) << "Invalid key action: " << action;
@@ -106,14 +112,14 @@ void GLFW_InputDriver::GlfwMouseCallback(GLFWwindow* window, int button, int act
 	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()) 
 	{
-		BitEngine::InputReceiver::MouseAction act = BitEngine::InputReceiver::MouseAction::NONE;
+		BitEngine::Input::MouseAction act = BitEngine::Input::MouseAction::NONE;
 		switch (action)
 		{
 			case GLFW_PRESS:
-				act = BitEngine::InputReceiver::MouseAction::PRESS;
+				act = BitEngine::Input::MouseAction::PRESS;
 				break;
 			case GLFW_RELEASE:
-				act = BitEngine::InputReceiver::MouseAction::RELEASE;
+				act = BitEngine::Input::MouseAction::RELEASE;
 				break;
 			default:
 				LOGCLASS(BE_LOG_WARNING) << "Invalid mouse action: " << action;

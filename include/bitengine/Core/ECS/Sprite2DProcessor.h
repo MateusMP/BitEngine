@@ -16,7 +16,7 @@ class Sprite2DRendererBasic : public ComponentProcessor
 {
 	public:
 		Sprite2DRendererBasic(Transform2DProcessor *t2dp, ResourceLoader* sprManager)
-			: transform2DProcessor(t2dp)
+			: ComponentProcessor(t2dp->getMessenger()), transform2DProcessor(t2dp)
 		{
 			m_spriteManager = sprManager;
 		}

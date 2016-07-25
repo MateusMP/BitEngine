@@ -24,9 +24,7 @@ namespace BitEngine {
 
 		windowConfig.m_DepthBits = 8;
 		windowConfig.m_StencilBits = 8;
-
-		m_driver->setMessenger(getEngine()->getMessenger());
-
+		
 		if (m_driver->Init(config))
 		{
 			getEngine()->getResourceLoader()->registerResourceManager("TEXTURE", m_driver->getRenderer()->getTextureManager());

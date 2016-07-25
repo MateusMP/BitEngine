@@ -12,7 +12,7 @@ namespace BitEngine
 	class RenderableMeshProcessor : public ComponentProcessor
 	{
 	public:
-		RenderableMeshProcessor();
+		RenderableMeshProcessor(Messaging::Messenger* m);
 
 		bool Init() override;
 		void Stop() override;

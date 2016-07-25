@@ -121,7 +121,7 @@ Window* GLFW_VideoDriver::CreateWindow(const WindowConfiguration& wc)
 		// so we wait until next frame to deliver this message
 		// hoping that everyone that is interested in this message
 		// is ready to receive it.
-		getMessenger()->SendDelayedMessage(MsgWindowCreated(window));
+		getMessenger()->delayedDispatch(MsgWindowCreated(window));
 	}
 
 	return window;
@@ -131,7 +131,7 @@ Window* GLFW_VideoDriver::CreateWindow(const WindowConfiguration& wc)
 bool GLFW_VideoDriver::CheckWindowClosed(Window_glfw* window)
 {
 	if (glfwWindowShouldClose(window->m_glfwWindow)) {
-		getMessenger()->SendMessage(MsgWindowClosed(window));
+		getMessenger()->dispatch(MsgWindowClosed(window));
 		return true;
 	}
 

@@ -75,7 +75,7 @@
 		private:																\
 			void __getselfclassfunc__(){};										\
 			static BitEngine::Logger& CL() {									\
-				static BitEngine::Logger _log(GetClassName(&__getselfclassfunc__), output);			\
+				static BitEngine::Logger _log(BitEngine::GetClassName(&__getselfclassfunc__), output);			\
 				return _log;													\
 			}
 

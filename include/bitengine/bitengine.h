@@ -4,7 +4,6 @@
 
 #include "Core/Messenger.h"
 #include "Core/ResourceSystem.h"
-#include "Core/FileResourceLoader.h"
 
 #include "Core/Sprite.h"
 #include "Core/Logger.h"

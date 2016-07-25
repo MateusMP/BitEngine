@@ -84,9 +84,8 @@ namespace BitEngine
 	{
 		public: 
 		Sprite2DRenderer(GameEngine* engine)
-			: m_engine(engine)
+			: ComponentProcessor(engine->getMessenger()), m_engine(engine)
 		{
-
 		}
 
 		bool Init() override
@@ -197,7 +196,7 @@ namespace BitEngine
 	{
 		public:
 			Sprite2DHolder(Sprite2DRenderer* renderer)
-				: ComponentHolder()
+				: ComponentHolder(renderer->getMessenger())
 			{
 
 			}

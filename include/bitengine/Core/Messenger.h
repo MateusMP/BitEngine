@@ -4,65 +4,125 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include <typeindex>
 
 #include "Core/Message.h"
 
 namespace BitEngine {
-	
-	// Used to send messages @See Message<T>
-	// There is one Messenger for each GameEngine.
-	class Messenger
+
+	namespace Messaging
 	{
-		public:
-			typedef std::function<void(const BaseMessage&)> Callback;
+		class Messenger
+		{
+			public:
+			void dispatchEnqueued()
+			{
+				for (auto& it : dispatchers)
+				{
+					it.second->dispatchAllEnqueued();
+				}
+			}
 
-			Messenger();
-			void Update();
+			template<typename MessageType, typename Handler>
+			void registerListener(Handler* handler)
+			{
+				TypedMessageDispatcher<MessageType>* dispatcher;
+				auto typeIndex = std::type_index(typeid(MessageType));
+				auto it = dispatchers.find(typeIndex);
+				if (it == dispatchers.end())
+				{
+					dispatcher = new TypedMessageDispatcher<MessageType>();
+					dispatchers.emplace(typeIndex, dispatcher);
+				}
+				else
+				{
+					dispatcher = static_cast<TypedMessageDispatcher<MessageType>*>(it->second);
+				}
 
-			void RegisterListener(u32 msgType, void* handler, Callback call);
-			
+				auto addr = new MessageHandleBridge<MessageType, Handler>(handler);
+				//printf("Registering: %p with bridge %p\n", handler, addr);
+				dispatcher->registerListener(handler, addr);
+			}
+
+			template<typename MessageType, typename Handler>
+			void unregisterListener(Handler* handler)
+			{
+				TypedMessageDispatcher<MessageType>* dispatcher;
+				auto typeIndex = std::type_index(typeid(MessageType));
+				auto it = dispatchers.find(typeIndex);
+				if (it == dispatchers.end())
+				{
+					dispatcher = new TypedMessageDispatcher<MessageType>();
+					dispatchers.emplace(typeIndex, dispatcher);
+				}
+				else
+				{
+					dispatcher = static_cast<TypedMessageDispatcher<MessageType>*>(it->second);
+				}
+
+				//printf("Registering: %p with bridge %p\n", handler, addr);
+				dispatcher->unregisterListener(handler);
+			}
+
+			// Instant dispatch
 			template<typename MessageType>
-			void RegisterListener(void* handler, Callback call) {
-				RegisterListener(MessageType::MessageType(), handler, call);
+			void dispatch(const MessageType& msg)
+			{
+				auto typeIndex = std::type_index(typeid(MessageType));
+				auto it = dispatchers.find(typeIndex);
+				if (it == dispatchers.end())
+				{
+					//LOG(EngineLog, BE_LOG_WARNING) << "No dispatcher registered for this type.";
+				}
+				else
+				{
+					TypedMessageDispatcher<MessageType>* dispatcher = static_cast<TypedMessageDispatcher<MessageType>*>(it->second);
+					dispatcher->typedDispatch(msg);
+				}
 			}
 
-			void UnregisterListener(void* handler);
+			// Instant dispatch
+			template<typename MessageType>
+			void delayedDispatch(const MessageType& msg)
+			{
+				TypedMessageDispatcher<MessageType>* dispatcher;
+				auto typeIndex = std::type_index(typeid(MessageType));
+				auto it = dispatchers.find(typeIndex);
+				if (it == dispatchers.end())
+				{
+					dispatcher = new TypedMessageDispatcher<MessageType>();
+					dispatchers.emplace(typeIndex, dispatcher);
+				}
+				else
+				{
+					dispatcher = static_cast<TypedMessageDispatcher<MessageType>*>(it->second);
+				}
 
-			void SendMessage(const BaseMessage& msg);
-
-			template<typename T>
-			void SendDelayedMessage(const T& msg) {
-				copyMessage(&msg, sizeof(T));
+				dispatcher->typedEnqueue(msg);
 			}
 
-		private:
-			void copyMessage(const BaseMessage* msg, u32 size);
+			private:
+			std::map<std::type_index, MessageDispatcher*> dispatchers;
+		};
 
-			struct Call{
-				void* obj;
-				Callback callback;
-			};
 
-			std::multimap<u32, Call> m_callbacks;
+		// This class is a Messenger End Point
+		// Any class that wants to receive messages should come from this
+		class MessengerEndpoint
+		{
+			public:
+				MessengerEndpoint(MessengerEndpoint* m)
+					: m_messenger(m->m_messenger)
+				{}
+				MessengerEndpoint(Messenger* m)
+					: m_messenger(m)
+				{}
 
-			std::vector<char> m_messageQueue;
-			std::set<BaseMessage*> m_QueuedMessages;
-	};
+				Messenger* getMessenger() { return m_messenger; }
 
-	// This class is a Messenger End Point
-	// Any class that wants to receive messages should come from this
-	class MessengerEndpoint
-	{
-		public:
-			MessengerEndpoint() 
-				: m_messenger(nullptr)
-			{}
+			private:
+				Messenger* m_messenger;
+		};
 
-			Messenger* getMessenger() { return m_messenger; }
-			void setMessenger(Messenger* m) { m_messenger = m; }
-
-		private:
-			Messenger* m_messenger;
-	};
-
+	}
 }

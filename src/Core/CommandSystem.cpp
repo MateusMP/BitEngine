@@ -9,13 +9,13 @@ namespace BitEngine
 		other.other = _other;
 	}
 
-	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, InputReceiver::KeyAction _other)
+	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, Input::KeyAction _other)
 		: commandID(_id), intensity(_intensity)
 	{
 		other.fromButton = _other;
 	}
 
-	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, InputReceiver::MouseAction _other, double x, double y)
+	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, Input::MouseAction _other, double x, double y)
 		: commandID(_id), intensity(_intensity), mouse_x(x), mouse_y(y)
 	{
 		other.fromMouse = _other;
@@ -32,6 +32,9 @@ namespace BitEngine
 		: System(ge)
 	{
 		m_commandState = 0;
+
+		getEngine()->getMessenger()->registerListener<Input::MsgKeyboardInput>(this);
+		getEngine()->getMessenger()->registerListener<Input::MsgMouseInput>(this);
 	}
 
 	CommandSystem::~CommandSystem()
@@ -41,8 +44,6 @@ namespace BitEngine
 
 	bool CommandSystem::Init()
 	{
-		getEngine()->getMessenger()->RegisterListener<InputReceiver::MsgKeyboardInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_KeyboardInput));
-		getEngine()->getMessenger()->RegisterListener<InputReceiver::MsgMouseInput>(this, BE_MESSAGE_HANDLER(CommandSystem::Message_MouseInput));
 		return true;
 	}
 
@@ -77,41 +78,41 @@ namespace BitEngine
 		const int cmdS = commandState;
 		u32 s = 1;
 		u32 f = 0;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::NONE)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::ALT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SUPER)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::ALT_SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_ALT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SUPER_ALT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SUPER_CTRL)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SUPER_SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::ALT_SHIFT_SUPER)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::SHIFT_CTRL_SUPER)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_ALT_SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::PRESS, InputReceiver::KeyMod::CTRL_ALT_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::NONE)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::CTRL)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::ALT_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::CTRL_ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::CTRL_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::SUPER_ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::SUPER_CTRL)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::SUPER_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::ALT_SHIFT_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::SHIFT_CTRL_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::CTRL_ALT_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::PRESS, Input::KeyMod::CTRL_ALT_SUPER)) { f |= s; } s <<= 1;
 
 		if ( f != 0x7FFF ) {
 			LOG(EngineLog, BE_LOG_WARNING) << "Failed to register key for all press mods: " << f << ". Ambiguos key?";
 		}
 
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::NONE)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::ALT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SUPER)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::ALT_SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_ALT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SUPER_ALT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SUPER_CTRL)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SUPER_SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::ALT_SHIFT_SUPER)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::SHIFT_CTRL_SUPER)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_ALT_SHIFT)) { f |= s; } s <<= 1;
-		if (RegisterKeyboardCommand(cmd, cmdS, key, InputReceiver::KeyAction::RELEASE, InputReceiver::KeyMod::CTRL_ALT_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::NONE)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::CTRL)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::ALT_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::CTRL_ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::CTRL_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::SUPER_ALT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::SUPER_CTRL)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::SUPER_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::ALT_SHIFT_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::SHIFT_CTRL_SUPER)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::CTRL_ALT_SHIFT)) { f |= s; } s <<= 1;
+		if (RegisterKeyboardCommand(cmd, cmdS, key, Input::KeyAction::RELEASE, Input::KeyMod::CTRL_ALT_SUPER)) { f |= s; } s <<= 1;
 
 		if ( (f >> 15) != 0x7FFF ) {
 			LOG(EngineLog, BE_LOG_WARNING) << "Failed to register key for all release mods: " << f << ". Ambiguos key?";
@@ -127,15 +128,15 @@ namespace BitEngine
 		idtf.MsgCommandInputType = InputType::keyboard;
 
 		idtf.keyboard.key = key;
-		idtf.keyboard.keyAction = InputReceiver::KeyAction::PRESS;
-		idtf.keyboard.keyMod = InputReceiver::KeyMod::NONE;
+		idtf.keyboard.keyAction = Input::KeyAction::PRESS;
+		idtf.keyboard.keyMod = Input::KeyMod::NONE;
 
 		// Search for PRESS
 		auto it = m_commands.find(idtf);
 		if (it == m_commands.end())
 		{
 			// Search for RELEASE
-			idtf.keyboard.keyAction = InputReceiver::KeyAction::RELEASE;
+			idtf.keyboard.keyAction = Input::KeyAction::RELEASE;
 			it = m_commands.find(idtf);
 			if (it == m_commands.end())
 			{
@@ -143,7 +144,7 @@ namespace BitEngine
 				m_commands[idtf] = commandID;
 
 				// Register for PRESS
-				idtf.keyboard.keyAction = InputReceiver::KeyAction::PRESS;
+				idtf.keyboard.keyAction = Input::KeyAction::PRESS;
 				m_commands[idtf] = commandID;
 				return true;
 			}
@@ -152,7 +153,7 @@ namespace BitEngine
 		return false;
 	}
 
-	bool CommandSystem::RegisterKeyboardCommand(int commandID, int commandState, int key, InputReceiver::KeyAction action, InputReceiver::KeyMod mod /*= KeyMod::NONE*/)
+	bool CommandSystem::RegisterKeyboardCommand(int commandID, int commandState, int key, Input::KeyAction action, Input::KeyMod mod /*= KeyMod::NONE*/)
 	{
 		CommandIdentifier idtf;
 		idtf.commandState = commandState;
@@ -171,7 +172,7 @@ namespace BitEngine
 		return false;
 	}
 
-	bool CommandSystem::RegisterMouseCommand(int commandID, int commandState, int button, InputReceiver::MouseAction action, InputReceiver::KeyMod mod /*= InputReceiver::KeyMod::NONE*/)
+	bool CommandSystem::RegisterMouseCommand(int commandID, int commandState, int button, Input::MouseAction action, Input::KeyMod mod /*= Input::KeyMod::NONE*/)
 	{
 		CommandIdentifier idtf;
 		idtf.commandState = commandState;
@@ -190,10 +191,8 @@ namespace BitEngine
 		return false;
 	}
 
-	void CommandSystem::Message_KeyboardInput(const BaseMessage& msg_)
+	void CommandSystem::onMessage(const Input::MsgKeyboardInput& msg)
 	{
-		const InputReceiver::MsgKeyboardInput& msg = static_cast<const InputReceiver::MsgKeyboardInput&>(msg_);
-
 		// Verify for global commands
 		{
 			CommandIdentifier idtf(-1, msg);
@@ -204,7 +203,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getEngine()->getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.keyAction));
+				getEngine()->getMessenger()->dispatch(MsgCommandInput(cmdID, 1, msg.keyAction));
 			}
 			else
 			{
@@ -223,7 +222,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getEngine()->getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.keyAction));
+				getEngine()->getMessenger()->dispatch(MsgCommandInput(cmdID, 1, msg.keyAction));
 			}
 			else {
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for input key: " << msg.key << " action: " << (int)(msg.keyAction) << " mod: " << (int)msg.keyMod;
@@ -231,9 +230,8 @@ namespace BitEngine
 		}
 	}
 
-	void CommandSystem::Message_MouseInput(const BaseMessage& msg_)
+	void CommandSystem::onMessage(const Input::MsgMouseInput& msg)
 	{
-		const InputReceiver::MsgMouseInput& msg = static_cast<const InputReceiver::MsgMouseInput&>(msg_);
 		// Verify for global commands
 		{
 			CommandIdentifier idtf(-1, msg);
@@ -245,7 +243,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getEngine()->getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
+				getEngine()->getMessenger()->dispatch(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this mouse input.";
@@ -263,7 +261,7 @@ namespace BitEngine
 
 				LOG(EngineLog, BE_LOG_VERBOSE) << "Command dispatch: " << cmdID;
 
-				getEngine()->getMessenger()->SendMessage(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
+				getEngine()->getMessenger()->dispatch(MsgCommandInput(cmdID, 1, msg.action, msg.x, msg.y));
 			}
 			else {
 				// LOG(EngineLog, BE_LOG_VERBOSE) << "No command for this mouse input.";

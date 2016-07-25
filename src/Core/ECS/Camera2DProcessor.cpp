@@ -3,7 +3,7 @@
 namespace BitEngine{
 
 	Camera2DProcessor::Camera2DProcessor(Transform2DProcessor* t2dp)
-		: transform2DProcessor(t2dp)
+		: ComponentProcessor(t2dp->getMessenger()), transform2DProcessor(t2dp)
 	{
 	}
 

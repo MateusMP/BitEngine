@@ -23,22 +23,28 @@ void GameEnginePC::stopRunning()
 
 void GameEnginePC::addSystem(System *sys)
 {
-	if (std::find(systems.begin(), systems.end(), sys) != systems.end())
-		return;
-
-    systems.push_back(sys);
+	auto &it = systems.find(sys->getName());
+	if (it == systems.end())
+	{
+		systems.emplace(sys->getName(), sys);
+	}
+	else
+	{
+		LOG(EngineLog, BE_LOG_ERROR) << "System already added: " << sys->getName();
+	}
 }
 
 System* GameEnginePC::getSystem(const std::string& name)
 {
-	for (System* s : systems){
-		
-		if (name.compare(s->getName()) == 0){
-			return s;
-		}
+	auto &it = systems.find(name);
+	if (it == systems.end())
+	{
+		return nullptr;
 	}
-
-	return nullptr;
+	else
+	{
+		return it->second;
+	}
 }
 
 bool GameEnginePC::initSystems()
@@ -49,16 +55,15 @@ bool GameEnginePC::initSystems()
 	configuration.LoadConfigurations();
 
 	LOG(EngineLog, BE_LOG_INFO) << "Loadiging systems...";
-	lastSystemInitialized = -1;
-    for ( System* s : systems )
+    for ( auto& it : systems )
     {
+		System* s = it.second;
         if (!s->Init())
         {
             LOG(EngineLog, BE_LOG_INFO) << "System " << s->getName() << " failed to initialize!\n";
             return false;
         }
 
-		++lastSystemInitialized;
 		systemsToShutdown.push_back(s);
     }
 
@@ -76,15 +81,19 @@ void GameEnginePC::shutdownSystems()
 		LOG(EngineLog, BE_LOG_INFO) << "Shutting down " << (*it)->getName();
         (*it)->Shutdown();
 		LOG(EngineLog, BE_LOG_INFO) << "done " << (*it)->getName();
-		delete *it;
     }
 
-	LOG(EngineLog, BE_LOG_INFO) << "Finalizing... ";
+	LOG(EngineLog, BE_LOG_INFO) << "Clean up memory... ";
 
-	// Delete systems that were not initialized because of failure
-	for (int i = lastSystemInitialized + 1; i < (int)systems.size(); ++i){
-		delete systems[i];
+	// Delete all systems.
+	for (auto& it : systems)
+	{
+		System* s = it.second;
+		delete s;
 	}
+
+	systems.clear();
+	systemsToShutdown.clear();
 	
 	LOG(EngineLog, BE_LOG_INFO) << "Systems released!";
 }
@@ -101,9 +110,11 @@ bool GameEnginePC::run()
 
         while (running)
 		{
-			messenger.Update();
+			messenger.dispatchEnqueued();
 
-            for (System *s : systems){
+			for (auto& it : systems)
+			{
+				System* s = it.second;
                 s->Update();
             }
 

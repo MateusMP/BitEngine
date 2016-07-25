@@ -2,51 +2,95 @@
 
 #include "Common/TypeDefinition.h"
 
-#define BE_MESSAGE_HANDLER(handlerFunction)		\
-	std::bind(&handlerFunction, this, std::placeholders::_1)
-
 namespace BitEngine {
+namespace Messaging {
 
-	// Base Message type
-	// This message is never used directly @see Message<T>
-	class BaseMessage
+	template<typename MessageType>
+	class MessageHandler
 	{
-		template<typename T> friend class Message;
-		BaseMessage(u32 t) : type(t) {}
-
-	public:
-		u32 getType() const {
-			return type;
-		}
-
-	protected:
-		u32 type;
-
-	private:
-		static u32 getNextMessageType();
-
+		public:
+		virtual void handle(const MessageType& type) = 0;
 	};
 
-	// This is the template message
-	// Any message type should extend this class.
-	// Example:
-	// class MyMessageForSomething : public class Message<MyMessageForSomething> {
-	//		members...
-	//		functions...
-	// }
-	template<typename T>
-	class Message : public BaseMessage
+	template<typename MessageType, typename Handler>
+	class MessageHandleBridge : public MessageHandler<MessageType>
 	{
 		friend class Messenger;
-	public:
-		Message()
-			: BaseMessage(MessageType())
-		{}
-
-		static u32 MessageType() {
-			static u32 type = getNextMessageType();
-			return type;
+		private:
+		MessageHandleBridge(Handler* h)
+			: handler(h)
+		{
+			//printf("Bridge %p created for %p\n", this, handler);
 		}
+		void handle(const MessageType& type) override {
+			//printf("Bridge %p handling %p\n", this, handler);
+			handler->onMessage(type);
+		}
+		Handler* handler;
 	};
 
+	class MessageDispatcher
+	{
+		public:
+		virtual ~MessageDispatcher() {}
+		virtual void dispatch(const void *msg) = 0;
+		virtual void enqueue(const void *msg) = 0;
+		virtual void dispatchAllEnqueued() = 0;
+	};
+
+	template<typename MessageType>
+	class TypedMessageDispatcher : public MessageDispatcher
+	{
+		public:
+		void typedDispatch(const MessageType& message)
+		{
+			for (MessageHandler<MessageType>* handler : listeners) {
+				handler->handle(message);
+			}
+		}
+
+		void typedEnqueue(const MessageType& message)
+		{
+			queuedMessages.emplace_back(message);
+		}
+
+		void dispatchAllEnqueued() override
+		{
+			for (const MessageType& msg : queuedMessages) {
+				typedDispatch(msg);
+			}
+			queuedMessages.clear();
+		}
+
+		void registerListener(void* realHandler, MessageHandler<MessageType>* msgHandler)
+		{
+			listeners.emplace(msgHandler);
+			handlerToBridge.emplace(realHandler, msgHandler);
+		}
+
+		void unregisterListener(void* realHandler)
+		{
+			const auto& it = handlerToBridge.find(realHandler);
+			if (it != handlerToBridge.end()) {
+				delete it->second;
+				listeners.erase(it->second);
+				handlerToBridge.erase(it);
+			}
+		}
+
+		private:
+		void dispatch(const void *msg) override {
+			typedDispatch(*static_cast<const MessageType*>(msg));
+		}
+
+		void enqueue(const void *msg) override {
+			typedEnqueue(*static_cast<const MessageType*>(msg));
+		}
+
+		std::set<MessageHandler<MessageType>*> listeners;
+		std::map<void*, MessageHandler<MessageType>*> handlerToBridge;
+		std::vector<MessageType> queuedMessages;
+	};
+
+}
 }

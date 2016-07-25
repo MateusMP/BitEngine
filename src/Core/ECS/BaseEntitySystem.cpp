@@ -11,7 +11,7 @@ namespace BitEngine {
 
 		for (auto& h : m_holders)
 		{
-			h.second->setMessenger(getEngine()->getMessenger());
+			// h.second->setMessenger(getEngine()->getMessenger());
 		}
 
 		m_initialized = true;
@@ -35,7 +35,7 @@ namespace BitEngine {
 			m_objBitField->unsetAll(newHandle);
 		}
 
-		getEngine()->getMessenger()->SendMessage(MsgEntityCreated(newHandle));
+		getEngine()->getMessenger()->dispatch(MsgEntityCreated(newHandle));
 
 		return newHandle;
 	}
@@ -47,7 +47,7 @@ namespace BitEngine {
 
 		m_toBeDestroyed.emplace_back(entity);
 
-		getEngine()->getMessenger()->SendMessage(MsgEntityDestroyed(entity));
+		getEngine()->getMessenger()->dispatch(MsgEntityDestroyed(entity));
 	}
 
 	bool BaseEntitySystem::addComponent(EntityHandle entity, ComponentType type)

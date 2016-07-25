@@ -14,7 +14,7 @@ class EntitySystem;
 template<typename CompClass> class ComponentRef;
 
 template<typename CompClass>
-class MsgComponentCreated : public Message<MsgComponentCreated<CompClass> >
+struct MsgComponentCreated
 {
 	public:
 		MsgComponentCreated(EntityHandle entity_, ComponentType componentType_, ComponentHandle component_)
@@ -26,7 +26,7 @@ class MsgComponentCreated : public Message<MsgComponentCreated<CompClass> >
 };
 
 template<typename CompClass>
-class MsgComponentDestroyed : public Message<MsgComponentDestroyed<CompClass> >
+struct MsgComponentDestroyed
 {
 	public:
 		MsgComponentDestroyed(EntityHandle entity_, ComponentType componentType_, ComponentHandle component_)
@@ -37,7 +37,7 @@ class MsgComponentDestroyed : public Message<MsgComponentDestroyed<CompClass> >
 		ComponentHandle component;
 };
 
-class MsgEntityCreated : public Message<MsgEntityCreated>
+struct MsgEntityCreated
 {
 	public:
 		MsgEntityCreated(EntityHandle entity_)
@@ -46,7 +46,7 @@ class MsgEntityCreated : public Message<MsgEntityCreated>
 		EntityHandle entity;
 };
 
-class MsgEntityDestroyed : public Message<MsgEntityDestroyed>
+struct MsgEntityDestroyed
 {
 public:
 	MsgEntityDestroyed(EntityHandle entity_)
@@ -55,10 +55,12 @@ public:
 	EntityHandle entity;
 };
 
-class ComponentProcessor : public MessengerEndpoint
+class ComponentProcessor : public Messaging::MessengerEndpoint
 {
 	friend class EntitySystem;
 	public:
+		ComponentProcessor(Messaging::Messenger* m) : MessengerEndpoint(m) {}
+
 		typedef void (ComponentProcessor::* processFunc)(void);
 		virtual ~ComponentProcessor() {}
 
@@ -78,11 +80,11 @@ class ComponentProcessor : public MessengerEndpoint
 
 };
 
-class BaseComponentHolder : public MessengerEndpoint
+class BaseComponentHolder : public Messaging::MessengerEndpoint
 {
 	friend class BaseEntitySystem;
 	public:
-		BaseComponentHolder(u32 componentSize, u32 nCompPerPool = 128);
+		BaseComponentHolder(Messaging::Messenger* m, u32 componentSize, u32 nCompPerPool = 128);
 
 		virtual ~BaseComponentHolder(){}
 
@@ -157,8 +159,8 @@ class ComponentHolder : public BaseComponentHolder
 {
 	friend class EntitySystem;
 	public:
-		ComponentHolder(u32 componentSize = sizeof(CompClass))
-			: BaseComponentHolder(componentSize)
+		ComponentHolder(Messaging::Messenger* m, u32 componentSize = sizeof(CompClass))
+			: BaseComponentHolder(m, componentSize)
 		{}
 
 		CompClass* getComponent(ComponentHandle componentID)
@@ -185,7 +187,7 @@ class ComponentHolder : public BaseComponentHolder
 
 		void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override
 		{
-			getMessenger()->SendMessage(MsgComponentDestroyed<CompClass>(entity, CompClass::getComponentType(), component));
+			getMessenger()->dispatch(MsgComponentDestroyed<CompClass>(entity, CompClass::getComponentType(), component));
 		}
 };
 

@@ -11,25 +11,24 @@ namespace BitEngine{
 	class CommandSystem : public System
 	{
 		public:
-			class MsgCommandInput : public Message<MsgCommandInput>
+			struct MsgCommandInput
 			{
-			public:
-				MsgCommandInput(int _id, float _intensity, int _other);
-				MsgCommandInput(int _id, float _intensity, InputReceiver::KeyAction _other);
-				MsgCommandInput(int _id, float _intensity, InputReceiver::MouseAction _other, double x, double y);
-				MsgCommandInput(int _id, float _intensity);
+				public:
+					MsgCommandInput(int _id, float _intensity, int _other);
+					MsgCommandInput(int _id, float _intensity, Input::KeyAction _other);
+					MsgCommandInput(int _id, float _intensity, Input::MouseAction _other, double x, double y);
+					MsgCommandInput(int _id, float _intensity);
 
-				const int commandID;
-				const float intensity;
-				double mouse_x; // Invalid unless Mouse input was used
-				double mouse_y; // Invalid unless Mouse input was used
+					const int commandID;
+					const float intensity;
+					double mouse_x; // Invalid unless Mouse input was used
+					double mouse_y; // Invalid unless Mouse input was used
 
-				union {
-					InputReceiver::KeyAction fromButton; // keyboard / mouse / joystick buttons
-					InputReceiver::MouseAction fromMouse;
-					int other;
-				} other;
-
+					union {
+						Input::KeyAction fromButton; // keyboard / mouse / joystick buttons
+						Input::MouseAction fromMouse;
+						int other;
+					} other;
 			};
 
 			CommandSystem(GameEngine* ge);
@@ -78,19 +77,19 @@ namespace BitEngine{
 			  * \param action	Key state needed
 			  * \param mod	Key modifiers (Shift, Alt, Ctrl, Super)
 			  */
-			bool RegisterKeyboardCommand(int commandID, int commandState, int key, InputReceiver::KeyAction action, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE);
+			bool RegisterKeyboardCommand(int commandID, int commandState, int key, Input::KeyAction action, Input::KeyMod mod = Input::KeyMod::NONE);
 
 			/**
 			 * Same for mouse commands
 			 */
-			bool RegisterMouseCommand(int commandID, int commandState, int button, InputReceiver::MouseAction action, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE);
+			bool RegisterMouseCommand(int commandID, int commandState, int button, Input::MouseAction action, Input::KeyMod mod = Input::KeyMod::NONE);
 
-			bool RegisterMouseMove(int commandID, int commandState, InputReceiver::KeyMod mod = InputReceiver::KeyMod::NONE){
-				return RegisterMouseCommand(commandID, commandState, 0, InputReceiver::MouseAction::MOVE, mod);
+			bool RegisterMouseMove(int commandID, int commandState, Input::KeyMod mod = Input::KeyMod::NONE){
+				return RegisterMouseCommand(commandID, commandState, 0, Input::MouseAction::MOVE, mod);
 			}
 
-			void Message_KeyboardInput(const BaseMessage& msg_);
-			void Message_MouseInput(const BaseMessage& msg);
+			void onMessage(const Input::MsgKeyboardInput& msg_);
+			void onMessage(const Input::MsgMouseInput& msg);
 
 		private:
 			enum class InputType : char{
@@ -103,17 +102,17 @@ namespace BitEngine{
 				CommandIdentifier()
 				{}
 
-				CommandIdentifier(int s, const InputReceiver::MsgKeyboardInput& k)
+				CommandIdentifier(int s, const Input::MsgKeyboardInput& k)
 					: commandState(s), MsgCommandInputType(InputType::keyboard), keyboard(k){}
 
-				CommandIdentifier(int s, const InputReceiver::MsgMouseInput& m)
+				CommandIdentifier(int s, const Input::MsgMouseInput& m)
 					: commandState(s), MsgCommandInputType(InputType::mouse), mouse(m){}
 
 				int commandState;
 				InputType MsgCommandInputType;
 
-				InputReceiver::MsgKeyboardInput keyboard;
-				InputReceiver::MsgMouseInput mouse;
+				Input::MsgKeyboardInput keyboard;
+				Input::MsgMouseInput mouse;
 			};
 
 			// CommandIdentifier Hash and Equal

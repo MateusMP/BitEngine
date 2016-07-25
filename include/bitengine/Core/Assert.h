@@ -5,17 +5,12 @@
 namespace BitEngine
 {
 	template<typename T>
-	static bool assertEqual(const T& a, const T& b) {
+	static void assertEqual(const T& expected, const T& value) {
 		if (BE_DEBUG) 
 		{
-			if (a == b) 
+			if (expected != value)
 			{
-				return true;
-			}
-			else
-			{
-				LOG(EngineLog, BE_LOG_ERROR) << "ASSERT FAIL";
-				return false;
+				LOG(EngineLog, BE_LOG_ERROR) << "ASSERT FAIL expected: " << expected << " got: " << value;
 			}
 		}
 	}

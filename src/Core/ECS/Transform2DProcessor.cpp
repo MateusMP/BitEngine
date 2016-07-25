@@ -5,7 +5,8 @@
 
 namespace BitEngine{
 
-	Transform2DProcessor::Transform2DProcessor()
+	Transform2DProcessor::Transform2DProcessor(Messaging::Messenger* m)
+		: ComponentProcessor(m)
 	{
 	}
 
@@ -16,10 +17,10 @@ namespace BitEngine{
 
 	bool Transform2DProcessor::Init()
 	{
-		getMessenger()->RegisterListener<MsgComponentCreated<Transform2DComponent> >
-			(this, BE_MESSAGE_HANDLER(Transform2DProcessor::onTransform2DComponentCreated));
-		getMessenger()->RegisterListener<MsgComponentDestroyed<Transform2DComponent> >
-			(this, BE_MESSAGE_HANDLER(Transform2DProcessor::onTransform2DComponentDestroyed));
+		getMessenger()->registerListener<MsgComponentCreated<Transform2DComponent> >
+			(this);
+		getMessenger()->registerListener<MsgComponentDestroyed<Transform2DComponent> >
+			(this);
 
 		return true;
 	}
@@ -39,9 +40,8 @@ namespace BitEngine{
 										 0.0f,				 0.0f,				 1.0f));
 	}
 
-	void Transform2DProcessor::onTransform2DComponentCreated(const BaseMessage& msg_)
+	void Transform2DProcessor::onMessage(const MsgComponentCreated<Transform2DComponent>& msg)
 	{
-		const MsgComponentCreated<Transform2DComponent>& msg = static_cast<const MsgComponentCreated<Transform2DComponent>&>(msg_);
 		const u32 nComponents = msg.component;
 
 		if (hierarchy.size() <= nComponents)
@@ -50,10 +50,8 @@ namespace BitEngine{
 		}
 	}
 
-	void Transform2DProcessor::onTransform2DComponentDestroyed(const BaseMessage& msg_)
+	void Transform2DProcessor::onMessage(const MsgComponentDestroyed<Transform2DComponent>& msg)
 	{
-		const MsgComponentDestroyed<Transform2DComponent>& msg = static_cast<const MsgComponentDestroyed<Transform2DComponent>&>(msg_);
-
 		// Childs lost their parent. Let them to the previous parent root.
 		for (ComponentHandle c : hierarchy[msg.component].childs)
 		{

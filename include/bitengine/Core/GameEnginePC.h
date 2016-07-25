@@ -49,26 +49,25 @@ namespace BitEngine
 		virtual ResourceLoader* getResourceLoader() override {
 			return loader;
 		}
-		virtual Messenger* getMessenger() override {
+		virtual Messaging::Messenger* getMessenger() override {
 			return &messenger;
 		}
 		virtual System* getSystem(const std::string& name) override;
 
 		protected:
-		void addSystem(System *sys);
+			void addSystem(System *sys);
 
-		private:
-		bool initSystems();
-		void shutdownSystems();
+			private:
+			bool initSystems();
+			void shutdownSystems();
 
-		std::vector<System*> systems;
-		std::vector<System*> systemsToShutdown;
-		bool running;
-		int lastSystemInitialized;
+			std::map<std::string, System*> systems;
+			std::vector<System*> systemsToShutdown;
+			bool running;
 
-		Messenger messenger;
-		EngineConfiguration configuration;
-		ResourceLoader* loader;
+			Messaging::Messenger messenger;
+			EngineConfiguration configuration;
+			ResourceLoader* loader;
 	};
 
 }

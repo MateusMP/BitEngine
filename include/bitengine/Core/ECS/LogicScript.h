@@ -15,9 +15,12 @@ namespace BitEngine{
 		virtual void OnCollision() = 0;
 	};
 
-	class GameLogic : public MessengerEndpoint
+	class GameLogic : public Messaging::MessengerEndpoint
 	{
 		public:
+			GameLogic(Messaging::Messenger* m)
+				: MessengerEndpoint(m) {}
+
 			enum RunEvents : u16 {
 				EFrameStart = 1,
 				EFrameMiddle = 2,

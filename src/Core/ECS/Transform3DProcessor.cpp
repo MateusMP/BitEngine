@@ -4,21 +4,21 @@
 
 namespace BitEngine{
 
-	Transform3DProcessor::Transform3DProcessor()
+	Transform3DProcessor::Transform3DProcessor(Messaging::Messenger* m)
+		: ComponentProcessor(m)
 	{
+		getMessenger()->registerListener<MsgComponentCreated<Transform3DComponent> >(this);
+		getMessenger()->registerListener<MsgComponentDestroyed<Transform3DComponent> >(this);
 	}
 
 	Transform3DProcessor::~Transform3DProcessor()
 	{
+		getMessenger()->unregisterListener<MsgComponentCreated<Transform3DComponent> >(this);
+		getMessenger()->unregisterListener<MsgComponentDestroyed<Transform3DComponent> >(this);
 	}
 
 	bool Transform3DProcessor::Init()
 	{
-		getMessenger()->RegisterListener<MsgComponentCreated<Transform3DComponent> >
-			(this, BE_MESSAGE_HANDLER(Transform3DProcessor::onTransform3DComponentCreated));
-		getMessenger()->RegisterListener<MsgComponentDestroyed<Transform3DComponent> >
-			(this, BE_MESSAGE_HANDLER(Transform3DProcessor::onTransform3DComponentDestroyed));
-
 		return true;
 	}
 
@@ -32,9 +32,8 @@ namespace BitEngine{
 		mat = glm::translate(glm::mat4_cast(comp.rotation) * glm::scale(glm::mat4(1), comp.scale), comp.position);
 	}
 
-	void Transform3DProcessor::onTransform3DComponentCreated(const BaseMessage& msg_)
+	void Transform3DProcessor::onMessage(const MsgComponentCreated<Transform3DComponent>& msg)
 	{
-		const MsgComponentCreated<Transform3DComponent>& msg = static_cast<const MsgComponentCreated<Transform3DComponent>&>(msg_);
 		const u32 nComponents = msg.component;
 
 		if (localTransform.size() <= nComponents)
@@ -45,10 +44,8 @@ namespace BitEngine{
 		}
 	}
 
-	void Transform3DProcessor::onTransform3DComponentDestroyed(const BaseMessage& msg_)
+	void Transform3DProcessor::onMessage(const MsgComponentDestroyed<Transform3DComponent>& msg)
 	{
-		const MsgComponentDestroyed<Transform3DComponent>& msg = static_cast<const MsgComponentDestroyed<Transform3DComponent>&>(msg_);
-
 		// Childs lost their parent. Let them to the previous parent root.
 		for (ComponentHandle c : hierarchy[msg.component].childs)
 		{

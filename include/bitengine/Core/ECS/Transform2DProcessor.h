@@ -14,7 +14,7 @@ namespace BitEngine{
 	class Transform2DProcessor : public ComponentProcessor
 	{
 		public:
-			Transform2DProcessor();
+			Transform2DProcessor(Messaging::Messenger* m);
 			~Transform2DProcessor();
 
 			/// Processor
@@ -52,14 +52,15 @@ namespace BitEngine{
 								 BitEngine::sign(d) * sqrt(c*c + d*d) );
 			}
 
+			// Message handling
+			void onMessage(const MsgComponentCreated<Transform2DComponent>& msg);
+			void onMessage(const MsgComponentDestroyed<Transform2DComponent>& msg);
+
 		protected:
 			// Calculate the local model matrix for given Transform2DComponent
 			// This is exposed to simplify implementations of customs Transform2DProcessors
 			static void CalculateLocalModelMatrix(const Transform2DComponent& component, glm::mat3& mat);
 
-			// Message handling
-			void onTransform2DComponentCreated(const BaseMessage& msg_);
-			void onTransform2DComponentDestroyed(const BaseMessage& msg_);
 
 		private: // Functions
 			void setParentOf(ComponentHandle a, ComponentHandle parent);

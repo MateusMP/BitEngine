@@ -34,7 +34,6 @@ class EntitySystem : public BaseEntitySystem
 			for (ComponentProcessor* p : m_processors)
 			{
 				p->m_es = this;
-				p->setMessenger(getEngine()->getMessenger());
 				p->Init();
 			}
 
@@ -56,7 +55,6 @@ class EntitySystem : public BaseEntitySystem
 		void InitComponentProcessor(ComponentProcessor* cp)
 		{
 			cp->m_es = this;
-			cp->setMessenger(getEngine()->getMessenger());
 			cp->Init();
 		}
 
@@ -130,21 +128,14 @@ class EntitySystem : public BaseEntitySystem
 		}
 
 		template<typename CompClass>
-		bool RegisterComponent(ComponentHolder<CompClass>* holder = nullptr, bool autoRegisterMsgType = true)
+		bool RegisterComponent(ComponentHolder<CompClass>* holder = nullptr)
 		{
 			static_assert(!std::is_pod<CompClass>::value, "Components should be POD!");
-
-			// Register message types
-			if (autoRegisterMsgType)
-			{
-				MsgComponentCreated<CompClass>::MessageType();
-				MsgComponentDestroyed<CompClass>::MessageType();
-			}
 
 			if (holder == nullptr)
 			{
 				LOG(EngineLog, BE_LOG_WARNING) << "Using generic ComponentHolder for " << typeid(CompClass).name();
-				holder = new ComponentHolder<CompClass>();
+				holder = new ComponentHolder<CompClass>(getEngine()->getMessenger());
 			}
 
 			if (!registerComponentHolder(CompClass::getComponentType(), holder))
@@ -181,7 +172,7 @@ class EntitySystem : public BaseEntitySystem
 				ComponentHolder<CompClass>* holder = getHolder<CompClass>();
 				compID = holder->createComponent(entity, comp, args...);
 
-				getEngine()->getMessenger()->SendMessage(MsgComponentCreated<CompClass>(entity, type, compID));
+				getEngine()->getMessenger()->dispatch(MsgComponentCreated<CompClass>(entity, type, compID));
 			}
 
 			return ComponentRef<CompClass>(entity, compID, this, comp);

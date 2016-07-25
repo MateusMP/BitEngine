@@ -4,7 +4,7 @@
 namespace BitEngine{
 
 	Camera3DProcessor::Camera3DProcessor(Transform3DProcessor* t3dp)
-		: transform3DProcessor(t3dp)
+		: ComponentProcessor(t3dp->getMessenger()), transform3DProcessor(t3dp)
 	{
 	}
 

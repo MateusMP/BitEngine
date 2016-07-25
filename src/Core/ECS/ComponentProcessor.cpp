@@ -3,8 +3,9 @@
 
 namespace BitEngine {
 
-	BaseComponentHolder::BaseComponentHolder(u32 componentSize, u32 nCompPerPool /*= 100*/)
-		: m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool),
+	BaseComponentHolder::BaseComponentHolder(Messaging::Messenger* m, u32 componentSize, u32 nCompPerPool /*= 100*/)
+		: MessengerEndpoint(m),
+		m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool),
 		m_IDcurrent(1), m_workingComponents(0), m_pools(), m_byEntity(128, 0)
 	{
 		m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]); // init first pool

@@ -2,21 +2,22 @@
 
 namespace BitEngine{
 
-	GameLogicProcessor::GameLogicProcessor()
+	GameLogicProcessor::GameLogicProcessor(Messaging::Messenger* m)
+		: ComponentProcessor(m)
 	{
+		getMessenger()->registerListener<MsgComponentCreated<GameLogicComponent> >(this);
+		getMessenger()->registerListener<MsgComponentDestroyed<GameLogicComponent> >(this);
 	}
 
 	GameLogicProcessor::~GameLogicProcessor()
 	{
-
+		getMessenger()->unregisterListener<MsgComponentCreated<GameLogicComponent> >(this);
+		getMessenger()->unregisterListener<MsgComponentDestroyed<GameLogicComponent> >(this);
 	}
 
 	bool GameLogicProcessor::Init()
 	{
 		gameLogicHolder = getES()->getHolder<GameLogicComponent>();
-		getMessenger()->RegisterListener<MsgComponentCreated<GameLogicComponent> >(this, BE_MESSAGE_HANDLER(GameLogicProcessor::onGameLogicComponentCreated));
-		getMessenger()->RegisterListener<MsgComponentDestroyed<GameLogicComponent> >(this, BE_MESSAGE_HANDLER(GameLogicProcessor::onGameLogicComponentDestroyed));
-
 		return true;
 	}
 
@@ -44,7 +45,6 @@ namespace BitEngine{
 			for (size_t i = 0; i < pieces.size(); ++i)
 			{
 				GameLogic* logic = pieces[i];
-				logic->setMessenger(getMessenger());
 				GameLogic::RunEvents ev = logic->getRunEvents();
 				if (ev & GameLogic::RunEvents::EFrameStart){
 					m_onFrameStart.emplace_back(logic);
@@ -87,9 +87,8 @@ namespace BitEngine{
 		}
 	}
 
-	void GameLogicProcessor::onGameLogicComponentCreated(const BaseMessage& msg_)
+	void GameLogicProcessor::onMessage(const MsgComponentCreated<GameLogicComponent>& msg)
 	{
-		const MsgComponentCreated<GameLogicComponent> msg = static_cast<const MsgComponentCreated<GameLogicComponent>&>(msg_);
 		GameLogicComponent* glc =  gameLogicHolder->getComponent(msg.component);
 		glc->e_sys = getES();
 		glc->m_entity = msg.entity;
@@ -97,9 +96,8 @@ namespace BitEngine{
 		m_notInitialized.emplace_back(msg.component);
 	}
 
-	void GameLogicProcessor::onGameLogicComponentDestroyed(const BaseMessage& msg_)
+	void GameLogicProcessor::onMessage(const MsgComponentDestroyed<GameLogicComponent>& msg)
 	{
-		const MsgComponentDestroyed<GameLogicComponent> msg = static_cast<const MsgComponentDestroyed<GameLogicComponent>&>(msg_);
 		GameLogicComponent* comp = gameLogicHolder->getComponent(msg.component);
 		auto& pieces = comp->m_gamelogics;
 		for (size_t i = 0; i < pieces.size(); ++i)

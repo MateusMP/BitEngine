@@ -8,17 +8,20 @@
 
 #include "GLFW_VideoDriver.h"
 
-class GLFW_InputDriver : public BitEngine::IInputDriver
+class GLFW_InputDriver : public BitEngine::Input::IInputDriver
 {
 public:
+	GLFW_InputDriver(BitEngine::Messaging::Messenger* m);
+	~GLFW_InputDriver(){}
+
 	bool Init() override;
 
 	void inputWindowCreated(BitEngine::Window* window) override;
 	void inputWindowDestroyed(BitEngine::Window* window) override;
 
-	BitEngine::InputReceiver::KeyMod isKeyPressed(int key) override;
+	BitEngine::Input::KeyMod isKeyPressed(int key) override;
 
-	BitEngine::InputReceiver::KeyMod keyReleased(int key) override;
+	BitEngine::Input::KeyMod keyReleased(int key) override;
 
 	double getMouseX() const override;
 
@@ -31,7 +34,7 @@ private:
 	static void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
 	static void GlfwMousePosCallback(GLFWwindow* window, double x, double y);
 
-	static std::unordered_map<GLFWwindow*, BitEngine::InputReceiver> inputReceivers;
+	static std::unordered_map<GLFWwindow*, BitEngine::Input::InputReceiver> inputReceivers;
 
 	LOG_CLASS(BitEngine::EngineLog.getOutputSink());
 };
