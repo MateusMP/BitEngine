@@ -55,6 +55,7 @@
     <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
+    <ClInclude Include="include\bitengine\Core\Input.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSpecification.h" />
     <ClInclude Include="include\bitengine\Core\InputSystem.h" />
     <ClInclude Include="include\bitengine\Core\Resources\DevResourceLoader.h" />
@@ -119,6 +120,7 @@
     <ClCompile Include="src\Core\ECS\Transform3DComponent.cpp" />
     <ClCompile Include="src\Core\ECS\Transform3DProcessor.cpp" />
     <ClCompile Include="src\Core\EngineConfiguration.cpp" />
+    <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\error_texture.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestBitfield|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">false</ExcludedFromBuild>

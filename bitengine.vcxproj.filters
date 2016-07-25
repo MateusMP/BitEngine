@@ -88,6 +88,7 @@
     <ClInclude Include="include\bitengine\Common\Header.h" />
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
+    <ClInclude Include="include\bitengine\Core\Input.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -128,6 +129,7 @@
     <ClCompile Include="src\Core\Resources\DevResourceLoader.cpp" />
     <ClCompile Include="src\Core\GameEnginePC.cpp" />
     <ClCompile Include="src\Core\Graphics\Shader.cpp" />
+    <ClCompile Include="src\Core\Input.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\bitengine\Core\Graphics\Shaders\sprite2D_gl2.frag" />
