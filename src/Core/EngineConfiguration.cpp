@@ -128,7 +128,7 @@ namespace BitEngine{
 		else { // May be a config
 
 			// Find final character
-			auto end = workLine.find_last_of(CONFIG_VALUE_SEPARATOR_CHAR);
+			size_t end = workLine.find_last_of(CONFIG_VALUE_SEPARATOR_CHAR);
 			if (end == workLine.size()){
 				LOG(EngineLog, BE_LOG_WARNING) << "EngineConfiguration: configuration not defined properly? Missing < " << CONFIG_VALUE_SEPARATOR_CHAR << " >";
 				return ERROR_BAD_CONFIG;
@@ -150,12 +150,17 @@ namespace BitEngine{
 			}
 
 			// +1 so we ignore the ':'
-			auto begin = workLine.find_first_not_of(BLANK_SPACES, end + 1);
-			std::string configValue = workLine.substr(begin, workLine.find_first_of(BLANK_SPACES, begin));
+			size_t begin = workLine.find_first_not_of(BLANK_SPACES, end + 1);
+			if (begin != std::string::npos)
+			{
+				size_t end = workLine.find_first_of(BLANK_SPACES, begin);
+				if (end == std::string::npos)
+					end = begin-1;
+				const std::string configValue = workLine.substr(begin, end - begin);
+				configItem->setValue(configValue);
+				LOG(EngineLog, BE_LOG_INFO) << "CONFIG " << workingSystem->first << ": " << configName << " set to '" << configValue << "'";
+			}
 
-			configItem->setValue(configValue);
-
-			LOG(EngineLog, BE_LOG_INFO) << "CONFIG " << workingSystem->first << ": " << configName << " set to '" << configValue << "'";
 			return 2;
 		}
 

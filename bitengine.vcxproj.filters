@@ -37,7 +37,6 @@
     <ClInclude Include="include\bitengine\Core\Logger.h" />
     <ClInclude Include="include\bitengine\Core\MessageType.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSystem.h" />
-    <ClInclude Include="include\bitengine\Core\SmartManager.h" />
     <ClInclude Include="include\bitengine\Core\Sprite.h" />
     <ClInclude Include="include\bitengine\Core\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\Core\System.h" />

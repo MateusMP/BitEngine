@@ -112,6 +112,17 @@
 #define LOG_FUNCTION_TIME(logto)
 #endif
 
+/*
+	Available DEFINED functions:
+	LOG(Logger, Level) << "Log with a given level";
+	LOGIFTRUE(Logger, Level, Expression) << "Log only if expression is true";
+	LOGIFNULL(Logger, Level, Expression) << "Log only if expression returns nullptr";
+	LOG_CLASS(Logger) << "Create a static logger to be used by the class";
+	LOG_SCOPE_TIME(Logger, Description) << "Log the time to execute the current scope"
+	LOG_FUNCTION_TIME(Logger) << "Log the time to execute the current function";
+
+*/
+
 namespace BitEngine {
 
 

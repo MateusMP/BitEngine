@@ -8,7 +8,7 @@ namespace BitEngine{
 class Task {
     public:
         // Task Message
-        struct TaskCompleted{
+        struct TaskCompleted {
             TaskCompleted(Task *t) : m_task(t) {}
             std::shared_ptr<Task> m_task;
         };

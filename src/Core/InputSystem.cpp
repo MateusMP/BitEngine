@@ -1,8 +1,5 @@
-
 #include "Core/InputSystem.h"
-
 #include "Core/Messenger.h"
-
 #include "Core/Logger.h"
 
 namespace BitEngine{

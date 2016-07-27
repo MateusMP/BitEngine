@@ -80,7 +80,6 @@
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGLheaders.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\ShaderProgram.h" />
-    <ClInclude Include="include\bitengine\Core\SmartManager.h" />
     <ClInclude Include="include\bitengine\Core\Sprite.h" />
     <ClInclude Include="include\bitengine\Core\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\Core\SpriteManager.h" />

@@ -24,10 +24,11 @@ namespace BitEngine
 		}
 
 		void setValue(bool newValue) {
-			if (newValue)
+			if (newValue) {
 				value = "true";
-			else
+			} else {
 				value = "false";
+			}
 		}
 
 		double getValueAsReal() const {
@@ -35,7 +36,7 @@ namespace BitEngine
 		}
 
 		bool getValueAsBool() const {
-			return (value == "true" || value == "1");
+			return ( (value.compare("true") == 0) || (value.compare("1") == 0) );
 		}
 
 		const std::string& getValueAsString() const {
@@ -78,7 +79,7 @@ namespace BitEngine
 
 		bool AddConfiguration(const std::string& name, const std::string& description, const std::string& defaultValue="")
 		{
-			return configs.insert(std::pair<std::string, ConfigurationItem>(name, ConfigurationItem(name, description, defaultValue))).second;
+			return configs.insert(std::pair<std::string, ConfigurationItem>(name, ConfigurationItem(name, defaultValue, description))).second;
 		}
 
 		ConfigurationItem* getConfig(const std::string& name)
