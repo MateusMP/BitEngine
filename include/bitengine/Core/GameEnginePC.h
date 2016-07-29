@@ -25,6 +25,8 @@
 #include "Core/Messenger.h"
 #include "Core/GameEngine.h"
 
+#include "Core/GeneralTaskManager.h"
+
 namespace BitEngine 
 {
 	class GameEnginePC : public GameEngine
@@ -54,6 +56,10 @@ namespace BitEngine
 		}
 		virtual System* getSystem(const std::string& name) override;
 
+		virtual TaskManager* getTaskManager() override {
+			return &taskManager;
+		}
+
 		protected:
 			void addSystem(System *sys);
 
@@ -68,6 +74,7 @@ namespace BitEngine
 			Messaging::Messenger messenger;
 			EngineConfiguration configuration;
 			ResourceLoader* loader;
+			GeneralTaskManager taskManager;
 	};
 
 }

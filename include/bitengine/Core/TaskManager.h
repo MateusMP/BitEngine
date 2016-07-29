@@ -1,27 +1,25 @@
 #pragma once
 
-#include <memory>
-#include <deque>
+#include <thread>
+#include <vector>
 
 #include "Core/Task.h"
 
 namespace BitEngine{
 
 
-class TaskManager{
+	class TaskManager
+	{
+		public:
+			virtual void init() = 0;
+			virtual void update() = 0;
+			virtual void shutdown() = 0;
 
-    public:
-        typedef std::deque<Task*> TaskList;
+			virtual void addTask(Task *task) = 0;
+			virtual void scheduleToNextFrame(Task *task) = 0;
 
-        void AddTask(Task *task);
-
-
-    private:
-
-        void Execute(Task *task);
-
-
-};
+		private:
+	};
 
 
 

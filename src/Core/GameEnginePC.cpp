@@ -7,7 +7,7 @@
 namespace BitEngine{
 
 GameEnginePC::GameEnginePC(const std::string& configFile, ResourceLoader* _loader)
-	: configuration(configFile), loader(_loader)
+	: configuration(configFile), loader(_loader), taskManager(this->getMessenger())
 {
 }
 
@@ -54,6 +54,8 @@ bool GameEnginePC::initSystems()
 	LOG(EngineLog, BE_LOG_INFO) << "Loadiging system configurations...";
 	configuration.LoadConfigurations();
 
+	taskManager.init();
+
 	LOG(EngineLog, BE_LOG_INFO) << "Loadiging systems...";
     for ( auto& it : systems )
     {
@@ -66,7 +68,7 @@ bool GameEnginePC::initSystems()
 
 		systemsToShutdown.push_back(s);
     }
-
+	
 	LOG(EngineLog, BE_LOG_INFO) << "All systems set!";
 
     return true;
@@ -91,6 +93,8 @@ void GameEnginePC::shutdownSystems()
 		System* s = it.second;
 		delete s;
 	}
+
+	taskManager.shutdown();
 
 	systems.clear();
 	systemsToShutdown.clear();

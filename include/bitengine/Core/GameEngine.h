@@ -9,6 +9,7 @@ namespace BitEngine{
 	class ResourceLoader;
 	class Messenger;
 	class System;
+	class TaskManager;
 
 	class GameEngine
 	{
@@ -17,6 +18,7 @@ namespace BitEngine{
 		virtual ResourceLoader* getResourceLoader() = 0;
 		virtual Messaging::Messenger* getMessenger() = 0;
 		virtual System* getSystem(const std::string& name) = 0;
+		virtual TaskManager* getTaskManager() = 0;
 	};
 
 	class EnginePiece

@@ -25,6 +25,7 @@
     <ClInclude Include="include\bitengine\Common\MacroHelpers.h" />
     <ClInclude Include="include\bitengine\Common\MathUtils.h" />
     <ClInclude Include="include\bitengine\Common\Property.h" />
+    <ClInclude Include="include\bitengine\Common\ThreadSafeVector.h" />
     <ClInclude Include="include\bitengine\Common\VectorBool.h" />
     <ClInclude Include="include\bitengine\Core\Assert.h" />
     <ClInclude Include="include\bitengine\Core\Color.h" />
@@ -51,6 +52,7 @@
     <ClInclude Include="include\bitengine\Core\EngineConfiguration.h" />
     <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
     <ClInclude Include="include\bitengine\Core\GameEngine.h" />
+    <ClInclude Include="include\bitengine\Core\GeneralTaskManager.h" />
     <ClInclude Include="include\bitengine\Core\Graphics.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
@@ -134,7 +136,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\Core\SpriteManager.cpp" />
-    <ClCompile Include="src\Core\Task.cpp" />
+    <ClCompile Include="src\Core\GeneralTaskManager.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\Core\VideoSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputDriver.cpp">

@@ -88,6 +88,8 @@
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
     <ClInclude Include="include\bitengine\Core\Input.h" />
+    <ClInclude Include="include\bitengine\Core\GeneralTaskManager.h" />
+    <ClInclude Include="include\bitengine\Common\ThreadSafeVector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -107,7 +109,6 @@
     <ClCompile Include="src\Core\ResourceSystem.cpp" />
     <ClCompile Include="src\Core\Sprite2DShader.cpp" />
     <ClCompile Include="src\Core\SpriteManager.cpp" />
-    <ClCompile Include="src\Core\Task.cpp" />
     <ClCompile Include="src\Core\VideoSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\ShaderProgram.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_VideoDriver.cpp" />
@@ -129,6 +130,7 @@
     <ClCompile Include="src\Core\GameEnginePC.cpp" />
     <ClCompile Include="src\Core\Graphics\Shader.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
+    <ClCompile Include="src\Core\GeneralTaskManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\bitengine\Core\Graphics\Shaders\sprite2D_gl2.frag" />
