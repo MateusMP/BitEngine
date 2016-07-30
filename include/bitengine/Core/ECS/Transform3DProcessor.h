@@ -9,7 +9,7 @@ namespace BitEngine{
 	class Transform3DProcessor : public ComponentProcessor
 	{
 	public:
-		Transform3DProcessor(Messaging::Messenger* m);
+		Transform3DProcessor(Messenger* m);
 		~Transform3DProcessor();
 
 		// Processor

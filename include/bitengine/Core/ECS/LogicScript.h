@@ -18,7 +18,7 @@ namespace BitEngine{
 	class GameLogic : public Messaging::MessengerEndpoint
 	{
 		public:
-			GameLogic(Messaging::Messenger* m)
+			GameLogic(Messenger* m)
 				: MessengerEndpoint(m) {}
 
 			enum RunEvents : u16 {

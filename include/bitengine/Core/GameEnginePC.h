@@ -51,7 +51,7 @@ namespace BitEngine
 		virtual ResourceLoader* getResourceLoader() override {
 			return loader;
 		}
-		virtual Messaging::Messenger* getMessenger() override {
+		virtual Messenger* getMessenger() override {
 			return &messenger;
 		}
 		virtual System* getSystem(const std::string& name) override;
@@ -69,9 +69,8 @@ namespace BitEngine
 
 			std::map<std::string, System*> systems;
 			std::vector<System*> systemsToShutdown;
-			bool running;
 
-			Messaging::Messenger messenger;
+			Messenger messenger;
 			EngineConfiguration configuration;
 			ResourceLoader* loader;
 			GeneralTaskManager taskManager;

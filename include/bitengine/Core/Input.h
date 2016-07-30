@@ -96,7 +96,7 @@ namespace BitEngine {
 		class InputReceiver : public Messaging::MessengerEndpoint
 		{
 			public:
-			InputReceiver(Messaging::Messenger* m) : MessengerEndpoint(m) {}
+			InputReceiver(Messenger* m) : MessengerEndpoint(m) {}
 
 			void keyboardInput(int key, int scancode, KeyAction action, int mods);
 			void mouseInput(int button, MouseAction action, int mods);
@@ -122,7 +122,7 @@ namespace BitEngine {
 		class IInputDriver : public Messaging::MessengerEndpoint
 		{
 			public:
-			IInputDriver(Messaging::Messenger* m) : MessengerEndpoint(m) {}
+			IInputDriver(Messenger* m) : MessengerEndpoint(m) {}
 			virtual ~IInputDriver() {}
 
 			virtual bool Init() = 0;

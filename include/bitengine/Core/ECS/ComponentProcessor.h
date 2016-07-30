@@ -59,7 +59,7 @@ class ComponentProcessor : public Messaging::MessengerEndpoint
 {
 	friend class EntitySystem;
 	public:
-		ComponentProcessor(Messaging::Messenger* m) : MessengerEndpoint(m) {}
+		ComponentProcessor(Messenger* m) : MessengerEndpoint(m) {}
 
 		typedef void (ComponentProcessor::* processFunc)(void);
 		virtual ~ComponentProcessor() {}
@@ -84,7 +84,7 @@ class BaseComponentHolder : public Messaging::MessengerEndpoint
 {
 	friend class BaseEntitySystem;
 	public:
-		BaseComponentHolder(Messaging::Messenger* m, u32 componentSize, u32 nCompPerPool = 128);
+		BaseComponentHolder(Messenger* m, u32 componentSize, u32 nCompPerPool = 128);
 
 		virtual ~BaseComponentHolder(){}
 
@@ -159,7 +159,7 @@ class ComponentHolder : public BaseComponentHolder
 {
 	friend class EntitySystem;
 	public:
-		ComponentHolder(Messaging::Messenger* m, u32 componentSize = sizeof(CompClass))
+		ComponentHolder(Messenger* m, u32 componentSize = sizeof(CompClass))
 			: BaseComponentHolder(m, componentSize)
 		{}
 

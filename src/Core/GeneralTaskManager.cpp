@@ -15,75 +15,60 @@ namespace BitEngine{
 	}
 
 	// Return false if dit nothing
-	bool TaskWorker::mainWork(std::shared_ptr<Task> task)
+	void TaskWorker::process(TaskPtr task)
 	{
-		if (task.get() != nullptr)
+		if (manager->taskReadyToRun(task))
 		{
-			if (task->getDependency() == nullptr
-				|| (task->getDependency() != nullptr && task->getDependency()->finished()))
-			{
-				task->run();
-				if (task->finished())
-				{
-					manager->getMessenger()->delayedDispatch(TaskCompleted(task));
-					task.reset(); // Do not schedule it again.
-				}
+			task->run();
+
+			if (task->isFrameRequired()){
+				manager->incFinishedFrameRequired();
 			}
 
-			// Not finished yet? reschedule.
-			if (task.get() != nullptr)
+			if (task->isRepeating())
 			{
-				if (task->getFlags() == Task::TASK_MODE::FRAME_SYNC)
+				if (task->isOncePerFrame())
 				{
-					manager->scheduleToNextFrame(task.get());
+					manager->scheduleToNextFrame(task);
 				}
 				else
 				{
-					manager->addTask(task.get());
+					manager->addTask(task);
 				}
 			}
 
-			return true;
+			manager->getEngine()->getMessenger()->delayedDispatch(MsgTaskCompleted(task));
 		}
 		else
 		{
-			return false;
+			manager->addTask(task);
 		}
 	}
 
 	void TaskWorker::work()
 	{
-		if (affinity == Task::Affinity::MAIN)
+		int k = 0;
+		do
 		{
-			mainWork(nextTask());
-		}
-		else
-		{
-			int k = 0;
-			while (working)
+			TaskPtr task = nextTask();
+			if (task == nullptr)
 			{
-				if (!mainWork(nextTask())) 
-				{
-					std::this_thread::yield();
-					if (!mainWork(nextTask()))
-					{
-						std::this_thread::sleep_for(std::chrono::microseconds(++k));
-						if (k > 100) { k = 100; }
-					}
-					else 
-					{ k = 0; }
-				}
+				std::this_thread::yield();
 			}
-		}
+			else
+			{
+				process(task);
+			}
+		} while (working);
 	}
 
-	std::shared_ptr<Task> TaskWorker::nextTask()
+	TaskPtr TaskWorker::nextTask()
 	{
-		std::shared_ptr<Task> newTask;
+		TaskPtr newTask;
 		if (!taskQueue.tryPop(newTask))
 		{
 			int queueIdx = nextThread++;
-			manager->getWorker(queueIdx)->taskQueue.tryPop(newTask);
+			manager->getWorker(queueIdx)->taskQueue.tryPop(newTask); // TODO: avoid self target?
 		}
 
 		return newTask;
@@ -97,14 +82,27 @@ namespace BitEngine{
 		}
 	}
 
-	GeneralTaskManager::GeneralTaskManager(Messaging::Messenger* m)
-		: Messaging::MessengerEndpoint(m)
+	GeneralTaskManager::GeneralTaskManager(GameEngine* ge)
+		: TaskManager(ge)
 	{
+		mainThread = std::this_thread::get_id();
+		LOG(EngineLog, BE_LOG_INFO) << "Main thread: " << mainThread;
+		mainloop = true;
+		requiredTasksFrame = 0;
+		finishedRequiredTasks = 0;
+	}
+
+	bool GeneralTaskManager::taskReadyToRun(TaskPtr task)
+	{
+		if (task->getDependency() == nullptr)
+			return true;
+		return task->getDependency()->hasPendingWork() == false;
 	}
 
 	void GeneralTaskManager::init()
 	{
-		const int nThreads = std::thread::hardware_concurrency();
+		const int nThreads = std::thread::hardware_concurrency() + 1;
+
 		workers.resize(nThreads);
 		LOG(EngineLog, BE_LOG_INFO) << "Task manager initializing " << nThreads << " threads";
 
@@ -122,17 +120,38 @@ namespace BitEngine{
 
 	void GeneralTaskManager::update()
 	{
-		workers[0]->work();
+		while (mainloop)
+		{
+			getEngine()->getMessenger()->dispatch(MsgFrameStart());
 
-		std::vector<std::shared_ptr<Task> > swaped; 
+			while (finishedRequiredTasks != requiredTasksFrame)
+			{
+				executeMain();
+			}
+
+			getEngine()->getMessenger()->dispatch(MsgFrameEnd());
+
+			prepareNextFrame();
+
+			Time::Tick();
+		}
+	}
+
+	void GeneralTaskManager::prepareNextFrame()
+	{
+		std::vector<TaskPtr > swaped;
 		{
 			std::lock_guard<std::mutex> lock(nextFrameTasksMutex);
 			swaped.swap(scheduledTasks);
 			scheduledTasks.clear();
+			addTaskMutex.lock();
+			finishedRequiredTasks = 0;
+			requiredTasksFrame = 0;
+			addTaskMutex.unlock();
 		}
-		for (std::shared_ptr<Task>& task : swaped)
+		for (TaskPtr& task : swaped)
 		{
-			addTask(task.get());
+			addTask(task);
 		}
 	}
 
@@ -140,22 +159,33 @@ namespace BitEngine{
 	{
 		for (TaskWorker* tw : workers)
 		{
-			tw->stop();
-		}
-
-		for (TaskWorker* tw : workers)
-		{
 			tw->wait();
 			delete tw;
 		}
+
+		workers.clear();
 	}
 
-	void GeneralTaskManager::addTask(Task *task)
+	void GeneralTaskManager::stop()
 	{
-		if (task->getDependency().get() != nullptr)
+		mainloop = false;
+
+		for (TaskWorker* tw : workers)
 		{
-			dependencyTree.emplace(task->getDependency(), task);
+			tw->stop();
 		}
+	}
+
+	void GeneralTaskManager::addTask(TaskPtr task)
+	{
+		{ // lock
+			std::lock_guard<std::mutex> lock(addTaskMutex);
+			
+			if (task->isFrameRequired())
+			{
+				++requiredTasksFrame;
+			}
+		} // unlock
 
 		if (task->getAffinity() == Task::Affinity::MAIN) {
 			workers[0]->taskQueue.push(task);
@@ -164,15 +194,65 @@ namespace BitEngine{
 		}
 	}
 
-	void GeneralTaskManager::scheduleToNextFrame(Task *task)
+	void GeneralTaskManager::scheduleToNextFrame(TaskPtr task)
 	{
 		std::lock_guard<std::mutex> lock(nextFrameTasksMutex);
 		scheduledTasks.emplace_back(task);
 	}
+
+	void GeneralTaskManager::waitTask(TaskPtr& task)
+	{
+		if (std::this_thread::get_id() != mainThread)
+		{
+			throw std::domain_error("Only the main thread may wait for a task!");
+		}
+
+		int k = 1;
+		while (task->hasPendingWork())
+		{
+			executeWorkersWork(k++);
+		}
+	}
+
+	void GeneralTaskManager::executeMain()
+	{
+		TaskPtr task = workers[0]->nextTask();
+		if (task != nullptr) {
+			workers[0]->process(task);
+		} else {
+			executeWorkersWork(0);
+		}
+	}
 	
+	void GeneralTaskManager::executeWorkersWork(int i)
+	{
+		TaskPtr task;
+		int startedAt = clampToWorkers(i);
+		i = clampToWorkers(i);
+		do {
+			task = workers[i]->nextTask();
+			if (task != nullptr) { break; }
+			i = clampToWorkers(i);
+		} while (i != startedAt);
+
+		if (task == nullptr) {
+			std::this_thread::yield();
+		}
+	}
+
 	TaskWorker* GeneralTaskManager::getWorker(u32 index)
 	{
-		index = 1 + (index % (workers.size() - 1));
-		return workers[index];
+		return workers[clampToWorkers(index)];
+	}
+
+	void GeneralTaskManager::incFinishedFrameRequired()
+	{
+		std::lock_guard<std::mutex> lock(addTaskMutex);
+		++finishedRequiredTasks;
+	}
+
+	u32 GeneralTaskManager::clampToWorkers(u32 value)
+	{
+		return value = 1 + (value % (workers.size() - 1));;
 	}
 }

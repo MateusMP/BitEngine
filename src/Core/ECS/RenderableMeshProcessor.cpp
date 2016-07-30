@@ -2,7 +2,7 @@
 
 namespace BitEngine{
 
-	RenderableMeshProcessor::RenderableMeshProcessor(Messaging::Messenger* m)
+	RenderableMeshProcessor::RenderableMeshProcessor(Messenger* m)
 		: ComponentProcessor(m)
 	{
 	}

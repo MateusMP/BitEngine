@@ -31,10 +31,6 @@ namespace BitEngine {
 			getEngine()->getResourceLoader()->registerResourceManager("SHADER", m_driver->getRenderer()->getShaderManager());
 
 			m_window = m_driver->CreateWindow(windowConfig);
-			if (m_window)
-			{
-
-			}
 
 			return m_window != nullptr;
 		}

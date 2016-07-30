@@ -3,7 +3,7 @@
 
 namespace BitEngine {
 
-	BaseComponentHolder::BaseComponentHolder(Messaging::Messenger* m, u32 componentSize, u32 nCompPerPool /*= 100*/)
+	BaseComponentHolder::BaseComponentHolder(Messenger* m, u32 componentSize, u32 nCompPerPool /*= 100*/)
 		: MessengerEndpoint(m),
 		m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool),
 		m_IDcurrent(1), m_workingComponents(0), m_pools(), m_byEntity(128, 0)

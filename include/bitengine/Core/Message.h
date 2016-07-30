@@ -15,8 +15,7 @@ namespace Messaging {
 	template<typename MessageType, typename Handler>
 	class MessageHandleBridge : public MessageHandler<MessageType>
 	{
-		friend class Messenger;
-		private:
+		public:
 		MessageHandleBridge(Handler* h)
 			: handler(h)
 		{
@@ -26,6 +25,8 @@ namespace Messaging {
 			//printf("Bridge %p handling %p\n", this, handler);
 			handler->onMessage(type);
 		}
+
+		private:
 		Handler* handler;
 	};
 

@@ -11,7 +11,7 @@
 class GLFW_InputDriver : public BitEngine::Input::IInputDriver
 {
 public:
-	GLFW_InputDriver(BitEngine::Messaging::Messenger* m);
+	GLFW_InputDriver(BitEngine::Messenger* m);
 	~GLFW_InputDriver(){}
 
 	bool Init() override;

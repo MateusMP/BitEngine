@@ -8,7 +8,7 @@ namespace BitEngine{
 	class GameLogicProcessor : public ComponentProcessor
 	{
 	public:
-		GameLogicProcessor(Messaging::Messenger* m);
+		GameLogicProcessor(Messenger* m);
 		~GameLogicProcessor();
 
 		/// Processor

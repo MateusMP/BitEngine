@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <deque>
 #include <map>
 #include <memory>
@@ -18,18 +19,19 @@ namespace BitEngine {
 		public:
 			TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity);
 
-			void stop()
-			{
+			void stop() {
 				working = false;
 			}
 
 			void wait();
+
+			// Return true if did some work on a task
 			void work();
 
 		private:
-			std::shared_ptr<Task> nextTask();
+			TaskPtr nextTask();
 			void start();
-			bool mainWork(std::shared_ptr<Task> task);
+			void process(TaskPtr task);
 
 			bool working;
 			int nextThread;
@@ -37,31 +39,50 @@ namespace BitEngine {
 			GeneralTaskManager *manager;
 
 			std::thread thread;
-			ThreadSafeQueue< std::shared_ptr<Task> > taskQueue;
+			ThreadSafeQueue< TaskPtr > taskQueue;
 	};
 
-	class GeneralTaskManager : public TaskManager, public Messaging::MessengerEndpoint
+	class GeneralTaskManager : public TaskManager
 	{
 		public:
-			GeneralTaskManager(Messaging::Messenger* m);
+			GeneralTaskManager(GameEngine* ge);
 
 			void init() override;
 			void update() override;
+			void stop() override;
 			void shutdown() override;
 
-			void addTask(Task *task) override;
 
-			void scheduleToNextFrame(Task *task) override;
+			void addTask(TaskPtr task) override;
+			void scheduleToNextFrame(TaskPtr task) override;
+			void waitTask(TaskPtr& task) override;
+
 
 		private:
-
 			friend class TaskWorker;
 			TaskWorker* getWorker(u32 index);
+			void prepareNextFrame();
+			bool taskReadyToRun(TaskPtr task);
+
+			void executeMain();
+			void executeWorkersWork(int i);
+
+			void incFinishedFrameRequired();
+
+			u32 clampToWorkers(u32 value);
 
 			std::vector<TaskWorker*> workers;
-			std::map<std::shared_ptr<Task>, std::shared_ptr<Task>> dependencyTree;
 
+			u32 requiredTasksFrame;
+
+			std::mutex addTaskMutex;
 			std::mutex nextFrameTasksMutex;
-			std::vector<std::shared_ptr<Task> > scheduledTasks;
+			std::vector<TaskPtr> scheduledTasks;
+
+			std::thread::id mainThread;
+
+			u32 finishedRequiredTasks;
+
+			bool mainloop;
 	};
 }

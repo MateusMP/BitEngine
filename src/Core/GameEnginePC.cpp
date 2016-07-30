@@ -6,8 +6,49 @@
 
 namespace BitEngine{
 
+class UpdateSystemTask : public Task
+{
+	public:
+		UpdateSystemTask(System* s)
+			: Task(Task::TaskMode::REPEAT_ONCE_PER_FRAME_REQUIRED, Task::Affinity::MAIN), sys(s) {}
+
+		void run() 
+		{
+			sys->Update();
+		}
+
+		bool finished()
+		{
+			return false;
+		}
+
+	private:
+		System* sys;
+};
+
+class MessengerDispatchTask : public Task
+{
+	public:
+	MessengerDispatchTask(Messenger* m)
+			: Task(Task::TaskMode::REPEAT_ONCE_PER_FRAME_REQUIRED, Task::Affinity::MAIN), msgr(m) {}
+
+		void run()
+		{
+			msgr->dispatchEnqueued();
+		}
+
+		bool finished()
+		{
+			return false;
+		}
+
+	private:
+		Messenger* msgr;
+};
+
+
 GameEnginePC::GameEnginePC(const std::string& configFile, ResourceLoader* _loader)
-	: configuration(configFile), loader(_loader), taskManager(this->getMessenger())
+	: configuration(this, configFile), messenger(this), loader(_loader), taskManager(this)
 {
 }
 
@@ -18,7 +59,7 @@ GameEnginePC::~GameEnginePC()
 
 void GameEnginePC::stopRunning()
 {
-    running = false;
+	taskManager.stop();
 }
 
 void GameEnginePC::addSystem(System *sys)
@@ -48,15 +89,8 @@ System* GameEnginePC::getSystem(const std::string& name)
 }
 
 bool GameEnginePC::initSystems()
-{
+{	
 	LOG(EngineLog, BE_LOG_INFO) << "Initializing " << systems.size() << " systems ";
-
-	LOG(EngineLog, BE_LOG_INFO) << "Loadiging system configurations...";
-	configuration.LoadConfigurations();
-
-	taskManager.init();
-
-	LOG(EngineLog, BE_LOG_INFO) << "Loadiging systems...";
     for ( auto& it : systems )
     {
 		System* s = it.second;
@@ -65,6 +99,10 @@ bool GameEnginePC::initSystems()
             LOG(EngineLog, BE_LOG_INFO) << "System " << s->getName() << " failed to initialize!\n";
             return false;
         }
+		else
+		{
+			taskManager.addTask(std::make_shared<UpdateSystemTask>(s));
+		}
 
 		systemsToShutdown.push_back(s);
     }
@@ -94,8 +132,6 @@ void GameEnginePC::shutdownSystems()
 		delete s;
 	}
 
-	taskManager.shutdown();
-
 	systems.clear();
 	systemsToShutdown.clear();
 	
@@ -106,29 +142,25 @@ bool GameEnginePC::run()
 {
     LOG(EngineLog, BE_LOG_INFO) << "Run Started";
    
-    running = true;
+	LOG(EngineLog, BE_LOG_INFO) << "Loadiging system configurations...";
+	configuration.LoadConfigurations();
+
+	taskManager.init();
 	
+	taskManager.addTask(std::make_shared<MessengerDispatchTask>(&messenger));
+
     if ( initSystems() )
     {
 		Time::ResetTicks();
-
-        while (running)
-		{
-			messenger.dispatchEnqueued();
-
-			for (auto& it : systems)
-			{
-				System* s = it.second;
-                s->Update();
-            }
-
-			Time::Tick();
-        }
+		
+		taskManager.update();
     }
 
     shutdownSystems();
 
-    return running;
+	taskManager.shutdown();
+
+    return true;
 }
 
 }

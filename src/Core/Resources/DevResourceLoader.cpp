@@ -2,6 +2,7 @@
 
 #include "Core/Logger.h"
 #include "Core/Resources/DevResourceLoader.h"
+#include "Core/TaskManager.h"
 
 #include "json.h"
 
@@ -13,14 +14,12 @@ const std::string BitEngine::ResourceMeta::toString() const {
 		"\n\tprops: " + /*properties.dump() + */"\n");
 }
 
-BitEngine::DevResourceLoader::DevResourceLoader()
-	: working(true), loadedMetaIndexes(0)
+BitEngine::DevResourceLoader::DevResourceLoader(GameEngine* ge)
+	: ResourceLoader(ge), loadedMetaIndexes(0)
 {}
 
 bool BitEngine::DevResourceLoader::init()
 {
-	loaderThread = std::thread(&DevResourceLoader::dataLoaderLoop, this);
-
 	return true;
 }
 
@@ -34,8 +33,7 @@ void BitEngine::DevResourceLoader::update()
 
 void BitEngine::DevResourceLoader::shutdown()
 {
-	working = false;
-	loaderThread.join();
+
 }
 
 
@@ -207,7 +205,7 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const Res
 
 void BitEngine::DevResourceLoader::requestResourceData(ResourceMeta* meta, ResourceManager* responseTo)
 {
-	loadRequests.push(meta, responseTo);
+	getEngine()->getTaskManager()->addTask(std::make_shared<RawResourceLoaderTask>(meta, responseTo));
 }
 
 bool BitEngine::DevResourceLoader::isManagerForTypeAvailable(const std::string& type)
@@ -220,38 +218,29 @@ BitEngine::BaseResource* BitEngine::DevResourceLoader::getResourceFromManager(Re
 	return managers[meta->type]->loadResource(meta);
 }
 
-void BitEngine::DevResourceLoader::dataLoaderLoop()
-{
-	while (working)
-	{
-		LoadRequest lr;
-		if (loadRequests.tryPop(lr))
-		{
-			lr.dr.loadState = DataRequest::LoadState::LOADING;
-			const std::string path = getDirectoryPath(lr.dr.meta);
-
-			LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
-
-			if (loadFileToMemory(path, lr.dr.data))
-			{
-				lr.dr.loadState = DataRequest::LoadState::LOADED;
-				lr.putAt->onResourceLoaded(lr.dr);
-			}
-			else
-			{
-				LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
-				lr.dr.loadState = DataRequest::LoadState::ERROR;
-				lr.putAt->onResourceLoadFail(lr.dr);
-			}
-		}
-		else
-		{
-			std::this_thread::yield();
-		}
-	}
-}
-
 std::string BitEngine::DevResourceLoader::getDirectoryPath(const ResourceMeta* meta)
 {
 	return "data/" + meta->package + "/" + meta->resourceName;
+}
+
+// Load task
+
+void BitEngine::DevResourceLoader::RawResourceLoaderTask::run()
+{
+	dr.loadState = DataRequest::LoadState::LOADING;
+	const std::string path = getDirectoryPath(dr.meta);
+
+	LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
+
+	if (loadFileToMemory(path, dr.data))
+	{
+		dr.loadState = DataRequest::LoadState::LOADED;
+		putAt->onResourceLoaded(dr);
+	}
+	else
+	{
+		LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
+		dr.loadState = DataRequest::LoadState::ERROR;
+		putAt->onResourceLoadFail(dr);
+	}
 }

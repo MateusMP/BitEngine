@@ -2,7 +2,7 @@
 
 namespace BitEngine{
 
-	GameLogicProcessor::GameLogicProcessor(Messaging::Messenger* m)
+	GameLogicProcessor::GameLogicProcessor(Messenger* m)
 		: ComponentProcessor(m)
 	{
 		getMessenger()->registerListener<MsgComponentCreated<GameLogicComponent> >(this);

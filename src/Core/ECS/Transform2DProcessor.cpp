@@ -5,7 +5,7 @@
 
 namespace BitEngine{
 
-	Transform2DProcessor::Transform2DProcessor(Messaging::Messenger* m)
+	Transform2DProcessor::Transform2DProcessor(Messenger* m)
 		: ComponentProcessor(m)
 	{
 	}

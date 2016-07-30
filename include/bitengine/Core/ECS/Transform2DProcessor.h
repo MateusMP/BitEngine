@@ -14,7 +14,7 @@ namespace BitEngine{
 	class Transform2DProcessor : public ComponentProcessor
 	{
 		public:
-			Transform2DProcessor(Messaging::Messenger* m);
+			Transform2DProcessor(Messenger* m);
 			~Transform2DProcessor();
 
 			/// Processor

@@ -1,14 +1,16 @@
 #include "Core/EngineConfiguration.h"
 
+#include <string.h>
+
+#include "Core/GameEngine.h"
 #include "Core/Logger.h"
 
-#include <string.h>
 
 namespace BitEngine{
 
 
-	EngineConfiguration::EngineConfiguration(const std::string& fileName)
-		: file(fileName)
+	EngineConfiguration::EngineConfiguration(GameEngine* ge, const std::string& fileName)
+		: EnginePiece(ge), file(fileName)
 	{
 	}
 

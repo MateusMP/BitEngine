@@ -4,7 +4,7 @@
 
 namespace BitEngine{
 
-	Transform3DProcessor::Transform3DProcessor(Messaging::Messenger* m)
+	Transform3DProcessor::Transform3DProcessor(Messenger* m)
 		: ComponentProcessor(m)
 	{
 		getMessenger()->registerListener<MsgComponentCreated<Transform3DComponent> >(this);

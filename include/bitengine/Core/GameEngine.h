@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include "Core/Messenger.h"
 
 namespace BitEngine{
 
@@ -16,7 +15,7 @@ namespace BitEngine{
 		public:
 		virtual EngineConfiguration* getConfigurations() = 0;
 		virtual ResourceLoader* getResourceLoader() = 0;
-		virtual Messaging::Messenger* getMessenger() = 0;
+		virtual Messenger* getMessenger() = 0;
 		virtual System* getSystem(const std::string& name) = 0;
 		virtual TaskManager* getTaskManager() = 0;
 	};

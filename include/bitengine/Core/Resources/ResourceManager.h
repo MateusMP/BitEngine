@@ -7,6 +7,7 @@
 #include "Common/ThreadSafeQueue.h"
 #include "Core/Resources/ResourceIndexer.h"
 #include "Core/Logger.h"
+#include "Core/GameEngine.h"
 
 namespace BitEngine {
 
@@ -98,9 +99,10 @@ namespace BitEngine {
 	
 	// Resource Loader interface
 	// Used by the application to retrieve the final resource.
-	class ResourceLoader
+	class ResourceLoader : public EnginePiece
 	{
 		public:
+			ResourceLoader(GameEngine* ge) : EnginePiece(ge) {}
 		    virtual ~ResourceLoader(){}
 
 			virtual bool init() = 0;

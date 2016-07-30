@@ -2,7 +2,7 @@
 
 std::unordered_map<GLFWwindow*, BitEngine::Input::InputReceiver> GLFW_InputDriver::inputReceivers;
 
-GLFW_InputDriver::GLFW_InputDriver(BitEngine::Messaging::Messenger* m)
+GLFW_InputDriver::GLFW_InputDriver(BitEngine::Messenger* m)
 	: IInputDriver(m)
 {
 

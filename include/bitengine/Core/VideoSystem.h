@@ -20,7 +20,7 @@ namespace BitEngine {
 		friend class VideoSystem;
 
 		public:
-			IVideoDriver(Messaging::Messenger* m, VideoRenderer* renderer)
+			IVideoDriver(Messenger* m, VideoRenderer* renderer)
 				: MessengerEndpoint(m), m_renderer(renderer)
 			{}
 			virtual ~IVideoDriver(){

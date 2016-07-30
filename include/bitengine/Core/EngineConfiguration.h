@@ -3,12 +3,12 @@
 #include <fstream>
 
 #include "Common/ErrorCodes.h"
-
-#include "SystemConfiguration.h"
+#include "Core/GameEngine.h"
+#include "Core/SystemConfiguration.h"
 
 namespace BitEngine
 {
-	class EngineConfiguration
+	class EngineConfiguration : public EnginePiece
 	{
 	public:
 		const char* LINE_COMMENT = "#";
@@ -16,7 +16,7 @@ namespace BitEngine
 		const char SYSTEM_BEGIN_CHAR = '!';
 		const char CONFIG_VALUE_SEPARATOR_CHAR = ':';
 
-		EngineConfiguration(const std::string& fileName);
+		EngineConfiguration(GameEngine* ge, const std::string& fileName);
 		~EngineConfiguration();
 		
 		void LoadConfigurations();
