@@ -244,6 +244,8 @@ namespace BitEngine
 		genVAOArrays(vaoContainer);
 		
 		GL2Batch *batch = new GL2Batch(vaoContainer, uniformContainer);
+		batches.emplace_back(batch);
+
 		return batch;
 	}
 
@@ -278,6 +280,11 @@ namespace BitEngine
 				s.shader = 0;
 			}
 			LOG(EngineLog, BE_LOG_INFO) << "Shader ready!";
+
+			for (GL2Batch* batch : batches)
+			{
+				new(batch) GL2Batch(vaoContainer, uniformContainer);
+			}
 		}
 		else
 		{

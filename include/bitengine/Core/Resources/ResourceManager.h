@@ -2,12 +2,14 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "Common/TypeDefinition.h"
 #include "Common/ThreadSafeQueue.h"
 #include "Core/Resources/ResourceIndexer.h"
 #include "Core/Logger.h"
 #include "Core/GameEngine.h"
+#include "Core/Task.h"
 
 namespace BitEngine {
 
@@ -160,6 +162,11 @@ namespace BitEngine {
 					data = std::move(other.data);
 					return *this;
 				}
+
+				bool isLoaded() {
+					return loadState == LOADED;
+				}
+
 				/*DataRequest& operator=(const DataRequest& other) {
 				meta = other.meta;
 				loadState = other.loadState;
@@ -172,6 +179,27 @@ namespace BitEngine {
 				std::vector<char> data;
 			};
 
+			// Load file data from file system
+			class RawResourceLoaderTask : public Task
+			{
+				public:
+				RawResourceLoaderTask(ResourceMeta* d)
+					: Task(TaskMode::NONE, Affinity::BACKGROUND), dr(d)
+				{
+				}
+
+				// Inherited via Task
+				virtual void run() = 0;
+
+				DataRequest& getData() {
+					return dr;
+				}
+
+				protected:
+					DataRequest dr;
+			};
+
+			typedef std::shared_ptr<RawResourceLoaderTask> RawResourceTask;
 		protected:
 			friend class ResourceManager;
 
@@ -186,7 +214,7 @@ namespace BitEngine {
 
 			// Used internally by resource managers, to retrieve raw resource data
 			// Like, texture image data, sound data, and others.
-			virtual void requestResourceData(ResourceMeta* meta, ResourceManager* responseTo) = 0;
+			virtual RawResourceTask requestResourceData(ResourceMeta* meta) = 0;
 	};
 
 	// Resource manager interface
@@ -211,18 +239,25 @@ namespace BitEngine {
 			virtual u32 getCurrentRamUsage() const = 0;
 			virtual u32 getCurrentGPUMemoryUsage() const = 0;
 
-			const std::set<ResourceMeta*>& getPendingToLoad() const {
+			const std::map<ResourceMeta*, ResourceLoader::RawResourceTask>& getPendingToLoad() const {
 				return waitingData;
 			}
 
 		protected:
-			void loadRawData(ResourceLoader* loader, ResourceMeta* meta, ResourceManager* into) {
-				if (waitingData.insert(meta).second) {
-					loader->requestResourceData(meta, into);
+			ResourceLoader::RawResourceTask loadRawData(ResourceLoader* loader, ResourceMeta* meta) {
+				auto it = waitingData.emplace(meta, nullptr);
+				if (it.second) {
+					it.first->second = loader->requestResourceData(meta);
 				}
+				return it.first->second;
 			}
 
-			std::set<ResourceMeta*> waitingData; // the resources that are waiting the raw data to be loaded
+			void finishedLoading(ResourceMeta* meta) {
+				waitingData.erase(meta);
+			}
+
+		private:
+			std::map<ResourceMeta*, ResourceLoader::RawResourceTask> waitingData; // the resources that are waiting the raw data to be loaded
 	};
 
 }

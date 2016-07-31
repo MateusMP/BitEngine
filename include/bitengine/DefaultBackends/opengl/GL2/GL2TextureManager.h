@@ -14,6 +14,7 @@ namespace BitEngine
 	class GL2Texture : public BitEngine::ITexture
 	{
 		friend class GL2TextureManager;
+		friend class RawTextureLoader;
 
 		public:
 		struct StbiImageData {
@@ -67,36 +68,35 @@ namespace BitEngine
 	class GL2TextureManager : public BitEngine::ResourceManager
 	{
 		public:
-		GL2TextureManager();
+			GL2TextureManager();
 
-		bool init() override;
+			bool init() override;
 
-		// Load textures that are ready to be sent to the GPU
-		void update() override;
+			// Load textures that are ready to be sent to the GPU
+			void update() override;
 
-		void setResourceLoader(ResourceLoader* loader) override {
-			this->loader = loader;
-		}
+			void setResourceLoader(ResourceLoader* loader) override {
+				this->loader = loader;
+			}
 
-		BaseResource* loadResource(ResourceMeta* base);
+			BaseResource* loadResource(ResourceMeta* base);
 		
-		u32 getCurrentRamUsage() const override {
-			return ramInUse;
-		}
+			u32 getCurrentRamUsage() const override {
+				return ramInUse;
+			}
 
-		u32 getCurrentGPUMemoryUsage() const override {
-			return gpuMemInUse;
-		}
+			u32 getCurrentGPUMemoryUsage() const override {
+				return gpuMemInUse;
+			}
 
+			void uploadToGPU(GL2Texture* texture);
 
 		private:
 			static GLuint GenerateErrorTexture();
 
 			// IResourceManager
-			void onResourceLoaded(ResourceLoader::DataRequest& dr) override;
-			void onResourceLoadFail(ResourceLoader::DataRequest& dr) override;
-		
-			void loadTextureRaw(ResourceLoader::DataRequest& dr);
+			void onResourceLoaded(ResourceLoader::DataRequest& dr) override{}
+			void onResourceLoadFail(ResourceLoader::DataRequest& dr) override{}
 
 			void loadTexture2D(const GL2Texture::StbiImageData& data, GL2Texture& texture);
 

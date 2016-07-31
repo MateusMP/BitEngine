@@ -74,6 +74,10 @@ namespace BitEngine
 
 			virtual ResourceMeta* findMeta(const std::string& name) override;
 
+			// Returns the full directory where the file for this meta is.
+			static std::string getDirectoryPath(const ResourceMeta* meta);
+			static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
+
 		protected:
 			// Retrieve 
 			virtual BaseResource* loadResource(const std::string& name) override;
@@ -88,29 +92,8 @@ namespace BitEngine
 			ResourceMeta* addResourceMeta(const ResourceMeta& meta);
 
 
-			// Returns the full directory where the file for this meta is.
-			static std::string getDirectoryPath(const ResourceMeta* meta);
-			static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
-
 		private:
-
-			class RawResourceLoaderTask : public Task
-			{
-				public:
-				RawResourceLoaderTask(ResourceMeta* d, ResourceManager* out)
-					: Task(TaskMode::NONE, Affinity::BACKGROUND), dr(d), putAt(out)
-				{
-				}
-
-				// Inherited via Task
-				void run() override;
-
-				private:
-					DataRequest dr;
-					ResourceManager* putAt;
-			};
-
-			void requestResourceData(ResourceMeta* meta, ResourceManager* responseTo) override;
+			RawResourceTask requestResourceData(ResourceMeta* meta) override;
 			
 			bool isManagerForTypeAvailable(const std::string& type);
 			BitEngine::BaseResource* getResourceFromManager(ResourceMeta* meta);

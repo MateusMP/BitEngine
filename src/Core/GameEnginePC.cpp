@@ -64,10 +64,11 @@ void GameEnginePC::stopRunning()
 
 void GameEnginePC::addSystem(System *sys)
 {
-	auto &it = systems.find(sys->getName());
-	if (it == systems.end())
+	auto &it = systemsMap.find(sys->getName());
+	if (it == systemsMap.end())
 	{
-		systems.emplace(sys->getName(), sys);
+		systems.emplace_back(sys);
+		systemsMap.emplace(sys->getName(), sys);
 	}
 	else
 	{
@@ -77,8 +78,8 @@ void GameEnginePC::addSystem(System *sys)
 
 System* GameEnginePC::getSystem(const std::string& name)
 {
-	auto &it = systems.find(name);
-	if (it == systems.end())
+	auto &it = systemsMap.find(name);
+	if (it == systemsMap.end())
 	{
 		return nullptr;
 	}
@@ -90,10 +91,9 @@ System* GameEnginePC::getSystem(const std::string& name)
 
 bool GameEnginePC::initSystems()
 {	
-	LOG(EngineLog, BE_LOG_INFO) << "Initializing " << systems.size() << " systems ";
-    for ( auto& it : systems )
+	LOG(EngineLog, BE_LOG_INFO) << "Initializing " << systemsMap.size() << " systems ";
+    for ( System* s : systems)
     {
-		System* s = it.second;
         if (!s->Init())
         {
             LOG(EngineLog, BE_LOG_INFO) << "System " << s->getName() << " failed to initialize!\n";
@@ -126,13 +126,14 @@ void GameEnginePC::shutdownSystems()
 	LOG(EngineLog, BE_LOG_INFO) << "Clean up memory... ";
 
 	// Delete all systems.
-	for (auto& it : systems)
+	for (auto& it : systemsMap)
 	{
 		System* s = it.second;
 		delete s;
 	}
 
 	systems.clear();
+	systemsMap.clear();
 	systemsToShutdown.clear();
 	
 	LOG(EngineLog, BE_LOG_INFO) << "Systems released!";

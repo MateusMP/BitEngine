@@ -19,7 +19,9 @@ namespace BitEngine{
 	{
 		if (manager->taskReadyToRun(task))
 		{
-			task->run();
+			//LOG(EngineLog, BE_LOG_VERBOSE) << " processing task " << task;
+
+			task->execute();
 
 			if (task->isFrameRequired()){
 				manager->incFinishedFrameRequired();
@@ -68,7 +70,16 @@ namespace BitEngine{
 		if (!taskQueue.tryPop(newTask))
 		{
 			int queueIdx = nextThread++;
-			manager->getWorker(queueIdx)->taskQueue.tryPop(newTask); // TODO: avoid self target?
+
+			/// TODO: avoid self target?
+			if (manager->getWorker(queueIdx)->taskQueue.tryPop(newTask))
+			{
+				//LOG(EngineLog, BE_LOG_VERBOSE) << "poped: " << newTask << " from " << this;
+			}
+		}
+		else
+		{
+			//LOG(EngineLog, BE_LOG_VERBOSE) << "poped: " << newTask << " from " << this;
 		}
 
 		return newTask;
@@ -94,14 +105,16 @@ namespace BitEngine{
 
 	bool GeneralTaskManager::taskReadyToRun(TaskPtr task)
 	{
+		if (task->isWaitingChild())
+			return false;
 		if (task->getDependency() == nullptr)
 			return true;
-		return task->getDependency()->hasPendingWork() == false;
+		return task->getDependency()->isWaitingChild() == false;
 	}
 
 	void GeneralTaskManager::init()
 	{
-		const int nThreads = std::thread::hardware_concurrency() + 1;
+		const int nThreads = 2;//std::thread::hardware_concurrency() + 1;
 
 		workers.resize(nThreads);
 		LOG(EngineLog, BE_LOG_INFO) << "Task manager initializing " << nThreads << " threads";
@@ -190,7 +203,9 @@ namespace BitEngine{
 		if (task->getAffinity() == Task::Affinity::MAIN) {
 			workers[0]->taskQueue.push(task);
 		} else {
-			getWorker(rand())->taskQueue.push(task);
+			int at = rand();
+			getWorker(at)->taskQueue.push(task);
+			LOG(EngineLog, BE_LOG_VERBOSE) << "pushed: " << task << " to " << getWorker(at);
 		}
 	}
 

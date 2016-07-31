@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Core/Task.h"
+#include "Core/GameEngine.h"
 
 namespace BitEngine{
 

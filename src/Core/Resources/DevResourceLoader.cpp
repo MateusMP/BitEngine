@@ -1,10 +1,26 @@
 #include <fstream>
 
-#include "Core/Logger.h"
 #include "Core/Resources/DevResourceLoader.h"
+
+#include "Core/Logger.h"
+#include "Core/Task.h"
 #include "Core/TaskManager.h"
 
 #include "json.h"
+
+
+// Load task
+class DevLoaderTask : public BitEngine::ResourceLoader::RawResourceLoaderTask
+{
+	public:
+	DevLoaderTask(BitEngine::ResourceMeta* meta) 
+		: RawResourceLoaderTask(meta)
+	{}
+
+	// Inherited via RawResourceLoaderTask
+	void run() override;
+
+};
 
 const std::string BitEngine::ResourceMeta::toString() const {
 	return ("Resource Meta id: " + std::to_string(id) +
@@ -203,9 +219,11 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const Res
 	}
 }
 
-void BitEngine::DevResourceLoader::requestResourceData(ResourceMeta* meta, ResourceManager* responseTo)
+BitEngine::ResourceLoader::RawResourceTask BitEngine::DevResourceLoader::requestResourceData(ResourceMeta* meta)
 {
-	getEngine()->getTaskManager()->addTask(std::make_shared<RawResourceLoaderTask>(meta, responseTo));
+	RawResourceTask task = std::make_shared<DevLoaderTask>(meta);
+	getEngine()->getTaskManager()->addTask(task);
+	return task;
 }
 
 bool BitEngine::DevResourceLoader::isManagerForTypeAvailable(const std::string& type)
@@ -223,24 +241,24 @@ std::string BitEngine::DevResourceLoader::getDirectoryPath(const ResourceMeta* m
 	return "data/" + meta->package + "/" + meta->resourceName;
 }
 
-// Load task
 
-void BitEngine::DevResourceLoader::RawResourceLoaderTask::run()
+
+void DevLoaderTask::run()
 {
-	dr.loadState = DataRequest::LoadState::LOADING;
-	const std::string path = getDirectoryPath(dr.meta);
+	using namespace BitEngine;
+
+	dr.loadState = ResourceLoader::DataRequest::LoadState::LOADING;
+	const std::string path = DevResourceLoader::getDirectoryPath(dr.meta);
 
 	LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
 
-	if (loadFileToMemory(path, dr.data))
+	if (DevResourceLoader::loadFileToMemory(path, dr.data))
 	{
-		dr.loadState = DataRequest::LoadState::LOADED;
-		putAt->onResourceLoaded(dr);
+		dr.loadState = ResourceLoader::DataRequest::LoadState::LOADED;
 	}
 	else
 	{
 		LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
-		dr.loadState = DataRequest::LoadState::ERROR;
-		putAt->onResourceLoadFail(dr);
+		dr.loadState = ResourceLoader::DataRequest::LoadState::ERROR;
 	}
 }

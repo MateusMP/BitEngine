@@ -37,26 +37,43 @@ class Task {
 		};
 
 
-        Task(TaskMode _flags, Affinity _affinity) : flags(_flags), affinity(_affinity) {}
+        Task(TaskMode _flags, Affinity _affinity) 
+			: flags(_flags), affinity(_affinity), pending_work(1) {}
         virtual ~Task() {}
 
-		std::shared_ptr<Task> getDependency() const { return dependency; }
+		const TaskPtr& getDependency() const { return dependency; }
 		TaskMode getFlags() const  { return flags; }
 		Affinity getAffinity() const { return affinity; }
-		std::shared_ptr<Task> getDependency() { return dependency; }
 
-        virtual void run() = 0;
-
-		void addChild(TaskPtr task) {
-			++pending_work;
+		void execute() {
+			run();
+			if (parent) {
+				parent->childFinished();
+			}
+			childFinished();
 		}
 		
+		void setParent(const TaskPtr& task) {
+			parent = task;
+			parent->pending_work++;
+		}
+
+		TaskPtr& getParent() {
+			return parent;
+		}
+		
+		bool isWaitingChild() {
+			return pending_work > 1;
+		}
+
 		bool hasPendingWork() {
 			return pending_work > 0;
 		}
 
 		void childFinished() {
-			--pending_work;
+			if (!isRepeating()) {
+				pending_work--;
+			}
 		}
 
 		bool isRepeating() {
@@ -72,11 +89,12 @@ class Task {
 		}
 
     private:
+		virtual void run() = 0;
 
         TaskMode flags;
 		Affinity affinity;
-		std::shared_ptr<Task> parent;
-		std::shared_ptr<Task> dependency;
+		TaskPtr parent;
+		TaskPtr dependency;
 		std::atomic<u32> pending_work;
 
 		template <typename T>

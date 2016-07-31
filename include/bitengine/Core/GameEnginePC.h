@@ -67,7 +67,8 @@ namespace BitEngine
 			bool initSystems();
 			void shutdownSystems();
 
-			std::map<std::string, System*> systems;
+			std::map<std::string, System*> systemsMap;
+			std::vector<System*> systems;
 			std::vector<System*> systemsToShutdown;
 
 			Messenger messenger;

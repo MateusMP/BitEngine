@@ -161,6 +161,8 @@ namespace BitEngine
 			std::vector<ShaderSource> sources;
 			int expectedSources;
 			u16 managerResourceId;
+
+			std::vector<GL2Batch*> batches;
 	};
 
 }

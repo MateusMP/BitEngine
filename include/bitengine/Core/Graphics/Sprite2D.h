@@ -167,7 +167,7 @@ namespace BitEngine
 
 		void Render()
 		{
-			// m_batch->render(m_shader->getShader());
+			m_batch->render(m_shader->getShader());
 		}
 
 		private:
