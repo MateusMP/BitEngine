@@ -14,4 +14,15 @@ namespace BitEngine
 			}
 		}
 	}
+
+	template<typename T>
+	static void assertNull(const T& value) {
+		if (BE_DEBUG)
+		{
+			if (nullptr != value)
+			{
+				LOG(EngineLog, BE_LOG_ERROR) << "ASSERT FAIL expected value to be nullptr, got " << value;
+			}
+		}
+	}
 }

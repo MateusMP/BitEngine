@@ -14,6 +14,24 @@ namespace BitEngine
 	{
 		switch (dt)
 		{
+			case DataType::FLOAT:
+				return GL_FLOAT;
+			case DataType::MAT3:
+				return GL_FLOAT_MAT3;
+			case DataType::MAT4:
+				return GL_FLOAT_MAT4;
+			case DataType::VEC2:
+				return GL_FLOAT_VEC2;
+			case DataType::VEC3:
+				return GL_FLOAT_VEC3;
+			case DataType::VEC4:
+				return GL_FLOAT_VEC4;
+			case DataType::TEXTURE_1D:
+				return GL_SAMPLER_1D;
+			case DataType::TEXTURE_2D:
+				return GL_SAMPLER_2D;
+			case DataType::TEXTURE_3D:
+				return GL_SAMPLER_3D;
 			case DataType::LONG:
 				return GL_INT;
 			default:
@@ -107,9 +125,10 @@ namespace BitEngine
 
 	const GL2Shader::AttributeConfig* GL2Shader::findAttributeConfigByName(const std::string& str)
 	{
+		const std::string a_str = "a_" + str;
 		for (AttributeConfig& ac : m_attributes)
 		{
-			if (ac.name == str)
+			if (ac.name == a_str)
 			{
 				return &ac;
 			}
@@ -149,6 +168,10 @@ namespace BitEngine
 					offsetAccum += sizeofDataType(dd.type) * dd.size;
 
 					vboc.attrs.emplace_back(attrib);
+				}
+				else
+				{
+					LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Couldn't find shader related attribute " << dd.name;
 				}
 			}
 			vboc.divisor = dc.instanced;
@@ -339,10 +362,10 @@ namespace BitEngine
 			
 			// Find divisor value
 			attr.divisor = 0;
-			int instAt = tmpName.find_first_of("inst");
+			int instAt = tmpName.find("inst_");
 			if (instAt != std::string::npos) {
 				if (instAt + 4 < (int)tmpName.size()) {
-					char div = tmpName[instAt + 4];
+					char div = tmpName[instAt + 5];
 					attr.divisor = div - '0';
 				}
 			}

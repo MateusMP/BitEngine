@@ -12,8 +12,8 @@ namespace BitEngine{
 
 typedef unsigned short SpriteHandle;
 
-class Sprite{
-
+class Sprite : public BaseResource
+{
     public:
 		Sprite()
 			: m_textureID(0), m_width(16), m_height(16),

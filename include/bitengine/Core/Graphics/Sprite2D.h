@@ -177,9 +177,8 @@ namespace BitEngine
 				{
 				}
 
-				SpriteBatchInstance& operator = (const SpriteBatchInstance& other)
-				{
-					return *this = std::move(other);
+				SpriteBatchInstance& operator= (const SpriteBatchInstance& other) {
+					return *(new(this)SpriteBatchInstance(other));
 				}
 
 				const SceneTransform2DComponent& transform;

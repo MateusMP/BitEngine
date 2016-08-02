@@ -3,6 +3,8 @@
 #include <atomic>
 #include <memory>
 
+#include "Core/Assert.h"
+
 namespace BitEngine{
 
 class Task;
@@ -38,42 +40,43 @@ class Task {
 
 
         Task(TaskMode _flags, Affinity _affinity) 
-			: flags(_flags), affinity(_affinity), pending_work(1) {}
+			: flags(_flags), affinity(_affinity), remainingWork(1) {}
         virtual ~Task() {}
 
-		const TaskPtr& getDependency() const { return dependency; }
 		TaskMode getFlags() const  { return flags; }
 		Affinity getAffinity() const { return affinity; }
 
 		void execute() {
 			run();
-			if (parent) {
-				parent->childFinished();
+			if (isRepeating()) {
+				remainingWork = 1;
+			} else {
+				remainingWork = 0;
 			}
-			childFinished();
-		}
-		
-		void setParent(const TaskPtr& task) {
-			parent = task;
-			parent->pending_work++;
 		}
 
-		TaskPtr& getParent() {
-			return parent;
-		}
-		
-		bool isWaitingChild() {
-			return pending_work > 1;
+		bool isFinished() {
+			return remainingWork == 0;
 		}
 
-		bool hasPendingWork() {
-			return pending_work > 0;
-		}
-
-		void childFinished() {
-			if (!isRepeating()) {
-				pending_work--;
+		bool isReady() {
+			if (remainingWork > 1)
+			{
+				int remaining = 0;
+				for (TaskPtr& t : waitingTasks) {
+					if (!t->isFinished()) {
+						++remaining;
+					}
+				}
+				remainingWork = 1 + remaining;
 			}
+
+			return remainingWork <= 1;
+		}
+
+		void addDependency(TaskPtr task) {
+			++remainingWork;
+			waitingTasks.emplace_back(task);
 		}
 
 		bool isRepeating() {
@@ -88,14 +91,17 @@ class Task {
 			return (enum_value(flags) & enum_value(TaskMode::ONCE_PER_FRAME)) > 0;
 		}
 
+		const std::vector<TaskPtr>& getDependencies() const {
+			return waitingTasks;
+		}
+
     private:
 		virtual void run() = 0;
 
         TaskMode flags;
 		Affinity affinity;
-		TaskPtr parent;
-		TaskPtr dependency;
-		std::atomic<u32> pending_work;
+		std::vector<TaskPtr> waitingTasks; // tasks this task must wait before it can run
+		std::atomic<u32> remainingWork;
 
 		template <typename T>
 		static constexpr typename std::underlying_type<T>::type enum_value(T val) {

@@ -119,6 +119,9 @@ namespace BitEngine {
 			// and a warning is logged.
 			// \return true if succeded
 			virtual bool loadIndex(const std::string& index) = 0;
+
+			virtual BitEngine::ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
+									 const std::string& type, ResourcePropertyContainer properties = ResourcePropertyContainer()) = 0;
 			
 			// Find a resource meta for a given name
 			virtual ResourceMeta* findMeta(const std::string& name) = 0;
@@ -214,6 +217,8 @@ namespace BitEngine {
 
 			// Used internally by resource managers, to retrieve raw resource data
 			// Like, texture image data, sound data, and others.
+			// This will create a background task to load the resource.
+			// The task shall be sent to the TaskManager before this function returns.
 			virtual RawResourceTask requestResourceData(ResourceMeta* meta) = 0;
 	};
 
@@ -228,13 +233,8 @@ namespace BitEngine {
 
 			virtual void setResourceLoader(ResourceLoader* loader) = 0;
 
-			virtual BaseResource* loadResource(ResourceMeta* base) = 0;
-
-			// Called assyncronously from loader threads.
-			virtual void onResourceLoaded(ResourceLoader::DataRequest& dr) = 0;
-			// Called assyncronously from loader threads.
-			virtual void onResourceLoadFail(ResourceLoader::DataRequest& dr) = 0;
-
+			virtual BaseResource* loadResource(ResourceMeta* meta) = 0;
+			
 			// in bytes
 			virtual u32 getCurrentRamUsage() const = 0;
 			virtual u32 getCurrentGPUMemoryUsage() const = 0;

@@ -94,10 +94,6 @@ namespace BitEngine
 		private:
 			static GLuint GenerateErrorTexture();
 
-			// IResourceManager
-			void onResourceLoaded(ResourceLoader::DataRequest& dr) override{}
-			void onResourceLoadFail(ResourceLoader::DataRequest& dr) override{}
-
 			void loadTexture2D(const GL2Texture::StbiImageData& data, GL2Texture& texture);
 
 			// Members

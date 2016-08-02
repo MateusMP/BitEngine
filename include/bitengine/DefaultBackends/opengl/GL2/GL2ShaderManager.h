@@ -36,11 +36,10 @@ namespace BitEngine {
 			return gpuMemInUse;
 		}
 
-		private:
-			void onResourceLoaded(ResourceLoader::DataRequest& dr) override;
-			void onResourceLoadFail(ResourceLoader::DataRequest& dr) override;
+		void sendToGPU(GL2Shader* shader);
 
-			void loadShaderSource(ResourcePropertyContainer& rpc, GL2Shader* shader);
+		private:
+			ResourceLoader::RawResourceTask loadShaderSource(ResourcePropertyContainer& rpc, GL2Shader* shader);
 
 		private:
 			ResourceLoader* loader;

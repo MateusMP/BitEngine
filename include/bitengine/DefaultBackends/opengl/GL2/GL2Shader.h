@@ -24,7 +24,7 @@ namespace BitEngine
 		public:
 
 			struct AttributeConfig {
-				u32 container;
+				//u32 container;
 				GLenum type;
 				GLint size;
 				u32 location;

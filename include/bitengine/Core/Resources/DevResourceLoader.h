@@ -78,6 +78,10 @@ namespace BitEngine
 			static std::string getDirectoryPath(const ResourceMeta* meta);
 			static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
 
+
+			BitEngine::ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
+				const std::string& type, ResourcePropertyContainer properties) override;
+
 		protected:
 			// Retrieve 
 			virtual BaseResource* loadResource(const std::string& name) override;

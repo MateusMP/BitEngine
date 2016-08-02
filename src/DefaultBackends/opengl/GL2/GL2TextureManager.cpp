@@ -91,8 +91,11 @@ namespace BitEngine {
 	{
 		stbi_set_flip_vertically_on_load(true);
 
+		ResourceMeta* meta = loader->includeMeta("default", "texture", "TEXTURE");
+
 		// Init error texture
-		GL2Texture& errorTexture = textures.getResourceAt(0);
+		u16 id = textures.addResource(meta);
+		GL2Texture& errorTexture = textures.getResourceAt(id);
 		GLuint errorTextureId = GenerateErrorTexture();
 		errorTexture.m_textureType = GL_TEXTURE_2D;
 		errorTexture.m_textureID = errorTextureId;
@@ -151,7 +154,7 @@ namespace BitEngine {
 			ResourceLoader::RawResourceTask rawDataTask = loadRawData(loader, meta);
 
 			TaskPtr textureLoader = std::make_shared<RawTextureLoader>(this, texture, rawDataTask);
-			rawDataTask->setParent(textureLoader);
+			textureLoader->addDependency(rawDataTask);
 
 			loader->getEngine()->getTaskManager()->addTask(textureLoader);
 		}

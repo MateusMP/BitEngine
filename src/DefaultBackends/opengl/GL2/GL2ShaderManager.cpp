@@ -1,11 +1,52 @@
 #include "Common/MathUtils.h"
 #include "Core/Logger.h"
 
+#include "Core/TaskManager.h"
 #include "DefaultBackends/opengl/GL2/GL2Shader.h"
 #include "DefaultBackends/opengl/GL2/GL2ShaderManager.h"
 
 
 namespace BitEngine {
+
+	class ShaderSourceLoader : public Task {
+		public:
+		ShaderSourceLoader(GL2ShaderManager* _manager, GL2Shader* _shader)
+			: Task(Task::TaskMode::NONE, Task::Affinity::BACKGROUND), manager(_manager), shader(_shader)
+		{}
+
+		// Inherited via Task
+		virtual void run() override
+		{
+			for (const TaskPtr& task : getDependencies())
+			{
+				ResourceLoader::RawResourceLoaderTask* rawTask = static_cast<ResourceLoader::RawResourceLoaderTask*>(task.get());
+				auto& dr = rawTask->getData();
+				std::string sourceType = dr.meta->properties["source_type"].getValueString();
+
+				if (sourceType.compare("VERTEX") == 0)
+				{
+					LOG(EngineLog, BE_LOG_VERBOSE) << "Loading vertex piece " << dr.meta->resourceName;
+					shader->includeSource(GL_VERTEX_SHADER, dr.data);
+				}
+				else if (sourceType.compare("FRAGMENT") == 0)
+				{
+					LOG(EngineLog, BE_LOG_VERBOSE) << "Loading fragment piece " << dr.meta->resourceName;
+					shader->includeSource(GL_FRAGMENT_SHADER, dr.data);
+				}
+				else if (sourceType.compare("GEOMETRY") == 0)
+				{
+					LOG(EngineLog, BE_LOG_VERBOSE) << "Loading geometry piece " << dr.meta->resourceName;
+					shader->includeSource(GL_GEOMETRY_SHADER, dr.data);
+				}
+			}
+			manager->sendToGPU(shader);
+		}
+		
+		private:
+			GL2ShaderManager* manager;
+			GL2Shader* shader;
+	};
+
 
 	//
 
@@ -62,19 +103,20 @@ namespace BitEngine {
 
 	}
 
-	void GL2ShaderManager::loadShaderSource(ResourcePropertyContainer& rpc, GL2Shader* shader)
+	ResourceLoader::RawResourceTask GL2ShaderManager::loadShaderSource(ResourcePropertyContainer& rpc, GL2Shader* shader)
 	{
 		const std::string file = rpc.getValueString();
 		ResourceMeta* shaderSourceMeta = loader->findMeta(file);
 		if (shaderSourceMeta != nullptr)
 		{
 			sourceShaderRelation.emplace(shaderSourceMeta, shader);
-			loadRawData(loader, shaderSourceMeta, this);
+			return loadRawData(loader, shaderSourceMeta);
 		}
 		else
 		{
 			LOG(EngineLog, BE_LOG_ERROR) << "Couldn't load shader source: " << file;
 		}
+		return nullptr;
 	}
 
 	BaseResource* GL2ShaderManager::loadResource(ResourceMeta* meta)
@@ -107,47 +149,26 @@ namespace BitEngine {
 			}
 			shader->setExpectedShaderSources(expectedTypes);
 
+			std::shared_ptr<ShaderSourceLoader> shaderSourceLoader = std::make_shared<ShaderSourceLoader>(this, shader);
+
 			if (vertexProp.isValid()) {
-				loadShaderSource(vertexProp, shader);
+				shaderSourceLoader->addDependency(loadShaderSource(vertexProp, shader));
 			}
 			if (fragmentProp.isValid()) {
-				loadShaderSource(fragmentProp, shader);
+				shaderSourceLoader->addDependency(loadShaderSource(fragmentProp, shader));
 			}
 			if (geometryProp.isValid())	{
-				loadShaderSource(geometryProp, shader);
+				shaderSourceLoader->addDependency(loadShaderSource(geometryProp, shader));
 			}
+
+			loader->getEngine()->getTaskManager()->addTask(shaderSourceLoader);
 		}
 
 		return shader;
 	}
 		
-	void GL2ShaderManager::onResourceLoaded(ResourceLoader::DataRequest& dr)
+	void GL2ShaderManager::sendToGPU(GL2Shader* shader)
 	{
-		std::string sourceType = dr.meta->properties["source_type"].getValueString();
-
-		GL2Shader* shader = sourceShaderRelation[dr.meta];
-
-		if (sourceType.compare("VERTEX") == 0)
-		{
-			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading vertex piece " << dr.meta->resourceName;
-			shader->includeSource(GL_VERTEX_SHADER, dr.data);
-		}
-		else if (sourceType.compare("FRAGMENT") == 0)
-		{
-			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading fragment piece " << dr.meta->resourceName;
-			shader->includeSource(GL_FRAGMENT_SHADER, dr.data);
-		}
-		else if (sourceType.compare("GEOMETRY") == 0)
-		{
-			LOG(EngineLog, BE_LOG_VERBOSE) << "Loading geometry piece " << dr.meta->resourceName;
-			shader->includeSource(GL_GEOMETRY_SHADER, dr.data);
-		}
-
 		resourceLoaded.push(shader);
-	}
-
-	void GL2ShaderManager::onResourceLoadFail(ResourceLoader::DataRequest& dr)
-	{
-
 	}
 }

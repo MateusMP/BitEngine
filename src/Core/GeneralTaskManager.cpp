@@ -17,7 +17,7 @@ namespace BitEngine{
 	// Return false if dit nothing
 	void TaskWorker::process(TaskPtr task)
 	{
-		if (manager->taskReadyToRun(task))
+		if (task->isReady())
 		{
 			//LOG(EngineLog, BE_LOG_VERBOSE) << " processing task " << task;
 
@@ -101,15 +101,6 @@ namespace BitEngine{
 		mainloop = true;
 		requiredTasksFrame = 0;
 		finishedRequiredTasks = 0;
-	}
-
-	bool GeneralTaskManager::taskReadyToRun(TaskPtr task)
-	{
-		if (task->isWaitingChild())
-			return false;
-		if (task->getDependency() == nullptr)
-			return true;
-		return task->getDependency()->isWaitingChild() == false;
 	}
 
 	void GeneralTaskManager::init()
@@ -223,7 +214,7 @@ namespace BitEngine{
 		}
 
 		int k = 1;
-		while (task->hasPendingWork())
+		while (!task->isFinished())
 		{
 			executeWorkersWork(k++);
 		}

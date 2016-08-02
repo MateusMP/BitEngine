@@ -5,94 +5,83 @@
 
 namespace BitEngine{
 
-	SpriteManager::SpriteManager(ResourceLoader* textureManager)
-		: m_textureManager(textureManager)
+	SpriteManager::SpriteManager()
 	{
 	}
 
-	bool SpriteManager::Init()
+	bool SpriteManager::init()
 	{
-		m_sprites.clear();
-		m_freeSlots.clear();
-		m_sprLookUp.clear();
-		m_sprLookUpInv.clear();
-
-		m_sprites.emplace_back(m_textureManager->getResource<ITexture>("error/texture"), 64, 64, 0.5f, 0.5f, glm::vec4(0, 0, 1, 1), false); // First sprite is INVALID
+		Sprite* nullSprite = sprites.getResourceAddress(0);
+		new (nullSprite) Sprite(resourceLoader->getResource<ITexture>("default/texture"), 64, 64, 0.5f, 0.5f, glm::vec4(0, 0, 1, 1), false);
 
 		return true;
 	}
 
-	SpriteHandle SpriteManager::createSprite(const std::string& name, const Sprite& spr)
+	Sprite* SpriteManager::createSprite(const std::string& name, const Sprite& spr)
 	{
-		auto it = m_sprLookUp.find(name);
-		if (it != m_sprLookUp.end()){
-			return 0;
+		ResourceMeta* meta = resourceLoader->includeMeta("sprites", name, "SPRITE");
+		if (meta != nullptr)
+		{
+			u16 id = sprites.addResource(meta);
+			Sprite* sprite = sprites.getResourceAddress(id);
+			new(sprite)Sprite(spr);
+			return sprite;
 		}
-
-		SpriteHandle handle = (SpriteHandle)m_sprites.size();
-		m_sprites.emplace_back(spr);
-
-		m_sprLookUp[name] = handle;
-		m_sprLookUpInv[handle] = name;
-		return handle;
-	}
-
-	/// This sprite wont be avaible through getSprite(name)
-	SpriteHandle SpriteManager::createSprite(const Sprite& spr)
-	{
-		SpriteHandle handle = (SpriteHandle)m_sprites.size();
-		m_sprites.emplace_back(spr);
-
-		return handle;
-	}
-
-	void SpriteManager::removeSprite(SpriteHandle hdl)
-	{
-		if (hdl == 0)
-			return;
-
-		m_freeSlots.emplace_back(hdl);
-
-		auto it = m_sprLookUpInv.find(hdl);
-		if (it != m_sprLookUpInv.end()){
-			m_sprLookUp.erase(it->second);
-			m_sprLookUpInv.erase(it);
-		}
-	}
-
-	bool SpriteManager::replaceSprite(SpriteHandle hdl, const Sprite& spr)
-	{
-		if (hdl == 0)
-			return false;
-
-		if (m_sprites.size() <= hdl){
-			LOG(EngineLog, BE_LOG_WARNING) << "SpriteManager: replaceSprite Invalid SpriteHandle: " <<  hdl;
-			return false;
-		}
-
-		m_sprites[hdl] = spr;
-		return true;
-	}
-
-	SpriteHandle SpriteManager::getSpriteHandle(const std::string& name) const
-	{
-		auto it = m_sprLookUp.find(name);
-		if (it != m_sprLookUp.end())
-			return it->second;
-
-		return 0;
-	}
-
-	const Sprite* SpriteManager::getSprite(SpriteHandle hdl) const
-	{
-#ifdef _DEBUG
-		if (m_sprites.size() <= hdl){
-			LOG(EngineLog, BE_LOG_WARNING) << "SpriteManager: Invalid SpriteHandle!";
+		else
+		{
 			return nullptr;
 		}
-#endif
+	}
 
-		return &m_sprites[hdl];
+	void SpriteManager::update()
+	{
+	}
+	
+	BaseResource* SpriteManager::loadResource(ResourceMeta* meta)
+	{
+		Sprite* sprite = sprites.findResource(meta);
+		if (sprite == nullptr)
+		{
+			u16 id = sprites.addResource(meta);
+			sprite = sprites.getResourceAddress(id);
+
+			loadSpriteData(meta, sprite);
+			
+		}
+		return sprite;
+	}
+
+	void SpriteManager::loadSpriteData(ResourceMeta* meta, Sprite* sprite)
+	{
+		ResourcePropertyContainer& props = meta->properties;
+
+		const std::string& textureMeta = props["texture"].getValueString();
+		u16 w = props["w"].getValueInt();
+		u16 h = props["h"].getValueInt();
+		double ox = props["ox"].getValueDouble();
+		double oy = props["oy"].getValueDouble();
+
+		ResourcePropertyContainer& uvContainer = props["uv"];
+		glm::vec4 uv(uvContainer["xi"].getValueDouble(), uvContainer["yi"].getValueDouble(), 
+					 uvContainer["xf"].getValueDouble(), uvContainer["yf"].getValueDouble());
+		bool transparent = props["transparent"].getValueInt() > 0;
+
+		ITexture* texture = resourceLoader->getResource<ITexture>(textureMeta);
+		if (texture == nullptr) {
+			LOG(EngineLog, BE_LOG_ERROR) << "Coulnd't find texture resource " << textureMeta << " for sprite " << meta->resourceName;
+		}
+
+		new (sprite) Sprite(texture, w, h, ox, oy, uv, transparent);
+	}
+
+	u32 SpriteManager::getCurrentRamUsage() const
+	{
+		return sizeof(sprites);
+	}
+
+	u32 SpriteManager::getCurrentGPUMemoryUsage() const
+	{
+		return u32(0);
 	}
 
 

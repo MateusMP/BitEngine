@@ -32,10 +32,16 @@ const std::string BitEngine::ResourceMeta::toString() const {
 
 BitEngine::DevResourceLoader::DevResourceLoader(GameEngine* ge)
 	: ResourceLoader(ge), loadedMetaIndexes(0)
-{}
+{
+	resourceMeta.reserve(4096);
+}
 
 bool BitEngine::DevResourceLoader::init()
 {
+	for (auto& it : managers)
+	{
+		it.second->init();
+	}
 	return true;
 }
 
@@ -83,6 +89,16 @@ bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, st
 
 	file.read(out.data(), size);
 	return file.gcount() == size;
+}
+
+BitEngine::ResourceMeta* BitEngine::DevResourceLoader::includeMeta(const std::string& package, const std::string& resourceName,
+	const std::string& type, ResourcePropertyContainer properties)
+{
+	ResourceMeta meta(package);
+	meta.resourceName = resourceName;
+	meta.type = type;
+	meta.properties = properties;
+	return addResourceMeta(meta);
 }
 
 bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)

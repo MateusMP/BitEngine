@@ -8,11 +8,10 @@
 
 namespace BitEngine{
 	
-	class SpriteManager{
+	class SpriteManager : public  ResourceManager
+	{
 	public:
-		SpriteManager(ResourceLoader* textureManager);
-
-		bool Init();
+		SpriteManager();
 
 		/**
 		 * Insert a new sprite
@@ -22,50 +21,29 @@ namespace BitEngine{
 		 * \param Sprite data to be used
 		 * \param return SpriteHandle for direct acess to given sprite
 		 */
-		SpriteHandle createSprite(const std::string& name, const Sprite& spr);
-
-		/** 
-		 * Insert a new sprite
-		 * This sprite wont be avaible through getSprite(name)
-		 */
-		SpriteHandle createSprite(const Sprite& spr);
-
-		/**
-		 * Remove the sprite freeing the SpriteHandle to be used
-		 * by another sprite.
-		 */
-		void removeSprite(SpriteHandle hdl);
-
-		/**
-		 * Replaces given SpriteHandle.
-		 * The SpriteHandle should be valid for an existing sprite.
-		 * The sprite name associated with it wont be changed.
-		 * @returns false when the handle is invalid
-		 */
-		bool replaceSprite(SpriteHandle hdl, const Sprite& spr);
-
-		/**
-		 * \param name Sprite name to find the SpriteHandle
-		 * @return Returns the SpriteHandle associated with the sprite name.
-		 *			If not found, 0 is returned.
-		 */
-		SpriteHandle getSpriteHandle(const std::string& name) const;
-
-		/**
-		 * Get a reference for given sprite handle
-		 * This reference is not guaranteed to be valid after the sprite structure is changed,
-		 * like new sprites or removed sprites.
-		 */
-		const Sprite* getSprite(SpriteHandle hdl) const;
+		Sprite* createSprite(const std::string& name, const Sprite& spr);
 
 	private:
-		std::map<std::string, SpriteHandle> m_sprLookUp;
-		std::map<SpriteHandle, std::string> m_sprLookUpInv;
-		std::vector<Sprite> m_sprites;
-		std::vector<SpriteHandle> m_freeSlots;
+		void loadSpriteData(ResourceMeta* meta, Sprite* sprite);
 
-		ResourceLoader* m_textureManager;
+		ResourceLoader* resourceLoader;
+		ResourceIndexer<Sprite, 2048> sprites;
 		
+		// Inherited via ResourceManager
+		virtual bool init() override;
+
+		virtual void update() override;
+
+		void setResourceLoader(ResourceLoader * loader) override {
+			resourceLoader = loader;
+		}
+
+		virtual BaseResource * loadResource(ResourceMeta * base) override;
+
+		virtual u32 getCurrentRamUsage() const override;
+
+		virtual u32 getCurrentGPUMemoryUsage() const override;
+
 	};
 
 
