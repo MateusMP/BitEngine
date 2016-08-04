@@ -3,11 +3,10 @@
 #include "Core/Graphics.h"
 #include "Core/VideoSystem.h"
 #include "Core/Logger.h"
-
+#include "Core/VideoRenderer.h"
 #include "Core/Messenger.h"
 
 #include <GLFW/glfw3.h>
-
 
 class GLFW_VideoDriver : public BitEngine::IVideoDriver
 {
@@ -22,49 +21,42 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 				GLFWwindow* m_glfwWindow;
 		};
 
-		GLFW_VideoDriver(BitEngine::Messenger* m, BitEngine::VideoRenderer* renderer)
-			: BitEngine::IVideoDriver(m, renderer), glewStarted(false), m_currentContext(nullptr)
+		GLFW_VideoDriver(BitEngine::GameEngine* ge, GLAdapter* _adapter)
+			: BitEngine::IVideoDriver(ge), glewStarted(false), adapter(_adapter), m_currentContext(nullptr)
 		{}
 		~GLFW_VideoDriver(){
+			delete adapter;
 		}
 
 		/**
 		* Initializes a window and openGL related stuff (Extensions and functions)
 		* Currently using GLFW and GLEW
 		*/
-		bool Init(const BitEngine::VideoConfiguration& config) override;
+		bool init(const BitEngine::VideoConfiguration& config) override;
 
 		/**
 		* Close the GLFW system
 		*/
-		void Shutdown() override
-		{
-			for (Window_glfw *w : windowsOpen) {
-				CloseWindow(w);
-			}
+		void shutdown() override;
 
-			glfwTerminate();
-		}
+		BitEngine::Window* createWindow(const BitEngine::WindowConfiguration& wc) override;
 
-		BitEngine::Window* CreateWindow(const BitEngine::WindowConfiguration& wc) override;
+		void closeWindow(BitEngine::Window* window) override;
 
-		void CloseWindow(BitEngine::Window* window) override;
+		BitEngine::Window* recreateWindow(BitEngine::Window* window) override;
 
-		BitEngine::Window* RecreateWindow(BitEngine::Window* window) override;
+		void updateWindow(BitEngine::Window* window) override;
 
-		void UpdateWindow(BitEngine::Window* window) override
-		{
-			Window_glfw* wglfw = static_cast<Window_glfw*>(window);
+		void update() override;
 
-			glfwSwapBuffers(wglfw->m_glfwWindow);
-		}
+		void clearBuffer(BitEngine::IRenderBuffer* buffer, BitEngine::BufferClearBitMask mask) override;
 
-		void Update() override
-		{
-			for (Window_glfw *w : windowsOpen)
-			{
-				CheckWindowClosed(w);
-			}
+		void clearBufferColor(BitEngine::IRenderBuffer* buffer, const BitEngine::ColorRGBA& color) override;
+
+		void setViewPort(int x, int y, int width, int height) override;
+
+		u32 getVideoAdapter() override {
+			return adapter->getVideoAdapter();
 		}
 
 	protected:
@@ -83,7 +75,7 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 				glfwMakeContextCurrent(window->m_glfwWindow);
 			}
 
-			m_renderer->setViewPort(0, 0, width, height);
+			setViewPort(0, 0, width, height);
 			// glViewport(0, 0, width, height);
 
 			if (m_currentContext != window) {
@@ -92,17 +84,18 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 		}
 
 	private:
-		static void GLFW_ErrorCallback(int error, const char* description);
+		bool glewStarted;
+		GLAdapter *adapter;
+		Window_glfw* m_currentContext;
 
 		bool CreateGLFWWindow(Window_glfw* window);
 
+		//
+		static void GLFW_ErrorCallback(int error, const char* description);
 		static void GlfwFrameResizeCallback(GLFWwindow* window, int width, int height);
 
 		static std::map<Window_glfw*, GLFW_VideoDriver*> resizeCallbackReceivers;
 		static std::set<Window_glfw*> windowsOpen;
-
-		bool glewStarted;
-		Window_glfw* m_currentContext;
 
 		LOG_CLASS(BitEngine::EngineLog.getOutputSink());
 };

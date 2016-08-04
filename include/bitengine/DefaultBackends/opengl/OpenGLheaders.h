@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/TypeDefinition.h"
+
 #ifdef _BITENGINE_USE_GLEW_STATIC_
     #define GLEW_STATIC
 #endif
@@ -14,3 +16,12 @@
 	if (a__glerr != GL_NO_ERROR) { LOG(EngineLog, BE_LOG_ERROR) << "GL ERROR: " << std::hex << a__glerr; } }
 
 #define GL_CALL_AVAILABLE(call) ((*call)!=nullptr)
+
+
+class GLAdapter
+{
+	public:
+	virtual bool init() = 0;
+
+	virtual u32 getVideoAdapter() = 0;
+};

@@ -20,7 +20,7 @@ namespace BitEngine
 			float alpha;
 	};
 
-	struct Sprite2DDataDefinition 
+	struct Sprite2DDataDefinition_legacy
 	{
 		struct PTNContainer {
 			glm::vec2 position;
@@ -53,7 +53,6 @@ namespace BitEngine
 			{
 				m_ptnContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 0);
 				m_modelMatrixContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 1);
-
 				m_textureContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Uniform, 0);
 			}
 			
@@ -73,8 +72,13 @@ namespace BitEngine
 				return m_shader;
 			}
 
+			bool preMultiplyModelMatrix() {
+				return m_shader->getDefinition().checkRef(m_modelMatrixContainer);
+			}
+
 		private:
 			Shader* m_shader;
+			bool preModel;
 			ShaderDataDefinition::DefinitionReference m_textureContainer;
 			ShaderDataDefinition::DefinitionReference m_ptnContainer;
 			ShaderDataDefinition::DefinitionReference m_modelMatrixContainer;
@@ -132,7 +136,7 @@ namespace BitEngine
 			if (!batchInstances.empty())
 			{
 				IBatchSector* currentSector = nullptr;
-				Sprite2DDataDefinition::TextureContainer* texture = nullptr;
+				Sprite2DDataDefinition_legacy::TextureContainer* texture = nullptr;
 				const ITexture* lastSpriteTexture = nullptr;
 				Sprite* lastSprite = nullptr;
 
@@ -148,15 +152,15 @@ namespace BitEngine
 						if (lastSpriteTexture != curTexture) {
 							lastSpriteTexture = curTexture;
 							currentSector = m_batch->addSector(i);
-							texture = currentSector->getConfigValueAs<Sprite2DDataDefinition::TextureContainer>(m_shader->getTextureContainerRef());
+							texture = currentSector->getConfigValueAs<Sprite2DDataDefinition_legacy::TextureContainer>(m_shader->getTextureContainerRef());
 							lastSprite = inst.sprite.sprite;
 							texture->diffuse = lastSpriteTexture;
 						}
 					}
 
-					m_batch->getVertexDataAddressAs<Sprite2DDataDefinition::ModelMatrixContainer>(m_shader->getModelMatrixContainerRef(), i)->modelMatrix = inst.transform.m_global;
-
-					Sprite2DDataDefinition::PTNContainer* ptn = (m_batch->getVertexDataAddressAs<Sprite2DDataDefinition::PTNContainer>(m_shader->getPTNContainerRef(), i));
+					m_batch->getVertexDataAddressAs<Sprite2DDataDefinition_legacy::ModelMatrixContainer>(m_shader->getModelMatrixContainerRef(), i)->modelMatrix = inst.transform.m_global;
+					
+					Sprite2DDataDefinition_legacy::PTNContainer* ptn = (m_batch->getVertexDataAddressAs<Sprite2DDataDefinition_legacy::PTNContainer>(m_shader->getPTNContainerRef(), i));
 					ptn->textureUV = lastSprite->getUV();
 				}
 			}

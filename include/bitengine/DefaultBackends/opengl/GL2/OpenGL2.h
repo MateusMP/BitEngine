@@ -18,9 +18,9 @@ namespace BitEngine {
 	class GL2Batch;
 	class GL2ShaderManager;
 
-	class OpenGL2Renderer;
+	class OpenGL2Adapter;
 	class GL2BatchSector;
 
-	class OpenGL2Renderer;
+	class OpenGL2Adapter;
 
 }

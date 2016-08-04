@@ -18,9 +18,12 @@
 namespace BitEngine {
 
 
-	class OpenGL2Renderer : public VideoRenderer
+	class OpenGL2Adapter : public GLAdapter
 	{
 		public:
+		OpenGL2Adapter(GameEngine* ge) : engine(ge) {}
+		~OpenGL2Adapter() {}
+
 		static u32 sizeOfGlType(GLenum type)
 		{
 			switch (type)
@@ -52,55 +55,25 @@ namespace BitEngine {
 			return 4;
 		}
 
-		~OpenGL2Renderer() {}
-
 		bool init() override
 		{
 			shaderManager = new GL2ShaderManager();
 			textureManager = new GL2TextureManager();
+			engine->getResourceLoader()->registerResourceManager("SHADER", shaderManager);
+			engine->getResourceLoader()->registerResourceManager("TEXTURE", textureManager);
 
 			return true;
 		}
 
-		u32 getGraphicPipelineType() override
+		u32 getVideoAdapter() override
 		{
 			return OPENGL_2;
 		}
 
-		ResourceManager* getShaderManager() override
-		{
-			return shaderManager;
-		}
-
-		ResourceManager* getTextureManager() override
-		{
-			return textureManager;
-		}
-
-		void ClearBuffer(IRenderBuffer* buffer, BufferClearBitMask mask) override
-		{
-			GLbitfield bitfield = 0;
-			if (mask & BufferClearBitMask::COLOR)
-				bitfield |= GL_COLOR_BUFFER_BIT;
-			if (mask & BufferClearBitMask::DEPTH)
-				bitfield |= GL_DEPTH_BUFFER_BIT;
-
-			glClear(bitfield);
-		}
-
-		void ClearBufferColor(IRenderBuffer* buffer, const ColorRGBA& color) override
-		{
-			glClearColor(color.r(), color.g(), color.b(), color.a());
-		}
-
-		void setViewPort(int x, int y, int width, int height) override
-		{
-			glViewport(x, y, width, height);
-		}
-
 		private:
-		GL2ShaderManager* shaderManager;
-		GL2TextureManager* textureManager;
+			GameEngine* engine;
+			GL2ShaderManager* shaderManager;
+			GL2TextureManager* textureManager;
 	};
 
 

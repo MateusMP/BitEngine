@@ -10,7 +10,7 @@ void GLFW_VideoDriver::GLFW_ErrorCallback(int error, const char* description)
 	LOGCLASS(BE_LOG_ERROR) << "GLFW Error: " << error << ": " << description;
 }
 
-bool GLFW_VideoDriver::Init(const VideoConfiguration& config)
+bool GLFW_VideoDriver::init(const VideoConfiguration& config)
 {
 	LOGCLASS(BE_LOG_VERBOSE) << "Video: Init video...";
 
@@ -37,13 +37,19 @@ bool GLFW_VideoDriver::Init(const VideoConfiguration& config)
 		return false;
 	}*/
 
-	m_renderer->init();
-
-	return true;
+	return adapter->init();
 }
 
+void GLFW_VideoDriver::shutdown()
+{
+	for (Window_glfw *w : windowsOpen) {
+		closeWindow(w);
+	}
 
-void GLFW_VideoDriver::CloseWindow(BitEngine::Window* window)
+	glfwTerminate();
+}
+
+void GLFW_VideoDriver::closeWindow(BitEngine::Window* window)
 {
 	Window_glfw* wglfw = static_cast<Window_glfw*>(window);
 
@@ -56,13 +62,13 @@ void GLFW_VideoDriver::CloseWindow(BitEngine::Window* window)
 	resizeCallbackReceivers.erase(wglfw);
 }
 
-Window* GLFW_VideoDriver::RecreateWindow(Window* window)
+Window* GLFW_VideoDriver::recreateWindow(Window* window)
 {
 	Window_glfw* wglfw = static_cast<Window_glfw*>(window);
 
 	if (wglfw->m_glfwWindow)
 	{
-		CloseWindow(window);
+		closeWindow(window);
 	}
 
 	if (!CreateGLFWWindow(wglfw))
@@ -74,7 +80,7 @@ Window* GLFW_VideoDriver::RecreateWindow(Window* window)
 	return window;
 }
 
-Window* GLFW_VideoDriver::CreateWindow(const WindowConfiguration& wc)
+Window* GLFW_VideoDriver::createWindow(const WindowConfiguration& wc)
 {
 	Window_glfw* window = new Window_glfw();
 
@@ -121,17 +127,52 @@ Window* GLFW_VideoDriver::CreateWindow(const WindowConfiguration& wc)
 		// so we wait until next frame to deliver this message
 		// hoping that everyone that is interested in this message
 		// is ready to receive it.
-		getMessenger()->delayedDispatch(MsgWindowCreated(window));
+		getEngine()->getMessenger()->delayedDispatch(MsgWindowCreated(window));
 	}
 
 	return window;
 }
 
+void GLFW_VideoDriver::updateWindow(BitEngine::Window* window)
+{
+	Window_glfw* wglfw = static_cast<Window_glfw*>(window);
+
+	glfwSwapBuffers(wglfw->m_glfwWindow);
+}
+
+void GLFW_VideoDriver::update()
+{
+	for (Window_glfw *w : windowsOpen)
+	{
+		CheckWindowClosed(w);
+	}
+}
+
+void GLFW_VideoDriver::clearBuffer(BitEngine::IRenderBuffer* buffer, BitEngine::BufferClearBitMask mask)
+{
+	GLbitfield bitfield = 0;
+	if (mask & BitEngine::BufferClearBitMask::COLOR)
+		bitfield |= GL_COLOR_BUFFER_BIT;
+	if (mask & BitEngine::BufferClearBitMask::DEPTH)
+		bitfield |= GL_DEPTH_BUFFER_BIT;
+
+	glClear(bitfield);
+}
+
+void GLFW_VideoDriver::clearBufferColor(BitEngine::IRenderBuffer* buffer, const BitEngine::ColorRGBA& color)
+{
+	glClearColor(color.r(), color.g(), color.b(), color.a());
+}
+
+void GLFW_VideoDriver::setViewPort(int x, int y, int width, int height)
+{
+	glViewport(x, y, width, height);
+}
 
 bool GLFW_VideoDriver::CheckWindowClosed(Window_glfw* window)
 {
 	if (glfwWindowShouldClose(window->m_glfwWindow)) {
-		getMessenger()->dispatch(MsgWindowClosed(window));
+		getEngine()->getMessenger()->dispatch(MsgWindowClosed(window));
 		return true;
 	}
 

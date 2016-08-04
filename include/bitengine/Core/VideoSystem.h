@@ -15,34 +15,43 @@ namespace BitEngine {
 	{
 	};
 
-	class IVideoDriver : public Messaging::MessengerEndpoint
+	class IVideoDriver : public EnginePiece
 	{
 		friend class VideoSystem;
 
 		public:
-			IVideoDriver(Messenger* m, VideoRenderer* renderer)
-				: MessengerEndpoint(m), m_renderer(renderer)
+			IVideoDriver(GameEngine* ge)
+				: EnginePiece(ge)
 			{}
-			virtual ~IVideoDriver(){
-				delete m_renderer;
-			}
+			virtual ~IVideoDriver(){}
 		
-			virtual bool Init(const VideoConfiguration& config) = 0;
-			virtual void Shutdown() = 0;
+			virtual bool init(const VideoConfiguration& config) = 0;
+			virtual void update() = 0;
+			virtual void shutdown() = 0;
 
-			virtual Window* CreateWindow(const WindowConfiguration& wc) = 0;
-			virtual void CloseWindow(Window* window) = 0;
-			virtual Window* RecreateWindow(Window* window) = 0;
-			virtual void UpdateWindow(Window* window) = 0;
+			virtual Window* createWindow(const WindowConfiguration& wc) = 0;
+			virtual void closeWindow(Window* window) = 0;
+			virtual Window* recreateWindow(Window* window) = 0;
+			virtual void updateWindow(Window* window) = 0;
+
+			virtual u32 getVideoAdapter() = 0;
+
+			/**
+			* Clear buffer on defined options
+			* \param buffer Buffer reference, if null, applies to screen
+			* \param mask Options to clear, see BufferClearBitMask
+			*/
+			virtual void clearBuffer(IRenderBuffer* buffer, BufferClearBitMask mask) = 0;
+
+			/**
+			* If buffer == nullptr, clears the screen
+			* otherwise, clears the given RenderBuffer
+			**/
+			virtual void clearBufferColor(IRenderBuffer* buffer, const ColorRGBA& color) = 0;
+
+			virtual void setViewPort(int x, int y, int width, int height) = 0;
 			
-			virtual void Update() = 0;
-
-			VideoRenderer* getRenderer() {
-				return m_renderer;
-			}
-
-		protected:
-			VideoRenderer* m_renderer;
+			
 	};
 
 	/** Default class for Video configuration
@@ -82,8 +91,8 @@ namespace BitEngine {
 			 */
 			void Shutdown() override 
 			{
-				m_driver->CloseWindow(m_window);
-				m_driver->Shutdown();
+				m_driver->closeWindow(m_window);
+				m_driver->shutdown();
 			}
 
 			/**
@@ -91,7 +100,7 @@ namespace BitEngine {
 			 */
 			void Update()
 			{
-				m_driver->Update();
+				m_driver->update();
 			}
 
 			/**
@@ -99,7 +108,7 @@ namespace BitEngine {
 			 */
 			void UpdateWindow()
 			{
-				m_driver->UpdateWindow(m_window);
+				m_driver->updateWindow(m_window);
 			}
 			
 		protected:

@@ -78,7 +78,7 @@ namespace BitEngine {
 
 	void initShadeDefinition(ShaderDataDefinition& def, ResourceMeta* meta)
 	{
-		ResourcePropertyContainer definition = meta->properties["definition"];
+		ResourcePropertyContainer definition = meta->properties["gl2"]["definition"];
 
 		int nDefs = definition.getNumberOfProperties();
 		for (int i = 0; i < nDefs; ++i)

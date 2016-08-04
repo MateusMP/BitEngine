@@ -56,34 +56,4 @@ namespace BitEngine {
 		virtual bool Ready() = 0;
 	};
 
-	class VideoRenderer
-	{
-		public:
-            virtual ~VideoRenderer(){};
-
-			virtual bool init() = 0;
-
-			virtual u32 getGraphicPipelineType() = 0;
-
-			virtual ResourceManager* getShaderManager() = 0;
-
-			virtual ResourceManager* getTextureManager() = 0;
-
-			/**
-			 * Clear buffer on defined options
-			 * \param buffer Buffer reference, if null, applies to screen
-			 * \param mask Options to clear, see BufferClearBitMask
-			 */
-			virtual void ClearBuffer(IRenderBuffer* buffer, BufferClearBitMask mask) = 0;
-
-			/**
-			* If buffer == nullptr, clears the screen
-			* otherwise, clears the given RenderBuffer
-			**/
-			virtual void ClearBufferColor(IRenderBuffer* buffer, const ColorRGBA& color) = 0;
-
-			virtual void setViewPort(int x, int y, int width, int height) = 0;
-	};
-
-
 }
