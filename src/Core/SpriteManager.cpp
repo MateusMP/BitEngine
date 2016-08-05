@@ -2,6 +2,7 @@
 
 #include "Core/Logger.h"
 #include "Core/Resources/ResourceManager.h"
+#include "Core/Graphics/ITexture.h"
 
 namespace BitEngine{
 

@@ -48,6 +48,8 @@ namespace BitEngine
 
 			int init();
 
+			bool isReady() override { return m_programID != 0; }
+
 			/// Binds the shader
 			/// Calls OnBind()
 			void Bind() override;

@@ -143,12 +143,12 @@ namespace BitEngine {
 		GL2Texture* texture = textures.findResource(meta);
 
 		// Recreate the texture object
-		new (texture) GL2Texture(meta);
-
 		if (texture == nullptr)
 		{
 			u16 id = textures.addResource(meta);
-			texture = &(textures.getResourceAt(id));
+			texture = textures.getResourceAddress(id);
+
+			new (texture)GL2Texture(meta); // Reconstruct object giving it the meta
 
 			// Make new load request
 			ResourceLoader::RawResourceTask rawDataTask = loadRawData(loader, meta);

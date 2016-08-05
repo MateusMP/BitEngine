@@ -24,7 +24,7 @@ namespace BitEngine
 
 		private:
 		inline void* getConfigValueForRef(const UniformData& ud) {
-			return (void*)(data.data() + ((size_t)(ud.unif.dataOffset)));
+			return ud.unif.dataOffset;
 		}
 
 		std::unordered_map<ShaderDataDefinition::DefinitionReference, UniformData, ShaderDataDefinition::DefinitionReference::Hasher> configs; // uniforms with instanced = 1
@@ -69,6 +69,8 @@ namespace BitEngine
 		// Render the loaded data
 		void render(Shader* shader) override;
 
+		void setVertexRenderMode(VertexRenderMode mode) override;
+
 		protected:
 		// Load data into internal buffer
 		// This will replace all data from the internal buffer
@@ -78,7 +80,7 @@ namespace BitEngine
 
 		// Get the uniform config data
 		void* getConfigData(const ShaderDataDefinition::DefinitionReference& ref);
-
+		
 		private:
 		// Bind the buffer to receive data on gpu
 		void bindBuffer(AttributeData& container);
@@ -99,6 +101,7 @@ namespace BitEngine
 		void unbind();
 
 		// Members
+		GLint renderMode;
 		VAOContainer vaoContainer;
 		UniformContainer uniformContainer;
 		std::vector<GL2BatchSector> sectors;

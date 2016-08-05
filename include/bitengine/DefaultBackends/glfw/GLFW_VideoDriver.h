@@ -8,7 +8,7 @@
 
 #include <GLFW/glfw3.h>
 
-class GLFW_VideoDriver : public BitEngine::IVideoDriver
+class GLFW_VideoDriver : public BitEngine::VideoDriver
 {
 	public:
 		class Window_glfw : public BitEngine::Window
@@ -22,7 +22,7 @@ class GLFW_VideoDriver : public BitEngine::IVideoDriver
 		};
 
 		GLFW_VideoDriver(BitEngine::GameEngine* ge, GLAdapter* _adapter)
-			: BitEngine::IVideoDriver(ge), glewStarted(false), adapter(_adapter), m_currentContext(nullptr)
+			: BitEngine::VideoDriver(ge), glewStarted(false), adapter(_adapter), m_currentContext(nullptr)
 		{}
 		~GLFW_VideoDriver(){
 			delete adapter;

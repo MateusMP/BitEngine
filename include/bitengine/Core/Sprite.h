@@ -5,12 +5,13 @@
 #include <glm/common.hpp>
 
 #include "Common/TypeDefinition.h"
-#include "Core/Graphics/ITexture.h"
-
+#include "Core/Resources/ResourceManager.h"
 
 namespace BitEngine{
 
 typedef unsigned short SpriteHandle;
+
+class ITexture;
 
 class Sprite : public BaseResource
 {

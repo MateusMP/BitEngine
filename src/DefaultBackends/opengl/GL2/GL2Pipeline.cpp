@@ -18,7 +18,7 @@ namespace BitEngine
 			if (it->instanced == 0)
 			{
 				fullUniformSize += it->byteSize;
-				uniformConfigs.emplace(it->ref, UniformData(*it, uniformData.data() + (size_t)(it->dataOffset)));
+				uniformConfigs.emplace(it->ref, UniformData(*it, (char*)(it->dataOffset)));
 			}
 		}
 		uniformData.resize(fullUniformSize);
@@ -27,6 +27,8 @@ namespace BitEngine
 		{
 			it->second.unif.dataOffset = uniformData.data() + (u32)(it->second.unif.dataOffset);
 		}
+
+		renderMode = GL_TRIANGLE_STRIP;
 	}
 
 	// Prepare the batch to be rendered
@@ -91,9 +93,25 @@ namespace BitEngine
 		GL_CHECK(glBindVertexArray(0));
 	}
 
+	void GL2Batch::setVertexRenderMode(VertexRenderMode mode)
+	{
+		switch (mode)
+		{
+			case VertexRenderMode::TRIANGLES:
+				renderMode = GL_TRIANGLES;
+				break;
+			case VertexRenderMode::TRIANGLE_STRIP:
+				renderMode = GL_TRIANGLE_STRIP;
+				break;
+			default:
+				LOG(EngineLog, BE_LOG_ERROR) << "Invalid render mode " << (int)mode;
+		}
+	}
+
 	void GL2Batch::render(Shader* shader)
 	{
 		GL2Shader *glShader = static_cast<GL2Shader*>(shader);
+		glShader->Bind();
 		bind();
 
 		for (auto& it = uniformConfigs.begin(); it != uniformConfigs.end(); ++it)
@@ -112,7 +130,8 @@ namespace BitEngine
 			// glBindTexture(GL_TEXTURE_2D, r.texture);
 
 			const GLsizei nItems = bs.m_end - bs.m_begin;
-			GL_CHECK(glDrawArraysInstancedBaseInstance(GL_TRIANGLE_STRIP, 0, 4, nItems, bs.m_begin));
+			GL_CHECK(glDrawArrays(renderMode, bs.m_begin, nItems));
+			//GL_CHECK(glDrawArraysInstancedBaseInstance(renderMode, 0, 4, nItems, bs.m_begin));
 
 			/*if (r.transparent) {
 			glDisable(GL_BLEND);

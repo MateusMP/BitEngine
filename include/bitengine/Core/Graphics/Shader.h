@@ -50,6 +50,11 @@ namespace BitEngine {
 		LAST_RESERVED,
 	};
 
+	enum class VertexRenderMode {
+		TRIANGLES,
+		TRIANGLE_STRIP,
+	};
+
 	class ShaderDataDefinition
 	{
 		public:
@@ -239,6 +244,8 @@ namespace BitEngine {
 			// @see load()
 			virtual void render(Shader* shader) = 0;
 
+			virtual void setVertexRenderMode(VertexRenderMode mode) = 0;
+
 		protected:
 			// Load data into vertex buffer
 			// The vector may be changed
@@ -257,6 +264,8 @@ namespace BitEngine {
 	class Shader : public BaseResource
 	{
 		public:
+		virtual bool isReady() = 0;
+
 		/// Binds the shader
 		/// Calls OnBind()
 		virtual void Bind() = 0;

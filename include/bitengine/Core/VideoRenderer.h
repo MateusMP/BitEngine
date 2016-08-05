@@ -4,7 +4,7 @@
 
 namespace BitEngine {
 
-	enum PipelineType{
+	enum VideoAdapterType{
 		NONE,
 		OPENGL_2,
 		OPENGL_4,
@@ -12,8 +12,8 @@ namespace BitEngine {
 		VULKAN_1,
 
 		GL_ALL,
+		GL_2_OR_LOWER,
 		GL_2_OR_GREATER,
-		GL_4_OR_GREATER,
 
 		VULKAN_ALL,
 	};

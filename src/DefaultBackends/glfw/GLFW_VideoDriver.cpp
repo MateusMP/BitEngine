@@ -14,6 +14,7 @@ bool GLFW_VideoDriver::init(const VideoConfiguration& config)
 {
 	LOGCLASS(BE_LOG_VERBOSE) << "Video: Init video...";
 
+	glewExperimental = GL_TRUE;
 	if (!glfwInit()) {
 		LOGCLASS(BE_LOG_ERROR) << "Video: Failed to initialize glfw!";
 		return false;

@@ -12,13 +12,14 @@ namespace BitEngine
 			: id(0), size(0), type(0)
 		{}
 		VBOAttrib(const VBOAttrib& copy)
-			: id(copy.id), size(copy.size), type(copy.type), normalized(copy.normalized), stride(copy.stride), offset(copy.offset)
+			: id(copy.id), size(copy.size), type(copy.type), dataType(copy.dataType), normalized(copy.normalized), stride(copy.stride), offset(copy.offset)
 		{
 		}
 
 		GLuint id;
 		GLint size;
 		GLenum type;
+		GLenum dataType;
 		GLboolean normalized;
 		GLsizei stride;
 		int offset;
@@ -57,8 +58,21 @@ namespace BitEngine
 		char* dataOffset; // as an offset
 	};
 
+	// Contain multiples UniformDefinition
 	struct UniformContainer : std::set<UniformDefinition, UniformDefinition::Comparator>
 	{
+		u16 calculateMaxDataSize(int instanced) const {
+			u16 maxDataSize = 0;
+			for (auto& it = begin(); it != end(); ++it)
+			{
+				if (it->instanced == instanced)
+				{
+					maxDataSize += it->byteSize;
+				}
+			}
+
+			return maxDataSize;
+		}
 	};
 
 	///

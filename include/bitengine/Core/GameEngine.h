@@ -9,6 +9,7 @@ namespace BitEngine{
 	class Messenger;
 	class System;
 	class TaskManager;
+	class VideoDriver;
 
 	class GameEngine
 	{
@@ -18,6 +19,7 @@ namespace BitEngine{
 		virtual Messenger* getMessenger() = 0;
 		virtual System* getSystem(const std::string& name) = 0;
 		virtual TaskManager* getTaskManager() = 0;
+		virtual VideoDriver* getVideoDriver() = 0;
 	};
 
 	class EnginePiece

@@ -39,6 +39,28 @@ namespace BitEngine
 		}
 	}
 
+	GLenum fromGLTypeToGLDataType(GLenum e)
+	{
+		switch (e)
+		{
+			case GL_SAMPLER_1D:
+			case GL_SAMPLER_2D:
+			case GL_SAMPLER_3D:
+				return GL_INT;
+
+			case GL_FLOAT_MAT4:
+			case GL_FLOAT_MAT3:
+			case GL_FLOAT_MAT2:
+			case GL_FLOAT_VEC4:
+			case GL_FLOAT_VEC3:
+			case GL_FLOAT_VEC2:
+			case GL_FLOAT:
+				return GL_FLOAT;
+			default:
+				return e;
+		}
+	}
+
 	u32 sizeofDataType(DataType dt)
 	{
 		switch (dt)
@@ -73,26 +95,32 @@ namespace BitEngine
 	// GL2BatchSector
 
 	GL2BatchSector::GL2BatchSector(const UniformContainer* uc, u32 begin)
-		: m_begin(begin)
+		: m_begin(begin), m_end(0), uniformSizeTotal(0)
 	{
-		uniformSizeTotal = 0;
+		uniformSizeTotal = uc->calculateMaxDataSize(1);
+		data.resize(uniformSizeTotal);
+
 		for (auto& it = uc->begin(); it != uc->end(); ++it)
 		{
-			if (it->instanced == 1)
-			{
-				uniformSizeTotal += it->byteSize;
-				configs.emplace(it->ref, UniformData(*it, data.data() + (size_t)(it->dataOffset)));
+			if (it->instanced == 1) {
+				char* dataAddr = data.data() + (size_t)(it->dataOffset);
+				configs.emplace(it->ref, UniformData(*it, dataAddr));
 			}
 		}
-		data.resize(uniformSizeTotal);
 	}
 
 	void GL2BatchSector::configure(Shader* shader)
 	{
 		GL2Shader* glShader = static_cast<GL2Shader*>(shader);
+
+		if (!glShader->isReady()) {
+			LOG(EngineLog, BE_LOG_WARNING) << "Shader is not ready yet";
+			return;
+		}
+
 		for (auto it = configs.begin(); it != configs.end(); ++it)
 		{
-			glShader->loadConfig(it->second.unif.ref, data.data() + (size_t)(it->second.unif.dataOffset));
+			glShader->loadConfig(it->second.unif.ref, it->second.unif.dataOffset);
 		}
 	}
 
@@ -112,9 +140,10 @@ namespace BitEngine
 	// GL2Shader
 	const GL2Shader::GlobalConfig* GL2Shader::findUniformConfigByName(const std::string& str)
 	{
+		const std::string u_str = "u_" + str;
 		for (GlobalConfig& gc : m_uniforms)
 		{
-			if (gc.name == str)
+			if (gc.name == u_str)
 			{
 				return &gc;
 			}
@@ -161,6 +190,7 @@ namespace BitEngine
 					attrib.id = ac->location;
 					attrib.size = ac->size;
 					attrib.type = ac->type; //toGLType(dd.type);
+					attrib.dataType = fromGLTypeToGLDataType(ac->type);
 					attrib.normalized = false; // TODO: get this from dd
 					attrib.stride = strideSize;
 					attrib.offset = offsetAccum;
@@ -199,7 +229,7 @@ namespace BitEngine
 			for (const VBOAttrib& c : vboc.attrs)
 			{
 				GL_CHECK(glEnableVertexAttribArray(c.id));
-				GL_CHECK(glVertexAttribPointer(c.id, c.size, c.type, c.normalized, c.stride, (void*)(c.offset)));
+				GL_CHECK(glVertexAttribPointer(c.id, c.size, c.dataType, c.normalized, c.stride, (void*)(c.offset)));
 				GL_CHECK(glVertexAttribDivisor(c.id, vboc.divisor));
 			}
 		}
@@ -211,9 +241,9 @@ namespace BitEngine
 	{
 		const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Uniform);
 
-		u32 fullSize = 0;
 		for (const ShaderDataDefinition::DefinitionContainer& def : containers)
 		{
+			u32 fullSize = 0;
 			for (const ShaderDataDefinition::DefinitionData& dd : def.definitionData)
 			{
 				const GL2Shader::GlobalConfig* gc = findUniformConfigByName(dd.name);
@@ -223,12 +253,12 @@ namespace BitEngine
 					UniformDefinition ud;
 					ud.instanced = def.instanced;
 					ud.byteSize = partialSize;
-					ud.dataOffset = (char*)(fullSize + partialSize);
+					ud.dataOffset = (char*)(fullSize);
 					ud.ref = gc->defRef;
 					ud.location = gc->location;
 					ud.size = gc->size;
 					ud.type = gc->type;
-					fullSize += ud.byteSize;
+					fullSize += partialSize;
 
 					unifContainer.emplace(ud);
 				}
@@ -249,6 +279,9 @@ namespace BitEngine
 	
 	IGraphicBatch* GL2Shader::createBatch()
 	{
+		if (!isReady()) {
+			return nullptr;
+		}
 		// VAO contains all containers from ShaderDataDefinition
 		// Each VBO is one container.
 		// Each VBO is configured based on the container data.
@@ -297,11 +330,6 @@ namespace BitEngine
 		int error = buildFinalProgram(pieces);
 		if (error == BE_NO_ERROR)
 		{
-			for (ShaderSource& s : sources)
-			{
-				glDetachShader(m_programID, s.shader);
-				s.shader = 0;
-			}
 			LOG(EngineLog, BE_LOG_INFO) << "Shader ready!";
 
 			for (GL2Batch* batch : batches)
@@ -335,7 +363,7 @@ namespace BitEngine
 		if (m_programID != 0)
 		{
 			Unbind();
-			glDeleteProgram(m_programID);
+			GL_CHECK(glDeleteProgram(m_programID));
 			m_programID = 0;
 		}
 	}
@@ -392,7 +420,7 @@ namespace BitEngine
 			ShaderDataDefinition::DefinitionReference ref = m_shaderDefinition.findReference(tmpName);
 			if (m_shaderDefinition.checkRef(ref))
 			{
-				unif.location = glGetUniformLocation(m_programID, tmpName.data());
+				unif.location = glGetUniformLocation(m_programID, tmpName.data()); GL_CHECK(;);
 				unif.defRef = ref;
 				unif.name = tmpName;
 				LOG(EngineLog, BE_LOG_INFO) << "Uniform" << i << " at " << unif.location
@@ -462,7 +490,8 @@ namespace BitEngine
 
 			// Don't leak shaders
 			for (size_t i = 0; i < shaders.size(); ++i) {
-				glDeleteShader(shaders[i]);
+				GL_CHECK(glDetachShader(m_programID, shaders[i]));
+				GL_CHECK(glDeleteShader(shaders[i]));
 			}
 
 			// Use the infoLog as you see fit.
@@ -498,11 +527,11 @@ namespace BitEngine
 
 		GLint size = data.size();
 		const char* codeData = data.data();
-		glShaderSource(shdhdl, 1, &codeData, &size);
-		glCompileShader(shdhdl);
+		GL_CHECK(glShaderSource(shdhdl, 1, &codeData, &size));
+		GL_CHECK(glCompileShader(shdhdl));
 
 		GLint status = 0;
-		glGetShaderiv(shdhdl, GL_COMPILE_STATUS, &status);
+		GL_CHECK(glGetShaderiv(shdhdl, GL_COMPILE_STATUS, &status));
 
 		if (status == GL_FALSE) {
 
@@ -515,7 +544,7 @@ namespace BitEngine
 			glGetShaderInfoLog(shdhdl, maxlogsize, &maxlogsize, (GLchar*)errorLog.data());
 
 			// Free shader handle
-			glDeleteShader(shdhdl);
+			GL_CHECK(glDeleteShader(shdhdl));
 
 			return FAILED_TO_COMPILE;
 		}
@@ -525,30 +554,30 @@ namespace BitEngine
 	}
 
 	void GL2Shader::loadInt(int location, int value) {
-		glUniform1i(location, value);
+		GL_CHECK(glUniform1i(location, value));
 	}
 
 	void GL2Shader::loadFloat(int location, float value) {
-		glUniform1f(location, value);
+		GL_CHECK(glUniform1f(location, value));
 	}
 
 	void GL2Shader::loadVector3f(int location, int n, const float* vector) {
-		glUniform3fv(location, n, vector);
+		GL_CHECK(glUniform3fv(location, n, vector));
 	}
 
 	void GL2Shader::loadVector4f(int location, int n, const float* vector) {
-		glUniform4fv(location, n, vector);
+		GL_CHECK(glUniform4fv(location, n, vector));
 	}
 
 	void GL2Shader::loadBoolean(int location, bool b) {
 		float toload = 0.0f;
 		if (b)
 			toload = 1.0f;
-		glUniform1f(location, toload);
+		GL_CHECK(glUniform1f(location, toload));
 	}
 
 	void GL2Shader::loadMatrix4f(int location, const float* matrix) {
-		glUniformMatrix4fv(location, 1, false, matrix);
+		GL_CHECK(glUniformMatrix4fv(location, 1, false, matrix));
 	}
 
 	void GL2Shader::connectTexture(int location, int unitID) {
@@ -597,9 +626,9 @@ namespace BitEngine
 		switch (ud.type)
 		{
 			case GL_SAMPLER_2D: {
-				const GL2Texture* texture = static_cast<GL2Texture*>(data);
+				const GL2Texture* texture = *static_cast<GL2Texture**>(data);
 				connectTexture(ud.location, texture->getTextureID());
-			}
+			}	
 			break;
 
 			case GL_FLOAT_VEC2:

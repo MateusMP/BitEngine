@@ -15,15 +15,15 @@ namespace BitEngine {
 	{
 	};
 
-	class IVideoDriver : public EnginePiece
+	class VideoDriver : public EnginePiece
 	{
 		friend class VideoSystem;
 
 		public:
-			IVideoDriver(GameEngine* ge)
+			VideoDriver(GameEngine* ge)
 				: EnginePiece(ge)
 			{}
-			virtual ~IVideoDriver(){}
+			virtual ~VideoDriver(){}
 		
 			virtual bool init(const VideoConfiguration& config) = 0;
 			virtual void update() = 0;
@@ -61,7 +61,7 @@ namespace BitEngine {
 	class VideoSystem : public System
 	{
 		public:
-			VideoSystem(GameEngine* ge, IVideoDriver* driver) 
+			VideoSystem(GameEngine* ge, VideoDriver* driver) 
 				: System(ge), m_driver(driver)
 			{
 				getConfig("Fullscreen", "false")->setDescription("Use fullscreen mode, true, false ");
@@ -77,7 +77,7 @@ namespace BitEngine {
 				return "Video";
 			}
 
-			IVideoDriver* getDriver() {
+			VideoDriver* getDriver() {
 				return m_driver;
 			}
 
@@ -112,7 +112,7 @@ namespace BitEngine {
 			}
 			
 		protected:
-			IVideoDriver* m_driver;
+			VideoDriver* m_driver;
 
 			Window* m_window;
 	};

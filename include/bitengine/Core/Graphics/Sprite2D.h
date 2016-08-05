@@ -20,7 +20,26 @@ namespace BitEngine
 			float alpha;
 	};
 
+	// Doesn't use instanced rendering
 	struct Sprite2DDataDefinition_legacy
+	{
+		struct VertexContainer {
+			glm::vec2 position;
+			glm::vec2 textureUV;
+		};
+
+		struct CamMatricesContainer {
+			glm::mat4 projection;
+			glm::mat4 view;
+		};
+
+		struct TextureContainer {
+			const ITexture* diffuse;
+		};
+	};
+
+	// Instanced rendering
+	struct Sprite2DDataDefinition_new
 	{
 		struct PTNContainer {
 			glm::vec2 position;
@@ -52,8 +71,11 @@ namespace BitEngine
 				: m_shader(shader)
 			{
 				m_ptnContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 0);
-				m_modelMatrixContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 1);
-				m_textureContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Uniform, 0);
+				m_vertexContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 0);
+				u_modelMatrixContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 1);
+
+				u_viewMatrixContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Uniform, 0);
+				m_textureContainer = m_shader->getDefinition().getReferenceToContainer(DataUseMode::Uniform, 1);
 			}
 			
 			ShaderDataDefinition::DefinitionReference& getTextureContainerRef() {
@@ -61,11 +83,15 @@ namespace BitEngine
 			}
 
 			ShaderDataDefinition::DefinitionReference& getModelMatrixContainerRef() {
-				return m_modelMatrixContainer;
+				return u_modelMatrixContainer;
 			}
 
 			ShaderDataDefinition::DefinitionReference& getPTNContainerRef() {
 				return m_ptnContainer;
+			}
+
+			ShaderDataDefinition::DefinitionReference& getVertexContainerRef() {
+				return m_vertexContainer;
 			}
 
 			Shader* getShader() {
@@ -73,15 +99,17 @@ namespace BitEngine
 			}
 
 			bool preMultiplyModelMatrix() {
-				return m_shader->getDefinition().checkRef(m_modelMatrixContainer);
+				return m_shader->getDefinition().checkRef(u_modelMatrixContainer);
 			}
 
 		private:
 			Shader* m_shader;
 			bool preModel;
 			ShaderDataDefinition::DefinitionReference m_textureContainer;
+			ShaderDataDefinition::DefinitionReference m_vertexContainer;
 			ShaderDataDefinition::DefinitionReference m_ptnContainer;
-			ShaderDataDefinition::DefinitionReference m_modelMatrixContainer;
+			ShaderDataDefinition::DefinitionReference u_viewMatrixContainer;
+			ShaderDataDefinition::DefinitionReference u_modelMatrixContainer;
 	};
 
 	class Sprite2DRenderer : public ComponentProcessor
@@ -114,21 +142,115 @@ namespace BitEngine
 
 		void Prepare()
 		{
+			if (m_batch == nullptr)
+			{
+				if (!m_shader->getShader()->isReady())
+				{
+					return;
+				}
+				else
+				{
+					m_batch = m_shader->getShader()->createBatch();
+				}
+			}
+
 			m_batch->clear();
-						
+
+			buildBatchInstances();
+
+			if (getES()->getEngine()->getVideoDriver()->getVideoAdapter() == VideoAdapterType::OPENGL_4)
+			{
+				prepare_new();
+			}
+			else
+			{
+				prepare_legacy();
+			}
+
+
+			// Make sure it's on gpu
+			m_batch->load();
+		}
+
+		void buildBatchInstances()
+		{
 			// Build batch
 			getES()->forEach<SceneTransform2DComponent, Sprite2DComponent2>(
-					[this](const ComponentRef<SceneTransform2DComponent>& transform, const ComponentRef<Sprite2DComponent2>& sprite)
-				{
-					batchInstances.emplace_back(transform.ref(), sprite.ref());
-				}
-			);
-			
+				[this](const ComponentRef<SceneTransform2DComponent>& transform, const ComponentRef<Sprite2DComponent2>& sprite)
+			{
+				batchInstances.emplace_back(transform.ref(), sprite.ref());
+			});
+
 			// Sort batch
 			std::sort(batchInstances.begin(), batchInstances.end(), [](const SpriteBatchInstance& a, const SpriteBatchInstance& b) {
 				return (a.sprite.layer < b.sprite.layer) && (a.sprite.sprite < b.sprite.sprite);
 			});
+		}
 
+		void prepare_legacy()
+		{
+			m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLE_STRIP);
+			// Prepare for all instances
+			u32 nVertices = batchInstances.size() * 4;
+			m_batch->prepare(nVertices); // quad sprites need 4 vertices for each
+
+			const glm::vec3 quad[] = {
+				{-0.5,-0.5, 1}, {-0.5,0.5, 1},	// 1 3
+				{0.5, 0.5, 1}, {0.5, 0.5, 1}	// 2 4
+			};
+
+			// Setup batch data
+			if (!batchInstances.empty())
+			{
+				IBatchSector* currentSector = nullptr;
+				Sprite2DDataDefinition_legacy::TextureContainer* texture = nullptr;
+				const ITexture* lastSpriteTexture = nullptr;
+				Sprite* lastSprite = nullptr;
+
+				//const u32 instanceCount = batchInstances.size();
+				for (u32 i = 0; i < nVertices; ++i)
+				{
+					const int idx = (i / 4) % 4;
+					const SpriteBatchInstance& inst = batchInstances[idx];
+
+					// Handle batch sectors
+					if (inst.sprite.sprite != lastSprite)
+					{
+						const ITexture* curTexture = inst.sprite.sprite->getTexture();
+						if (lastSpriteTexture != curTexture) {
+							lastSpriteTexture = curTexture;
+							if (currentSector != nullptr) {
+								currentSector->end(i);
+							}
+							currentSector = m_batch->addSector(i);
+							texture = currentSector->getConfigValueAs<Sprite2DDataDefinition_legacy::TextureContainer>(m_shader->getTextureContainerRef());
+							lastSprite = inst.sprite.sprite;
+							texture->diffuse = lastSpriteTexture;
+						}
+					}
+
+					auto* vertexContainer = m_batch->getVertexDataAddressAs<Sprite2DDataDefinition_legacy::VertexContainer>(m_shader->getVertexContainerRef(), i);
+					const glm::vec4& uv = lastSprite->getUV();
+					vertexContainer->position = glm::vec2(quad[idx] * inst.transform.m_global);
+					if (idx == 0) {
+						vertexContainer->textureUV = glm::vec2(uv.x, uv.y);
+					} else if (idx == 1) {
+						vertexContainer->textureUV = glm::vec2(uv.x, uv.w);
+					} else if (idx == 2) {
+						vertexContainer->textureUV = glm::vec2(uv.z, uv.y);
+					} else if (idx == 3) {
+						vertexContainer->textureUV = glm::vec2(uv.z, uv.w);
+					}
+				}
+				if (currentSector != nullptr) {
+					currentSector->end(nVertices);
+				}
+			}
+		}
+
+		void prepare_new()
+		{
+			m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLE_STRIP);
 			// Prepare for all instances
 			m_batch->prepare(batchInstances.size());
 
@@ -136,7 +258,7 @@ namespace BitEngine
 			if (!batchInstances.empty())
 			{
 				IBatchSector* currentSector = nullptr;
-				Sprite2DDataDefinition_legacy::TextureContainer* texture = nullptr;
+				Sprite2DDataDefinition_new::TextureContainer* texture = nullptr;
 				const ITexture* lastSpriteTexture = nullptr;
 				Sprite* lastSprite = nullptr;
 
@@ -152,26 +274,26 @@ namespace BitEngine
 						if (lastSpriteTexture != curTexture) {
 							lastSpriteTexture = curTexture;
 							currentSector = m_batch->addSector(i);
-							texture = currentSector->getConfigValueAs<Sprite2DDataDefinition_legacy::TextureContainer>(m_shader->getTextureContainerRef());
+							texture = currentSector->getConfigValueAs<Sprite2DDataDefinition_new::TextureContainer>(m_shader->getTextureContainerRef());
 							lastSprite = inst.sprite.sprite;
 							texture->diffuse = lastSpriteTexture;
 						}
 					}
 
-					m_batch->getVertexDataAddressAs<Sprite2DDataDefinition_legacy::ModelMatrixContainer>(m_shader->getModelMatrixContainerRef(), i)->modelMatrix = inst.transform.m_global;
-					
-					Sprite2DDataDefinition_legacy::PTNContainer* ptn = (m_batch->getVertexDataAddressAs<Sprite2DDataDefinition_legacy::PTNContainer>(m_shader->getPTNContainerRef(), i));
+					m_batch->getVertexDataAddressAs<Sprite2DDataDefinition_new::ModelMatrixContainer>(m_shader->getModelMatrixContainerRef(), i)->modelMatrix = inst.transform.m_global;
+
+					Sprite2DDataDefinition_new::PTNContainer* ptn = (m_batch->getVertexDataAddressAs<Sprite2DDataDefinition_new::PTNContainer>(m_shader->getPTNContainerRef(), i));
 					ptn->textureUV = lastSprite->getUV();
 				}
 			}
-
-			// Make sure it's on gpu
-			m_batch->load();
 		}
 
 		void Render()
 		{
-			m_batch->render(m_shader->getShader());
+			if (m_batch != nullptr)
+			{
+				m_batch->render(m_shader->getShader());
+			}
 		}
 
 		private:

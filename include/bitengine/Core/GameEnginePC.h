@@ -32,7 +32,7 @@ namespace BitEngine
 	class GameEnginePC : public GameEngine
 	{
 		public:
-		GameEnginePC(const std::string& configFile, ResourceLoader* loader);
+		GameEnginePC(const std::string& configFile, ResourceLoader* loader, VideoDriver* driver);
 		~GameEnginePC();
 
 		// Will call the @see CreateSystems() method
@@ -60,6 +60,10 @@ namespace BitEngine
 			return &taskManager;
 		}
 
+		virtual VideoDriver* getVideoDriver() override {
+			return videoDriver;
+		}
+
 		protected:
 			void addSystem(System *sys);
 
@@ -75,6 +79,7 @@ namespace BitEngine
 			EngineConfiguration configuration;
 			ResourceLoader* loader;
 			GeneralTaskManager taskManager;
+			VideoDriver* videoDriver;
 	};
 
 }
