@@ -29,7 +29,6 @@ namespace BitEngine
 		};
 
 		struct CamMatricesContainer {
-			glm::mat4 projection;
 			glm::mat4 view;
 		};
 
@@ -51,7 +50,6 @@ namespace BitEngine
 		};
 
 		struct CamMatricesContainer {
-			glm::mat4 projection;
 			glm::mat4 view;
 		};
 
@@ -86,6 +84,10 @@ namespace BitEngine
 				return u_modelMatrixContainer;
 			}
 
+			ShaderDataDefinition::DefinitionReference& getViewMatrixContainerRef() {
+				return u_viewMatrixContainer;
+			}
+
 			ShaderDataDefinition::DefinitionReference& getPTNContainerRef() {
 				return m_ptnContainer;
 			}
@@ -118,6 +120,11 @@ namespace BitEngine
 		Sprite2DRenderer(GameEngine* engine)
 			: ComponentProcessor(engine->getMessenger()), m_engine(engine)
 		{
+		}
+
+		void setActiveCamera(ComponentRef<Camera2DComponent>& handle)
+		{
+			activeCamera = handle;
 		}
 
 		bool Init() override
@@ -174,6 +181,7 @@ namespace BitEngine
 
 		void buildBatchInstances()
 		{
+			batchInstances.clear();
 			// Build batch
 			getES()->forEach<SceneTransform2DComponent, Sprite2DComponent2>(
 				[this](const ComponentRef<SceneTransform2DComponent>& transform, const ComponentRef<Sprite2DComponent2>& sprite)
@@ -189,15 +197,42 @@ namespace BitEngine
 
 		void prepare_legacy()
 		{
-			m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLE_STRIP);
+			const int N_VERTEX_PER_QUAD = 6;
+			m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLES);
 			// Prepare for all instances
-			u32 nVertices = batchInstances.size() * 4;
+			u32 nVertices = batchInstances.size() * N_VERTEX_PER_QUAD;
 			m_batch->prepare(nVertices); // quad sprites need 4 vertices for each
 
-			const glm::vec3 quad[] = {
-				{-0.5,-0.5, 1}, {-0.5,0.5, 1},	// 1 3
-				{0.5, 0.5, 1}, {0.5, 0.5, 1}	// 2 4
+			// CW
+			const glm::vec3 quad_[] = {
+				{-0.5,-0.5, 1},	// 1 | 1  2
+				{ 0.5,-0.5, 1},	// 2 | 
+				{-0.5, 0.5, 1},	// 3 | 
+				{ 0.5,-0.5, 1},	// 2 | 
+				{-0.5, 0.5, 1},	// 3 | 
+				{ 0.5, 0.5, 1}	// 4 | 3  4
 			};
+
+			// CCW
+			const glm::vec3 quad[] = {
+				{-0.5, 0.5, 1},	// 1 | 1   24
+				{ 0.5, 0.5, 1},	// 2 | 
+				{-0.5,-0.5, 1},	// 3 | 
+				{ 0.5, 0.5, 1},	// 4 | 
+				{ 0.5,-0.5, 1},	// 5 | 
+				{-0.5,-0.5, 1}	// 6 | 36  45
+			};
+
+			const glm::u16vec2 uvs[] = {
+				{0, 0},
+				{2, 0},
+				{0, 3},
+				{2, 0},
+				{0, 3},
+				{2, 3},
+			};
+
+			m_shader->getShader()->Bind();
 
 			// Setup batch data
 			if (!batchInstances.empty())
@@ -206,11 +241,12 @@ namespace BitEngine
 				Sprite2DDataDefinition_legacy::TextureContainer* texture = nullptr;
 				const ITexture* lastSpriteTexture = nullptr;
 				Sprite* lastSprite = nullptr;
-
+								
 				//const u32 instanceCount = batchInstances.size();
 				for (u32 i = 0; i < nVertices; ++i)
 				{
-					const int idx = (i / 4) % 4;
+					const int vIdx = i % N_VERTEX_PER_QUAD;
+					const int idx = (i / N_VERTEX_PER_QUAD);
 					const SpriteBatchInstance& inst = batchInstances[idx];
 
 					// Handle batch sectors
@@ -223,29 +259,38 @@ namespace BitEngine
 								currentSector->end(i);
 							}
 							currentSector = m_batch->addSector(i);
-							texture = currentSector->getConfigValueAs<Sprite2DDataDefinition_legacy::TextureContainer>(m_shader->getTextureContainerRef());
 							lastSprite = inst.sprite.sprite;
-							texture->diffuse = lastSpriteTexture;
+							texture = currentSector->getConfigValueAs<Sprite2DDataDefinition_legacy::TextureContainer>(m_shader->getTextureContainerRef());
+							if (texture != nullptr)
+							{
+								texture->diffuse = lastSpriteTexture;
+							}
 						}
 					}
 
 					auto* vertexContainer = m_batch->getVertexDataAddressAs<Sprite2DDataDefinition_legacy::VertexContainer>(m_shader->getVertexContainerRef(), i);
 					const glm::vec4& uv = lastSprite->getUV();
-					vertexContainer->position = glm::vec2(quad[idx] * inst.transform.m_global);
-					if (idx == 0) {
-						vertexContainer->textureUV = glm::vec2(uv.x, uv.y);
-					} else if (idx == 1) {
-						vertexContainer->textureUV = glm::vec2(uv.x, uv.w);
-					} else if (idx == 2) {
-						vertexContainer->textureUV = glm::vec2(uv.z, uv.y);
-					} else if (idx == 3) {
-						vertexContainer->textureUV = glm::vec2(uv.z, uv.w);
+					vertexContainer->position = glm::vec2((128.0f * quad[vIdx]) * inst.transform.m_global);
+					vertexContainer->textureUV = glm::vec2(uv[uvs[vIdx].x], uv[uvs[vIdx].y]);
+					
+					if (vIdx == 0) {
+						glBegin(GL_TRIANGLES);
+					}
+					glVertex3f(vertexContainer->position.x, vertexContainer->position.y, 1);
+					LOG(EngineLog, BE_LOG_VERBOSE) << vertexContainer->position.x << "," << vertexContainer->position.y;
+					if (vIdx == 5) {
+						glEnd();
+						LOG(EngineLog, BE_LOG_VERBOSE) << "---\n";
 					}
 				}
 				if (currentSector != nullptr) {
 					currentSector->end(nVertices);
 				}
 			}
+			Sprite2DDataDefinition_legacy::CamMatricesContainer* view = m_batch->getConfigDataAddressAs<Sprite2DDataDefinition_legacy::CamMatricesContainer>(m_shader->getViewMatrixContainerRef());
+			view->view = activeCamera->getMatrix();
+			m_batch->load();
+			m_shader->getShader()->Unbind();
 		}
 
 		void prepare_new()
@@ -310,7 +355,10 @@ namespace BitEngine
 				const SceneTransform2DComponent& transform;
 				const Sprite2DComponent2& sprite;
 			};
+
+
 			std::vector<SpriteBatchInstance> batchInstances;
+			ComponentRef<Camera2DComponent> activeCamera;
 
 			GameEngine* m_engine;
 			IGraphicBatch* m_batch;

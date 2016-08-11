@@ -48,7 +48,11 @@ namespace BitEngine
 		};
 
 		public:
-		GL2Batch(const VAOContainer& vC, const UniformContainer& uC);
+		GL2Batch(VAOContainer&& vC, const UniformContainer& uC);
+		~GL2Batch();
+
+		// Deleta VAO/VBO from gpu.
+		void clearVAO();
 
 		// Clear all sectors.
 		void clear() override

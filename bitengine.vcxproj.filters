@@ -90,6 +90,7 @@
     <ClInclude Include="include\bitengine\Core\Input.h" />
     <ClInclude Include="include\bitengine\Core\GeneralTaskManager.h" />
     <ClInclude Include="include\bitengine\Common\ThreadSafeVector.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\ShaderDataController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -123,7 +124,6 @@
     <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
     <ClCompile Include="src\Tests\testES.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Shader.cpp" />
-    <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Pipeline.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2TextureManager.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2ShaderManager.cpp" />
     <ClCompile Include="src\Core\Resources\DevResourceLoader.cpp" />
@@ -131,6 +131,8 @@
     <ClCompile Include="src\Core\Graphics\Shader.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Core\GeneralTaskManager.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Batch.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2BatchSector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\bitengine\Core\Graphics\Shaders\sprite2D_gl2.frag" />

@@ -55,6 +55,7 @@
     <ClInclude Include="include\bitengine\Core\GeneralTaskManager.h" />
     <ClInclude Include="include\bitengine\Core\Graphics.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\ShaderDataController.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
     <ClInclude Include="include\bitengine\Core\Input.h" />
@@ -147,7 +148,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestBitfield|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Pipeline.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Batch.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2BatchSector.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Shader.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2ShaderManager.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\OpenGL.cpp">

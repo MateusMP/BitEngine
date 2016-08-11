@@ -157,7 +157,7 @@ namespace BitEngine
 			std::vector<AttributeConfig> m_attributes;
 			std::vector<GlobalConfig> m_uniforms;
 
-			VAOContainer vaoContainer;
+			VAOContainer baseVaoContainer;
 			UniformContainer uniformContainer;
 
 			std::vector<ShaderSource> sources;

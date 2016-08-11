@@ -92,51 +92,6 @@ namespace BitEngine
 	}
 
 	// ###############################################################
-	// GL2BatchSector
-
-	GL2BatchSector::GL2BatchSector(const UniformContainer* uc, u32 begin)
-		: m_begin(begin), m_end(0), uniformSizeTotal(0)
-	{
-		uniformSizeTotal = uc->calculateMaxDataSize(1);
-		data.resize(uniformSizeTotal);
-
-		for (auto& it = uc->begin(); it != uc->end(); ++it)
-		{
-			if (it->instanced == 1) {
-				char* dataAddr = data.data() + (size_t)(it->dataOffset);
-				configs.emplace(it->ref, UniformData(*it, dataAddr));
-			}
-		}
-	}
-
-	void GL2BatchSector::configure(Shader* shader)
-	{
-		GL2Shader* glShader = static_cast<GL2Shader*>(shader);
-
-		if (!glShader->isReady()) {
-			LOG(EngineLog, BE_LOG_WARNING) << "Shader is not ready yet";
-			return;
-		}
-
-		for (auto it = configs.begin(); it != configs.end(); ++it)
-		{
-			glShader->loadConfig(it->second.unif.ref, it->second.unif.dataOffset);
-		}
-	}
-
-	void* GL2BatchSector::getConfigValue(const ShaderDataDefinition::DefinitionReference& ref)
-	{
-		auto it = configs.find(ref);
-		if (it != configs.end())
-		{
-			return getConfigValueForRef(it->second);
-		}
-
-		return nullptr;
-	}
-	
-
-	// ###############################################################
 	// GL2Shader
 	const GL2Shader::GlobalConfig* GL2Shader::findUniformConfigByName(const std::string& str)
 	{
@@ -212,17 +167,20 @@ namespace BitEngine
 		}
 	}
 
-	void genVAOArrays(VAOContainer& container)
+	VAOContainer genVAOArrays(const VAOContainer& base)
 	{
+		VAOContainer container;
 		GL_CHECK(glGenVertexArrays(1, &container.vao));
 		GL_CHECK(glBindVertexArray(container.vao));
 
-		for (VBOContainer vboc : container.vbos)
+		for (VBOContainer vboc : base.vbos)
 		{
 			GL_CHECK(glGenBuffers(1, &vboc.vbo));
 			if (vboc.vbo == 0) {
 				LOG(EngineLog, BE_LOG_ERROR) << "VertexBuffer: Could not create VBO.";
-				return;
+				glDeleteVertexArrays(1, &container.vao);
+				container.vao = 0;
+				return container;
 			}
 
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vboc.vbo));
@@ -232,9 +190,12 @@ namespace BitEngine
 				GL_CHECK(glVertexAttribPointer(c.id, c.size, c.dataType, c.normalized, c.stride, (void*)(c.offset)));
 				GL_CHECK(glVertexAttribDivisor(c.id, vboc.divisor));
 			}
+
+			container.vbos.emplace_back(vboc);
 		}
 
 		GL_CHECK(glBindVertexArray(0));
+		return container;
 	}
 
 	void GL2Shader::genUniformContainer(UniformContainer& unifContainer)
@@ -296,10 +257,8 @@ namespace BitEngine
 		// VAO
 		//  |-> VBO 0 { vec3, vec4 }			 at attrId 0 .. 1, divisor = 0
 		//  |-> VBO 1 { vec4, vec4, vec4, vec4 } at attrId 2 .. 5, divisor = 1
-
-		genVAOArrays(vaoContainer);
-		
-		GL2Batch *batch = new GL2Batch(vaoContainer, uniformContainer);
+				
+		GL2Batch *batch = new GL2Batch(genVAOArrays(baseVaoContainer), uniformContainer);
 		batches.emplace_back(batch);
 
 		return batch;
@@ -334,7 +293,8 @@ namespace BitEngine
 
 			for (GL2Batch* batch : batches)
 			{
-				new(batch) GL2Batch(vaoContainer, uniformContainer);
+				batch->~GL2Batch();
+				new(batch) GL2Batch(genVAOArrays(baseVaoContainer), uniformContainer);
 			}
 		}
 		else
@@ -404,7 +364,7 @@ namespace BitEngine
 			m_attributes.emplace_back(attr);
 		}
 		// Load attributes
-		genVBOAttributes(vaoContainer);
+		genVBOAttributes(baseVaoContainer);
 
 		GLint nUnif;
 		GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_UNIFORMS, &nUnif));
@@ -646,35 +606,14 @@ namespace BitEngine
 			case GL_FLOAT_MAT3:
 				GL_CHECK(glUniformMatrix3fv(ud.location, ud.size, ud.extraInfo, static_cast<GLfloat*>(data)));
 			break;
+
+			case GL_FLOAT_MAT4:
+				GL_CHECK(glUniformMatrix4fv(ud.location, ud.size, ud.extraInfo, static_cast<GLfloat*>(data)));
+			break;
+
+			default:
+				LOG(EngineLog, BE_LOG_WARNING) << ud.type << " not handled.";
+			break;
 		}
-		/*
-		for (auto it = configs.begin(); it != configs.end(); ++it)
-		{
-			const ConfigValue& c = it->second;
-			switch (c.type)
-			{
-				case DataType::LONG:
-					glUniform1iv(c.location, c.count, (const GLint*)c.value);
-					break;
-				case DataType::FLOAT:
-					glUniform1fv(c.location, c.count, (const GLfloat*)c.value);
-					break;
-				case DataType::VEC2:
-					glUniform2fv(c.location, c.count, (const GLfloat*)c.value);
-					break;
-				case DataType::VEC3:
-					glUniform3fv(c.location, c.count, (const GLfloat*)c.value);
-					break;
-				case DataType::VEC4:
-					glUniform4fv(c.location, c.count, (const GLfloat*)c.value);
-					break;
-				case DataType::MAT3:
-					glUniformMatrix3fv(c.location, c.count, c.transpose, (const GLfloat*)c.value);
-					break;
-				case DataType::MAT4:
-					glUniformMatrix4fv(c.location, c.count, c.transpose, (const GLfloat*)c.value);
-					break;
-			}
-		}*/
 	}
 }

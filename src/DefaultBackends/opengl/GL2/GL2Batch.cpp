@@ -3,7 +3,7 @@
 
 namespace BitEngine
 {
-	GL2Batch::GL2Batch(const VAOContainer& vC, const UniformContainer& uC)
+	GL2Batch::GL2Batch(VAOContainer&& vC, const UniformContainer& uC)
 		: vaoContainer(vC), uniformContainer(uC)
 	{
 		// Setup vbo data buffers
@@ -12,23 +12,32 @@ namespace BitEngine
 			attributeData.emplace(vbc.ref, &vbc);
 		}
 
-		u32 fullUniformSize = 0;
+		u32 fullUniformSize = uC.calculateMaxDataSize(0);
+		uniformData.resize(fullUniformSize);
 		for (auto& it = uC.begin(); it != uC.end(); ++it)
 		{
 			if (it->instanced == 0)
 			{
-				fullUniformSize += it->byteSize;
-				uniformConfigs.emplace(it->ref, UniformData(*it, (char*)(it->dataOffset)));
+				char* dataAddr = uniformData.data() + (size_t)(it->dataOffset);
+				uniformConfigs.emplace(it->ref, UniformData(*it, dataAddr));
 			}
-		}
-		uniformData.resize(fullUniformSize);
-
-		for (auto& it = uniformConfigs.begin(); it != uniformConfigs.end(); ++it)
-		{
-			it->second.unif.dataOffset = uniformData.data() + (u32)(it->second.unif.dataOffset);
 		}
 
 		renderMode = GL_TRIANGLE_STRIP;
+	}
+
+	GL2Batch::~GL2Batch()
+	{
+		clearVAO();
+	}
+
+	void GL2Batch::clearVAO()
+	{
+		glDeleteVertexArrays(1, &vaoContainer.vao);
+		for (VBOContainer& container : vaoContainer.vbos)
+		{
+			glDeleteBuffers(1, &container.vbo);
+		}
 	}
 
 	// Prepare the batch to be rendered
@@ -56,6 +65,13 @@ namespace BitEngine
 		{
 			bindBuffer(it->second);
 			loadBuffer(it->second.data);
+
+			/*float* data = (float*)it->second.data.data();
+			printf("Size: %d\n", it->second.data.size() / 4);
+			for (int i = 0; i < it->second.data.size() / 4; i += 4) {
+				printf("% 5.3f, % 5.3f; %3.2f|%3.2f\n", data[i+0], data[i+1], data[i+2], data[i+3]);
+			}
+			printf("\n");*/
 		}
 
 		unbindBuffer();
@@ -116,7 +132,7 @@ namespace BitEngine
 
 		for (auto& it = uniformConfigs.begin(); it != uniformConfigs.end(); ++it)
 		{
-			glShader->loadConfig(it->second.unif.ref, uniformData.data() + (u32)it->second.unif.dataOffset);
+			glShader->loadConfig(it->second.unif.ref, it->second.unif.dataOffset);
 		}
 
 		for (GL2BatchSector& bs : sectors)
@@ -139,6 +155,7 @@ namespace BitEngine
 		}
 
 		unbind();
+		glShader->Unbind();
 	}
 
 
@@ -177,6 +194,6 @@ namespace BitEngine
 			return nullptr;
 		}
 
-		return uniformData.data() + (u32)it->second.unif.dataOffset;
+		return it->second.unif.dataOffset;
 	}
 }
