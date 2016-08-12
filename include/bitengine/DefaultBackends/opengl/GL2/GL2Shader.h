@@ -39,7 +39,7 @@ namespace BitEngine
 				GLenum type;
 				GLint size;
 
-				ShaderDataDefinition::DefinitionReference defRef;
+				ShaderDataReference defRef;
 				std::string name;
 			};
 
@@ -60,7 +60,7 @@ namespace BitEngine
 			IGraphicBatch* createBatch() override;
 
 			// Load data into uniform referenced with ref
-			void loadConfig(const ShaderDataDefinition::DefinitionReference& ref, void* data);
+			void loadConfig(const UniformDefinition* ref, void* data);
 
 			void includeSource(GLint type, std::vector<char>& data);
 
@@ -121,8 +121,6 @@ namespace BitEngine
 			/// \param unitID GL flag to indicate texture unit (GL_TEXTURE0 ... )
 			void connectTexture(int location, int unitID);
 
-			void configure(const UniformDefinition& def, void* data);
-
 		private:
 			void compileSources();
 			/// VIRTUAL
@@ -147,7 +145,7 @@ namespace BitEngine
 			void registerAttributes(){}
 			void registerUniforms(){}
 			
-			void genUniformContainer(UniformContainer& unifContainer);
+			void genUniformContainer(UniformHolder& unifContainer);
 			void genVBOAttributes(VAOContainer& vaoContainer);
 			const GlobalConfig* findUniformConfigByName(const std::string& str);
 			const AttributeConfig* findAttributeConfigByName(const std::string& str);
@@ -158,7 +156,7 @@ namespace BitEngine
 			std::vector<GlobalConfig> m_uniforms;
 
 			VAOContainer baseVaoContainer;
-			UniformContainer uniformContainer;
+			UniformHolder uniformHolder;
 
 			std::vector<ShaderSource> sources;
 			int expectedSources;

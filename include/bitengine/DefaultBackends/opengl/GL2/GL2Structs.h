@@ -6,6 +6,55 @@
 
 namespace BitEngine
 {
+	class GL2
+	{
+		public:
+
+		static void bindVbo(GLuint vbo) {
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+		}
+		static void unbindVbo() {
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		}
+
+		static void loadBufferRange(const void* data, u32 offset, u32 len, GLenum mode) {
+			const char* d = static_cast<const char*>(data);
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, len, nullptr, mode));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, len, d + offset, mode));
+		}
+
+		static void bindVao(GLuint vao) {
+			GL_CHECK(glBindVertexArray(vao));
+		}
+
+		static void unbindVao() {
+			GL_CHECK(glBindVertexArray(0));
+		}
+
+		static void genVao(GLsizei num, GLuint* _array) {
+			GL_CHECK(glGenVertexArrays(num, _array));
+		}
+
+		static void genVbo(GLsizei num, GLuint* _array) {
+			glGenBuffers(num, _array);
+		}
+
+		static void setupVbo(GLuint attrIndex, GLuint vbo, GLint size, GLenum dataType, GLboolean normalized, GLsizei stride, u32 offset, GLuint divisor) {
+			GL_CHECK(glEnableVertexAttribArray(attrIndex));
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+			GL_CHECK(glVertexAttribPointer(attrIndex, size, dataType, normalized, stride, (void*)offset));
+			GL_CHECK(glVertexAttribDivisor(attrIndex, divisor));
+		}
+
+		static void deleteVaos(u32 num, GLuint* _array) {
+			GL_CHECK(glDeleteVertexArrays(num, _array));
+		}
+
+		static void bindShaderProgram(GLuint program) {
+			GL_CHECK(glUseProgram(program));
+		}
+	};
+
 	struct VBOAttrib
 	{
 		VBOAttrib()
@@ -28,7 +77,7 @@ namespace BitEngine
 
 	struct VBOContainer
 	{
-		ShaderDataDefinition::DefinitionReference ref;
+		ShaderDataReference ref;
 		std::vector<VBOAttrib> attrs;
 		GLsizei stride;
 		GLuint divisor;
@@ -45,10 +94,10 @@ namespace BitEngine
 	{
 		struct Comparator {
 			bool operator() (const UniformDefinition& lhs, const UniformDefinition& rhs) const {
-				return ShaderDataDefinition::DefinitionReference::Hasher()(lhs.ref, rhs.ref);
+				return ShaderDataReference::Hasher()(lhs.ref, rhs.ref);
 			}
 		};
-		ShaderDataDefinition::DefinitionReference ref;
+		ShaderDataReference ref;
 		GLint location;
 		GLuint byteSize;
 		GLenum type;
@@ -58,32 +107,24 @@ namespace BitEngine
 		char* dataOffset; // as an offset
 	};
 
+
 	// Contain multiples UniformDefinition
-	struct UniformContainer : std::set<UniformDefinition, UniformDefinition::Comparator>
+	struct UniformContainer
 	{
-		u16 calculateMaxDataSize(int instanced) const {
-			u16 maxDataSize = 0;
-			for (auto& it = begin(); it != end(); ++it)
-			{
-				if (it->instanced == instanced)
-				{
-					maxDataSize += it->byteSize;
-				}
-			}
-
-			return maxDataSize;
-		}
-	};
-
-	///
-	struct UniformData
-	{
-		UniformData(UniformDefinition def, char* address)
-			: unif(def)
+		UniformContainer(const ShaderDataReference& _ref, u32 _instance)
+			: ref(_ref), instance(_instance)
 		{
-			unif.dataOffset = address;
 		}
-		UniformDefinition unif;
+
+		ShaderDataReference ref;
+		u32 instance;
+		u32 stride;
+		std::vector<UniformDefinition> defs;
 	};
 
+
+	struct UniformHolder
+	{
+		std::vector<UniformContainer> containers;
+	};
 }

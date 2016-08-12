@@ -90,7 +90,6 @@
     <ClInclude Include="include\bitengine\Core\Input.h" />
     <ClInclude Include="include\bitengine\Core\GeneralTaskManager.h" />
     <ClInclude Include="include\bitengine\Common\ThreadSafeVector.h" />
-    <ClInclude Include="include\bitengine\Core\Graphics\ShaderDataController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -133,6 +132,7 @@
     <ClCompile Include="src\Core\GeneralTaskManager.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Batch.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2BatchSector.cpp" />
+    <ClCompile Include="src\Core\Graphics\Sprite2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\bitengine\Core\Graphics\Shaders\sprite2D_gl2.frag" />

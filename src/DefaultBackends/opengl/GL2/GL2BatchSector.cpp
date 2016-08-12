@@ -3,19 +3,10 @@
 
 namespace BitEngine {
 
-	GL2BatchSector::GL2BatchSector(const UniformContainer* uc, u32 begin)
-		: m_begin(begin), m_end(0), uniformSizeTotal(0)
+	GL2BatchSector::GL2BatchSector(const UniformHolder& uc, u32 begin)
+		: m_begin(begin), m_end(0)
 	{
-		uniformSizeTotal = uc->calculateMaxDataSize(1);
-		data.resize(uniformSizeTotal);
-
-		for (auto& it = uc->begin(); it != uc->end(); ++it)
-		{
-			if (it->instanced == 1) {
-				char* dataAddr = data.data() + (size_t)(it->dataOffset);
-				configs.emplace(it->ref, UniformData(*it, dataAddr));
-			}
-		}
+		IncludeToMap(shaderData, uc, 1);
 	}
 
 	void GL2BatchSector::configure(Shader* shader)
@@ -27,21 +18,26 @@ namespace BitEngine {
 			return;
 		}
 
-		for (auto it = configs.begin(); it != configs.end(); ++it)
+		for (auto& it = shaderData.begin(); it != shaderData.end(); ++it)
 		{
-			glShader->loadConfig(it->second.unif.ref, it->second.unif.dataOffset);
+			const char* addr = static_cast<const char*>(it->second.data.data());
+			for (const UniformDefinition& def : it->second.definition.unif->defs)
+			{
+				glShader->loadConfig(&def, (void*)(addr + (u32)def.dataOffset) );
+			}
 		}
 	}
 
-	void* GL2BatchSector::getConfigValue(const ShaderDataDefinition::DefinitionReference& ref)
+	void* GL2BatchSector::getShaderData(const ShaderDataReference& ref)
 	{
-		auto it = configs.find(ref);
-		if (it != configs.end())
+		auto& sd = shaderData.find(ref);
+		if (sd != shaderData.end())
 		{
-			return getConfigValueForRef(it->second);
+			return sd->second.data.data();
 		}
-
-		return nullptr;
+		else
+		{
+			throw "Failed to find shader property";
+		}
 	}
-
 }

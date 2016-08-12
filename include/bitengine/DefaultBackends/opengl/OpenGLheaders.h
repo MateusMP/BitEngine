@@ -18,7 +18,6 @@ static void GL_BREAK() {
 	if (a__glerr != GL_NO_ERROR) { \
 		LOG(EngineLog, BE_LOG_ERROR) << "GL ERROR (had unhandled error): " << std::hex << a__glerr; GL_BREAK(); } }	\
 	call;		\
-	LOG(EngineLog, BE_LOG_ERROR) << "Calling: " << #call;	\
 	if (BE_DEBUG) {				\
 	int a__glerr = glGetError();		\
 	if (a__glerr != GL_NO_ERROR) {		\

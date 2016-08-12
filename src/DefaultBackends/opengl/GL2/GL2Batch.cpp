@@ -3,25 +3,16 @@
 
 namespace BitEngine
 {
-	GL2Batch::GL2Batch(VAOContainer&& vC, const UniformContainer& uC)
+	GL2Batch::GL2Batch(VAOContainer&& vC, const UniformHolder& uC)
 		: vaoContainer(vC), uniformContainer(uC)
 	{
 		// Setup vbo data buffers
 		for (VBOContainer& vbc : vaoContainer.vbos)
 		{
-			attributeData.emplace(vbc.ref, &vbc);
+			shaderData.emplace(vbc.ref, ShaderData(&vbc, 32 * vbc.stride));
 		}
-
-		u32 fullUniformSize = uC.calculateMaxDataSize(0);
-		uniformData.resize(fullUniformSize);
-		for (auto& it = uC.begin(); it != uC.end(); ++it)
-		{
-			if (it->instanced == 0)
-			{
-				char* dataAddr = uniformData.data() + (size_t)(it->dataOffset);
-				uniformConfigs.emplace(it->ref, UniformData(*it, dataAddr));
-			}
-		}
+		
+		IncludeToMap(shaderData, uniformContainer, 0);
 
 		renderMode = GL_TRIANGLE_STRIP;
 	}
@@ -33,26 +24,26 @@ namespace BitEngine
 
 	void GL2Batch::clearVAO()
 	{
-		glDeleteVertexArrays(1, &vaoContainer.vao);
 		for (VBOContainer& container : vaoContainer.vbos)
 		{
 			glDeleteBuffers(1, &container.vbo);
 		}
+		GL2::deleteVaos(1, &vaoContainer.vao);
 	}
 
 	// Prepare the batch to be rendered
 	// Usefull when rendering multiple times the same batch
 	void GL2Batch::prepare(u32 numInstances)
 	{
-		for (auto it = attributeData.begin(); it != attributeData.end(); ++it)
+		for (VBOContainer& vbc : vaoContainer.vbos)
 		{
-			it->second.data.resize(it->second.vbo->stride * numInstances);
+			shaderData.at(vbc.ref).data.resize(numInstances * vbc.stride);
 		}
 	}
 
 	IBatchSector* GL2Batch::addSector(u32 begin)
 	{
-		sectors.emplace_back(&uniformContainer, begin);
+		sectors.emplace_back(uniformContainer, begin);
 
 		GL2BatchSector& bs = sectors[sectors.size() - 1];
 
@@ -61,10 +52,14 @@ namespace BitEngine
 
 	void GL2Batch::load()
 	{
-		for (auto it = attributeData.begin(); it != attributeData.end(); ++it)
+		for (auto& it = shaderData.begin(); it != shaderData.end(); ++it)
 		{
-			bindBuffer(it->second);
-			loadBuffer(it->second.data);
+			if (it->first.mode == DataUseMode::Vertex)
+			{
+				GL2::bindVbo(it->second.definition.vbo->vbo);
+				GL2::loadBufferRange(it->second.data.data(), 0, it->second.data.size(), GL_STREAM_DRAW);
+				GL2::unbindVbo();
+			}
 
 			/*float* data = (float*)it->second.data.data();
 			printf("Size: %d\n", it->second.data.size() / 4);
@@ -73,40 +68,6 @@ namespace BitEngine
 			}
 			printf("\n");*/
 		}
-
-		unbindBuffer();
-	}
-
-	void GL2Batch::bindBuffer(AttributeData& container)
-	{
-		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, container.vbo->vbo));
-	}
-
-	void GL2Batch::unbindBuffer()
-	{
-		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	}
-
-	void GL2Batch::loadBufferRange(const char* data, u32 offset, u32 len, u32 mode)
-	{
-		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, len, nullptr, mode));
-		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, len, data + offset, mode));
-	}
-
-	void GL2Batch::loadBuffer(const std::vector<char>& data, u32 mode)
-	{
-		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, data.size(), nullptr, mode));
-		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, data.size(), data.data(), mode));
-	}
-
-	void GL2Batch::bind()
-	{
-		GL_CHECK(glBindVertexArray(vaoContainer.vao));
-	}
-
-	void GL2Batch::unbind()
-	{
-		GL_CHECK(glBindVertexArray(0));
 	}
 
 	void GL2Batch::setVertexRenderMode(VertexRenderMode mode)
@@ -128,11 +89,18 @@ namespace BitEngine
 	{
 		GL2Shader *glShader = static_cast<GL2Shader*>(shader);
 		glShader->Bind();
-		bind();
+		GL2::bindVao(vaoContainer.vao);
 
-		for (auto& it = uniformConfigs.begin(); it != uniformConfigs.end(); ++it)
+		for (auto& it = shaderData.begin(); it != shaderData.end(); ++it)
 		{
-			glShader->loadConfig(it->second.unif.ref, it->second.unif.dataOffset);
+			if (it->first.mode == DataUseMode::Uniform)
+			{
+				const char* addr = static_cast<const char*>(it->second.data.data());
+				for (const UniformDefinition& def : it->second.definition.unif->defs)
+				{
+					glShader->loadConfig(&def, (void*)(addr + (u32)def.dataOffset));
+				}
+			}
 		}
 
 		for (GL2BatchSector& bs : sectors)
@@ -154,46 +122,23 @@ namespace BitEngine
 			}*/
 		}
 
-		unbind();
+		GL2::unbindVao();
 		glShader->Unbind();
 	}
 
 
-	void GL2Batch::loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, char *data, u32 nBytes, u32 strideSize)
+	void* GL2Batch::getShaderData(const ShaderDataReference& ref)
 	{
-		auto it = attributeData.find(ref);
-		if (it == attributeData.end() || it->second.vbo->stride != strideSize)
+		auto it = shaderData.find(ref);
+		if (it == shaderData.end())
 		{
 			// [container].strideSize != strideSize
 			LOG(EngineLog, BE_LOG_ERROR) << "Invalid ref or stride size!";
-			return;
+			throw "Invalid Shader Data Reference";
 		}
-
-		it->second.data.resize(nBytes);
-		memcpy(&it->second.data[0], data, nBytes);
-	}
-
-	void* GL2Batch::getVertexDataAddress(const ShaderDataDefinition::DefinitionReference& ref, u32 inst)
-	{
-		auto it = attributeData.find(ref);
-		if (it == attributeData.end())
+		else
 		{
-			LOG(EngineLog, BE_LOG_ERROR) << "Invalid ref or stride size!";
-			return nullptr;
+			return it->second.data.data();
 		}
-
-		return it->second.data.data() + it->second.vbo->stride * inst;
-	}
-
-	void* GL2Batch::getConfigData(const ShaderDataDefinition::DefinitionReference& ref)
-	{
-		auto it = uniformConfigs.find(ref);
-		if (it == uniformConfigs.end())
-		{
-			LOG(EngineLog, BE_LOG_ERROR) << "Invalid ref or stride size!";
-			return nullptr;
-		}
-
-		return it->second.unif.dataOffset;
 	}
 }

@@ -55,7 +55,6 @@
     <ClInclude Include="include\bitengine\Core\GeneralTaskManager.h" />
     <ClInclude Include="include\bitengine\Core\Graphics.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
-    <ClInclude Include="include\bitengine\Core\Graphics\ShaderDataController.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
     <ClInclude Include="include\bitengine\Core\Input.h" />
@@ -105,6 +104,7 @@
     <ClInclude Include="include\bitengine\json.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Graphics\Sprite2D.cpp" />
     <ClCompile Include="src\Core\Resources\DevResourceLoader.cpp" />
     <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
     <ClCompile Include="src\Core\Graphics\Shader.cpp" />

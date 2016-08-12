@@ -8,47 +8,71 @@
 
 namespace BitEngine
 {
+	struct ShaderData
+	{
+		ShaderData(const UniformContainer* unif, u32 dataSize)
+		{
+			definition.unif = unif;
+			data.resize(dataSize);
+		}
+
+		ShaderData(const VBOContainer* vbo, u32 dataSize)
+		{
+			definition.vbo = vbo;
+			data.resize(dataSize);
+		}
+
+		~ShaderData()
+		{
+		}
+		
+		union {
+			const UniformContainer* unif;
+			const VBOContainer* vbo;
+		} definition;
+
+		std::vector<char> data;
+	};
+
+	typedef std::unordered_map<ShaderDataReference, ShaderData, ShaderDataReference::Hasher> ShaderDataMap;
+
+	static void IncludeToMap(ShaderDataMap& map, const UniformHolder& holder, u32 instance)
+	{
+		for (auto& it = holder.containers.begin(); it != holder.containers.end(); ++it)
+		{
+			if (it->instance == instance)
+			{
+				map.emplace(it->ref, ShaderData(&(*it), it->stride));
+			}
+		}
+	}
+
 	class GL2BatchSector : public IBatchSector
 	{
 		friend class GL2Batch;
 		public:
-		GL2BatchSector(const UniformContainer* uc, u32 begin);
+			GL2BatchSector(const UniformHolder& uc, u32 begin);
 
-		inline void end(u32 finalInstance) override {
-			m_end = finalInstance;
-		}
+			inline void end(u32 finalInstance) override {
+				m_end = finalInstance;
+			}
 
-		void configure(Shader* shader) override;
+			void configure(Shader* shader) override;
 
-		void* getConfigValue(const ShaderDataDefinition::DefinitionReference& ref) override;
+			void* getShaderData(const ShaderDataReference& ref) override;
 
 		private:
-		inline void* getConfigValueForRef(const UniformData& ud) {
-			return ud.unif.dataOffset;
-		}
+			ShaderDataMap shaderData; // uniforms with instanced = 1
 
-		std::unordered_map<ShaderDataDefinition::DefinitionReference, UniformData, ShaderDataDefinition::DefinitionReference::Hasher> configs; // uniforms with instanced = 1
-		std::vector<char> data;
-		u32 uniformSizeTotal;
-
-		u32 m_begin;
-		u32 m_end;
+			u32 m_begin;
+			u32 m_end;
 	};
 
 	// GL BATCH
 	class GL2Batch : public IGraphicBatch
 	{
-		struct AttributeData {
-			AttributeData(VBOContainer* c)
-				: vbo(c)
-			{
-			}
-			VBOContainer* vbo;
-			std::vector<char> data;
-		};
-
-		public:
-		GL2Batch(VAOContainer&& vC, const UniformContainer& uC);
+	public:
+		GL2Batch(VAOContainer&& vC, const UniformHolder& uC);
 		~GL2Batch();
 
 		// Deleta VAO/VBO from gpu.
@@ -75,42 +99,17 @@ namespace BitEngine
 
 		void setVertexRenderMode(VertexRenderMode mode) override;
 
-		protected:
+	protected:
 		// Load data into internal buffer
 		// This will replace all data from the internal buffer
-		void loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, char *data, u32 nBytes, u32 strideSize) override;
+		void* getShaderData(const ShaderDataReference& ref) override;
 
-		void* getVertexDataAddress(const ShaderDataDefinition::DefinitionReference& ref, u32 inst) override;
-
-		// Get the uniform config data
-		void* getConfigData(const ShaderDataDefinition::DefinitionReference& ref);
-		
-		private:
-		// Bind the buffer to receive data on gpu
-		void bindBuffer(AttributeData& container);
-
-		// Unbind the buffer
-		void unbindBuffer();
-
-		// Load data to the current loaded buffer on gpu
-		void loadBufferRange(const char* data, u32 offset, u32 len, u32 mode = GL_DYNAMIC_DRAW);
-
-		// Load data to the buffer on gpu
-		void loadBuffer(const std::vector<char>& data, u32 mode = GL_DYNAMIC_DRAW);
-
-		// Bind the VAO related with this batch
-		void bind();
-
-		// Unbind vao
-		void unbind();
-
+	private:
 		// Members
 		GLint renderMode;
 		VAOContainer vaoContainer;
-		UniformContainer uniformContainer;
+		const UniformHolder& uniformContainer;
 		std::vector<GL2BatchSector> sectors;
-		std::unordered_map<ShaderDataDefinition::DefinitionReference, AttributeData, ShaderDataDefinition::DefinitionReference::Hasher> attributeData;
-		std::unordered_map<ShaderDataDefinition::DefinitionReference, UniformData, ShaderDataDefinition::DefinitionReference::Hasher> uniformConfigs; // only uniforms with instance = 0
-		std::vector<char> uniformData;
+		ShaderDataMap shaderData;
 	};
 }

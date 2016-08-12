@@ -55,35 +55,36 @@ namespace BitEngine {
 		TRIANGLE_STRIP,
 	};
 
+
+	struct ShaderDataReference {
+		struct Hasher {
+			bool operator() (const ShaderDataReference& lhs, const ShaderDataReference& rhs) const {
+				return (*this)(lhs) < (*this)(rhs);
+			}
+			size_t operator()(const ShaderDataReference& t) const {
+				//calculate hash here.
+				return t.mode >> 16 | t.container >> 8 | t.index;
+			}
+		};
+
+		ShaderDataReference() {}
+		ShaderDataReference(DataUseMode m, u32 _container, u32 id)
+			: mode(m), container(_container), index(id)
+		{}
+		bool operator==(const ShaderDataReference& o) const {
+			return mode == o.mode && container == o.container && index == o.index;
+		}
+
+		DataUseMode mode;
+		u32 container;
+		u32 index;
+	};
+
 	class ShaderDataDefinition
 	{
 		public:
 		friend class Shader;
-
-		struct DefinitionReference {
-			struct Hasher {
-				bool operator() (const DefinitionReference& lhs, const DefinitionReference& rhs) const {
-					return (*this)(lhs) < (*this)(rhs);
-				}
-				size_t operator()(const ShaderDataDefinition::DefinitionReference& t) const {
-					//calculate hash here.
-					return t.mode >> 16 | t.container >> 8 | t.index;
-				}
-			};
-
-			DefinitionReference(){}
-			DefinitionReference(DataUseMode m, u32 at, u32 id)
-			: mode(m), container(at), index(id)
-			{}
-			bool operator==(const DefinitionReference& o) const {
-				return mode == o.mode && container == o.container && index == o.index;
-			}
-
-			DataUseMode mode;
-			u32 container;
-			u32 index;
-		};
-
+		
 		struct DefinitionData {
 			DefinitionData(const std::string& n, DataType dt, int s)
 				: name(n), type(dt), size(s)
@@ -123,7 +124,7 @@ namespace BitEngine {
 			return m_containers[mode].back();
 		}
 
-		DefinitionReference findReference(const std::string& name) const
+		ShaderDataReference findReference(const std::string& name) const
 		{
 			for (u32 um = 0; um < TotalModes; ++um)
 			{
@@ -136,22 +137,22 @@ namespace BitEngine {
 						// compare with offset of 2 characters. We ignore the shader code prefix.
 						if (name.compare(2, std::string::npos, d.name) == 0)
 						{
-							return DefinitionReference((DataUseMode)um, dc.container, i);
+							return ShaderDataReference((DataUseMode)um, dc.container, i);
 						}
 					}
 				}
 			}
 
-			return DefinitionReference(DataUseMode::TotalModes, 0, 0); // invalid
+			return ShaderDataReference(DataUseMode::TotalModes, 0, 0); // invalid
 		}
 
-		DefinitionData& getData(const DefinitionReference& ref)
+		DefinitionData& getData(const ShaderDataReference& ref)
 		{
 			return m_containers[ref.mode][ref.container].definitionData[ref.index];
 		}
 
 		// Returns true if a reference is valid
-		bool checkRef(const DefinitionReference& r) const {
+		bool checkRef(const ShaderDataReference& r) const {
 			if (r.mode < DataUseMode::TotalModes)
 			{
 				if (r.container < m_containers[r.mode].size())
@@ -162,8 +163,8 @@ namespace BitEngine {
 			return false;
 		}
 
-		DefinitionReference getReferenceToContainer(DataUseMode mode, u32 container) const {
-			return DefinitionReference(mode, container, 0);
+		ShaderDataReference getReferenceToContainer(DataUseMode mode, u32 container) const {
+			return ShaderDataReference(mode, container, 0);
 		}
 
 		private:
@@ -175,21 +176,22 @@ namespace BitEngine {
 	{
 		public:
 			template<typename T>
-			T* getConfigValueAs(const ShaderDataDefinition::DefinitionReference& ref) {
-				return (T*)getConfigValue(ref);
+			T* getConfigValueAs(const ShaderDataReference& ref) {
+				return (T*)getShaderData(ref);
 			}
 
 			template<typename T>
-			const T* getConfigValueAs(const ShaderDataDefinition::DefinitionReference& ref) const {
-				return (T*)getConfigValue(ref);
+			const T* getConfigValueAs(const ShaderDataReference& ref) const {
+				return (T*)getShaderData(ref);
 			}
 			
 			virtual void end(u32 finalInstance) = 0;
 
 			virtual void configure(Shader* shader) = 0;
 
-		protected:
-			virtual void* getConfigValue(const ShaderDataDefinition::DefinitionReference& ref) = 0;
+		private:
+			virtual void* getShaderData(const ShaderDataReference& ref) = 0;
+
 	};
 
 	// Interface used to load batch of data
@@ -200,14 +202,14 @@ namespace BitEngine {
 			// The internal data for the batch is unchanged.
 			virtual void clear() = 0;
 
-			// Load data into internal buffer
-			// Note this will cause a full memory copy.
-			// If possible, prefer using getDataAddressAs, to get the internal buffer address
-			// and write to it instead.
+			// Set the shader data to be used on the given container reference
+			// Internally, the shader will handle where the data will be used by the container value.
+			// The batch won't be the new owner for this pointer. It's the callers responsability to keep
+			// the data alive while it's in use by the batch (until load() is called).
 			template<typename T>
-			void loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, std::vector<T> &data)
+			T* getShaderDataAs(const ShaderDataReference& ref)
 			{
-				loadVertexData(ref, (char*)data.data(), data.size() * sizeof(T), sizeof(T));
+				return static_cast<T*>(getShaderData(ref));
 			}
 
 			// Prepare the batch to be rendered, resize internal buffers
@@ -216,22 +218,6 @@ namespace BitEngine {
 
 			/// \param begin The instance number the sector starts at
 			virtual IBatchSector* addSector(u32 begin) = 0;
-
-			// Retrieve the data address for given instance on the internal buffer
-			// \param ref The reference related with the shader data definition
-			// \inst the instance to get data for
-			template<typename T>
-			T* getVertexDataAddressAs(const ShaderDataDefinition::DefinitionReference& ref, u32 inst) {
-				return (T*)getVertexDataAddress(ref, inst);
-			}
-
-			// Retrieve the data address for given instance on the internal buffer
-			// \param ref The reference related with the shader data definition
-			// \inst the instance to get data for
-			template<typename T>
-			T* getConfigDataAddressAs(const ShaderDataDefinition::DefinitionReference& ref) {
-				return (T*)getConfigData(ref);
-			}
 
 			// Load all data to gpu
 			// Must call this before render
@@ -251,13 +237,7 @@ namespace BitEngine {
 			// The vector may be changed
 			// Implementation will usually swap the vector with an internal one
 			// so we avoid extra copies
-			virtual void loadVertexData(const ShaderDataDefinition::DefinitionReference& ref, char *data, u32 nBytes, u32 strideSize) = 0;
-
-			// Get the address for a vertex data for given instance
-			virtual void* getVertexDataAddress(const ShaderDataDefinition::DefinitionReference& ref, u32 inst) = 0;
-
-			// Get the address for a config
-			virtual void* getConfigData(const ShaderDataDefinition::DefinitionReference& ref) = 0;
+			virtual void* getShaderData(const ShaderDataReference& ref) = 0;
 	};
 
 	// Base shader class for a graphic adapter
@@ -284,24 +264,4 @@ namespace BitEngine {
 		}
 
 	};
-
-	// Handle the load of shader information for a graphic adapter
-	// Shader are loaded differently by different APIs
-	/*class ShaderManager : public ResourceManager
-	{
-		public:
-			virtual ~ShaderManager() {};
-			virtual void Update() = 0;
-
-			virtual void setResourceLoader(ResourceLoader* loader) = 0;
-
-			// Always returns a valid pointer.
-			// The shader may be invalid until it is fully loaded
-			virtual IShader* getShader(const std::string& str) = 0;
-
-			// by resource id
-			virtual IShader* getShader(u32 id) = 0;
-	};*/
-
-
 }
