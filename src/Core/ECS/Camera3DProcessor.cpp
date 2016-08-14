@@ -32,12 +32,14 @@ namespace BitEngine{
 
 	void Camera3DProcessor::Process()
 	{
+		/*
 		getES()->forEachRef<Camera3DProcessor, Camera3DComponent, Transform3DComponent>(*this,
 				[](Camera3DProcessor& self, EntityHandle entity, Camera3DComponent& camera, ComponentRef<Transform3DComponent>&& transform)
 			{
 				recalculateViewMatrix(camera, self.transform3DProcessor->getGlobalTransformFor(getComponentHandle(transform)));
 			}
 		);
+		*/
 	}
 
 }

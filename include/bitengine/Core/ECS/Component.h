@@ -31,7 +31,7 @@ namespace BitEngine{
 		public:
 			static GlobalComponentID getGlobalComponentID()
 			{
-				static ComponentType type = ++componentTypeCounter;
+				static ComponentType type = componentTypeCounter++;
 				return &type;
 			}
 

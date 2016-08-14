@@ -196,7 +196,7 @@ namespace BitEngine{
 		} else {
 			int at = rand();
 			getWorker(at)->taskQueue.push(task);
-			LOG(EngineLog, BE_LOG_VERBOSE) << "pushed: " << task << " to " << getWorker(at);
+			//LOG(EngineLog, BE_LOG_VERBOSE) << "pushed: " << task << " to " << getWorker(at);
 		}
 	}
 

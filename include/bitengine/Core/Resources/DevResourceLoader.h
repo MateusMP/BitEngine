@@ -17,7 +17,7 @@ namespace BitEngine
 		{
 		}
 		~DevResourcePropertyRef() {
-			LOG(EngineLog, BE_LOG_VERBOSE) << this << " was reference removed!";
+			//LOG(EngineLog, BE_LOG_VERBOSE) << this << " was reference removed!";
 		}
 
 		ResourcePropertyContainer getProperty(const std::string& str) override

@@ -19,6 +19,8 @@ namespace BitEngine {
 			void setLookAt(const glm::vec3& pos);
 			glm::vec3 getLookAt() const;
 
+			// The view Matrix
+			// Calculated by the Camera2DProcessor
 			const glm::mat4& getMatrix() const;
 
 			// Usually the screen resolution
@@ -26,8 +28,6 @@ namespace BitEngine {
 
 			void setZoom(float z);
 			float getZoom() const;
-
-			void setActive(bool a);
 
 			/**
 			 *

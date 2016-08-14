@@ -10,85 +10,34 @@
 
 namespace BitEngine
 {
-	GLenum toGLType(DataType dt)
-	{
-		switch (dt)
-		{
-			case DataType::FLOAT:
-				return GL_FLOAT;
-			case DataType::MAT3:
-				return GL_FLOAT_MAT3;
-			case DataType::MAT4:
-				return GL_FLOAT_MAT4;
-			case DataType::VEC2:
-				return GL_FLOAT_VEC2;
-			case DataType::VEC3:
-				return GL_FLOAT_VEC3;
-			case DataType::VEC4:
-				return GL_FLOAT_VEC4;
-			case DataType::TEXTURE_1D:
-				return GL_SAMPLER_1D;
-			case DataType::TEXTURE_2D:
-				return GL_SAMPLER_2D;
-			case DataType::TEXTURE_3D:
-				return GL_SAMPLER_3D;
-			case DataType::LONG:
-				return GL_INT;
-			default:
-				return GL_FLOAT;
-		}
-	}
-
-	GLenum fromGLTypeToGLDataType(GLenum e)
-	{
-		switch (e)
-		{
-			case GL_SAMPLER_1D:
-			case GL_SAMPLER_2D:
-			case GL_SAMPLER_3D:
-				return GL_INT;
-
-			case GL_FLOAT_MAT4:
-			case GL_FLOAT_MAT3:
-			case GL_FLOAT_MAT2:
-			case GL_FLOAT_VEC4:
-			case GL_FLOAT_VEC3:
-			case GL_FLOAT_VEC2:
-			case GL_FLOAT:
-				return GL_FLOAT;
-			default:
-				return e;
-		}
-	}
-
 	u32 sizeofDataType(DataType dt)
 	{
 		switch (dt)
 		{
-			case DataType::FLOAT:
-				return sizeof(float);
-			case DataType::LONG:
-				return sizeof(long);
-			case DataType::MAT3:
-				return sizeof(float)*3*3;
-			case DataType::MAT4:
-				return sizeof(float)*4*4;
-			case DataType::VEC2:
-				return sizeof(float)*2;
-			case DataType::VEC3:
-				return sizeof(float)*3;
-			case DataType::VEC4:
-				return sizeof(float)*4;
-			case DataType::TEXTURE_1D:
-				return sizeof(GL2Texture*);
-			case DataType::TEXTURE_2D:
-				return sizeof(GL2Texture*);
-			case DataType::TEXTURE_3D:
-				return sizeof(GL2Texture*);
+		case DataType::FLOAT:
+			return sizeof(float);
+		case DataType::LONG:
+			return sizeof(long);
+		case DataType::MAT3:
+			return sizeof(float) * 3 * 3;
+		case DataType::MAT4:
+			return sizeof(float) * 4 * 4;
+		case DataType::VEC2:
+			return sizeof(float) * 2;
+		case DataType::VEC3:
+			return sizeof(float) * 3;
+		case DataType::VEC4:
+			return sizeof(float) * 4;
+		case DataType::TEXTURE_1D:
+			return sizeof(GL2Texture*);
+		case DataType::TEXTURE_2D:
+			return sizeof(GL2Texture*);
+		case DataType::TEXTURE_3D:
+			return sizeof(GL2Texture*);
 		}
 
 		LOG(EngineLog, BE_LOG_ERROR) << "Unexpected type " << dt;
-		return 0;
+		ASSERT(0 && "Unexpected data type.");
 	}
 
 	// ###############################################################
@@ -140,12 +89,12 @@ namespace BitEngine
 				const AttributeConfig* ac = findAttributeConfigByName(dd.name);
 				if (ac != nullptr)
 				{
-					assertEqual(toGLType(dd.type), ac->type);
+					assertEqual(GL2::toGLType(dd.type), ac->type);
 					VBOAttrib attrib;
 					attrib.id = ac->location;
-					attrib.size = ac->size;
+					attrib.dataSize = GL2::fromGLTypeToGLDataTypeSize(ac->type);
+					attrib.dataType = GL2::fromGLTypeToGLDataType(ac->type);
 					attrib.type = ac->type; //toGLType(dd.type);
-					attrib.dataType = fromGLTypeToGLDataType(ac->type);
 					attrib.normalized = 0; // TODO: get this from dd
 					attrib.stride = strideSize;
 					attrib.offset = offsetAccum;
@@ -185,7 +134,7 @@ namespace BitEngine
 
 			for (const VBOAttrib& c : vboc.attrs)
 			{
-				GL2::setupVbo(c.id, vboc.vbo, c.size, c.dataType, c.normalized, c.stride, c.offset, vboc.divisor);
+				GL2::setupVbo(c.id, vboc.vbo, c.dataSize, c.dataType, c.normalized, c.stride, c.offset, vboc.divisor);
 			}
 
 			container.vbos.emplace_back(vboc);
@@ -344,6 +293,7 @@ namespace BitEngine
 			GL2Shader::AttributeConfig attr;
 			std::string tmpName;
 
+			// TODO: Handle big attributes like matrices
 			GL_CHECK(glGetActiveAttrib(m_programID, i, 128, &nameRead, &attr.size, &attr.type, &nameBuffer[0]));
 			tmpName.append(&nameBuffer[0], &nameBuffer[0] + nameRead);
 			attr.location = glGetAttribLocation(m_programID, tmpName.data());
@@ -428,26 +378,26 @@ namespace BitEngine
 	{
 		//Attach our shaders to our program
 		for (size_t i = 0; i < shaders.size(); ++i) {
-			glAttachShader(m_programID, shaders[i]);
+			GL_CHECK(glAttachShader(m_programID, shaders[i]));
 		}
 
 		//Link our program
-		glLinkProgram(m_programID);
+		GL_CHECK(glLinkProgram(m_programID));
 
 		// Note the different functions here: glGetProgram* instead of glGetShader*.
 		GLint isLinked = 0;
-		glGetProgramiv(m_programID, GL_LINK_STATUS, (int *)&isLinked);
+		GL_CHECK(glGetProgramiv(m_programID, GL_LINK_STATUS, (int *)&isLinked));
 		if (isLinked == GL_FALSE)
 		{
 			GLint maxLength = 0;
-			glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &maxLength);
+			GL_CHECK(glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &maxLength));
 
 			// The maxLength includes the NULL character
 			std::vector<GLchar> infoLog(maxLength);
-			glGetProgramInfoLog(m_programID, maxLength, &maxLength, &infoLog[0]);
+			GL_CHECK(glGetProgramInfoLog(m_programID, maxLength, &maxLength, &infoLog[0]));
 
 			// We don't need the program anymore.
-			glDeleteProgram(m_programID);
+			GL_CHECK(glDeleteProgram(m_programID));
 
 			// Don't leak shaders
 			for (size_t i = 0; i < shaders.size(); ++i) {
@@ -464,14 +414,13 @@ namespace BitEngine
 
 		// Always detach shaders after a successful link.
 		for (size_t i = 0; i < shaders.size(); ++i) {
-			glDetachShader(m_programID, shaders[i]);
+			GL_CHECK(glDetachShader(m_programID, shaders[i]));
 		}
 
 		// Free shaders ids
 		for (size_t i = 0; i < shaders.size(); ++i) {
-			glDeleteShader(shaders[i]);
+			GL_CHECK(glDeleteShader(shaders[i]));
 		}
-
 
 		introspect();
 
@@ -497,12 +446,12 @@ namespace BitEngine
 		if (status == GL_FALSE) {
 
 			GLint maxlogsize;
-			glGetShaderiv(shdhdl, GL_INFO_LOG_LENGTH, &maxlogsize);
+			GL_CHECK(glGetShaderiv(shdhdl, GL_INFO_LOG_LENGTH, &maxlogsize));
 
 			errorLog.clear();
 			errorLog.resize(maxlogsize + 1);
 
-			glGetShaderInfoLog(shdhdl, maxlogsize, &maxlogsize, (GLchar*)errorLog.data());
+			GL_CHECK(glGetShaderInfoLog(shdhdl, maxlogsize, &maxlogsize, (GLchar*)errorLog.data()));
 
 			// Free shader handle
 			GL_CHECK(glDeleteShader(shdhdl));
@@ -551,9 +500,10 @@ namespace BitEngine
 		{
 			case GL_SAMPLER_2D: {
 				const GL2Texture* texture = *static_cast<GL2Texture**>(data);
+				glActiveTexture(GL_TEXTURE0 + ud->location);
 				connectTexture(ud->location, texture->getTextureID());
 			}
-								break;
+				break;
 
 			case GL_FLOAT_VEC2:
 				GL_CHECK(glUniform2fv(ud->location, ud->size, static_cast<GLfloat*>(data)));

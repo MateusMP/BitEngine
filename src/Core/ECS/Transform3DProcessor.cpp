@@ -55,6 +55,7 @@ namespace BitEngine{
 
 	void Transform3DProcessor::Process()
 	{
+		/*
 		// Recalculate localTransform
 		//for (ComponentHandle c : components.getValidComponents())
 		getES()->forAll<Transform3DProcessor, Transform3DComponent>(*this,
@@ -76,6 +77,7 @@ namespace BitEngine{
 				self.recalcGlobalTransform(c, self.hierarchy[c]);
 			}
 		);
+		*/
 	}
 
 	void Transform3DProcessor::recalcGlobalTransform(ComponentHandle handle, Hierarchy &t)

@@ -38,12 +38,9 @@ namespace BitEngine {
 	{
 		if (m_batch == nullptr)
 		{
-			if (!m_shader->getShader()->isReady())
-			{
+			if (!m_shader->getShader()->isReady()) {
 				return;
-			}
-			else
-			{
+			} else {
 				m_batch = m_shader->getShader()->createBatch();
 			}
 		}
@@ -60,7 +57,6 @@ namespace BitEngine {
 		{
 			prepare_legacy();
 		}
-
 
 		// Make sure it's on gpu
 		m_batch->load();
@@ -129,20 +125,21 @@ namespace BitEngine {
 						}
 					}
 				}
+				
+				const glm::vec4& uvrect = lastSprite->getUV();
+				vertexContainer[vtxOffset + 0].position = glm::vec2(inst.transform.m_global * (128.0f * glm::vec3(-1, -1, 1)));
+				vertexContainer[vtxOffset + 1].position = glm::vec2(inst.transform.m_global * (128.0f * glm::vec3(-1,  1, 1)));
+				vertexContainer[vtxOffset + 2].position = glm::vec2(inst.transform.m_global * (128.0f * glm::vec3( 1,  1, 1)));
+				vertexContainer[vtxOffset + 3].position = glm::vec2(inst.transform.m_global * (128.0f * glm::vec3(-1, -1, 1)));
+				vertexContainer[vtxOffset + 4].position = glm::vec2(inst.transform.m_global * (128.0f * glm::vec3( 1,  1, 1)));
+				vertexContainer[vtxOffset + 5].position = glm::vec2(inst.transform.m_global * (128.0f * glm::vec3( 1, -1, 1)) );
 
-				const glm::vec4& uv = lastSprite->getUV();
-				vertexContainer[vtxOffset + 0].position = glm::vec2((1.0f * glm::vec3(-1, -1, 0)));// * inst.transform.m_global);
-				vertexContainer[vtxOffset + 1].position = glm::vec2((1.0f * glm::vec3(-1, 1, 0)) );// * inst.transform.m_global);
-				vertexContainer[vtxOffset + 2].position = glm::vec2((1.0f * glm::vec3(1, 1, 0))  );// * inst.transform.m_global);
-				vertexContainer[vtxOffset + 3].position = glm::vec2((1.0f * glm::vec3(-1, -1, 0)));// * inst.transform.m_global);
-				vertexContainer[vtxOffset + 4].position = glm::vec2((1.0f * glm::vec3(1, 1, 0))  );// * inst.transform.m_global);
-				vertexContainer[vtxOffset + 5].position = glm::vec2((1.0f * glm::vec3(1, -1, 0)) );// * inst.transform.m_global);
-				vertexContainer[vtxOffset + 0].textureUV = glm::vec2(0, 1);
-				vertexContainer[vtxOffset + 1].textureUV = glm::vec2(0, 0);
-				vertexContainer[vtxOffset + 2].textureUV = glm::vec2(1, 0);
-				vertexContainer[vtxOffset + 3].textureUV = glm::vec2(0, 1);
-				vertexContainer[vtxOffset + 4].textureUV = glm::vec2(0, 0);
-				vertexContainer[vtxOffset + 5].textureUV = glm::vec2(1, 1);
+				vertexContainer[vtxOffset + 0].textureUV = glm::vec2(uvrect.x, uvrect.y); // BL  xw   zw glm::vec2(0, 1);
+				vertexContainer[vtxOffset + 1].textureUV = glm::vec2(uvrect.z, uvrect.y); // BR  		 glm::vec2(0, 0);
+				vertexContainer[vtxOffset + 2].textureUV = glm::vec2(uvrect.x, uvrect.w); // TL  		 glm::vec2(1, 0);
+				vertexContainer[vtxOffset + 3].textureUV = glm::vec2(uvrect.x, uvrect.w); // TL  		 glm::vec2(0, 1);
+				vertexContainer[vtxOffset + 4].textureUV = glm::vec2(uvrect.z, uvrect.y); // BR  		 glm::vec2(0, 0);
+				vertexContainer[vtxOffset + 5].textureUV = glm::vec2(uvrect.z, uvrect.w); // TR  xy   zy glm::vec2(1, 1);
 				/*
 				glBegin(GL_TRIANGLES);
 				for (int k = 0; k < 6; ++k) {

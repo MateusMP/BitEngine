@@ -26,7 +26,7 @@ namespace BitEngine
 	{
 		for (VBOContainer& container : vaoContainer.vbos)
 		{
-			glDeleteBuffers(1, &container.vbo);
+			GL_CHECK(glDeleteBuffers(1, &container.vbo));
 		}
 		GL2::deleteVaos(1, &vaoContainer.vao);
 	}
@@ -35,8 +35,7 @@ namespace BitEngine
 	// Usefull when rendering multiple times the same batch
 	void GL2Batch::prepare(u32 numInstances)
 	{
-		for (VBOContainer& vbc : vaoContainer.vbos)
-		{
+		for (VBOContainer& vbc : vaoContainer.vbos) {
 			shaderData.at(vbc.ref).data.resize(numInstances * vbc.stride);
 		}
 	}
@@ -44,9 +43,7 @@ namespace BitEngine
 	IBatchSector* GL2Batch::addSector(u32 begin)
 	{
 		sectors.emplace_back(uniformContainer, begin);
-
 		GL2BatchSector& bs = sectors[sectors.size() - 1];
-
 		return &bs;
 	}
 
@@ -60,13 +57,6 @@ namespace BitEngine
 				GL2::loadBufferRange(it->second.data.data(), 0, it->second.data.size(), GL_STREAM_DRAW);
 				GL2::unbindVbo();
 			}
-
-			/*float* data = (float*)it->second.data.data();
-			printf("Size: %d\n", it->second.data.size() / 4);
-			for (int i = 0; i < it->second.data.size() / 4; i += 4) {
-				printf("% 5.3f, % 5.3f; %3.2f|%3.2f\n", data[i+0], data[i+1], data[i+2], data[i+3]);
-			}
-			printf("\n");*/
 		}
 	}
 
@@ -82,6 +72,7 @@ namespace BitEngine
 				break;
 			default:
 				LOG(EngineLog, BE_LOG_ERROR) << "Invalid render mode " << (int)mode;
+				break;
 		}
 	}
 
@@ -89,7 +80,6 @@ namespace BitEngine
 	{
 		GL2Shader *glShader = static_cast<GL2Shader*>(shader);
 		glShader->Bind();
-		GL2::bindVao(vaoContainer.vao);
 
 		for (auto& it = shaderData.begin(); it != shaderData.end(); ++it)
 		{
@@ -103,6 +93,7 @@ namespace BitEngine
 			}
 		}
 
+		GL2::bindVao(vaoContainer.vao);
 		for (GL2BatchSector& bs : sectors)
 		{
 			bs.configure(shader);
@@ -121,8 +112,8 @@ namespace BitEngine
 			glDisable(GL_BLEND);
 			}*/
 		}
-
 		GL2::unbindVao();
+
 		glShader->Unbind();
 	}
 

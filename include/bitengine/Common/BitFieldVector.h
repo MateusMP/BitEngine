@@ -2,6 +2,7 @@
 
 #include "Common/VectorBool.h"
 #include "Core/Logger.h"
+#include "Core/Assert.h"
 
 namespace BitEngine{
 
@@ -49,14 +50,17 @@ namespace BitEngine{
 		}
 
 		bool test(u32 objIndex, u16 bitIndex) const {
+			BitEngine::assertTrue(bitIndex < m_numBitsPerObj);
 			return m_bits[objIndex*m_numBitsPerObj + bitIndex];
 		}
 
 		void set(u32 objIndex, u16 bitIndex) {
+			BitEngine::assertTrue(bitIndex < m_numBitsPerObj);
 			m_bits.set(objIndex*m_numBitsPerObj + bitIndex);
 		}
 
 		void unset(u32 objIndex, u16 bitIndex) {
+			BitEngine::assertTrue(bitIndex < m_numBitsPerObj);
 			m_bits.unset(objIndex*m_numBitsPerObj + (u32)bitIndex);
 		}
 

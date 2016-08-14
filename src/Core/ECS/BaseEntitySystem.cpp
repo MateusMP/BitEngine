@@ -8,6 +8,7 @@ namespace BitEngine {
 	bool BaseEntitySystem::Init()
 	{
 		m_objBitField = new ObjBitField(static_cast<u16>(m_holders.size()));
+		m_objBitField->push();
 
 		for (auto& h : m_holders)
 		{

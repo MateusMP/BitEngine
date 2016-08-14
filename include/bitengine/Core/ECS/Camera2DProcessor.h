@@ -23,7 +23,7 @@ class Camera2DProcessor : public ComponentProcessor
 	private: // Methods
 
 		/// Processor
-		static void recalculateMatrix(Camera2DComponent* c, const Transform2DComponent* t);
+		static void recalculateMatrix(Camera2DComponent& c);
 		
 	private: // Member variables
 

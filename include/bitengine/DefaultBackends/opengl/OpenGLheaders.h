@@ -10,6 +10,7 @@
 static void GL_BREAK() {
 	int x;
 	x = 0;
+	throw "GL Failed";
 }
 
 #define GL_CHECK(call)				\

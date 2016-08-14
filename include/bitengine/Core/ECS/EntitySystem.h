@@ -130,6 +130,7 @@ class EntitySystem : public BaseEntitySystem
 		template<typename CompClass>
 		bool RegisterComponent(ComponentHolder<CompClass>* holder = nullptr)
 		{
+			LOG(EngineLog, BE_LOG_VERBOSE) << "Registering " << typeid(CompClass).name() << " as type " << CompClass::getComponentType();
 			static_assert(!std::is_pod<CompClass>::value, "Components should be POD!");
 
 			if (holder == nullptr)
@@ -227,11 +228,12 @@ class EntitySystem : public BaseEntitySystem
 			}
 
 			// loop through base components searching for matching pairs on Args types
+			u32 freeIds = freeIDs.size();
 			for (u32 compID = 1; compID <= validComponents; ++compID)
 			{
 				const EntityHandle entity = allComponents[compID];
 
-				if ((curFree < freeIDs.size() && freeIDs[curFree] != compID) || curFree >= freeIDs.size())
+				if ((curFree < freeIds && freeIDs[curFree] != compID) || curFree >= freeIds)
 				{
 				    // Test to see if this entity has all needed components
                     if ( (m_objBitField->getObj(entity).b64 & componentMask.b64) == componentMask.b64 )
@@ -289,149 +291,11 @@ class EntitySystem : public BaseEntitySystem
 			}
 		}
 
-
-		/*template< typename T>
-		struct ComponentRefExtractor : public std::false_type {
-			static ComponentRef<T> getRef(EntitySystem& es, EntityHandle entity) {
-			}
-		};
-
-		template< typename CompClass>
-		struct ComponentRefExtractor< Component<CompClass> >
-		{
-            static CompClass& getRef(EntitySystem& es, EntityHandle entity)
-            {
-                ComponentHolder<CompClass>* holder = es.getHolder<CompClass>();
-                LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
-
-                ComponentHandle compID = holder->getComponentForEntity(entity);
-                return *static_cast<CompClass*>(holder->getComponent(compID));
-            }
-		};
-
-		template< typename CompClass>
-		struct ComponentRefExtractor< ComponentRef<CompClass> >
-		{
-            static ComponentRef<CompClass> getRef(EntitySystem& es, EntityHandle entity)
-            {
-                ComponentHolder<CompClass>* holder = es.getHolder<CompClass>();
-                LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
-
-                ComponentHandle compID = holder->getComponentForEntity(entity);
-                CompClass* comp = static_cast<CompClass*>(holder->getComponent(compID));
-
-                return ComponentRef<CompClass>(entity, compID, &es, comp);
-            }
-		};
-
-		template< typename T>
-		struct ComponentTypeExtrator : public std::false_type {
-
-		};
-
-		template<typename X>
-		struct ComponentTypeExtrator< Component<X> >
-		{
-			constexpr static ComponentType type() {
-				return X::getComponentType();
-			}
-		};
-
-		template<typename X>
-		struct ComponentTypeExtrator< ComponentRef<X> >
-		{
-			constexpr static ComponentType type() {
-				return X::getComponentType();
-			}
-		};
-
-
-		template<typename Caller, typename Base, typename ... ContainComps>
-		void forEachGeneric(Caller& caller, typename identity<std::function<void(Caller&, EntityHandle, Base&, ContainComps&&...)>>::type f)
-		{
-			ComponentType types[] = { ComponentTypeExtrator<ContainComps>::type()... };
-
-			ComponentHolder<Base>* holder = getHolder<Base>();
-			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
-			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
-			const auto& allComponents = holder->getAllComponents();
-			u32 curFree = 0;
-
-			u32 validComponents = holder->getNumValidComponents();
-
-			BitMask componentMask{ 0 };
-			for (ComponentType t : types) {
-				componentMask.b64 |= 1ull << t;
-			}
-
-			// loop through base components searching for matching pairs on Args types
-			for (u32 compID = 1; compID <= validComponents; ++compID)
-			{
-				const EntityHandle entity = allComponents[compID];
-
-				if ((curFree < freeIDs.size() && freeIDs[curFree] != compID) || curFree >= freeIDs.size())
-				{
-					// Test to see if this entity has all needed components
-					if ((m_objBitField->getObj(entity).b64 & componentMask.b64) == componentMask.b64)
-					{
-						Base* comp = holder->getComponent(compID);
-						f(caller, entity, *comp, std::forward<ContainComps>(ComponentRefExtractor<ContainComps>::getRef(*this, entity))...); // TODO: avoid getHolder<>() every time
-					}
-				}
-				else
-				{
-					++curFree;
-					++validComponents;
-				}
-			}
-		}*/
-
-
-		template<typename Caller, typename Base, typename ... ContainComps>
-		void forEachRef(Caller& caller, typename identity<std::function<void(Caller&, EntityHandle, Base&, ComponentRef<ContainComps>&&...)>>::type f)
-		{
-			ComponentType types[] = { ContainComps::getComponentType()... };
-
-			ComponentHolder<Base>* holder = getHolder<Base>();
-			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
-			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
-			const auto& allComponents = holder->getAllComponents();
-			u32 curFree = 0;
-
-			u32 validComponents = holder->getNumValidComponents();
-
-			BitMask componentMask{0};
-			for (ComponentType t : types){
-                componentMask.b64 |= 1ull << t;
-			}
-
-			// loop through base components searching for matching pairs on Args types
-			for (u32 compID = 1; compID <= validComponents; ++compID)
-			{
-				const EntityHandle entity = allComponents[compID];
-
-				if ((curFree < freeIDs.size() && freeIDs[curFree] != compID) || curFree >= freeIDs.size())
-				{
-					// Test to see if this entity has all needed components
-					if ( (m_objBitField->getObj(entity).b64 & componentMask.b64) == componentMask.b64 )
-					{
-						Base* comp = holder->getComponent(compID);
-						f(caller, entity, *comp, getComponentRef<ContainComps>(entity)...); // TODO: avoid getHolder<>() every time
-					}
-				}
-				else
-				{
-					++curFree;
-					++validComponents;
-				}
-			}
-		}
-
 		template<typename CompClass>
 		void forAll(typename identity<std::function<void(ComponentHandle, CompClass&)>>::type f)
 		{
 			ComponentHolder<CompClass>* holder = getHolder<CompClass>();
-			LOGIFNULL(EngineLog, BE_LOG_ERROR, holder);
+			ASSERT(holder != nullptr);
 
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
 			u32 curFree = 0;
