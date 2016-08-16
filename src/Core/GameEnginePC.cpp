@@ -64,7 +64,7 @@ void GameEnginePC::stopRunning()
 
 void GameEnginePC::addSystem(System *sys)
 {
-	auto &it = systemsMap.find(sys->getName());
+	const auto &it = systemsMap.find(sys->getName());
 	if (it == systemsMap.end())
 	{
 		systems.emplace_back(sys);
@@ -78,7 +78,7 @@ void GameEnginePC::addSystem(System *sys)
 
 System* GameEnginePC::getSystem(const std::string& name)
 {
-	auto &it = systemsMap.find(name);
+	const auto &it = systemsMap.find(name);
 	if (it == systemsMap.end())
 	{
 		return nullptr;

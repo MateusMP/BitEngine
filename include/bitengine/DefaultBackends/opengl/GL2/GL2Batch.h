@@ -35,14 +35,15 @@ namespace BitEngine
 	};
 
 	typedef std::unordered_map<ShaderDataReference, ShaderData, ShaderDataReference::Hasher> ShaderDataMap;
+    typedef std::unordered_map<ShaderDataReference, ShaderData, ShaderDataReference::Hasher>::iterator ShaderDataMapIt;
 
 	static void IncludeToMap(ShaderDataMap& map, const UniformHolder& holder, u32 instance)
 	{
-		for (auto& it = holder.containers.begin(); it != holder.containers.end(); ++it)
+		for (const UniformContainer& it : holder.containers)
 		{
-			if (it->instance == instance)
+			if (it.instance == instance)
 			{
-				map.emplace(it->ref, ShaderData(&(*it), it->stride));
+				map.emplace(it.ref, ShaderData(&it, it.stride));
 			}
 		}
 	}

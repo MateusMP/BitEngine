@@ -137,7 +137,7 @@ bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
 
 BitEngine::ResourceMeta* BitEngine::DevResourceLoader::findMeta(const std::string& name)
 {
-	auto& it = byName.find(name);
+	const auto& it = byName.find(name);
 	if (it == byName.end())
 	{
 		return nullptr;

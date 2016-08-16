@@ -4,6 +4,8 @@
 #include "Core/Graphics/ITexture.h"
 
 namespace BitEngine {
+    
+    class Shader;
 
 	enum DataType 
 	{
@@ -68,6 +70,9 @@ namespace BitEngine {
 		};
 
 		ShaderDataReference() {}
+        ShaderDataReference(const ShaderDataReference& copy) 
+            : mode(copy.mode), container(copy.container), index(copy.index)
+        {}
 		ShaderDataReference(DataUseMode m, u32 _container, u32 id)
 			: mode(m), container(_container), index(id)
 		{}
@@ -180,11 +185,6 @@ namespace BitEngine {
 				return (T*)getShaderData(ref);
 			}
 
-			template<typename T>
-			const T* getConfigValueAs(const ShaderDataReference& ref) const {
-				return (T*)getShaderData(ref);
-			}
-			
 			virtual void end(u32 finalInstance) = 0;
 
 			virtual void configure(Shader* shader) = 0;
@@ -248,7 +248,7 @@ namespace BitEngine {
 
 		/// Binds the shader
 		/// Calls OnBind()
-		virtual void Bind() = 0;
+		virtual void bind() = 0;
 
 		/// Unbinds the shader
 		virtual void Unbind() = 0;

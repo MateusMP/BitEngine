@@ -21,28 +21,7 @@ namespace BitEngine
 
 	class GL2Shader : public Shader
 	{
-		public:
-
-			struct AttributeConfig {
-				//u32 container;
-				GLenum type;
-				GLint size;
-				u32 location;
-
-				bool normalized;
-				u32 divisor;
-				std::string name;
-			};
-			struct GlobalConfig {
-				GLuint index;
-				GLint location;
-				GLenum type;
-				GLint size;
-
-				ShaderDataReference defRef;
-				std::string name;
-			};
-
+		public:            
 			GL2Shader();
 			virtual ~GL2Shader();
 
@@ -52,7 +31,7 @@ namespace BitEngine
 
 			/// Binds the shader
 			/// Calls OnBind()
-			void Bind() override;
+			void bind() override;
 
 			/// Unbinds the shader
 			void Unbind() override;
@@ -60,7 +39,7 @@ namespace BitEngine
 			IGraphicBatch* createBatch() override;
 
 			// Load data into uniform referenced with ref
-			void loadConfig(const UniformDefinition* ref, void* data);
+			void loadConfig(const UniformDefinition* ref, const void* data);
 
 			void includeSource(GLint type, std::vector<char>& data);
 
@@ -147,13 +126,14 @@ namespace BitEngine
 			
 			void genUniformContainer(UniformHolder& unifContainer);
 			void genVBOAttributes(VAOContainer& vaoContainer);
-			const GlobalConfig* findUniformConfigByName(const std::string& str);
-			const AttributeConfig* findAttributeConfigByName(const std::string& str);
+            VAOContainer genVAOArrays(const VAOContainer& base);
+			UniformDefinition* findUniformConfigByName(const std::string& str);
+			VBOAttrib* findAttributeConfigByName(const std::string& str);
 
 			// members
 			ShaderDataDefinition m_shaderDefinition;
-			std::vector<AttributeConfig> m_attributes;
-			std::vector<GlobalConfig> m_uniforms;
+			std::vector<VBOAttrib> m_attributes;
+			std::vector<UniformDefinition> m_uniforms;
 
 			VAOContainer baseVaoContainer;
 			UniformHolder uniformHolder;

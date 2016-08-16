@@ -207,7 +207,6 @@ class ComponentRef
 		ComponentRef(ComponentRef&& h) noexcept
 			: m_entity(h.m_entity), m_componentID(h.m_componentID), m_es(h.m_es), m_component(h.m_component)
 		{}
-
 		ComponentRef(EntityHandle entity, ComponentHandle componentID, EntitySystem* entitySys, CompClass* component) noexcept
 			: m_entity(entity), m_componentID(componentID), m_es(entitySys), m_component(component)
 		{}

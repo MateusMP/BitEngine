@@ -32,7 +32,7 @@ namespace BitEngine
 			}
 
 			ResourceType* findResource(const ResourceMeta* meta) {
-				auto& it = m_byMeta.find(meta);
+				const auto& it = m_byMeta.find(meta);
 				if (it == m_byMeta.end()) {
 					return nullptr;
 				}

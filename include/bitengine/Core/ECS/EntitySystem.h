@@ -204,10 +204,13 @@ class EntitySystem : public BaseEntitySystem
 		}
 
 
-		template <typename T> struct identity{ typedef T type; };
+		template <typename T> struct identity{ typedef T&& type; };
+        
+        template<typename Base, typename ... ContainComps>
+        using Logic = std::function<void(ComponentRef<Base>, ComponentRef<ContainComps>...)>;
 
 		template<typename Base, typename ... ContainComps>
-		void forEach(typename identity<std::function<void(ComponentRef<Base>&&, ComponentRef<ContainComps>&&...)>>::type f)
+		void forEach(typename identity<Logic<Base, ContainComps...>>::type f)
 		{
 			// TODO: otimize calls of getComponentRefE with this:
 			// std::tuple<ComponentHolder<ContainComps>*... > holders = std::make_tuple{ getHolder<ContainComps>()... };
@@ -250,7 +253,7 @@ class EntitySystem : public BaseEntitySystem
 			}
 		}
 
-		template<typename Caller, typename Base, typename ... ContainComps>
+		/*template<typename Caller, typename Base, typename ... ContainComps>
 		void forEach(Caller& caller, typename identity<std::function<void(Caller&, EntityHandle, Base&, ContainComps&...)>>::type f)
 		{
 			ComponentType types[] = { ContainComps::getComponentType()... };
@@ -289,7 +292,7 @@ class EntitySystem : public BaseEntitySystem
 					++validComponents;
 				}
 			}
-		}
+		}*/
 
 		template<typename CompClass>
 		void forAll(typename identity<std::function<void(ComponentHandle, CompClass&)>>::type f)

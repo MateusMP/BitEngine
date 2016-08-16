@@ -4,7 +4,7 @@
 
 namespace BitEngine
 {
-	class ITexture : protected BaseResource
+	class ITexture : public BaseResource
 	{
 		public:
 			ITexture(ResourceMeta* meta) : BaseResource(meta) {}

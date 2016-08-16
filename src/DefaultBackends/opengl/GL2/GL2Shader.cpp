@@ -42,10 +42,10 @@ namespace BitEngine
 
 	// ###############################################################
 	// GL2Shader
-	const GL2Shader::GlobalConfig* GL2Shader::findUniformConfigByName(const std::string& str)
+	UniformDefinition* GL2Shader::findUniformConfigByName(const std::string& str)
 	{
 		const std::string u_str = "u_" + str;
-		for (GlobalConfig& gc : m_uniforms)
+		for (UniformDefinition& gc : m_uniforms)
 		{
 			if (gc.name == u_str)
 			{
@@ -56,10 +56,10 @@ namespace BitEngine
 		return nullptr;
 	}
 
-	const GL2Shader::AttributeConfig* GL2Shader::findAttributeConfigByName(const std::string& str)
+	VBOAttrib* GL2Shader::findAttributeConfigByName(const std::string& str)
 	{
 		const std::string a_str = "a_" + str;
-		for (AttributeConfig& ac : m_attributes)
+		for (VBOAttrib& ac : m_attributes)
 		{
 			if (ac.name == a_str)
 			{
@@ -68,113 +68,6 @@ namespace BitEngine
 		}
 
 		return nullptr;
-	}
-
-	void GL2Shader::genVBOAttributes(VAOContainer& vaoContainer)
-	{
-		const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Vertex);
-
-		for (const ShaderDataDefinition::DefinitionContainer& dc : containers)
-		{
-			int strideSize = 0;
-			for (const ShaderDataDefinition::DefinitionData& dd : dc.definitionData){
-				strideSize += sizeofDataType(dd.type) * dd.size;
-			}
-
-			VBOContainer vboc;
-
-			int offsetAccum = 0;
-			for (const ShaderDataDefinition::DefinitionData& dd : dc.definitionData)
-			{
-				const AttributeConfig* ac = findAttributeConfigByName(dd.name);
-				if (ac != nullptr)
-				{
-					assertEqual(GL2::toGLType(dd.type), ac->type);
-					VBOAttrib attrib;
-					attrib.id = ac->location;
-					attrib.dataSize = GL2::fromGLTypeToGLDataTypeSize(ac->type);
-					attrib.dataType = GL2::fromGLTypeToGLDataType(ac->type);
-					attrib.type = ac->type; //toGLType(dd.type);
-					attrib.normalized = 0; // TODO: get this from dd
-					attrib.stride = strideSize;
-					attrib.offset = offsetAccum;
-
-					offsetAccum += sizeofDataType(dd.type) * dd.size;
-
-					vboc.attrs.emplace_back(attrib);
-				}
-				else
-				{
-					LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Couldn't find shader related attribute " << dd.name;
-				}
-			}
-			vboc.divisor = dc.instanced;
-			vboc.stride = strideSize;
-			vboc.ref = ShaderDataReference(dc.mode, dc.container, 0);
-
-			vaoContainer.vbos.emplace_back(vboc);
-		}
-	}
-
-	VAOContainer genVAOArrays(const VAOContainer& base)
-	{
-		VAOContainer container;
-		GL2::genVao(1, &container.vao);
-		GL2::bindVao(container.vao);
-
-		for (VBOContainer vboc : base.vbos)
-		{
-			GL2::genVbo(1, &vboc.vbo);
-			if (vboc.vbo == 0) {
-				LOG(EngineLog, BE_LOG_ERROR) << "VertexBuffer: Could not create VBO.";
-				GL2::deleteVaos(1, &container.vao);
-				container.vao = 0;
-				return container;
-			}
-
-			for (const VBOAttrib& c : vboc.attrs)
-			{
-				GL2::setupVbo(c.id, vboc.vbo, c.dataSize, c.dataType, c.normalized, c.stride, c.offset, vboc.divisor);
-			}
-
-			container.vbos.emplace_back(vboc);
-		}
-
-		GL2::unbindVao();
-		return container;
-	}
-
-	void GL2Shader::genUniformContainer(UniformHolder& unifContainer)
-	{
-		const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Uniform);
-
-		for (const ShaderDataDefinition::DefinitionContainer& def : containers)
-		{
-			unifContainer.containers.emplace_back(ShaderDataReference(DataUseMode::Uniform, def.container, 0),  def.instanced);
-			UniformContainer& container = unifContainer.containers.back();
-			u32 fullSize = 0;
-			for (const ShaderDataDefinition::DefinitionData& dd : def.definitionData)
-			{
-				const GL2Shader::GlobalConfig* gc = findUniformConfigByName(dd.name);
-				if (gc != nullptr)
-				{
-					u32 partialSize = sizeofDataType(dd.type) * dd.size;
-					UniformDefinition ud;
-					ud.instanced = def.instanced;
-					ud.byteSize = partialSize;
-					ud.dataOffset = (char*)(fullSize);
-					ud.ref = gc->defRef;
-					ud.location = gc->location;
-					ud.size = gc->size;
-					ud.type = gc->type;
-					ud.extraInfo = 0;
-					fullSize += partialSize;
-
-					container.defs.emplace_back(ud);
-				}
-				container.stride = fullSize;
-			}
-		}
 	}
 
 	GL2Shader::GL2Shader()
@@ -257,9 +150,17 @@ namespace BitEngine
 
 	/// Binds the shader
 	/// Calls OnBind()
-	void GL2Shader::Bind()
+	void GL2Shader::bind()
 	{
 		GL2::bindShaderProgram(m_programID);
+/*
+                for (const auto& unif : uniformHolder.containers)
+                {
+                    for (const auto& defs : unif.defs) {
+                        defs.type
+                        glActiveTexture(GL_TEXTURE0 + ud->location);
+                    }
+                }*/
 	}
 
 	/// Unbinds the shader
@@ -290,14 +191,16 @@ namespace BitEngine
 		
 		for (int i = 0; i < nAttrs; ++i)
 		{
-			GL2Shader::AttributeConfig attr;
+			VBOAttrib attr;
 			std::string tmpName;
 
 			// TODO: Handle big attributes like matrices
 			GL_CHECK(glGetActiveAttrib(m_programID, i, 128, &nameRead, &attr.size, &attr.type, &nameBuffer[0]));
 			tmpName.append(&nameBuffer[0], &nameBuffer[0] + nameRead);
-			attr.location = glGetAttribLocation(m_programID, tmpName.data());
+			attr.id = glGetAttribLocation(m_programID, tmpName.data());
 			attr.name = tmpName;
+            attr.dataSize = GL2::fromGLTypeToGLDataTypeSize(attr.type);
+            attr.dataType = GL2::fromGLTypeToGLDataType(attr.type);
 			
 			// Find divisor value
 			attr.divisor = 0;
@@ -309,7 +212,7 @@ namespace BitEngine
 				}
 			}
 
-			LOG(EngineLog, BE_LOG_INFO) << "Attr" << i << " at " << attr.location
+			LOG(EngineLog, BE_LOG_INFO) << "Attr" << i << " at " << attr.id
 				<< " '" << tmpName << "' is of type: " << attr.type << " size: " << attr.size;
 
 			m_attributes.emplace_back(attr);
@@ -322,7 +225,7 @@ namespace BitEngine
 		
 		for (int i = 0; i < nUnif; ++i)
 		{
-			GL2Shader::GlobalConfig unif;
+			UniformDefinition unif;
 			std::string tmpName;
 
 			GL_CHECK(glGetActiveUniform(m_programID, i, 128, &nameRead, &unif.size, &unif.type, &nameBuffer[0]));
@@ -332,11 +235,11 @@ namespace BitEngine
 			if (m_shaderDefinition.checkRef(ref))
 			{
 				unif.location = glGetUniformLocation(m_programID, tmpName.data()); GL_CHECK(;);
-				unif.defRef = ref;
+				unif.ref = ref;
 				unif.name = tmpName;
 				LOG(EngineLog, BE_LOG_INFO) << "Uniform" << i << " at " << unif.location
 					<< " '" << tmpName << "' is of type: " << unif.type << " size: " << unif.size;
-				unif.index = i;
+				//unif.index = i;
 				m_uniforms.emplace_back(unif);
 			}
 			else
@@ -345,6 +248,104 @@ namespace BitEngine
 			}
 		}
 		genUniformContainer(uniformHolder);
+	}
+        
+        
+	void GL2Shader::genVBOAttributes(VAOContainer& vaoContainer)
+	{
+		const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Vertex);
+
+		for (const ShaderDataDefinition::DefinitionContainer& dc : containers)
+		{
+			int strideSize = 0;
+			for (const ShaderDataDefinition::DefinitionData& dd : dc.definitionData){
+				strideSize += sizeofDataType(dd.type) * dd.size;
+			}
+
+			VBOContainer vboc;
+
+			int offsetAccum = 0;
+			for (const ShaderDataDefinition::DefinitionData& dd : dc.definitionData)
+			{
+				VBOAttrib* ac = findAttributeConfigByName(dd.name);
+				if (ac != nullptr)
+				{
+					assertEqual(GL2::toGLType(dd.type), ac->type);
+					ac->normalized = 0; // TODO: get this from dd
+					ac->stride = strideSize;
+					ac->offset = offsetAccum;
+
+					offsetAccum += sizeofDataType(dd.type) * dd.size;
+
+					vboc.attrs.emplace_back(ac);
+				}
+				else
+				{
+					LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Couldn't find shader related attribute " << dd.name;
+				}
+			}
+			vboc.divisor = dc.instanced;
+			vboc.stride = strideSize;
+			vboc.ref = ShaderDataReference(dc.mode, dc.container, 0);
+
+			vaoContainer.vbos.emplace_back(vboc);
+		}
+	}
+
+	VAOContainer GL2Shader::genVAOArrays(const VAOContainer& base)
+	{
+		VAOContainer container;
+		GL2::genVao(1, &container.vao);
+		GL2::bindVao(container.vao);
+
+		for (VBOContainer vboc : base.vbos)
+		{
+			GL2::genVbo(1, &vboc.vbo);
+			if (vboc.vbo == 0) {
+				LOG(EngineLog, BE_LOG_ERROR) << "VertexBuffer: Could not create VBO.";
+				GL2::deleteVaos(1, &container.vao);
+				container.vao = 0;
+				return container;
+			}
+
+			for (const VBOAttrib* c : vboc.attrs)
+			{
+				GL2::setupVbo(c->id, vboc.vbo, c->dataSize, c->dataType, c->normalized, c->stride, c->offset, vboc.divisor);
+			}
+
+			container.vbos.emplace_back(vboc);
+		}
+
+		GL2::unbindVao();
+		return container;
+	}
+
+	void GL2Shader::genUniformContainer(UniformHolder& unifContainer)
+	{
+		const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Uniform);
+
+		for (const ShaderDataDefinition::DefinitionContainer& def : containers)
+		{
+			unifContainer.containers.emplace_back(ShaderDataReference(DataUseMode::Uniform, def.container, 0),  def.instanced);
+			UniformContainer& container = unifContainer.containers.back();
+			u32 fullSize = 0;
+			for (const ShaderDataDefinition::DefinitionData& dd : def.definitionData)
+			{
+				UniformDefinition* ud = findUniformConfigByName(dd.name);
+				if (ud != nullptr)
+				{
+					u32 partialSize = sizeofDataType(dd.type) * dd.size;
+					ud->instanced = def.instanced;
+					ud->byteSize = partialSize;
+					ud->dataOffset = fullSize;
+					ud->extraInfo = 0;
+					fullSize += partialSize;
+
+					container.defs.emplace_back(ud);
+				}
+				container.stride = fullSize;
+			}
+		}
 	}
 
 	void GL2Shader::bindAttribute(int attrib, const std::string& name)
@@ -494,35 +495,36 @@ namespace BitEngine
 		GL_CHECK(glUniform1i(location, unitID));
 	}
 	
-	void GL2Shader::loadConfig(const UniformDefinition* ud, void* data)
+	void GL2Shader::loadConfig(const UniformDefinition* ud, const void* data)
 	{
 		switch (ud->type)
 		{
 			case GL_SAMPLER_2D: {
-				const GL2Texture* texture = *static_cast<GL2Texture**>(data);
+				const GL2Texture* texture = *static_cast<const GL2Texture* const*>(data);
 				glActiveTexture(GL_TEXTURE0 + ud->location);
-				connectTexture(ud->location, texture->getTextureID());
+				glBindTexture(GL_TEXTURE_2D, texture->getTextureID());
+				connectTexture(ud->location, ud->location);
 			}
 				break;
 
 			case GL_FLOAT_VEC2:
-				GL_CHECK(glUniform2fv(ud->location, ud->size, static_cast<GLfloat*>(data)));
+				GL_CHECK(glUniform2fv(ud->location, ud->size, static_cast<const GLfloat*>(data)));
 				break;
 
 			case GL_FLOAT_VEC3:
-				GL_CHECK(glUniform3fv(ud->location, ud->size, static_cast<GLfloat*>(data)));
+				GL_CHECK(glUniform3fv(ud->location, ud->size, static_cast<const GLfloat*>(data)));
 				break;
 
 			case GL_FLOAT_VEC4:
-				GL_CHECK(glUniform4fv(ud->location, ud->size, static_cast<GLfloat*>(data)));
+				GL_CHECK(glUniform4fv(ud->location, ud->size, static_cast<const GLfloat*>(data)));
 				break;
 
 			case GL_FLOAT_MAT3:
-				GL_CHECK(glUniformMatrix3fv(ud->location, ud->size, ud->extraInfo, static_cast<GLfloat*>(data)));
+				GL_CHECK(glUniformMatrix3fv(ud->location, ud->size, ud->extraInfo, static_cast<const GLfloat*>(data)));
 				break;
 
 			case GL_FLOAT_MAT4:
-				GL_CHECK(glUniformMatrix4fv(ud->location, ud->size, ud->extraInfo, static_cast<GLfloat*>(data)));
+				GL_CHECK(glUniformMatrix4fv(ud->location, ud->size, ud->extraInfo, static_cast<const GLfloat*>(data)));
 				break;
 
 			default:

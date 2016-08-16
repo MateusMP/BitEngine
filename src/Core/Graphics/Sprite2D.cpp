@@ -89,7 +89,7 @@ namespace BitEngine {
 		m_batch->prepare(nVertices); // quad sprites need 4 vertices for each
 
 		// DEBUG RENDER TEST
-		m_shader->getShader()->Bind();
+		m_shader->getShader()->bind();
 
 		// Setup batch data
 		if (!batchInstances.empty())

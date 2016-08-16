@@ -1,5 +1,7 @@
 #pragma once
 
+#include <exception>
+
 #include "Core/Logger.h"
 
 #define BE_ASSERT_THROW_ON_FAIL true
@@ -19,10 +21,17 @@ namespace BitEngine
 	class AssertFail : std::exception
 	{
 	public:
-		AssertFail(const char* msg)
-			: std::exception(msg)
+		AssertFail(const std::string& msg)
+                    : message(msg)
 		{
 		}
+                    
+                const char* what() const noexcept override{
+                    return message.c_str();
+                }
+
+        private:
+            std::string message;
 	};
 
 	static void onFailure(const std::string& msg) {

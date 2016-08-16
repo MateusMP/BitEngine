@@ -44,13 +44,19 @@ namespace BitEngine {
 		ResourcePropertyContainer operator[](const std::string& str) {
 			return prop->getProperty(str);
 		}
+		const ResourcePropertyContainer operator[](const std::string& str) const {
+			return prop->getProperty(str);
+		}
 		ResourcePropertyContainer operator[](int index) {
 			return prop->getProperty(index);
 		}
-		std::string getValueString() { return prop->getValueString(); }
-		double getValueDouble() { return prop->getValueDouble(); }
-		int getValueInt() { return prop->getValueInt(); }
-		int getNumberOfProperties() { return prop->getNumberOfProperties(); }
+		const ResourcePropertyContainer operator[](int index) const {
+			return prop->getProperty(index);
+		}
+		std::string getValueString() const { return prop->getValueString(); }
+		double getValueDouble() const { return prop->getValueDouble(); }
+		int getValueInt() const { return prop->getValueInt(); }
+		int getNumberOfProperties() const { return prop->getNumberOfProperties(); }
 
 		bool isValid() { return prop.get() != nullptr; }
 

@@ -49,12 +49,12 @@ namespace BitEngine
 
 	void GL2Batch::load()
 	{
-		for (auto& it = shaderData.begin(); it != shaderData.end(); ++it)
+		for (const auto& it : shaderData)
 		{
-			if (it->first.mode == DataUseMode::Vertex)
+			if (it.first.mode == DataUseMode::Vertex)
 			{
-				GL2::bindVbo(it->second.definition.vbo->vbo);
-				GL2::loadBufferRange(it->second.data.data(), 0, it->second.data.size(), GL_STREAM_DRAW);
+				GL2::bindVbo(it.second.definition.vbo->vbo);
+				GL2::loadBufferRange(it.second.data.data(), 0, it.second.data.size(), GL_STREAM_DRAW);
 				GL2::unbindVbo();
 			}
 		}
@@ -79,16 +79,16 @@ namespace BitEngine
 	void GL2Batch::render(Shader* shader)
 	{
 		GL2Shader *glShader = static_cast<GL2Shader*>(shader);
-		glShader->Bind();
+		glShader->bind();
 
-		for (auto& it = shaderData.begin(); it != shaderData.end(); ++it)
+		for (const auto& it : shaderData)
 		{
-			if (it->first.mode == DataUseMode::Uniform)
+			if (it.first.mode == DataUseMode::Uniform)
 			{
-				const char* addr = static_cast<const char*>(it->second.data.data());
-				for (const UniformDefinition& def : it->second.definition.unif->defs)
+				const char* addr = static_cast<const char*>(it.second.data.data());
+				for (const UniformDefinition* def : it.second.definition.unif->defs)
 				{
-					glShader->loadConfig(&def, (void*)(addr + (u32)def.dataOffset));
+					glShader->loadConfig(def, static_cast<const void*>(addr + def->dataOffset));
 				}
 			}
 		}

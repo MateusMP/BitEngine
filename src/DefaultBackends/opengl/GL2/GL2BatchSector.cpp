@@ -18,19 +18,19 @@ namespace BitEngine {
 			return;
 		}
 
-		for (auto& it = shaderData.begin(); it != shaderData.end(); ++it)
+		for (const auto& it : shaderData)
 		{
-			const char* addr = static_cast<const char*>(it->second.data.data());
-			for (const UniformDefinition& def : it->second.definition.unif->defs)
+			const char* addr = static_cast<const char*>(it.second.data.data());
+			for (const UniformDefinition* def : it.second.definition.unif->defs)
 			{
-				glShader->loadConfig(&def, (void*)(addr + (u32)def.dataOffset) );
+				glShader->loadConfig(def, (void*)(addr + def->dataOffset) );
 			}
 		}
 	}
 
 	void* GL2BatchSector::getShaderData(const ShaderDataReference& ref)
 	{
-		auto& sd = shaderData.find(ref);
+		const auto& sd = shaderData.find(ref);
 		if (sd != shaderData.end())
 		{
 			return sd->second.data.data();

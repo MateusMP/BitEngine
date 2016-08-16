@@ -137,24 +137,29 @@ namespace BitEngine
 			: id(0), dataSize(0), type(0)
 		{}
 		VBOAttrib(const VBOAttrib& copy)
-			: id(copy.id), dataSize(copy.dataSize), type(copy.type), dataType(copy.dataType), normalized(copy.normalized), stride(copy.stride), offset(copy.offset)
+			: id(copy.id), type(copy.type), size(copy.size),
+			  dataType(copy.dataType), dataSize(copy.dataSize),
+			  normalized(copy.normalized), stride(copy.stride), offset(copy.offset),
+			  divisor(copy.divisor), name(copy.name)
 		{
 		}
 
 		GLuint id;
-		GLenum type;
+		GLenum type; // like VEC2
+        GLint size; // the number of instances of the type, like vec2 x[5] would be 5
+		GLenum dataType; // like FLOAT
 		GLint dataSize; // num of elements of dataType
-		GLenum dataType;
 		GLboolean normalized;
 		GLsizei stride;
 		int offset;
-
+        u32 divisor;
+        std::string name;
 	};
 
 	struct VBOContainer
 	{
 		ShaderDataReference ref;
-		std::vector<VBOAttrib> attrs;
+		std::vector<const VBOAttrib*> attrs;
 		GLsizei stride;
 		GLuint divisor;
 		GLuint vbo;
@@ -179,8 +184,10 @@ namespace BitEngine
 		GLenum type;
 		GLint size;
 		u8 instanced;
-		u8 extraInfo;
-		char* dataOffset; // as an offset
+		u8 extraInfo; // When used for samplers, says the texture unit to use.
+		u32 dataOffset; // as an offset
+        
+        std::string name;
 	};
 
 
@@ -195,7 +202,7 @@ namespace BitEngine
 		ShaderDataReference ref;
 		u32 instance;
 		u32 stride;
-		std::vector<UniformDefinition> defs;
+		std::vector<const UniformDefinition*> defs;
 	};
 
 

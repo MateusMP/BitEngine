@@ -33,7 +33,7 @@ namespace BitEngine {
 		T pop()
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
-			m_cond.wait(lock, [this] bool () { return m_queue.empty() });
+			m_cond.wait(lock, [this]{ return m_queue.empty(); });
 
 			T a = std::move(m_queue.front());
 			m_queue.pop();
@@ -65,7 +65,7 @@ namespace BitEngine {
 		void swap(ThreadSafeQueue& queue)
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
-			std::lock_guard<std::mutex> lock(queue.m_mutex);
+			std::lock_guard<std::mutex> lock2(queue.m_mutex);
 			m_queue.swap(queue.m_queue);
 		}
 

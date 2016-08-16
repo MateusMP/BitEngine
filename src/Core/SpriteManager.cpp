@@ -62,7 +62,7 @@ namespace BitEngine{
 		double ox = props["ox"].getValueDouble();
 		double oy = props["oy"].getValueDouble();
 
-		ResourcePropertyContainer& uvContainer = props["uv"];
+		const ResourcePropertyContainer& uvContainer = props["uv"];
 		glm::vec4 uv(uvContainer["xi"].getValueDouble(), uvContainer["yi"].getValueDouble(), 
 					 uvContainer["xf"].getValueDouble(), uvContainer["yf"].getValueDouble());
 		bool transparent = props["transparent"].getValueInt() > 0;

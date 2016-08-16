@@ -11,6 +11,7 @@
 #endif
 
 #include "Common/TypeDefinition.h"
+#include <type_traits>
 
 namespace BitEngine
 {

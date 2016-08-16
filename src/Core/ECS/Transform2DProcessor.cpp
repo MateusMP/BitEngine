@@ -79,22 +79,21 @@ namespace BitEngine{
 	void Transform2DProcessor::Process()
 	{
 		getES()->forEach<Transform2DComponent, SceneTransform2DComponent>(
-			[this](ComponentRef<Transform2DComponent>& transform, ComponentRef<SceneTransform2DComponent>& scene)
+                [this] (ComponentRef<Transform2DComponent> transform, ComponentRef<SceneTransform2DComponent> scene) -> void
+		{
+			if (transform->m_dirty)
 			{
-				if (transform->m_dirty)
-				{
-					transform->m_dirty = false;
-					CalculateLocalModelMatrix(transform.ref(), scene->m_local);
-					hierarchy[scene.getComponentID()].dirty = true;
-				}
+				transform->m_dirty = false;
+				CalculateLocalModelMatrix(transform.ref(), scene->m_local);
+				hierarchy[scene.getComponentID()].dirty = true;
 			}
-		);
+		});
 
 		ComponentHolder<SceneTransform2DComponent>* holder = getES()->getHolder<SceneTransform2DComponent>();
 
 		// Update globalTransform of valid components
 		getES()->forEach<Transform2DComponent, SceneTransform2DComponent>(
-			[this, holder](ComponentRef<Transform2DComponent>& transform, ComponentRef<SceneTransform2DComponent>& scene)
+			[this, holder](ComponentRef<Transform2DComponent> transform, ComponentRef<SceneTransform2DComponent> scene)
 			{
 				const ComponentHandle c = scene.getComponentID();
 				recalcGlobalTransform(holder, scene.ref(), hierarchy[c]);
