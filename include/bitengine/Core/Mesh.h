@@ -3,16 +3,11 @@
 #include <string>
 #include <vector>
 
+#include "Core/Graphics/Material.h"
+
 namespace BitEngine{
 
 	class ShaderProgram;
-
-
-	class Material
-	{
-	public:
-		virtual ~Material(){}
-	};
 
 	class Skeleton
 	{

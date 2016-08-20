@@ -3,9 +3,9 @@
 // Most basic definitions
 // and forward declare for GL2
 
-#include "Core/Graphics/Shader.h"
-#include "Core/Graphics/ITexture.h"
 #include "Core/VideoRenderer.h"
+#include "Core/Graphics/Shader.h"
+#include "Core/Graphics/Texture.h"
 
 #include "DefaultBackends/opengl/OpenGLheaders.h"
 

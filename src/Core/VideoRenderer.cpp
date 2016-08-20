@@ -1,5 +1,5 @@
 
-#include "Core/Graphics/Shader.h"
+#include "Core/VideoRenderer.h"
 
 namespace BitEngine {
 

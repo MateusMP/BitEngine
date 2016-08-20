@@ -35,16 +35,10 @@ namespace BitEngine
 	// Usefull when rendering multiple times the same batch
 	void GL2Batch::prepare(u32 numInstances)
 	{
+		totalInstances = numInstances;
 		for (VBOContainer& vbc : vaoContainer.vbos) {
-			shaderData.at(vbc.ref).data.resize(numInstances * vbc.stride);
+			shaderData.at(vbc.ref).data.resize(totalInstances * vbc.stride);
 		}
-	}
-
-	IBatchSector* GL2Batch::addSector(u32 begin)
-	{
-		sectors.emplace_back(uniformContainer, begin);
-		GL2BatchSector& bs = sectors[sectors.size() - 1];
-		return &bs;
 	}
 
 	void GL2Batch::load()
@@ -94,24 +88,20 @@ namespace BitEngine
 		}
 
 		GL2::bindVao(vaoContainer.vao);
-		for (GL2BatchSector& bs : sectors)
+		//bs.configure(shader);
+		/*if (r.transparent)
 		{
-			bs.configure(shader);
-			/*if (r.transparent)
-			{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			}*/
-			// glBindTexture(GL_TEXTURE_2D, r.texture);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}*/
+		// glBindTexture(GL_TEXTURE_2D, r.texture);
 
-			const GLsizei nItems = bs.m_end - bs.m_begin;
-			GL_CHECK(glDrawArrays(renderMode, bs.m_begin, nItems));
-			//GL_CHECK(glDrawArraysInstancedBaseInstance(renderMode, 0, 4, nItems, bs.m_begin));
+		GL_CHECK(glDrawArrays(renderMode, 0, totalInstances));
+		//GL_CHECK(glDrawArraysInstancedBaseInstance(renderMode, 0, 4, nItems, bs.m_begin));
 
-			/*if (r.transparent) {
-			glDisable(GL_BLEND);
-			}*/
-		}
+		/*if (r.transparent) {
+		glDisable(GL_BLEND);
+		}*/
 		GL2::unbindVao();
 
 		glShader->Unbind();

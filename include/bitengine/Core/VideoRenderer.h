@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Graphics/Shader.h"
+#include <string>
+#include "Common/TypeDefinition.h"
 
 namespace BitEngine {
-
+	
 	enum VideoAdapterType{
 		NONE,
 		OPENGL_2,
@@ -17,6 +18,85 @@ namespace BitEngine {
 
 		VULKAN_ALL,
 	};
+
+	enum DataType
+	{
+		INVALID_DATA_TYPE,
+		TEXTURE_1D,
+		TEXTURE_2D,
+		TEXTURE_3D,
+		TEXTURE_CUBE,
+
+		LONG,
+		FLOAT,
+
+		// Vertex only
+		VEC2,
+		VEC3,
+		VEC4,
+
+		MAT2,
+		MAT3,
+		MAT4,
+
+		TOTAL_DATA_TYPES
+	};
+
+	enum DataUseMode : u32 {
+		Vertex,
+		Uniform,
+
+		TotalModes
+	};
+
+	enum BufferClearBitMask
+	{
+		COLOR = 1,
+		DEPTH = 2,
+
+		COLOR_DEPTH = COLOR | DEPTH
+	};
+
+
+	enum BlendEquation {
+		ADD,
+		SUBTRACT,
+		SUBTRACT_REVERSE,
+
+		TOTAL_BLEND_EQUATIONS,
+	};
+
+	enum class VertexRenderMode {
+		TRIANGLES,
+		TRIANGLE_STRIP,
+	};
+
+	enum BlendMode {
+		ZERO,
+		ONE,
+		SOURCE_COLOR,
+		ONE_MINUS_SOURCE_COLOR,
+		DST_COLOR,
+		ONE_MINUS_DST_COLOR,
+		SRC_ALPHA,
+		ONE_MINUS_SRC_ALPHA,
+		DST_ALPHA,
+		ONE_MINUS_DST_ALPHA,
+		CONST_COLOR,
+		ONE_MINUS_CONST_COLOR,
+		CONST_ALPHA,
+		ONE_MINUS_CONST_ALPHA,
+		SRC_ALPHA_SATURATE,
+
+		TOTAL_BLEND_MODES,
+	};
+
+	enum RenderConfig {
+		BLEND,
+
+		TOTAL_RENDER_CONFIGS,
+	};
+
 
 	template<unsigned channels, unsigned R, unsigned G, unsigned B, unsigned A>
 	struct Color
@@ -39,14 +119,6 @@ namespace BitEngine {
 	typedef Color<4, 0, 1, 2, 3> ColorRGBA;
 	typedef Color<3, 0, 1, 2, 3> ColorRGB;
 
-	enum BufferClearBitMask
-	{
-		COLOR = 1,
-		DEPTH = 2,
-
-		COLOR_DEPTH = COLOR | DEPTH
-	};
-
 	class IRenderBuffer
 	{
 		virtual void Unbind() = 0;
@@ -56,4 +128,7 @@ namespace BitEngine {
 		virtual bool Ready() = 0;
 	};
 
+
+	DataUseMode useModeFromString(const std::string& str);
+	DataType dataTypeFromString(const std::string& str);
 }

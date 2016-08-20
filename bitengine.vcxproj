@@ -54,6 +54,7 @@
     <ClInclude Include="include\bitengine\Core\GameEngine.h" />
     <ClInclude Include="include\bitengine\Core\GeneralTaskManager.h" />
     <ClInclude Include="include\bitengine\Core\Graphics.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\Material.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
@@ -75,6 +76,7 @@
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\FrameBuffer.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Batch.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Impl.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Shader.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2ShaderManager.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2TextureManager.h" />
@@ -89,7 +91,7 @@
     <ClInclude Include="include\bitengine\Core\SystemConfiguration.h" />
     <ClInclude Include="include\bitengine\Core\Task.h" />
     <ClInclude Include="include\bitengine\Core\TaskManager.h" />
-    <ClInclude Include="include\bitengine\Core\Graphics\ITexture.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\Texture.h" />
     <ClInclude Include="include\bitengine\Core\Timer.h" />
     <ClInclude Include="include\bitengine\Common\TypeDefinition.h" />
     <ClInclude Include="include\bitengine\Core\VideoSystem.h" />
@@ -107,7 +109,7 @@
     <ClCompile Include="src\Core\Graphics\Sprite2D.cpp" />
     <ClCompile Include="src\Core\Resources\DevResourceLoader.cpp" />
     <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
-    <ClCompile Include="src\Core\Graphics\Shader.cpp" />
+    <ClCompile Include="src\Core\VideoRenderer.cpp" />
     <ClCompile Include="src\Core\Messenger.cpp" />
     <ClCompile Include="src\Core\CommandSystem.cpp" />
     <ClCompile Include="src\Core\ECS\BaseEntitySystem.cpp" />

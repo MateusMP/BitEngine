@@ -2,7 +2,7 @@
 
 #include "Core/Logger.h"
 #include "Core/Resources/ResourceManager.h"
-#include "Core/Graphics/ITexture.h"
+#include "Core/Graphics/Texture.h"
 
 namespace BitEngine{
 
@@ -13,7 +13,7 @@ namespace BitEngine{
 	bool SpriteManager::init()
 	{
 		Sprite* nullSprite = sprites.getResourceAddress(0);
-		new (nullSprite) Sprite(resourceLoader->getResource<ITexture>("default/texture"), 64, 64, 0.5f, 0.5f, glm::vec4(0, 0, 1, 1), false);
+		new (nullSprite) Sprite(resourceLoader->getResource<Texture>("default/texture"), 64, 64, 0.5f, 0.5f, glm::vec4(0, 0, 1, 1), false);
 
 		return true;
 	}
@@ -67,7 +67,7 @@ namespace BitEngine{
 					 uvContainer["xf"].getValueDouble(), uvContainer["yf"].getValueDouble());
 		bool transparent = props["transparent"].getValueInt() > 0;
 
-		ITexture* texture = resourceLoader->getResource<ITexture>(textureMeta);
+		Texture* texture = resourceLoader->getResource<Texture>(textureMeta);
 		if (texture == nullptr) {
 			LOG(EngineLog, BE_LOG_ERROR) << "Coulnd't find texture resource " << textureMeta << " for sprite " << meta->resourceName;
 		}

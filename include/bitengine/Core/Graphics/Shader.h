@@ -1,63 +1,12 @@
 #pragma once
 
+#include "Core/VideoRenderer.h"
 #include "Core/Resources/ResourceManager.h"
-#include "Core/Graphics/ITexture.h"
 
 namespace BitEngine {
     
     class Shader;
-
-	enum DataType 
-	{
-		INVALID_DATA_TYPE,
-		TEXTURE_1D,
-		TEXTURE_2D,
-		TEXTURE_3D,
-		LONG,
-		FLOAT,
-
-		// Vertex only
-		VEC2,
-		VEC3,
-		VEC4,
-		MAT3,
-		MAT4,
-	};
-
-	enum DataUseMode : u32 {
-		Vertex,
-		Uniform,
-
-		TotalModes
-	};
-
-
-	DataUseMode useModeFromString(const std::string& str);
-	DataType dataTypeFromString(const std::string& str);
-
-
-	enum GraphicAdapterType {
-		NULL_GRAPHIC,
-		SOFTWARE,
-		GL2,
-		GL3,
-		GL4,
-
-		VULKAN,
-
-		DX9,
-		DX11,
-		DX12,
-
-		LAST_RESERVED,
-	};
-
-	enum class VertexRenderMode {
-		TRIANGLES,
-		TRIANGLE_STRIP,
-	};
-
-
+		
 	struct ShaderDataReference {
 		struct Hasher {
 			bool operator() (const ShaderDataReference& lhs, const ShaderDataReference& rhs) const {
@@ -176,24 +125,6 @@ namespace BitEngine {
 			std::vector<DefinitionContainer> m_containers[DataUseMode::TotalModes];
 	};
 
-	// BATCH
-	class IBatchSector
-	{
-		public:
-			template<typename T>
-			T* getConfigValueAs(const ShaderDataReference& ref) {
-				return (T*)getShaderData(ref);
-			}
-
-			virtual void end(u32 finalInstance) = 0;
-
-			virtual void configure(Shader* shader) = 0;
-
-		private:
-			virtual void* getShaderData(const ShaderDataReference& ref) = 0;
-
-	};
-
 	// Interface used to load batch of data
 	class IGraphicBatch
 	{
@@ -215,9 +146,6 @@ namespace BitEngine {
 			// Prepare the batch to be rendered, resize internal buffers
 			// to fit at least numberOfInstances.
 			virtual void prepare(u32 numberOfInstances) = 0;
-
-			/// \param begin The instance number the sector starts at
-			virtual IBatchSector* addSector(u32 begin) = 0;
 
 			// Load all data to gpu
 			// Must call this before render

@@ -4,10 +4,10 @@
 
 namespace BitEngine
 {
-	class ITexture : public BaseResource
+	class Texture : public BaseResource
 	{
 		public:
-			ITexture(ResourceMeta* meta) : BaseResource(meta) {}
+			Texture(ResourceMeta* meta) : BaseResource(meta) {}
 			virtual u32 getTextureID() const = 0;
 			virtual u32 getTextureType() const = 0;
 	};

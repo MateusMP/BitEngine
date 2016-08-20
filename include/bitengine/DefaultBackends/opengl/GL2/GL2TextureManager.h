@@ -11,7 +11,7 @@
 
 namespace BitEngine 
 {
-	class GL2Texture : public BitEngine::ITexture
+	class GL2Texture : public BitEngine::Texture
 	{
 		friend class GL2TextureManager;
 		friend class RawTextureLoader;
@@ -28,11 +28,11 @@ namespace BitEngine
 		};
 
 		GL2Texture()
-			: ITexture(nullptr)
+			: Texture(nullptr)
 		{}
 
 		GL2Texture(ResourceMeta* meta) 
-			: ITexture(meta)
+			: Texture(meta)
 		{
 			m_textureID = 0;
 			m_textureType = 0;

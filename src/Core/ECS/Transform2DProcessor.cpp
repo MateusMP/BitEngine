@@ -17,10 +17,8 @@ namespace BitEngine{
 
 	bool Transform2DProcessor::Init()
 	{
-		getMessenger()->registerListener<MsgComponentCreated<Transform2DComponent> >
-			(this);
-		getMessenger()->registerListener<MsgComponentDestroyed<Transform2DComponent> >
-			(this);
+		getMessenger()->registerListener<MsgComponentCreated<Transform2DComponent> >(this);
+		getMessenger()->registerListener<MsgComponentDestroyed<Transform2DComponent> >(this);
 
 		return true;
 	}
@@ -79,15 +77,15 @@ namespace BitEngine{
 	void Transform2DProcessor::Process()
 	{
 		getES()->forEach<Transform2DComponent, SceneTransform2DComponent>(
-                [this] (ComponentRef<Transform2DComponent> transform, ComponentRef<SceneTransform2DComponent> scene) -> void
-		{
-			if (transform->m_dirty)
+			[this] (ComponentRef<Transform2DComponent> transform, ComponentRef<SceneTransform2DComponent> scene)
 			{
-				transform->m_dirty = false;
-				CalculateLocalModelMatrix(transform.ref(), scene->m_local);
-				hierarchy[scene.getComponentID()].dirty = true;
-			}
-		});
+				if (transform->m_dirty)
+				{
+					transform->m_dirty = false;
+					CalculateLocalModelMatrix(transform.ref(), scene->m_local);
+					hierarchy[scene.getComponentID()].dirty = true;
+				}
+			});
 
 		ComponentHolder<SceneTransform2DComponent>* holder = getES()->getHolder<SceneTransform2DComponent>();
 

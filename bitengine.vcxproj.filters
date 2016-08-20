@@ -69,7 +69,6 @@
     <ClInclude Include="include\bitengine\Core\ModelManager.h" />
     <ClInclude Include="include\bitengine\Common\Property.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
-    <ClInclude Include="include\bitengine\Core\Graphics\ITexture.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Shader.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Pipeline.h" />
     <ClInclude Include="include\bitengine\Core\Assert.h" />
@@ -90,6 +89,9 @@
     <ClInclude Include="include\bitengine\Core\Input.h" />
     <ClInclude Include="include\bitengine\Core\GeneralTaskManager.h" />
     <ClInclude Include="include\bitengine\Common\ThreadSafeVector.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Impl.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\Material.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -127,12 +129,12 @@
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2ShaderManager.cpp" />
     <ClCompile Include="src\Core\Resources\DevResourceLoader.cpp" />
     <ClCompile Include="src\Core\GameEnginePC.cpp" />
-    <ClCompile Include="src\Core\Graphics\Shader.cpp" />
     <ClCompile Include="src\Core\Input.cpp" />
     <ClCompile Include="src\Core\GeneralTaskManager.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Batch.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2BatchSector.cpp" />
     <ClCompile Include="src\Core\Graphics\Sprite2D.cpp" />
+    <ClCompile Include="src\Core\VideoRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\bitengine\Core\Graphics\Shaders\sprite2D_gl2.frag" />
