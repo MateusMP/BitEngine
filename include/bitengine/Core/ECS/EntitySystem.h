@@ -29,15 +29,16 @@ class EntitySystem : public BaseEntitySystem
 
 		bool Init()
 		{
-			BaseEntitySystem::Init();
+			bool initOk = true;
+			initOk &= BaseEntitySystem::Init();
 
 			for (ComponentProcessor* p : m_processors)
 			{
 				p->m_es = this;
-				p->Init();
+				initOk &= p->Init();
 			}
 
-			return true;
+			return initOk;
 		}
 
 		void Shutdown()
@@ -128,16 +129,10 @@ class EntitySystem : public BaseEntitySystem
 		}
 
 		template<typename CompClass>
-		bool RegisterComponent(ComponentHolder<CompClass>* holder = nullptr)
+		bool RegisterComponent(ComponentHolder<CompClass>* holder)
 		{
 			LOG(EngineLog, BE_LOG_VERBOSE) << "Registering " << typeid(CompClass).name() << " as type " << CompClass::getComponentType();
 			static_assert(!std::is_pod<CompClass>::value, "Components should be POD!");
-
-			if (holder == nullptr)
-			{
-				LOG(EngineLog, BE_LOG_WARNING) << "Using generic ComponentHolder for " << typeid(CompClass).name();
-				holder = new ComponentHolder<CompClass>(getEngine()->getMessenger());
-			}
 
 			if (!registerComponentHolder(CompClass::getComponentType(), holder))
 			{
@@ -146,6 +141,13 @@ class EntitySystem : public BaseEntitySystem
 			}
 
 			return true;
+		}
+
+		template<typename CompClass>
+		bool RegisterComponent()
+		{
+			LOG(EngineLog, BE_LOG_WARNING) << "Using generic ComponentHolder for " << typeid(CompClass).name();
+			return RegisterComponent(new ComponentHolder<CompClass>(getEngine()->getMessenger()));
 		}
 
 		template<typename CompClass>
@@ -171,7 +173,8 @@ class EntitySystem : public BaseEntitySystem
 			if (BaseEntitySystem::addComponent(entity, type))
 			{
 				ComponentHolder<CompClass>* holder = getHolder<CompClass>();
-				compID = holder->createComponent(entity, comp, args...);
+				compID = holder->createComponent(entity, comp);
+				holder->initializeComponent(comp, args...);
 
 				getEngine()->getMessenger()->dispatch(MsgComponentCreated<CompClass>(entity, type, compID));
 			}

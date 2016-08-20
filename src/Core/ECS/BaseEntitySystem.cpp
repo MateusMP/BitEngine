@@ -7,17 +7,17 @@ namespace BitEngine {
 
 	bool BaseEntitySystem::Init()
 	{
+		bool initOk = true;
 		m_objBitField = new ObjBitField(static_cast<u16>(m_holders.size()));
 		m_objBitField->push();
 
 		for (auto& h : m_holders)
 		{
-			// h.second->setMessenger(getEngine()->getMessenger());
+			initOk &= h.second->init();
 		}
 
-		m_initialized = true;
-
-		return true;
+		m_initialized = initOk;
+		return m_initialized;
 	}
 
 	EntityHandle BaseEntitySystem::createEntity()

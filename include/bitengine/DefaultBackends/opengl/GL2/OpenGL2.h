@@ -3,7 +3,7 @@
 // Most basic definitions
 // and forward declare for GL2
 
-#include "Core/VideoRenderer.h"
+#include "Core/Graphics/VideoRenderer.h"
 #include "Core/Graphics/Shader.h"
 #include "Core/Graphics/Texture.h"
 

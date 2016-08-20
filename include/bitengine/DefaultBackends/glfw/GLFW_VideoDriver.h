@@ -3,7 +3,7 @@
 #include "Core/Graphics.h"
 #include "Core/VideoSystem.h"
 #include "Core/Logger.h"
-#include "Core/VideoRenderer.h"
+#include "Core/Graphics/VideoRenderer.h"
 #include "Core/Messenger.h"
 
 #include <GLFW/glfw3.h>
@@ -55,6 +55,8 @@ class GLFW_VideoDriver : public BitEngine::VideoDriver
 
 		void setViewPort(int x, int y, int width, int height) override;
 
+        void configure(const BitEngine::Material* material) override;
+        
 		u32 getVideoAdapter() override {
 			return adapter->getVideoAdapter();
 		}

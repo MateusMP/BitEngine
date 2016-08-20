@@ -2,23 +2,29 @@
 
 #include <glm\common.hpp>
 
-#include "Core/VideoRenderer.h"
+#include "Core/Graphics/VideoRenderer.h"
 #include "Core/ECS/EntitySystem.h"
 #include "Core/SpriteManager.h"
 
 #include "Core/Graphics/Shader.h"
+#include "Core/Graphics/Material.h"
 #include "Core/ECS/Transform2DProcessor.h"
 #include "Core/ECS/Camera2DComponent.h"
 
 namespace BitEngine
 {
-
 	class Sprite2DComponent2 : public Component<Sprite2DComponent2>
 	{
 		public:
-			s32 layer;
-			Sprite* sprite;
-			float alpha;
+		Sprite2DComponent2(u32 _layer, Sprite* spr, const Material* mat)
+			: layer(_layer), sprite(spr), alpha(1.0f), material(mat)
+		{
+		}
+
+		s32 layer;
+		float alpha;
+		Sprite* sprite;
+		const Material* material;
 	};
 
 	// Doesn't use instanced rendering
@@ -88,6 +94,10 @@ namespace BitEngine
 	class Sprite2DRenderer : public ComponentProcessor
 	{
 		public: 
+			const static Material* DEFAULT_SPRITE;
+			const static Material* TRANSPARENT_SPRITE;
+			const static Material* EFFECT_SPRITE;
+
 			Sprite2DRenderer(GameEngine* engine);
 
 			bool Init() override;
@@ -100,8 +110,7 @@ namespace BitEngine
 			struct SpriteBatchInstance {
 				SpriteBatchInstance(const SceneTransform2DComponent& t, const Sprite2DComponent2& s)
 					: transform(t), sprite(s)
-				{
-				}
+				{}
 
 				SpriteBatchInstance& operator= (const SpriteBatchInstance& other) {
 					return *(new(this)SpriteBatchInstance(other));
@@ -111,12 +120,28 @@ namespace BitEngine
 				const Sprite2DComponent2& sprite;
 			};
 
-			typedef std::pair<u32, const Texture*> BatchIdentifier;
+			struct BatchIdentifier {
+				BatchIdentifier(u32 _layer, const Material* mat, const Texture* tex)
+					: layer(_layer), material(mat), texture(tex)
+				{}
+
+				bool operator<(const BatchIdentifier& o) const {
+					return layer < o.layer || material < o.material || texture < o.texture;
+				}
+
+				u32 layer;
+				const Material* material;
+				const Texture* texture;
+			};
 
 			class Sprite2DBatch
 			{
 				friend class Sprite2DRenderer;
 				public:
+					Sprite2DBatch(const BatchIdentifier& bi)
+						: bid(bi)
+					{}
+
 					BatchIdentifier bid;
 					std::vector<SpriteBatchInstance> batchInstances;
 			};
@@ -138,17 +163,40 @@ namespace BitEngine
 			Sprite2D_DD_new newRefs;
 	};
 
-	class Sprite2DHolder : public ComponentHolder<Sprite2DComponent2>
+	template<>
+	class ComponentHolder<Sprite2DComponent2> : public BaseComponentHolder
 	{
 		public:
-			Sprite2DHolder(Sprite2DRenderer* renderer)
-				: ComponentHolder(renderer->getMessenger())
+			ComponentHolder(GameEngine* _engine)
+				: BaseComponentHolder(_engine->getMessenger(), sizeof(Sprite2DComponent2)), engine(_engine)
 			{
 
 			}
 
-		private:
+			bool init() override {
+				defaultSprite = engine->getResourceLoader()->getResource<Sprite>("data/default/sprite");
+				return defaultSprite != nullptr;
+			}
 
+			void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override {
+				sendComponentDestroyedMessage<Sprite2DComponent2>(entity, component);
+			}
+
+			template<typename ... Args>
+			void initializeComponent(Sprite2DComponent2* outPtr, Args ...args) {
+				new (outPtr) Sprite2DComponent2(args...);
+			}
+			
+			template<>
+			void initializeComponent(Sprite2DComponent2* outPtr) {
+				new (outPtr) Sprite2DComponent2(0, defaultSprite, Sprite2DRenderer::DEFAULT_SPRITE);
+			}
+
+		private:
+			
+
+			GameEngine* engine;
+			Sprite* defaultSprite;
 	};
 
 

@@ -38,18 +38,18 @@ BitEngine::DevResourceLoader::DevResourceLoader(GameEngine* ge)
 
 bool BitEngine::DevResourceLoader::init()
 {
-	for (auto& it : managers)
+	for (ResourceManager* it : managers)
 	{
-		it.second->init();
+		it->init();
 	}
 	return true;
 }
 
 void BitEngine::DevResourceLoader::update()
 {
-	for (auto& it : managers)
+	for (ResourceManager* it : managers)
 	{
-		it.second->update();
+		it->update();
 	}
 }
 
@@ -59,7 +59,7 @@ void BitEngine::DevResourceLoader::shutdown()
 }
 
 
-void BitEngine::DevResourceLoader::registerResourceManager(const std::string & resourceType, ResourceManager * manager)
+void BitEngine::DevResourceLoader::registerResourceManager(const std::string& resourceType, ResourceManager* manager)
 {
 	if (manager == nullptr)
 	{
@@ -69,7 +69,8 @@ void BitEngine::DevResourceLoader::registerResourceManager(const std::string & r
 	{
 		manager->setResourceLoader(this);
 	}
-	managers[resourceType] = manager;
+	managers.emplace_back(manager);
+	managersMap[resourceType] = manager;
 }
 
 bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, std::vector<char>& out)
@@ -244,12 +245,12 @@ BitEngine::ResourceLoader::RawResourceTask BitEngine::DevResourceLoader::request
 
 bool BitEngine::DevResourceLoader::isManagerForTypeAvailable(const std::string& type)
 {
-	return managers.find(type) != managers.end();
+	return managersMap.find(type) != managersMap.end();
 }
 
 BitEngine::BaseResource* BitEngine::DevResourceLoader::getResourceFromManager(ResourceMeta* meta)
 {
-	return managers[meta->type]->loadResource(meta);
+	return managersMap[meta->type]->loadResource(meta);
 }
 
 std::string BitEngine::DevResourceLoader::getDirectoryPath(const ResourceMeta* meta)

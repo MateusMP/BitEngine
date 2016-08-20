@@ -50,7 +50,15 @@ namespace BitEngine {
 		static void bindShaderProgram(GLuint program) {
 			GL_CHECK(glUseProgram(program));
 		}
-
+        
+        static void enableState(GLenum state, bool enable) {
+            if (enable){
+                GL_CHECK(glEnable(state));
+            } else {
+                GL_CHECK(glDisable(state));
+            }
+        }
+		
 		static GLenum toGLType(DataType dt)
 		{
 			static constexpr GLenum glTypes[] = {
@@ -153,9 +161,9 @@ namespace BitEngine {
 			return 4;
 		}
 
-		static GLenum getBlendMode(BlendMode mode)
+		static GLenum getBlendMode(BlendFunc mode)
 		{
-			static constexpr GLenum blendModes[BlendMode::TOTAL_BLEND_MODES] = {
+			static constexpr GLenum blendModes[BlendFunc::TOTAL_BLEND_MODES] = {
 				GL_ZERO,
 				GL_ONE,
 				GL_SRC_COLOR,
@@ -172,7 +180,7 @@ namespace BitEngine {
 				GL_ONE_MINUS_CONSTANT_ALPHA,
 				GL_SRC_ALPHA_SATURATE
 			};
-			ASSERT(mode < BlendMode::TOTAL_BLEND_MODES);
+			ASSERT(mode < BlendFunc::TOTAL_BLEND_MODES);
 			return blendModes[mode];
 		}
 
@@ -186,5 +194,25 @@ namespace BitEngine {
 			ASSERT(mode < BlendEquation::TOTAL_BLEND_EQUATIONS);
 			return blendEquation[mode];
 		}
+        
+        static GLenum getGLState(RenderConfig config)
+        {
+            static constexpr GLenum configs[(u8)RenderConfig::TOTAL_RENDER_CONFIGS] = {
+                GL_BLEND,
+
+				GL_ALPHA_TEST,
+				GL_CULL_FACE,
+				GL_DEPTH_TEST,
+
+				GL_MULTISAMPLE,
+
+				GL_TEXTURE_1D,
+				GL_TEXTURE_2D,
+				GL_TEXTURE_3D,
+				GL_TEXTURE_CUBE_MAP,
+            };
+			ASSERT(config < RenderConfig::TOTAL_RENDER_CONFIGS);
+            return configs[(u8)config];
+        }
 	};
 }

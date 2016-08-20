@@ -1,7 +1,9 @@
 
 #include "DefaultBackends/glfw/GLFW_VideoDriver.h"
 
+#include "Core/Graphics/Material.h"
 #include "Core/MessageType.h"
+
 
 using namespace BitEngine;
 
@@ -168,6 +170,74 @@ void GLFW_VideoDriver::clearBufferColor(BitEngine::IRenderBuffer* buffer, const 
 void GLFW_VideoDriver::setViewPort(int x, int y, int width, int height)
 {
 	glViewport(x, y, width, height);
+}
+
+void GLFW_VideoDriver::configure(const BitEngine::Material* material)
+{
+	// BLEND
+	if (material->getState(RenderConfig::BLEND) != BlendConfig::BLEND_NONE)
+	{
+		GL2::enableState(GL2::getGLState(RenderConfig::BLEND), true);
+		if (material->getState(RenderConfig::BLEND) == BlendConfig::BLEND_ALL)
+		{
+			glBlendFunc(GL2::getBlendMode(material->srcColorBlendMode), GL2::getBlendMode(material->dstColorBlendMode));
+		}
+		else
+		{
+			glBlendFuncSeparate(GL2::getBlendMode(material->srcColorBlendMode), GL2::getBlendMode(material->dstColorBlendMode),
+								GL2::getBlendMode(material->srcAlphaBlendMode), GL2::getBlendMode(material->dstAlphaBlendMode));
+		}
+		glBlendEquation(GL2::getBlendEquation(material->blendEquation));
+	}
+	else
+	{
+		GL2::enableState(GL2::getGLState(RenderConfig::BLEND), false);
+	}
+
+	// ALPHA TEST
+	GL2::enableState(GL2::getGLState(RenderConfig::ALPHA_TEST), material->getState(RenderConfig::ALPHA_TEST) == 0);
+
+	// FACE CULL
+	if (material->getState(RenderConfig::CULL_FACE) != CULL_FACE_NONE)
+	{
+		GL2::enableState(GL2::getGLState(RenderConfig::CULL_FACE), true);
+		switch (material->getState(RenderConfig::CULL_FACE)) 
+		{
+			case CullFaceConfig::BACK_FACE:
+				glCullFace(GL_BACK);
+			break;
+			case CullFaceConfig::FRONT_FACE:
+				glCullFace(GL_FRONT);
+			break;
+			case CullFaceConfig::FRONT_AND_BACK:
+				glCullFace(GL_FRONT_AND_BACK);
+			break;
+		}
+	}
+	else
+	{
+		GL2::enableState(GL2::getGLState(RenderConfig::CULL_FACE), false);
+	}
+
+	u8 depthMode = GL2::getGLState(RenderConfig::DEPTH_TEST);
+	if (depthMode &  DepthConfig::DEPTH_TEST_DISABLED) {
+		GL2::enableState(GL_DEPTH_TEST, false);
+	}
+	else if (depthMode &  DepthConfig::DEPTH_TEST_ENABLED) {
+		GL2::enableState(GL_DEPTH_TEST, true);
+	}
+	if (depthMode &  DepthConfig::DEPTH_TEST_WRITE_ENABLED) {
+		GL_CHECK(glDepthMask(true));
+	} else {
+		GL_CHECK(glDepthMask(false));
+	}
+	GL2::enableState(GL2::getGLState(RenderConfig::DEPTH_TEST),  material->getState(RenderConfig::DEPTH_TEST) == 0);
+
+	GL2::enableState(GL2::getGLState(RenderConfig::MULTISAMPLE), material->getState(RenderConfig::MULTISAMPLE) == 0);
+	GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_1D),  material->getState(RenderConfig::TEXTURE_1D) == 0);
+	GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_2D),  material->getState(RenderConfig::TEXTURE_2D) == 0);
+	GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_3D),  material->getState(RenderConfig::TEXTURE_3D) == 0);
+	GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_CUBE), material->getState(RenderConfig::TEXTURE_CUBE) == 0);
 }
 
 bool GLFW_VideoDriver::CheckWindowClosed(Window_glfw* window)

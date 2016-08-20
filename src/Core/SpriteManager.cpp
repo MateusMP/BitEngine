@@ -12,8 +12,10 @@ namespace BitEngine{
 
 	bool SpriteManager::init()
 	{
-		Sprite* nullSprite = sprites.getResourceAddress(0);
-		new (nullSprite) Sprite(resourceLoader->getResource<Texture>("default/texture"), 64, 64, 0.5f, 0.5f, glm::vec4(0, 0, 1, 1), false);
+		ResourceMeta* meta = resourceLoader->includeMeta("default", "sprite", "SPRITE");
+		u16 defId = sprites.addResource(meta);
+		Sprite* nullSprite = sprites.getResourceAddress(defId);
+		new (nullSprite) Sprite(resourceLoader->getResource<Texture>("data/default/texture"), 64, 64, 0.5f, 0.5f, glm::vec4(0, 0, 1, 1), false);
 
 		return true;
 	}

@@ -88,6 +88,8 @@ class BaseComponentHolder : public Messaging::MessengerEndpoint
 
 		virtual ~BaseComponentHolder(){}
 
+		virtual bool init() = 0;
+
 		// Returns the released component
 		void releaseComponentForEntity(EntityHandle entity);
 		
@@ -118,8 +120,21 @@ class BaseComponentHolder : public Messaging::MessengerEndpoint
 		// Resize to be able to contain up to given component id
 		void resize(u32 id);
 
+		template<typename CompClass>
+		ComponentHandle createComponent(EntityHandle entity, CompClass*& outPtr)
+		{
+			u32 id = newComponentID(entity);
+			outPtr = static_cast<CompClass*>(BaseComponentHolder::getComponent(id));
+			return id;
+		}
+
 	protected:
 		virtual void sendDestroyMessage(EntityHandle entity, ComponentHandle component) = 0;
+
+		template<typename CompClass>
+		void sendComponentDestroyedMessage(EntityHandle entity, ComponentHandle component) {
+			getMessenger()->dispatch(MsgComponentDestroyed<CompClass>(entity, CompClass::getComponentType(), component));
+		}
 
 		u32 newComponentID(EntityHandle entity);
 
@@ -163,31 +178,21 @@ class ComponentHolder : public BaseComponentHolder
 			: BaseComponentHolder(m, componentSize)
 		{}
 
+		virtual bool init() override { return true; }
+
 		CompClass* getComponent(ComponentHandle componentID)
 		{
 			return static_cast<CompClass*>(BaseComponentHolder::getComponent(componentID));
 		}
 
 	protected:
-		virtual void createdComponent(EntityHandle entity, ComponentHandle compId, CompClass* ptr) {}
-
-	private:
 		template<typename ... Args>
-		ComponentHandle createComponent(EntityHandle entity, CompClass*& outPtr, Args ...args)
-		{
-			u32 id = newComponentID(entity);
-			outPtr = static_cast<CompClass*>(BaseComponentHolder::getComponent(id));
-
+		void initializeComponent(CompClass* outPtr, Args ...args) {
 			new (outPtr) CompClass(args...);
-
-			createdComponent(entity, id, outPtr);
-			
-			return id;
 		}
 
-		void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override
-		{
-			getMessenger()->dispatch(MsgComponentDestroyed<CompClass>(entity, CompClass::getComponentType(), component));
+		void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override {
+			sendComponentDestroyedMessage<CompClass>(entity, component);
 		}
 };
 

@@ -64,7 +64,7 @@
     <ClInclude Include="include\bitengine\Core\Resources\DevResourceLoader.h" />
     <ClInclude Include="include\bitengine\Core\Resources\ResourceIndexer.h" />
     <ClInclude Include="include\bitengine\Core\Resources\ResourceManager.h" />
-    <ClInclude Include="include\bitengine\Core\VideoRenderer.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\VideoRenderer.h" />
     <ClInclude Include="include\bitengine\Core\Logger.h" />
     <ClInclude Include="include\bitengine\Core\Mesh.h" />
     <ClInclude Include="include\bitengine\Core\Message.h" />
@@ -151,7 +151,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Batch.cpp" />
-    <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2BatchSector.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Shader.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2ShaderManager.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\OpenGL.cpp">

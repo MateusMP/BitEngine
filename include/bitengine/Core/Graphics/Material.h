@@ -1,20 +1,24 @@
 #pragma once
 
-#include "Core/VideoRenderer.h"
+#include "Core/Graphics/VideoRenderer.h"
 #include "Common/TypeDefinition.h"
 
 namespace BitEngine {
 
 	class Material {
+		public:
+		Material() {
+			memset(states, 0, sizeof(states));
+		}
 
 		void setState(RenderConfig config, u8 mode) {
-			states[config] = mode;
+			states[(u8)config] = mode;
 		}
-		void setBlendMode(BlendMode src, BlendMode dst) {
+		void setBlendMode(BlendFunc src, BlendFunc dst) {
 			srcColorBlendMode = src;
 			dstColorBlendMode = dst;
 		}
-		void setBlendModeSeparate(BlendMode srcColor, BlendMode dstColor, BlendMode srcAlpha, BlendMode dstAlpha) {
+		void setBlendModeSeparate(BlendFunc srcColor, BlendFunc dstColor, BlendFunc srcAlpha, BlendFunc dstAlpha) {
 			srcColorBlendMode = srcColor;
 			dstColorBlendMode = dstColor;
 			srcAlphaBlendMode = srcAlpha;
@@ -24,12 +28,15 @@ namespace BitEngine {
 			blendEquation = eq;
 		}
 
-		private:
-		u8 states[RenderConfig::TOTAL_RENDER_CONFIGS];
-		BlendMode srcColorBlendMode;
-		BlendMode srcAlphaBlendMode;
-		BlendMode dstColorBlendMode;
-		BlendMode dstAlphaBlendMode;
+		u8 getState(RenderConfig config) const {
+			return states[(u8)config];
+		}
+
+		u8 states[(u8)RenderConfig::TOTAL_RENDER_CONFIGS];
+		BlendFunc srcColorBlendMode;
+		BlendFunc srcAlphaBlendMode;
+		BlendFunc dstColorBlendMode;
+		BlendFunc dstAlphaBlendMode;
 		BlendEquation blendEquation;
 	};
 

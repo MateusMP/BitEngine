@@ -105,7 +105,8 @@ namespace BitEngine
 			void loadPackages(nlohmann::json::object_t& data);
 			
 			// Holds the managers
-			std::unordered_map<std::string, ResourceManager*> managers;
+			std::vector<ResourceManager*> managers;
+			std::unordered_map<std::string, ResourceManager*> managersMap;
 
 			std::vector<ResourceMeta> resourceMeta;
 			std::array<nlohmann::json, 8> resourceMetaIndexes;

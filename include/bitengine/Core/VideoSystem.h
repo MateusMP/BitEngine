@@ -5,11 +5,13 @@
 #include "Core/Graphics.h"
 #include "Core/System.h"
 #include "Core/Window.h"
-#include "Core/VideoRenderer.h"
+#include "Core/Graphics/VideoRenderer.h"
 #include "Core/Messenger.h"
 #include "Core/EngineConfiguration.h"
 
 namespace BitEngine {
+    
+    class Material;
 
 	class VideoConfiguration
 	{
@@ -51,7 +53,7 @@ namespace BitEngine {
 
 			virtual void setViewPort(int x, int y, int width, int height) = 0;
 			
-			
+			virtual void configure(const Material* material) = 0;
 	};
 
 	/** Default class for Video configuration

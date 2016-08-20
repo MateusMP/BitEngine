@@ -9,6 +9,7 @@ namespace BitEngine{
 	ResourceSystem::ResourceSystem(GameEngine* ge)
 		: System(ge)
 	{
+		loader = getEngine()->getResourceLoader();
 	}
 
 	ResourceSystem::~ResourceSystem(){
@@ -16,7 +17,6 @@ namespace BitEngine{
 
 	bool ResourceSystem::Init()
 	{
-		loader = getEngine()->getResourceLoader();
 		return loader->init();
 	}
 

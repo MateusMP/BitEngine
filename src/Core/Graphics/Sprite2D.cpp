@@ -4,6 +4,11 @@
 
 namespace BitEngine {
 
+	Material sprite_materials[3];
+	const Material* Sprite2DRenderer::DEFAULT_SPRITE = &sprite_materials[0];
+	const Material* Sprite2DRenderer::TRANSPARENT_SPRITE = &sprite_materials[1];
+	const Material* Sprite2DRenderer::EFFECT_SPRITE = &sprite_materials[2];
+
 	Sprite2DRenderer::Sprite2DRenderer(GameEngine* engine)
 		: ComponentProcessor(engine->getMessenger()), m_engine(engine)
 	{
@@ -16,6 +21,22 @@ namespace BitEngine {
 
 	bool Sprite2DRenderer::Init()
 	{
+		// DEFAULT_SPRITE
+		sprite_materials[0].setState(RenderConfig::BLEND, BlendConfig::BLEND_NONE);
+		sprite_materials[0].setState(RenderConfig::TEXTURE_2D, true);
+		sprite_materials[0].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
+		// TRANSPARENT_SPRITE
+		sprite_materials[1].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
+		sprite_materials[1].setState(RenderConfig::TEXTURE_2D, true);
+		sprite_materials[1].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
+		sprite_materials[1].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
+		// EFFECT_SPRITE
+		sprite_materials[2].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
+		sprite_materials[2].setState(RenderConfig::TEXTURE_2D, true);
+		sprite_materials[2].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
+		sprite_materials[2].setBlendEquation(BlendEquation::ADD);
+		sprite_materials[2].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
+
 		shader = m_engine->getResourceLoader()->getResource<Shader>("data/shaders/sprite2D");
 		if (shader == nullptr) {
 			return false;
@@ -61,6 +82,7 @@ namespace BitEngine {
 			for (auto& it : batchesMap) {
 				prepare_legacy(batches[it.second]);
 				m_batch->load();
+				m_engine->getVideoDriver()->configure(batches[it.second].bid.material);
 				m_batch->render(shader);
 			}
 		}
@@ -76,12 +98,12 @@ namespace BitEngine {
 		getES()->forEach<SceneTransform2DComponent, Sprite2DComponent2>(
 			[this](const ComponentRef<SceneTransform2DComponent>& transform, const ComponentRef<Sprite2DComponent2>& sprite)
 		{
-			BatchIdentifier idtf(sprite->layer, sprite->sprite->getTexture());
+			BatchIdentifier idtf(sprite->layer, sprite->material, sprite->sprite->getTexture());
 			const auto& it = batchesMap.find(idtf);
 			if (it != batchesMap.end()) {
 				batches[it->second].batchInstances.emplace_back(transform.ref(), sprite.ref());
 			} else {
-				batches.emplace_back();
+				batches.emplace_back(idtf);
 				u32 id = batches.size() - 1;
 				batchesMap.emplace(idtf, id);
 				batches[id].bid = idtf;
@@ -123,7 +145,7 @@ namespace BitEngine {
 		std::vector<SpriteBatchInstance>& batchInstances = batch.batchInstances;
 		m_batch->clear();
 		Sprite2D_DD_legacy::TextureContainer* texture = m_batch->getShaderDataAs<Sprite2D_DD_legacy::TextureContainer>(legacyRefs.m_textureContainer);
-		texture->diffuse = batch.bid.second;
+		texture->diffuse = batch.bid.texture;
 
 		const int N_VERTEX_PER_QUAD = 6;
 		m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLES);
@@ -162,7 +184,7 @@ namespace BitEngine {
 		if (!batchInstances.empty())
 		{
 			Sprite2D_DD_new::TextureContainer* texture = m_batch->getShaderDataAs<Sprite2D_DD_new::TextureContainer>(newRefs.m_textureContainer);
-			texture->diffuse = batch.bid.second;
+			texture->diffuse = batch.bid.texture;
 
 			Sprite2D_DD_new::ModelMatrixContainer* modelMatrices = m_batch->getShaderDataAs<Sprite2D_DD_new::ModelMatrixContainer>(newRefs.u_modelMatrixContainer);
 			Sprite2D_DD_new::PTNContainer* vertices = m_batch->getShaderDataAs<Sprite2D_DD_new::PTNContainer>(newRefs.m_ptnContainer);

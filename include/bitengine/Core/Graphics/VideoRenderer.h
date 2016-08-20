@@ -71,7 +71,7 @@ namespace BitEngine {
 		TRIANGLE_STRIP,
 	};
 
-	enum BlendMode {
+	enum BlendFunc {
 		ZERO,
 		ONE,
 		SOURCE_COLOR,
@@ -91,13 +91,44 @@ namespace BitEngine {
 		TOTAL_BLEND_MODES,
 	};
 
-	enum RenderConfig {
+	enum class RenderConfig : u8 {
 		BLEND,
+		ALPHA_TEST,
+		CULL_FACE,
+		DEPTH_TEST,
+		
+		MULTISAMPLE,
+
+		TEXTURE_1D,
+		TEXTURE_2D,
+		TEXTURE_3D,
+		TEXTURE_CUBE,
 
 		TOTAL_RENDER_CONFIGS,
 	};
 
+	enum BlendConfig {
+		BLEND_NONE,
+		BLEND_ALL, // color and alpha 
+		BLEND_SEPARATE, // color separated from alpha
+	};
 
+	enum CullFaceConfig {
+		CULL_FACE_NONE,
+		BACK_FACE,
+		FRONT_FACE,
+		FRONT_AND_BACK,
+	};
+
+	enum DepthConfig {
+		DEPTH_TEST_DISABLED			= 1 << 0,
+		DEPTH_TEST_ENABLED			= 1 << 1,
+		DEPTH_TEST_WRITE_ENABLED	= 1 << 2,
+
+		DEPTH_WITHOUT_WRITE = DEPTH_TEST_ENABLED,
+		DEPTH_WITH_WRITE = DEPTH_TEST_ENABLED & DEPTH_TEST_WRITE_ENABLED,
+	};
+	
 	template<unsigned channels, unsigned R, unsigned G, unsigned B, unsigned A>
 	struct Color
 	{
