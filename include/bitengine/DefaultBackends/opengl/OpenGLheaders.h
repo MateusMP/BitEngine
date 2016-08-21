@@ -8,8 +8,6 @@
 #include <GL/glew.h>
 
 static void GL_BREAK() {
-	int x;
-	x = 0;
 	throw "GL Failed";
 }
 
@@ -30,6 +28,7 @@ static void GL_BREAK() {
 class GLAdapter
 {
 	public:
+	virtual ~GLAdapter() {}
 	virtual bool init() = 0;
 
 	virtual u32 getVideoAdapter() = 0;

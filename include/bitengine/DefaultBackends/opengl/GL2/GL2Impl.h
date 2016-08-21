@@ -36,9 +36,9 @@ namespace BitEngine {
 			glGenBuffers(num, _array);
 		}
 
-		static void setupVbo(GLuint attrIndex, GLuint vbo, GLint size, GLenum dataType, GLboolean normalized, GLsizei stride, u32 offset, GLuint divisor) {
+		static void setupVbo(GLuint attrIndex, GLuint vbo, GLint size, GLenum dataType, GLboolean normalized, GLsizei stride, u64 offset, GLuint divisor) {
 			bindVbo(vbo);
-			GL_CHECK(glVertexAttribPointer(attrIndex, size, dataType, normalized, stride, (void*)offset));
+			GL_CHECK(glVertexAttribPointer(attrIndex, size, dataType, normalized, stride, (const GLvoid*)offset));
 			// GL_CHECK(glVertexAttribDivisor(attrIndex, divisor));
 			GL_CHECK(glEnableVertexAttribArray(attrIndex));
 		}
@@ -79,7 +79,7 @@ namespace BitEngine {
 				GL_FLOAT_MAT3,
 				GL_FLOAT_MAT4,
 			};
-			ASSERT(dt < DataType::TOTAL_DATA_TYPES);
+			BE_ASSERT(dt < DataType::TOTAL_DATA_TYPES);
 			return glTypes[dt];
 		}
 
@@ -101,7 +101,7 @@ namespace BitEngine {
 				case GL_FLOAT:
 					return GL_FLOAT;
 				default:
-					ASSERT(e && 0 && "Unexpected type");
+					BE_ASSERT(e && 0 && "Unexpected type");
 					return e;
 			}
 		}
@@ -125,7 +125,7 @@ namespace BitEngine {
 				case GL_FLOAT_VEC2:
 					return 2;
 				default:
-					ASSERT(e && 0 && "Unexpected type");
+					BE_ASSERT(e && 0 && "Unexpected type");
 					return e;
 			}
 		}
@@ -180,7 +180,7 @@ namespace BitEngine {
 				GL_ONE_MINUS_CONSTANT_ALPHA,
 				GL_SRC_ALPHA_SATURATE
 			};
-			ASSERT(mode < BlendFunc::TOTAL_BLEND_MODES);
+			BE_ASSERT(mode < BlendFunc::TOTAL_BLEND_MODES);
 			return blendModes[mode];
 		}
 
@@ -191,7 +191,7 @@ namespace BitEngine {
 				GL_FUNC_SUBTRACT,
 				GL_FUNC_REVERSE_SUBTRACT,
 			};
-			ASSERT(mode < BlendEquation::TOTAL_BLEND_EQUATIONS);
+			BE_ASSERT(mode < BlendEquation::TOTAL_BLEND_EQUATIONS);
 			return blendEquation[mode];
 		}
         
@@ -211,7 +211,7 @@ namespace BitEngine {
 				GL_TEXTURE_3D,
 				GL_TEXTURE_CUBE_MAP,
             };
-			ASSERT(config < RenderConfig::TOTAL_RENDER_CONFIGS);
+			BE_ASSERT(config < RenderConfig::TOTAL_RENDER_CONFIGS);
             return configs[(u8)config];
         }
 	};

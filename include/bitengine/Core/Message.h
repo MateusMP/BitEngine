@@ -9,6 +9,7 @@ namespace Messaging {
 	class MessageHandler
 	{
 		public:
+		virtual ~MessageHandler() {}
 		virtual void handle(const MessageType& type) = 0;
 	};
 

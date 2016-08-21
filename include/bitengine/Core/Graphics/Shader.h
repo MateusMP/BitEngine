@@ -129,6 +129,8 @@ namespace BitEngine {
 	class IGraphicBatch
 	{
 		public:
+			virtual ~IGraphicBatch() {}
+
 			// Clear all sectors
 			// The internal data for the batch is unchanged.
 			virtual void clear() = 0;

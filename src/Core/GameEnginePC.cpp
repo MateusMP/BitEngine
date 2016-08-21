@@ -48,7 +48,7 @@ class MessengerDispatchTask : public Task
 
 
 GameEnginePC::GameEnginePC(const std::string& configFile, ResourceLoader* _loader, VideoDriver* driver)
-	: configuration(this, configFile), messenger(this), loader(_loader), taskManager(this), videoDriver(driver)
+	: messenger(this), configuration(this, configFile), loader(_loader), taskManager(this), videoDriver(driver)
 {
 }
 

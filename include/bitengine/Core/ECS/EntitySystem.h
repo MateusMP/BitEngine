@@ -301,7 +301,7 @@ class EntitySystem : public BaseEntitySystem
 		void forAll(typename identity<std::function<void(ComponentHandle, CompClass&)>>::type f)
 		{
 			ComponentHolder<CompClass>* holder = getHolder<CompClass>();
-			ASSERT(holder != nullptr);
+			BE_ASSERT(holder != nullptr);
 
 			const auto& freeIDs = holder->getFreeIDs(); // sorted ids
 			u32 curFree = 0;

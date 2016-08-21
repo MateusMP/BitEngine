@@ -3,16 +3,22 @@
 
 namespace BitEngine
 {
+	static void includeToMap(ShaderDataMap& map, const UniformHolder& holder, u32 instance)
+	{
+		for (const UniformContainer& it : holder.containers) {
+			map.emplace(it.ref, ShaderData(&it, it.stride));
+		}
+	}
+
 	GL2Batch::GL2Batch(VAOContainer&& vC, const UniformHolder& uC)
 		: vaoContainer(vC), uniformContainer(uC)
 	{
 		// Setup vbo data buffers
-		for (VBOContainer& vbc : vaoContainer.vbos)
-		{
+		for (VBOContainer& vbc : vaoContainer.vbos) {
 			shaderData.emplace(vbc.ref, ShaderData(&vbc, 32 * vbc.stride));
 		}
 		
-		IncludeToMap(shaderData, uniformContainer, 0);
+		includeToMap(shaderData, uniformContainer, 0);
 
 		renderMode = GL_TRIANGLE_STRIP;
 	}

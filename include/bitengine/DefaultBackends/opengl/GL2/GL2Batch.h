@@ -37,17 +37,6 @@ namespace BitEngine
 	typedef std::unordered_map<ShaderDataReference, ShaderData, ShaderDataReference::Hasher> ShaderDataMap;
     typedef std::unordered_map<ShaderDataReference, ShaderData, ShaderDataReference::Hasher>::iterator ShaderDataMapIt;
 
-	static void IncludeToMap(ShaderDataMap& map, const UniformHolder& holder, u32 instance)
-	{
-		for (const UniformContainer& it : holder.containers)
-		{
-			//if (it.instance == instance)
-			{
-				map.emplace(it.ref, ShaderData(&it, it.stride));
-			}
-		}
-	}
-
 	// GL BATCH
 	class GL2Batch : public IGraphicBatch
 	{

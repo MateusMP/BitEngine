@@ -17,7 +17,7 @@ namespace BitEngine
 	{
 		public:
 		Sprite2DComponent2(u32 _layer, Sprite* spr, const Material* mat)
-			: layer(_layer), sprite(spr), alpha(1.0f), material(mat)
+			: layer(_layer), alpha(1.0f), sprite(spr), material(mat)
 		{
 		}
 
@@ -168,7 +168,7 @@ namespace BitEngine
 	{
 		public:
 			ComponentHolder(GameEngine* _engine)
-				: BaseComponentHolder(_engine->getMessenger(), sizeof(Sprite2DComponent2)), engine(_engine)
+				: BaseComponentHolder(_engine->getMessenger(), sizeof(Sprite2DComponent2)), engine(_engine), defaultSprite(nullptr)
 			{
 
 			}
@@ -184,16 +184,20 @@ namespace BitEngine
 
 			template<typename ... Args>
 			void initializeComponent(Sprite2DComponent2* outPtr, Args ...args) {
-				new (outPtr) Sprite2DComponent2(args...);
+				initComponent(outPtr, args...);
 			}
 			
-			template<>
-			void initializeComponent(Sprite2DComponent2* outPtr) {
+
+		private:
+			template<typename ... Args>
+			void initComponent(Sprite2DComponent2* outPtr, Args ...args) {
+				new (outPtr) Sprite2DComponent2(args...);
+			}
+
+			void initComponent(Sprite2DComponent2* outPtr) {
 				new (outPtr) Sprite2DComponent2(0, defaultSprite, Sprite2DRenderer::DEFAULT_SPRITE);
 			}
 
-		private:
-			
 
 			GameEngine* engine;
 			Sprite* defaultSprite;

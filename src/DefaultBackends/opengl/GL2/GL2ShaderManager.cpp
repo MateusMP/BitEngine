@@ -59,7 +59,7 @@ namespace BitEngine {
 	bool GL2ShaderManager::init()
 	{
 		// Init error texture
-		GL2Shader& basicShader = shaders.getResourceAt(0);
+		//GL2Shader& basicShader = shaders.getResourceAt(0);
 
 		return true;
 	}

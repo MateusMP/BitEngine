@@ -139,7 +139,7 @@ namespace BitEngine
 			UniformHolder uniformHolder;
 
 			std::vector<ShaderSource> sources;
-			int expectedSources;
+			u16 expectedSources;
 			u16 managerResourceId;
 
 			std::vector<GL2Batch*> batches;

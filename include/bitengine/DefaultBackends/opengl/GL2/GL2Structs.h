@@ -10,7 +10,7 @@ namespace BitEngine
 	struct VBOAttrib
 	{
 		VBOAttrib()
-			: id(0), dataSize(0), type(0)
+			: id(0), type(0), dataSize(0)
 		{}
 		VBOAttrib(const VBOAttrib& copy)
 			: id(copy.id), type(copy.type), size(copy.size),
@@ -27,7 +27,7 @@ namespace BitEngine
 		GLint dataSize; // num of elements of dataType
 		GLboolean normalized;
 		GLsizei stride;
-		int offset;
+		u32 offset;
         u32 divisor;
         std::string name;
 	};

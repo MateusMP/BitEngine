@@ -4,7 +4,7 @@
 namespace BitEngine{
 	
 	TaskWorker::TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity)
-		: manager(_manager), working(true), affinity(_affinity)
+		: working(true), affinity(_affinity), manager(_manager)
 	{
 		nextThread = reinterpret_cast<intptr_t>(this)%17;
 	}
@@ -49,7 +49,6 @@ namespace BitEngine{
 
 	void TaskWorker::work()
 	{
-		int k = 0;
 		do
 		{
 			TaskPtr task = nextTask();

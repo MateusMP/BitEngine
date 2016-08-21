@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+
 #include "Core/Graphics/VideoRenderer.h"
 #include "Common/TypeDefinition.h"
 

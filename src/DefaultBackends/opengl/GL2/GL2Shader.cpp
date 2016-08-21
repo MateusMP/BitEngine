@@ -12,12 +12,16 @@ namespace BitEngine
 {
 	u32 sizeofDataType(DataType dt)
 	{
+		BE_ASSERT((dt != DataType::INVALID_DATA_TYPE) && "Unexpected data type.");
+
 		switch (dt)
 		{
 		case DataType::FLOAT:
 			return sizeof(float);
 		case DataType::LONG:
 			return sizeof(long);
+		case DataType::MAT2:
+			return sizeof(float) * 2 * 2;
 		case DataType::MAT3:
 			return sizeof(float) * 3 * 3;
 		case DataType::MAT4:
@@ -34,10 +38,13 @@ namespace BitEngine
 			return sizeof(GL2Texture*);
 		case DataType::TEXTURE_3D:
 			return sizeof(GL2Texture*);
+		case DataType::TEXTURE_CUBE:
+			return sizeof(GL2Texture*);
+		case DataType::TOTAL_DATA_TYPES:
+		case DataType::INVALID_DATA_TYPE:
+			return 0;
 		}
-
-		LOG(EngineLog, BE_LOG_ERROR) << "Unexpected type " << dt;
-		ASSERT(0 && "Unexpected data type.");
+		return 0;
 	}
 
 	// ###############################################################
@@ -204,9 +211,9 @@ namespace BitEngine
 			
 			// Find divisor value
 			attr.divisor = 0;
-			int instAt = tmpName.find("inst_");
+			std::string::size_type instAt = tmpName.find("inst_");
 			if (instAt != std::string::npos) {
-				if (instAt + 4 < (int)tmpName.size()) {
+				if ( (instAt + 4) < tmpName.size()) {
 					char div = tmpName[instAt + 5];
 					attr.divisor = div - '0';
 				}
@@ -264,7 +271,7 @@ namespace BitEngine
 
 			VBOContainer vboc;
 
-			int offsetAccum = 0;
+			u32 offsetAccum = 0;
 			for (const ShaderDataDefinition::DefinitionData& dd : dc.definitionData)
 			{
 				VBOAttrib* ac = findAttributeConfigByName(dd.name);

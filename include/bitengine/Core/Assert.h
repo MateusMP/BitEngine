@@ -11,7 +11,7 @@
 		throw AssertFail(msg);		\
 	}
 
-#define ASSERT(expr)	\
+#define BE_ASSERT(expr)	\
 	if (BE_DEBUG)		\
 		if (!(expr) )	\
 			ASSERT_FAIL("Expression failed to validate: <"#expr">");
@@ -37,15 +37,6 @@ namespace BitEngine
 	static void onFailure(const std::string& msg) {
 		if (BE_ASSERT_THROW_ON_FAIL) {
 			throw AssertFail(msg.c_str());
-		}
-	}
-
-	static void assertTrue(const bool expected) {
-		if (BE_DEBUG) {
-			if (!expected) {
-				LOG(EngineLog, BE_LOG_ERROR) << "ASSERT True failed.";
-				onFailure("ASSERT True failed.");
-			}
 		}
 	}
 
