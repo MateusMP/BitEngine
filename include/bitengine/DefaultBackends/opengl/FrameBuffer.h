@@ -2,12 +2,12 @@
 
 #include <vector>
 
-#include "OpenGLheaders.h"
+#include "OpenGL_Headers.h"
 
 #include "Common/TypeDefinition.h"
-#include "Core/IVideoRenderer.h"
+#include "Core/Graphics/VideoRenderer.h"
 
-class FrameBuffer : public BitEngine::IRenderBuffer
+class FrameBuffer : public BitEngine::RenderBuffer
 {
 public:
 	struct RenderBuffer{
@@ -32,41 +32,41 @@ public:
 		}
 	}
 
-	void CreateFrameBuffer()
+	void createFrameBuffer()
 	{
 		glGenFramebuffers(1, &fbo);
 	}
 
-	void Unbind() override
+	void unbind() override
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void Bind() override
+	void bind() override
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	}
 
-	void BindDraw() override
+	void bindDraw() override
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 	}
 
-	void BindRead() override
+	void bindRead() override
 	{
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 	}
 
-	bool Ready() override
+	bool ready() override
 	{
 		return fbo != 0 && glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
-	u32 AttachTexture2D(int width, int height, int format = GL_RGB, int attachMode = GL_COLOR_ATTACHMENT0)
+	u32 attachTexture2D(int width, int height, int format = GL_RGB, int attachMode = GL_COLOR_ATTACHMENT0)
 	{
 		GLuint tbo = 0;
 
-		Bind();
+		bind();
 
 		glGenTextures(1, &tbo);
 
@@ -80,15 +80,15 @@ public:
 
 		texture.emplace_back(tbo);
 
-		Unbind();
+		unbind();
 
 		return tbo;
 	}
 
-	u32 AttachRenderBuffer(int width, int height, int format = GL_DEPTH24_STENCIL8, int attachMode = GL_DEPTH_STENCIL_ATTACHMENT)
+	u32 attachRenderBuffer(int width, int height, int format = GL_DEPTH24_STENCIL8, int attachMode = GL_DEPTH_STENCIL_ATTACHMENT)
 	{
 		GLuint rbo = 0;
-		Bind();
+		bind();
 
 		glGenRenderbuffers(1, &rbo);
 
@@ -100,7 +100,7 @@ public:
 
 		render.emplace_back(rbo);
 
-		Unbind();
+		unbind();
 
 		return rbo;
 	}

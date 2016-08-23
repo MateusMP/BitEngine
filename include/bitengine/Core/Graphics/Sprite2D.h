@@ -13,10 +13,10 @@
 
 namespace BitEngine
 {
-	class Sprite2DComponent2 : public Component<Sprite2DComponent2>
+	class Sprite2DComponent : public Component<Sprite2DComponent>
 	{
 		public:
-		Sprite2DComponent2(u32 _layer, Sprite* spr, const Material* mat)
+		Sprite2DComponent(u32 _layer, Sprite* spr, const Material* mat)
 			: layer(_layer), alpha(1.0f), sprite(spr), material(mat)
 		{
 		}
@@ -108,7 +108,7 @@ namespace BitEngine
 
 		private:
 			struct SpriteBatchInstance {
-				SpriteBatchInstance(const SceneTransform2DComponent& t, const Sprite2DComponent2& s)
+				SpriteBatchInstance(const SceneTransform2DComponent& t, const Sprite2DComponent& s)
 					: transform(t), sprite(s)
 				{}
 
@@ -117,7 +117,7 @@ namespace BitEngine
 				}
 
 				const SceneTransform2DComponent& transform;
-				const Sprite2DComponent2& sprite;
+				const Sprite2DComponent& sprite;
 			};
 
 			struct BatchIdentifier {
@@ -133,6 +133,33 @@ namespace BitEngine
 				const Material* material;
 				const Texture* texture;
 			};
+
+			static bool insideScreen(const glm::vec4& screen, const glm::mat3& matrix, float radius)
+			{
+				const float kX = matrix[2][0] + radius;
+				const float kX_r = matrix[2][0] - radius;
+				const float kY = matrix[2][1] + radius;
+				const float kY_b = matrix[2][1] - radius;
+
+				if (kX < screen.x) {
+					// printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE left %p - %f | %f\n", t, kX, screen.x);
+					return false;
+				}
+				if (kX_r > screen.z) {
+					//printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE right %p - %f | %f\n", t, kX_r, screen.z);
+					return false;
+				}
+				if (kY < screen.y) {
+					//printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE bot %p - %f | %f\n", t, kY, screen.y);
+					return false;
+				}
+				if (kY_b > screen.w) {
+					//printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE top %p - %f | %f\n", t, kY_b, screen.w);
+					return false;
+				}
+
+				return true;
+			}
 
 			class Sprite2DBatch
 			{
@@ -164,11 +191,11 @@ namespace BitEngine
 	};
 
 	template<>
-	class ComponentHolder<Sprite2DComponent2> : public BaseComponentHolder
+	class ComponentHolder<Sprite2DComponent> : public BaseComponentHolder
 	{
 		public:
 			ComponentHolder(GameEngine* _engine)
-				: BaseComponentHolder(_engine->getMessenger(), sizeof(Sprite2DComponent2)), engine(_engine), defaultSprite(nullptr)
+				: BaseComponentHolder(_engine->getMessenger(), sizeof(Sprite2DComponent)), engine(_engine), defaultSprite(nullptr)
 			{
 
 			}
@@ -179,23 +206,23 @@ namespace BitEngine
 			}
 
 			void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override {
-				sendComponentDestroyedMessage<Sprite2DComponent2>(entity, component);
+				sendComponentDestroyedMessage<Sprite2DComponent>(entity, component);
 			}
 
 			template<typename ... Args>
-			void initializeComponent(Sprite2DComponent2* outPtr, Args ...args) {
+			void initializeComponent(Sprite2DComponent* outPtr, Args ...args) {
 				initComponent(outPtr, args...);
 			}
 			
 
 		private:
 			template<typename ... Args>
-			void initComponent(Sprite2DComponent2* outPtr, Args ...args) {
-				new (outPtr) Sprite2DComponent2(args...);
+			void initComponent(Sprite2DComponent* outPtr, Args ...args) {
+				new (outPtr) Sprite2DComponent(args...);
 			}
 
-			void initComponent(Sprite2DComponent2* outPtr) {
-				new (outPtr) Sprite2DComponent2(0, defaultSprite, Sprite2DRenderer::DEFAULT_SPRITE);
+			void initComponent(Sprite2DComponent* outPtr) {
+				new (outPtr) Sprite2DComponent(0, defaultSprite, Sprite2DRenderer::DEFAULT_SPRITE);
 			}
 
 

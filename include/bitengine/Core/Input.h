@@ -96,7 +96,9 @@ namespace BitEngine {
 		class InputReceiver : public Messaging::MessengerEndpoint
 		{
 			public:
-			InputReceiver(Messenger* m) : MessengerEndpoint(m) {}
+			InputReceiver(Messenger* m)
+				: MessengerEndpoint(m), cursorInScreenX(0.0), cursorInScreenY(0.0)
+			{}
 
 			void keyboardInput(int key, int scancode, KeyAction action, int mods);
 			void mouseInput(int button, MouseAction action, int mods);
@@ -109,21 +111,21 @@ namespace BitEngine {
 			double getMouseY() const;
 
 			private:
-			std::unordered_map<unsigned int, KeyMod> m_keyDown;
-			std::unordered_map<unsigned int, KeyMod> m_keyReleased;
+				std::unordered_map<unsigned int, KeyMod> m_keyDown;
+				std::unordered_map<unsigned int, KeyMod> m_keyReleased;
 
-			std::unordered_map<unsigned int, KeyMod> m_mouseDown;
-			std::unordered_map<unsigned int, KeyMod> m_mouseReleased;
+				std::unordered_map<unsigned int, KeyMod> m_mouseDown;
+				std::unordered_map<unsigned int, KeyMod> m_mouseReleased;
 
-			double cursorInScreenX;
-			double cursorInScreenY;
+				double cursorInScreenX;
+				double cursorInScreenY;
 		};
 
-		class IInputDriver : public Messaging::MessengerEndpoint
+		class InputDriver : public Messaging::MessengerEndpoint
 		{
 			public:
-			IInputDriver(Messenger* m) : MessengerEndpoint(m) {}
-			virtual ~IInputDriver() {}
+			InputDriver(Messenger* m) : MessengerEndpoint(m) {}
+			virtual ~InputDriver() {}
 
 			virtual bool Init() = 0;
 

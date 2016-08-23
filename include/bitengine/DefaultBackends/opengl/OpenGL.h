@@ -1,6 +1,6 @@
 #pragma once
 
-#include "OpenGLheaders.h"
+#include "OpenGL_Headers.h"
 #include "Core/Logger.h"
 
 enum RendererVersion {

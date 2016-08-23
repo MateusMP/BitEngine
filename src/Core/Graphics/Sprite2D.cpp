@@ -10,7 +10,7 @@ namespace BitEngine {
 	const Material* Sprite2DRenderer::EFFECT_SPRITE = &sprite_materials[2];
 
 	Sprite2DRenderer::Sprite2DRenderer(GameEngine* engine)
-		: ComponentProcessor(engine->getMessenger()), m_engine(engine)
+		: ComponentProcessor(engine->getMessenger()), m_batch(nullptr), m_engine(engine), shader(nullptr)
 	{
 	}
 
@@ -94,20 +94,25 @@ namespace BitEngine {
 			it.batchInstances.clear();
 		}
 
+		const glm::vec4 viewScreen = activeCamera->getWorldViewArea();
+
 		// Build batch
-		getES()->forEach<SceneTransform2DComponent, Sprite2DComponent2>(
-			[this](const ComponentRef<SceneTransform2DComponent>& transform, const ComponentRef<Sprite2DComponent2>& sprite)
+		getES()->forEach<SceneTransform2DComponent, Sprite2DComponent>(
+			[=](const ComponentRef<SceneTransform2DComponent>& transform, const ComponentRef<Sprite2DComponent>& sprite)
 		{
-			BatchIdentifier idtf(sprite->layer, sprite->material, sprite->sprite->getTexture());
-			const auto& it = batchesMap.find(idtf);
-			if (it != batchesMap.end()) {
-				batches[it->second].batchInstances.emplace_back(transform.ref(), sprite.ref());
-			} else {
-				batches.emplace_back(idtf);
-				u32 id = batches.size() - 1;
-				batchesMap.emplace(idtf, id);
-				batches[id].bid = idtf;
-				batches[id].batchInstances.emplace_back(transform.ref(), sprite.ref());
+			if (insideScreen(viewScreen, transform->getGlobal(), 64))
+			{
+				BatchIdentifier idtf(sprite->layer, sprite->material, sprite->sprite->getTexture());
+				const auto& it = batchesMap.find(idtf);
+				if (it != batchesMap.end()) {
+					batches[it->second].batchInstances.emplace_back(transform.ref(), sprite.ref());
+				} else {
+					batches.emplace_back(idtf);
+					u32 id = batches.size() - 1;
+					batchesMap.emplace(idtf, id);
+					batches[id].bid = idtf;
+					batches[id].batchInstances.emplace_back(transform.ref(), sprite.ref());
+				}
 			}
 		});
 	}
@@ -160,7 +165,6 @@ namespace BitEngine {
 		{
 			Sprite2D_DD_legacy::VertexContainer* vertexContainer = m_batch->getShaderDataAs<Sprite2D_DD_legacy::VertexContainer>(legacyRefs.m_vertexContainer);
 
-			//const u32 instanceCount = batchInstances.size();
 			for (u32 idx = 0; idx < nInstances; ++idx)
 			{
 				buildLegacySpriteVertices(batchInstances, vertexContainer, idx * N_VERTEX_PER_QUAD, idx);

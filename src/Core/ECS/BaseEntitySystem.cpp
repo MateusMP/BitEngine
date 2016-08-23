@@ -1,6 +1,7 @@
 #include "Core/ECS/BaseEntitySystem.h"
 
 #include "Core/ECS/ComponentProcessor.h"
+#include "Core/Assert.h"
 
 namespace BitEngine {
 	ComponentType BaseComponent::componentTypeCounter(0);
@@ -43,37 +44,22 @@ namespace BitEngine {
 
 	void BaseEntitySystem::destroyEntity(EntityHandle entity)
 	{
-		if (!hasEntity(entity))
-			return;
-
+		BE_ASSERT(hasEntity(entity));
 		m_toBeDestroyed.emplace_back(entity);
-
 		getEngine()->getMessenger()->dispatch(MsgEntityDestroyed(entity));
 	}
 
 	bool BaseEntitySystem::addComponent(EntityHandle entity, ComponentType type)
 	{
-		if (!hasEntity(entity))
-		{
-			LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to attach component of type " << type << " to unknown entity: " << entity << "!";
-			return false;
-		}
-
+		BE_ASSERT(hasEntity(entity));
 		m_objBitField->set(entity, type);
-
 		return true;
 	}
 
 	bool BaseEntitySystem::removeComponent(EntityHandle entity, ComponentType type, ComponentHandle handle)
 	{
-		if (!hasEntity(entity))
-		{
-			LOG(EngineLog, BE_LOG_WARNING) << "EntitySystem: Trying to remove component of type " << type << " with handle: " << handle << " from entity " << entity << "!";
-			return false;
-		}
-
+		BE_ASSERT(hasEntity(entity));
 		m_holders[type]->releaseComponentID(handle);
-
 		return true;
 	}
 

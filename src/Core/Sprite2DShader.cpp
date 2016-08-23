@@ -15,7 +15,6 @@ static const char* Sprite2D_fragment_GLall = GLSL_(150,
 	}
 );
 
-#include "DefaultBackends/opengl/Sprite2DGL2.h"
 #include "DefaultBackends/opengl/Sprite2DGL4.h"
 
 namespace BitEngine {
@@ -63,15 +62,6 @@ namespace BitEngine {
 		// GL2
 		if (useRenderer == USE_GL2)
 		{
-			Sprite2DGL2* s = new Sprite2DGL2();
-			if (s->Init() == BE_NO_ERROR) {
-				LOG(EngineLog, BE_LOG_INFO) << "Using Sprite2D GL2";
-				return s;
-			}
-			else {
-				delete s;
-			}
-
 			LOG(EngineLog, BE_LOG_ERROR) << "Could not compile GL2 shader for Sprite2D, driver update needed? ERROR!";
 		}
 

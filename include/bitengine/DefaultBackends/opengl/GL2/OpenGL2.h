@@ -7,7 +7,7 @@
 #include "Core/Graphics/Shader.h"
 #include "Core/Graphics/Texture.h"
 
-#include "DefaultBackends/opengl/OpenGLheaders.h"
+#include "DefaultBackends/opengl/OpenGL_Headers.h"
 
 namespace BitEngine {
 

@@ -28,7 +28,7 @@ namespace BitEngine{
 			{
 				auto& pieces = l.m_gamelogics;
 				for (GameLogic* logic : pieces) {
-					logic->End();
+					logic->end();
 				}
 			}
 		);
@@ -56,7 +56,7 @@ namespace BitEngine{
 					m_onFrameEnd.emplace_back(logic);
 				}
 
-				if (!logic->Init()){
+				if (!logic->init()){
 					LOG(EngineLog, BE_LOG_ERROR) << "GameLogicProcessor: GameLogicComponent " << hdl << " logic " << i << " failed to Init! ";
 				}
 			}
@@ -65,7 +65,7 @@ namespace BitEngine{
 
 		// Run FrameStart on all components
 		for (GameLogic* l : m_onFrameStart){
-			l->FrameStart();
+			l->frameStart();
 		}
 	}
 
@@ -74,7 +74,7 @@ namespace BitEngine{
 		// LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameMiddle";
 
 		for (GameLogic* l : m_onFrameMiddle){
-			l->FrameMiddle();
+			l->frameMiddle();
 		}
 	}
 
@@ -83,7 +83,7 @@ namespace BitEngine{
 		// LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameEnd";
 
 		for (GameLogic* l : m_onFrameEnd){
-			l->FrameEnd();
+			l->frameEnd();
 		}
 	}
 
@@ -116,7 +116,7 @@ namespace BitEngine{
 				removeFrom(logic, m_onFrameEnd);
 			}
 
-			logic->End();
+			logic->end();
 		}
 	}
 

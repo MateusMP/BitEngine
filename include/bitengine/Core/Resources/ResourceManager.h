@@ -192,17 +192,16 @@ namespace BitEngine {
 			class RawResourceLoaderTask : public Task
 			{
 				public:
-				RawResourceLoaderTask(ResourceMeta* d)
-					: Task(TaskMode::NONE, Affinity::BACKGROUND), dr(d)
-				{
-				}
+					RawResourceLoaderTask(ResourceMeta* d)
+						: Task(TaskMode::NONE, Affinity::BACKGROUND), dr(d)
+					{}
 
-				// Inherited via Task
-				virtual void run() = 0;
+					// Inherited via Task
+					virtual void run() = 0;
 
-				DataRequest& getData() {
-					return dr;
-				}
+					DataRequest& getData() {
+						return dr;
+					}
 
 				protected:
 					DataRequest dr;
@@ -233,12 +232,12 @@ namespace BitEngine {
 	class ResourceManager
 	{
 		public:
-			virtual bool init() = 0;
+			virtual ~ResourceManager(){}
 
+			virtual bool init() = 0;
 			virtual void update() = 0;
 
 			virtual void setResourceLoader(ResourceLoader* loader) = 0;
-
 			virtual BaseResource* loadResource(ResourceMeta* meta) = 0;
 			
 			// in bytes

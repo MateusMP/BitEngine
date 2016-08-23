@@ -9,9 +9,9 @@
 
 namespace BitEngine{
 
-
 	class CollisionLogic
 	{
+		virtual ~CollisionLogic() {}
 		virtual void OnCollision() = 0;
 	};
 
@@ -19,7 +19,9 @@ namespace BitEngine{
 	{
 		public:
 			GameLogic(Messenger* m)
-				: MessengerEndpoint(m) {}
+				: MessengerEndpoint(m), m_myEntity(0), e_sys(nullptr)
+			{}
+			virtual ~GameLogic() {}
 
 			enum RunEvents : u16 {
 				EFrameStart = 1,
@@ -31,13 +33,13 @@ namespace BitEngine{
 
 			virtual RunEvents getRunEvents() = 0;
 
-			virtual bool Init() = 0;
+			virtual bool init() = 0;
 
-			virtual void FrameStart() = 0;
-			virtual void FrameMiddle() = 0;
-			virtual void FrameEnd() = 0;
+			virtual void frameStart() = 0;
+			virtual void frameMiddle() = 0;
+			virtual void frameEnd() = 0;
 
-			virtual void End() = 0;
+			virtual void end() = 0;
 
 			template<typename CompClass>
 			ComponentRef<CompClass> getComponent() {
@@ -54,11 +56,11 @@ namespace BitEngine{
 	{
         public:
 	        GameLogicComponent()
-                : m_entity(0) {}
+                : m_entity(0), e_sys(nullptr) {}
             GameLogicComponent(EntityHandle ent)
-                : m_entity(ent) {}
+                : m_entity(ent), e_sys(nullptr) {}
 
-            void addLogicPiece(GameLogic* logic){
+            void addLogicPiece(GameLogic* logic) {
                 m_gamelogics.emplace_back(logic);
                 logic->m_myEntity = m_entity;
                 logic->e_sys = e_sys;

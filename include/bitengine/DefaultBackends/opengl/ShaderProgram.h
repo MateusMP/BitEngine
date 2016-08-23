@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "OpenGLheaders.h"
+#include "OpenGL_Headers.h"
 
 #include "Common/TypeDefinition.h"
 #include "Common/ErrorCodes.h"

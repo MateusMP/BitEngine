@@ -43,13 +43,13 @@ namespace BitEngine {
 			* \param buffer Buffer reference, if null, applies to screen
 			* \param mask Options to clear, see BufferClearBitMask
 			*/
-			virtual void clearBuffer(IRenderBuffer* buffer, BufferClearBitMask mask) = 0;
+			virtual void clearBuffer(RenderBuffer* buffer, BufferClearBitMask mask) = 0;
 
 			/**
 			* If buffer == nullptr, clears the screen
 			* otherwise, clears the given RenderBuffer
 			**/
-			virtual void clearBufferColor(IRenderBuffer* buffer, const ColorRGBA& color) = 0;
+			virtual void clearBufferColor(RenderBuffer* buffer, const ColorRGBA& color) = 0;
 
 			virtual void setViewPort(int x, int y, int width, int height) = 0;
 			

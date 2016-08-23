@@ -28,7 +28,6 @@
     <ClInclude Include="include\bitengine\Common\ThreadSafeVector.h" />
     <ClInclude Include="include\bitengine\Common\VectorBool.h" />
     <ClInclude Include="include\bitengine\Core\Assert.h" />
-    <ClInclude Include="include\bitengine\Core\Color.h" />
     <ClInclude Include="include\bitengine\Core\CommandSystem.h" />
     <ClInclude Include="include\bitengine\Core\ECS\BaseEntitySystem.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Camera2DComponent.h" />
@@ -43,14 +42,11 @@
     <ClInclude Include="include\bitengine\Core\ECS\LogicScript.h" />
     <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshProcessor.h" />
-    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DComponent.h" />
-    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform2DComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform2DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform3DComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform3DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\EngineConfiguration.h" />
-    <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
     <ClInclude Include="include\bitengine\Core\GameEngine.h" />
     <ClInclude Include="include\bitengine\Core\GeneralTaskManager.h" />
     <ClInclude Include="include\bitengine\Core\Graphics.h" />
@@ -73,6 +69,7 @@
     <ClInclude Include="include\bitengine\Core\ModelManager.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSystem.h" />
     <ClInclude Include="include\bitengine\Common\ThreadSafeQueue.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_Headers.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\FrameBuffer.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Batch.h" />
@@ -82,7 +79,7 @@
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2TextureManager.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Pipeline.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGLheaders.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL_Headers.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\ShaderProgram.h" />
     <ClInclude Include="include\bitengine\Core\Sprite.h" />
     <ClInclude Include="include\bitengine\Core\Sprite2DShader.h" />
@@ -98,12 +95,12 @@
     <ClInclude Include="include\bitengine\Core\Window.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_VideoDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\VertexArrayObject.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\opengl\Sprite2DGL2.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\Sprite2DGL4.h" />
     <ClInclude Include="include\bitengine\bitengine.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\OpenGL2.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Structs.h" />
     <ClInclude Include="include\bitengine\json.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_Backend.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Graphics\Sprite2D.cpp" />
@@ -252,7 +249,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>GLEW_STATIC;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_BITENGINE_USE_GLEW_STATIC_;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>

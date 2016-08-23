@@ -13,12 +13,11 @@ namespace BitEngine {
 				return (*this)(lhs) < (*this)(rhs);
 			}
 			size_t operator()(const ShaderDataReference& t) const {
-				//calculate hash here.
 				return t.mode >> 16 | t.container >> 8 | t.index;
 			}
 		};
 
-		ShaderDataReference() {}
+		ShaderDataReference() : mode(DataUseMode::Vertex), container(0), index(0) {}
         ShaderDataReference(const ShaderDataReference& copy) 
             : mode(copy.mode), container(copy.container), index(copy.index)
         {}
@@ -61,11 +60,10 @@ namespace BitEngine {
 				return *this;
 			}
 
-			//protected:
-				std::vector<DefinitionData> definitionData;
-				u32 container;
-				DataUseMode mode;
-				int instanced;
+			std::vector<DefinitionData> definitionData;
+			u32 container;
+			DataUseMode mode;
+			int instanced;
 		};
 
 		const std::vector<DefinitionContainer>& getContainers(DataUseMode mode) const {
@@ -174,6 +172,7 @@ namespace BitEngine {
 	class Shader : public BaseResource
 	{
 		public:
+		virtual ~Shader() {}
 		virtual bool isReady() = 0;
 
 		/// Binds the shader

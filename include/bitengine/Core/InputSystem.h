@@ -11,21 +11,21 @@ namespace BitEngine {
 		: public System
 	{
 		public:
-		InputSystem(GameEngine* ge, Input::IInputDriver *input);
-		~InputSystem();
+			InputSystem(GameEngine* ge, Input::InputDriver *input);
+			~InputSystem();
 
-		const char* getName() const override {
-			return "Input";
-		}
+			const char* getName() const override {
+				return "Input";
+			}
 
-		bool Init() override;
-		void Shutdown() override;
-		void Update() override;
+			bool Init() override;
+			void Shutdown() override;
+			void Update() override;
 
-		void onMessage(const MsgWindowCreated& wndcr);
-		void onMessage(const MsgWindowClosed& wndcr);
+			void onMessage(const MsgWindowCreated& wndcr);
+			void onMessage(const MsgWindowClosed& wndcr);
 
 		private:
-		Input::IInputDriver *driver;
+			Input::InputDriver *driver;
 	};
 }

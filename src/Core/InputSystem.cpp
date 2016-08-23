@@ -4,7 +4,7 @@
 
 namespace BitEngine{
 
-	InputSystem::InputSystem(GameEngine* ge, Input::IInputDriver *input)
+	InputSystem::InputSystem(GameEngine* ge, Input::InputDriver *input)
 		: System(ge), driver(input)
 	{
 	}

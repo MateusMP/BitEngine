@@ -24,22 +24,7 @@ bool GLFW_VideoDriver::init(const VideoConfiguration& config)
 
 	glfwSetErrorCallback(GLFW_ErrorCallback);
 
-	/*LOGCLASS(BE_LOG_VERBOSE) << "Video: Creating window...";
-	Window_glfw *w = new Window_glfw();
-	if (!CreateGLFWWindow(w)) {
-	LOGCLASS(BE_LOG_ERROR) << "Video: Failed to create video!";
-	glfwTerminate();
-	return false;
-	}*/
 	LOGCLASS(BE_LOG_VERBOSE) << "Video initialized!";
-
-	/*glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) {
-		LOGCLASS(BE_LOG_ERROR) << "Video: Failed to initialize opengl!";
-		glfwTerminate();
-		return false;
-	}*/
-
 	return adapter->init();
 }
 
@@ -151,7 +136,7 @@ void GLFW_VideoDriver::update()
 	}
 }
 
-void GLFW_VideoDriver::clearBuffer(BitEngine::IRenderBuffer* buffer, BitEngine::BufferClearBitMask mask)
+void GLFW_VideoDriver::clearBuffer(BitEngine::RenderBuffer* buffer, BitEngine::BufferClearBitMask mask)
 {
 	GLbitfield bitfield = 0;
 	if (mask & BitEngine::BufferClearBitMask::COLOR)
@@ -162,7 +147,7 @@ void GLFW_VideoDriver::clearBuffer(BitEngine::IRenderBuffer* buffer, BitEngine::
 	glClear(bitfield);
 }
 
-void GLFW_VideoDriver::clearBufferColor(BitEngine::IRenderBuffer* buffer, const BitEngine::ColorRGBA& color)
+void GLFW_VideoDriver::clearBufferColor(BitEngine::RenderBuffer* buffer, const BitEngine::ColorRGBA& color)
 {
 	glClearColor(color.r(), color.g(), color.b(), color.a());
 }

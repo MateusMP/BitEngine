@@ -10,7 +10,6 @@
     <ClInclude Include="include\bitengine\Common\ErrorCodes.h" />
     <ClInclude Include="include\bitengine\Common\MathUtils.h" />
     <ClInclude Include="include\bitengine\Common\VectorBool.h" />
-    <ClInclude Include="include\bitengine\Core\Color.h" />
     <ClInclude Include="include\bitengine\Core\CommandSystem.h" />
     <ClInclude Include="include\bitengine\Core\ECS\BaseEntitySystem.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Camera2DComponent.h" />
@@ -25,7 +24,6 @@
     <ClInclude Include="include\bitengine\Core\ECS\LogicScript.h" />
     <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\RenderableMeshProcessor.h" />
-    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform2DComponent.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform2DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\ECS\Transform3DComponent.h" />
@@ -49,22 +47,18 @@
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_VideoDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\VertexArrayObject.h" />
     <ClInclude Include="include\bitengine\Common\TypeDefinition.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\opengl\Sprite2DGL2.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\Sprite2DGL4.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\ShaderProgram.h" />
     <ClInclude Include="include\bitengine\bitengine.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\FrameBuffer.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGLheaders.h" />
     <ClInclude Include="include\bitengine\Common\MacroHelpers.h" />
     <ClInclude Include="include\bitengine\Common\ThreadSafeQueue.h" />
     <ClInclude Include="include\bitengine\Core\Message.h" />
     <ClInclude Include="include\bitengine\Core\Messenger.h" />
     <ClInclude Include="include\bitengine\Common\BitFieldVector.h" />
-    <ClInclude Include="include\bitengine\Core\ECS\Sprite2DProcessor.h" />
     <ClInclude Include="include\bitengine\Core\SpriteManager.h" />
-    <ClInclude Include="include\bitengine\Core\FileResourceLoader.h" />
     <ClInclude Include="include\bitengine\Core\Mesh.h" />
     <ClInclude Include="include\bitengine\Core\ModelManager.h" />
     <ClInclude Include="include\bitengine\Common\Property.h" />
@@ -92,6 +86,9 @@
     <ClInclude Include="include\bitengine\Core\Graphics\Material.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Texture.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\VideoRenderer.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_Backend.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_Headers.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL_Headers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />

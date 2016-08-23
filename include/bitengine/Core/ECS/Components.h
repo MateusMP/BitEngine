@@ -8,5 +8,4 @@
 #include "Core/ECS/Camera2DComponent.h"
 #include "Core/ECS/Camera3DComponent.h"
 
-#include "Core/ECS/Sprite2DComponent.h"
 #include "Core/ECS/RenderableMeshComponent.h"

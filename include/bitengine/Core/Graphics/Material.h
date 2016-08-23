@@ -9,7 +9,9 @@ namespace BitEngine {
 
 	class Material {
 		public:
-		Material() {
+		Material()
+			: blendEquation(BlendEquation::ADD)
+		{
 			memset(states, 0, sizeof(states));
 		}
 

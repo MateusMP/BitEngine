@@ -14,6 +14,7 @@ namespace BitEngine{
 	class GameEngine
 	{
 		public:
+		virtual ~GameEngine() {}
 		virtual EngineConfiguration* getConfigurations() = 0;
 		virtual ResourceLoader* getResourceLoader() = 0;
 		virtual Messenger* getMessenger() = 0;

@@ -150,13 +150,14 @@ namespace BitEngine {
 	typedef Color<4, 0, 1, 2, 3> ColorRGBA;
 	typedef Color<3, 0, 1, 2, 3> ColorRGB;
 
-	class IRenderBuffer
+	class RenderBuffer
 	{
-		virtual void Unbind() = 0;
-		virtual void Bind() = 0;
-		virtual void BindDraw() = 0;
-		virtual void BindRead() = 0;
-		virtual bool Ready() = 0;
+		virtual ~RenderBuffer() {}
+		virtual void unbind() = 0;
+		virtual void bind() = 0;
+		virtual void bindDraw() = 0;
+		virtual void bindRead() = 0;
+		virtual bool ready() = 0;
 	};
 
 

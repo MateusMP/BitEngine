@@ -1,9 +1,16 @@
-#include "Defaultbackends/glfw/GLFW_InputDriver.h"
+#include <unordered_map>
 
-std::unordered_map<GLFWwindow*, BitEngine::Input::InputReceiver> GLFW_InputDriver::inputReceivers;
+#include "Defaultbackends/glfw/GLFW_InputDriver.h"
+#include "Defaultbackends/glfw/GLFW_VideoDriver.h"
+
+void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
+void GlfwMousePosCallback(GLFWwindow* window, double x, double y);
+
+std::unordered_map<GLFWwindow*, BitEngine::Input::InputReceiver> inputReceivers;
 
 GLFW_InputDriver::GLFW_InputDriver(BitEngine::Messenger* m)
-	: IInputDriver(m)
+	: InputDriver(m)
 {
 
 }
@@ -73,10 +80,14 @@ void GLFW_InputDriver::poolEvents()
 	glfwPollEvents();
 }
 
-void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+// ******************
+// GLFW CALLBACKS
+// ******************
+
+void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_UNKNOWN) {
-		LOGCLASS(BE_LOG_WARNING) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods;
+		LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods;
 	}
 
 	// LOGCLASS(VERBOSE) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods;
@@ -97,17 +108,17 @@ void GLFW_InputDriver::GlfwKeyCallback(GLFWwindow* window, int key, int scancode
 				act = BitEngine::Input::KeyAction::RELEASE;
 				break;
 			default:
-				LOGCLASS(BE_LOG_WARNING) << "Invalid key action: " << action;
+				LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Invalid key action: " << action;
 				return;
 		}
 		it->second.keyboardInput(key, scancode, act, mods);
 	}
 	else {
-		LOGCLASS(BE_LOG_ERROR) << "Invalid window input!";
+		LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Invalid window input!";
 	}
 }
 
-void GLFW_InputDriver::GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods)
+void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
 	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()) 
@@ -122,24 +133,23 @@ void GLFW_InputDriver::GlfwMouseCallback(GLFWwindow* window, int button, int act
 				act = BitEngine::Input::MouseAction::RELEASE;
 				break;
 			default:
-				LOGCLASS(BE_LOG_WARNING) << "Invalid mouse action: " << action;
+				LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Invalid mouse action: " << action;
 				return;
 		}
 		it->second.mouseInput(button, act, mods);
 	}
 	else 
 	{
-		LOGCLASS(BE_LOG_ERROR) << "Invalid window input!";
+		LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Invalid window input!";
 	}
 }
 
-void GLFW_InputDriver::GlfwMousePosCallback(GLFWwindow* window, double x, double y) 
+void GlfwMousePosCallback(GLFWwindow* window, double x, double y) 
 {
 	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()) {
 		it->second.mouseInput(x, y);
-	}
-	else {
-		LOGCLASS(BE_LOG_ERROR) << "Invalid window input!";
+	} else {
+		LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Invalid window input!";
 	}
 }

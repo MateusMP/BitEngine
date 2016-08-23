@@ -5,7 +5,6 @@ namespace BitEngine{
 	Camera2DComponent::Camera2DComponent()
 		: m_zoom(1.0f), changed(true)
 	{
-
 	}
 
 	void Camera2DComponent::setLookAt(const glm::vec3& pos)

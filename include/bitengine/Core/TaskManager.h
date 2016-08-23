@@ -18,6 +18,7 @@ namespace BitEngine{
 	{
 		public:
 			TaskManager(GameEngine * ge) : EnginePiece(ge){}
+			virtual ~TaskManager(){}
 
 			virtual void init() = 0;
 			virtual void update() = 0;

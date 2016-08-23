@@ -1,12 +1,7 @@
 #pragma once
 
-#include "Core/Graphics.h"
+#include "GLFW_Headers.h"
 #include "Core/VideoSystem.h"
-#include "Core/Logger.h"
-#include "Core/Graphics/VideoRenderer.h"
-#include "Core/Messenger.h"
-
-#include <GLFW/glfw3.h>
 
 class GLFW_VideoDriver : public BitEngine::VideoDriver
 {
@@ -49,9 +44,9 @@ class GLFW_VideoDriver : public BitEngine::VideoDriver
 
 		void update() override;
 
-		void clearBuffer(BitEngine::IRenderBuffer* buffer, BitEngine::BufferClearBitMask mask) override;
+		void clearBuffer(BitEngine::RenderBuffer* buffer, BitEngine::BufferClearBitMask mask) override;
 
-		void clearBufferColor(BitEngine::IRenderBuffer* buffer, const BitEngine::ColorRGBA& color) override;
+		void clearBufferColor(BitEngine::RenderBuffer* buffer, const BitEngine::ColorRGBA& color) override;
 
 		void setViewPort(int x, int y, int width, int height) override;
 

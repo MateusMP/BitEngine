@@ -64,6 +64,7 @@ namespace BitEngine
 	{
 	public:
 		TimerTicks()
+			: timeSet(0)
 		{}
 
 		void setTime(u64 t = 0)

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "OpenGLheaders.h"
+#include "OpenGL_Headers.h"
 
 #include "Common/TypeDefinition.h"
 #include "Common/MathUtils.h"
@@ -246,7 +246,7 @@ namespace BitEngine {
 			}
 
 			attributes += VertexData::NUM_ATTRIBUTES;
-			IVertexArrayBuffer::UnbindBuffer();
+			//IVertexArrayBuffer::UnbindBuffer();
 			return true;
 		}
 
