@@ -25,14 +25,15 @@ namespace BitEngine
 			int height;
 			int color;
 			void* pixelData;
+			std::vector<char> fileData;
 		};
 
 		GL2Texture()
-			: Texture(nullptr)
+			: Texture(nullptr), m_loaded(TextureLoadState::NOT_LOADED)
 		{}
 
 		GL2Texture(ResourceMeta* meta) 
-			: Texture(meta)
+			: Texture(meta), m_loaded(TextureLoadState::NOT_LOADED)
 		{
 			m_textureID = 0;
 			m_textureType = 0;
@@ -45,10 +46,10 @@ namespace BitEngine
 		u32 getUsingRamMemory()
 		{
 			if (imgData.pixelData) {
-				return getUsingGPUMemory();
+				return getUsingGPUMemory() + imgData.fileData.size();
 			}
 
-			return 0;
+			return imgData.fileData.size();
 		}
 
 		// Aproximate memory use in gpu in bytes
@@ -56,13 +57,22 @@ namespace BitEngine
 			return imgData.width*imgData.height * imgData.color;
 		}
 
+		void releaseMemoryData();
+
 		protected:
 		GLuint m_textureID;
 		GLuint m_textureType;
 
 		StbiImageData imgData;
 
-		bool m_loaded; // true if the texture is in an usable state (loaded in the gpu)
+		enum class TextureLoadState {
+			NOT_LOADED,
+			LOADING,
+			LOADED,
+		};
+
+		TextureLoadState m_loaded; // true if the texture is in an usable state (loaded in the gpu)
+
 	};
 
 	class GL2TextureManager : public BitEngine::ResourceManager
@@ -94,12 +104,21 @@ namespace BitEngine
 		private:
 			static GLuint GenerateErrorTexture();
 
+			void releaseDriverData(GL2Texture* texture);
+
+			void resourceNotInUse(ResourceMeta* base) override;
+			void reloadResource(BaseResource* resource) override;
+			void resourceRelease(ResourceMeta* base) override;
+
 			void loadTexture2D(const GL2Texture::StbiImageData& data, GL2Texture& texture);
+			void releaseStbiRawData(GL2Texture::StbiImageData& data);
+			void makeLoadFullResource(ResourceMeta* meta, GL2Texture* texture);
 
 			// Members
 			ResourceLoader* loader;
 			ResourceIndexer<GL2Texture, 1024> textures;
 			ThreadSafeQueue<GL2Texture*> rawData; // raw data loaded and waiting to be sent to gpu
+			GL2Texture* errorTexture;
 				
 			u32 ramInUse;
 			u32 gpuMemInUse;

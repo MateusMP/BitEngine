@@ -199,12 +199,19 @@ BitEngine::BaseResource* BitEngine::DevResourceLoader::loadResource(const std::s
 	}
 }
 
+void BitEngine::DevResourceLoader::reloadResource(BaseResource* resource)
+{
+	ResourceMeta* meta = resource->getMeta();
+	managersMap[meta->type]->reloadResource(resource);
+}
+
 void BitEngine::DevResourceLoader::releaseAll()
 {
 }
 
-void BitEngine::DevResourceLoader::releaseResource(u32 id)
+void BitEngine::DevResourceLoader::resourceNotInUse(ResourceMeta* meta)
 {
+	managersMap[meta->type]->resourceNotInUse(meta);
 }
 
 void BitEngine::DevResourceLoader::waitForAll()

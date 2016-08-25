@@ -15,7 +15,7 @@ namespace BitEngine{
 		ResourceMeta* meta = resourceLoader->includeMeta("default", "sprite", "SPRITE");
 		u16 defId = sprites.addResource(meta);
 		Sprite* nullSprite = sprites.getResourceAddress(defId);
-		new (nullSprite) Sprite(resourceLoader->getResource<Texture>("data/default/texture"), 64, 64, 0.5f, 0.5f, glm::vec4(0, 0, 1, 1), false);
+		new (nullSprite) Sprite(meta, resourceLoader->getResource<Texture>("data/default/texture"), 64, 64, 0.5f, 0.5f, glm::vec4(0, 0, 1, 1), false);
 
 		return true;
 	}
@@ -69,12 +69,12 @@ namespace BitEngine{
 					 uvContainer["xf"].getValueDouble(), uvContainer["yf"].getValueDouble());
 		bool transparent = props["transparent"].getValueInt() > 0;
 
-		Texture* texture = resourceLoader->getResource<Texture>(textureMeta);
-		if (texture == nullptr) {
+		RR<Texture> texture = resourceLoader->getResource<Texture>(textureMeta);
+		if (texture.isValid()) {
 			LOG(EngineLog, BE_LOG_ERROR) << "Coulnd't find texture resource " << textureMeta << " for sprite " << meta->resourceName;
 		}
 
-		new (sprite) Sprite(texture, w, h, ox, oy, uv, transparent);
+		new (sprite) Sprite(meta, texture, w, h, ox, oy, uv, transparent);
 	}
 
 	u32 SpriteManager::getCurrentRamUsage() const

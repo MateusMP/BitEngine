@@ -8,11 +8,8 @@
 
 namespace BitEngine{
 
-
-	struct MsgFrameStart{
-	};
-	struct MsgFrameEnd{
-	};
+	struct MsgFrameStart {};
+	struct MsgFrameEnd {};
 
 	class TaskManager : public EnginePiece
 	{

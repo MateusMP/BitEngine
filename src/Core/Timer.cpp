@@ -18,7 +18,7 @@ namespace BitEngine
 		ticks = 0;
 	}
 
-	u64 Time::getTicks() {
+	u64 Time::GetTicks() {
 		return ticks;
 	}
 	

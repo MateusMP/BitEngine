@@ -6,25 +6,25 @@
 
 #include "Common/TypeDefinition.h"
 #include "Core/Resources/ResourceManager.h"
+#include "Core/Graphics/Texture.h"
 
 namespace BitEngine{
 
 typedef unsigned short SpriteHandle;
 
-class Texture;
-
 class Sprite : public BaseResource
 {
     public:
 		Sprite()
-			: m_textureID(0), m_width(16), m_height(16),
+			: BaseResource(nullptr),
+			m_textureID(nullptr), m_width(16), m_height(16),
 			m_offsetX(0), m_offsetY(0), m_uvrect(0.0f, 0.0f, 1.0f, 1.0f), m_transparent(false)
 		{
 			calculateMaxRadius();
 		}
 
-		Sprite(const Texture* texture, int w, int h, float oX, float oY, const glm::vec4& _uvrect, bool _transparent=false)
-			: m_textureID(texture), m_width(w), m_height(h), m_offsetX(oX), m_offsetY(oY), m_uvrect(_uvrect), m_transparent(_transparent)
+		Sprite(ResourceMeta* meta, const RR<Texture>& texture, int w, int h, float oX, float oY, const glm::vec4& _uvrect, bool _transparent=false)
+			: BaseResource(meta), m_textureID(texture), m_width(w), m_height(h), m_offsetX(oX), m_offsetY(oY), m_uvrect(_uvrect), m_transparent(_transparent)
         {
 			calculateMaxRadius();
 		}
@@ -33,7 +33,7 @@ class Sprite : public BaseResource
 			return m_maxRadius;
 		}
 
-		const Texture* getTexture() const {
+		const RR<Texture>& getTexture() const {
 			return m_textureID;
 		}
 
@@ -96,7 +96,7 @@ class Sprite : public BaseResource
 			m_maxRadius = std::sqrt(maxW*maxW + maxH*maxH);
 		}
 
-        const Texture* m_textureID;
+        RR<Texture> m_textureID;
 		int m_width;
 		int m_height;
 		float m_offsetX;

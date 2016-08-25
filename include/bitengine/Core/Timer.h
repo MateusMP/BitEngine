@@ -12,7 +12,7 @@ namespace BitEngine
 			// Used internally
 			static void Tick();
 			static void ResetTicks();
-			static u64 getTicks();
+			static u64 GetTicks();
 
 			inline static std::chrono::system_clock::time_point currentTime() {
 				return std::chrono::system_clock::now();
@@ -70,14 +70,14 @@ namespace BitEngine
 		void setTime(u64 t = 0)
 		{
 			if (t == 0) {
-				timeSet = Time::getTicks();
+				timeSet = Time::GetTicks();
 			} else {
 				timeSet = t;
 			}
 		}
 
 		u64 timeElapsed() const {
-			return Time::getTicks() - timeSet;
+			return Time::GetTicks() - timeSet;
 		}
 
 	private:

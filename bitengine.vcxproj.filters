@@ -36,7 +36,6 @@
     <ClInclude Include="include\bitengine\Core\MessageType.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSystem.h" />
     <ClInclude Include="include\bitengine\Core\Sprite.h" />
-    <ClInclude Include="include\bitengine\Core\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\Core\System.h" />
     <ClInclude Include="include\bitengine\Core\SystemConfiguration.h" />
     <ClInclude Include="include\bitengine\Core\Task.h" />
@@ -89,6 +88,7 @@
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_Backend.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_Headers.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL_Headers.h" />
+    <ClInclude Include="include\bitengine\Core\Resources\ResourceProperties.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -106,7 +106,6 @@
     <ClCompile Include="src\Core\InputSystem.cpp" />
     <ClCompile Include="src\Core\ModelManager.cpp" />
     <ClCompile Include="src\Core\ResourceSystem.cpp" />
-    <ClCompile Include="src\Core\Sprite2DShader.cpp" />
     <ClCompile Include="src\Core\SpriteManager.cpp" />
     <ClCompile Include="src\Core\VideoSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\ShaderProgram.cpp" />

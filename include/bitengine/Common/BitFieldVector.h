@@ -67,9 +67,6 @@ namespace BitEngine{
 		void unsetAll(u32 objIndex)
 		{
 			const u32 obji = objIndex*m_numBitsPerObj;
-
-			// TODO: optimize using masks
-
 			for (u32 i = 0; i < m_numBitsPerObj; ++i)
 				m_bits.unset(obji + i);
 		}

@@ -280,7 +280,7 @@ namespace BitEngine{
 						|| spr->getTexture() != lastSpr->getTexture()
 						|| spr->isTransparent() != lastSpr->isTransparent())
 					{
-						batches.emplace_back(offset, 0, spr->getTexture()->getTextureID(), spr->isTransparent());
+						//batches.emplace_back(offset, 0, spr->getTexture()->getTextureID(), spr->isTransparent());
 					}
 					offset += 1;
 					batches.back().nItems += 1;

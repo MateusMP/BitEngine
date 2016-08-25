@@ -4,13 +4,13 @@
 namespace BitEngine
 {
 	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, int _other)
-		: commandID(_id), intensity(_intensity)
+		: commandID(_id), intensity(_intensity), mouse_x(0), mouse_y(0)
 	{
 		other.other = _other;
 	}
 
 	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, Input::KeyAction _other)
-		: commandID(_id), intensity(_intensity)
+		: commandID(_id), intensity(_intensity), mouse_x(0), mouse_y(0)
 	{
 		other.fromButton = _other;
 	}
@@ -22,7 +22,7 @@ namespace BitEngine
 	}
 
 	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity)
-		: commandID(_id), intensity(_intensity)
+		: commandID(_id), intensity(_intensity), mouse_x(0), mouse_y(0)
 	{
 		other.other = 0;
 	}

@@ -34,11 +34,14 @@ namespace BitEngine{
 
 		virtual void update() override;
 
-		void setResourceLoader(ResourceLoader * loader) override {
+		void setResourceLoader(ResourceLoader* loader) override {
 			resourceLoader = loader;
 		}
 
-		virtual BaseResource * loadResource(ResourceMeta * base) override;
+		virtual BaseResource * loadResource(ResourceMeta* meta) override;
+		void resourceNotInUse(ResourceMeta* meta) override {}
+		void reloadResource(BaseResource* resource) override {}
+		void resourceRelease(ResourceMeta* meta) override {}
 
 		virtual u32 getCurrentRamUsage() const override;
 

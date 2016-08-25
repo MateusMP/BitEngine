@@ -172,6 +172,7 @@ namespace BitEngine {
 	class Shader : public BaseResource
 	{
 		public:
+		Shader(ResourceMeta* meta) : BaseResource(meta) {}
 		virtual ~Shader() {}
 		virtual bool isReady() = 0;
 

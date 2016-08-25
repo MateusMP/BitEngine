@@ -21,8 +21,9 @@ namespace BitEngine
     
 	class GL2Shader : public Shader
 	{
-		public:            
-			GL2Shader();
+		public:      
+			GL2Shader() : Shader(nullptr) {}
+			GL2Shader(ResourceMeta* meta);
 			virtual ~GL2Shader();
 
 			int init();

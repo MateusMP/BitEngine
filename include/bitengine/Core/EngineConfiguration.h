@@ -11,16 +11,10 @@ namespace BitEngine
 	class EngineConfiguration : public EnginePiece
 	{
 	public:
-		const char* LINE_COMMENT = "#";
-		const char* BLANK_SPACES = " \n\r\t";
-		const char SYSTEM_BEGIN_CHAR = '!';
-		const char CONFIG_VALUE_SEPARATOR_CHAR = ':';
-
 		EngineConfiguration(GameEngine* ge, const std::string& fileName);
 		~EngineConfiguration();
 		
 		void LoadConfigurations();
-
 		void SaveConfigurations();
 
 		ConfigurationItem* getConfiguration(const std::string& systemName, const std::string& configName, const std::string& defaultValue);

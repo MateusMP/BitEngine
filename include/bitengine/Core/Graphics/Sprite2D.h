@@ -16,14 +16,14 @@ namespace BitEngine
 	class Sprite2DComponent : public Component<Sprite2DComponent>
 	{
 		public:
-		Sprite2DComponent(u32 _layer, Sprite* spr, const Material* mat)
+		Sprite2DComponent(u32 _layer, RR<Sprite> spr, const Material* mat)
 			: layer(_layer), alpha(1.0f), sprite(spr), material(mat)
 		{
 		}
 
 		s32 layer;
 		float alpha;
-		Sprite* sprite;
+		RR<Sprite> sprite;
 		const Material* material;
 	};
 
@@ -185,7 +185,7 @@ namespace BitEngine
 			ComponentRef<Camera2DComponent> activeCamera;
 			IGraphicBatch* m_batch;
 			GameEngine* m_engine;
-			Shader* shader;
+			RR<Shader> shader;
 			Sprite2D_DD_legacy legacyRefs;
 			Sprite2D_DD_new newRefs;
 	};
@@ -202,7 +202,7 @@ namespace BitEngine
 
 			bool init() override {
 				defaultSprite = engine->getResourceLoader()->getResource<Sprite>("data/default/sprite");
-				return defaultSprite != nullptr;
+				return defaultSprite.isValid();
 			}
 
 			void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override {
@@ -227,7 +227,7 @@ namespace BitEngine
 
 
 			GameEngine* engine;
-			Sprite* defaultSprite;
+			RR<Sprite> defaultSprite;
 	};
 
 

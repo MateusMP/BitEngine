@@ -77,8 +77,8 @@ namespace BitEngine
 		return nullptr;
 	}
 
-	GL2Shader::GL2Shader()
-		: m_programID(0), expectedSources(0)
+	GL2Shader::GL2Shader(ResourceMeta* meta)
+		: Shader(meta), m_programID(0), expectedSources(0)
 	{
 
 	}

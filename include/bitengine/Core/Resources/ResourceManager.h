@@ -3,71 +3,25 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <type_traits>
 
 #include "Common/TypeDefinition.h"
 #include "Common/ThreadSafeQueue.h"
-#include "Core/Resources/ResourceIndexer.h"
 #include "Core/Logger.h"
 #include "Core/GameEngine.h"
 #include "Core/Task.h"
+#include "Core/Resources/ResourceIndexer.h"
+#include "Core/Resources/ResourceProperties.h"
 
 namespace BitEngine {
 
-	class ResourceManager;
-
-	struct ResourceProperty;
-	struct ResourcePropertyContainer;
-
-	struct ResourceProperty
-	{
-		virtual ~ResourceProperty(){}
-		virtual ResourcePropertyContainer getProperty(const std::string& str) = 0;
-		virtual ResourcePropertyContainer getProperty(int index) = 0;
-		virtual const std::string& getValueString() const = 0;
-		virtual double getValueDouble() const = 0;
-		virtual int getValueInt() const = 0;
-		virtual int getNumberOfProperties() const = 0;
-		//virtual int getKeys(std::vector<std::string>& keys) = 0;
-
-		virtual ResourcePropertyContainer operator[](const std::string& str) = 0; // { return this->getProperty(str); }
-	};
-
-	struct ResourcePropertyContainer
-	{
-		ResourcePropertyContainer()
-		{}
-		ResourcePropertyContainer(ResourceProperty* p) 
-			: prop(p)
-		{}
-
-		
-		ResourcePropertyContainer operator[](const std::string& str) {
-			return prop->getProperty(str);
-		}
-		const ResourcePropertyContainer operator[](const std::string& str) const {
-			return prop->getProperty(str);
-		}
-		ResourcePropertyContainer operator[](int index) {
-			return prop->getProperty(index);
-		}
-		const ResourcePropertyContainer operator[](int index) const {
-			return prop->getProperty(index);
-		}
-		std::string getValueString() const { return prop->getValueString(); }
-		double getValueDouble() const { return prop->getValueDouble(); }
-		int getValueInt() const { return prop->getValueInt(); }
-		int getNumberOfProperties() const { return prop->getNumberOfProperties(); }
-
-		bool isValid() { return prop.get() != nullptr; }
-
-	private:
-		std::shared_ptr<ResourceProperty> prop;
-	};
+	template<typename T>
+	class RR;
 
 	struct ResourceMeta
 	{
 		ResourceMeta(const std::string& pack)
-			: id(~0), package(pack)
+			: id(~0), package(pack), references(0)
 		{}
 
 		const std::string toString() const;
@@ -77,16 +31,16 @@ namespace BitEngine {
 		std::string resourceName;
 		std::string type;
 		ResourcePropertyContainer properties;
+
+	private:
+		friend class ResourceLoader;
+		u32 references;
 	};
 
 	// All resources types should come from this
 	class BaseResource
 	{
 		public:
-			BaseResource()
-				: meta(nullptr)
-			{}
-
 			// Base resource
 			// d Owns the data from this vector
 			BaseResource(ResourceMeta* _meta)
@@ -132,15 +86,25 @@ namespace BitEngine {
 			// Find a resource meta for a given name
 			virtual ResourceMeta* findMeta(const std::string& name) = 0;
 
-			virtual void releaseAll() = 0;
-			virtual void releaseResource(u32 id) = 0;
-
 			template<typename T>
-			T* getResource(const std::string& name) {
-				return static_cast<T*>(loadResource(name));
+			RR<T> getResource(const std::string& name) {
+				T* resource = static_cast<T*>(loadResource(name));
+				if (resource != nullptr)
+				{
+					return RR<T>(resource, this);
+				} else {
+					return RR<T>(nullptr);
+				}
 			}
 
-
+			template<typename T>
+			void reloadResource(RR<T>& resource, bool wait = false) {
+				reloadResource(resource.get());
+				if (wait){
+					waitForResource(resource.get());
+				}
+			}
+			
 			// Returns the request ID
 			// Queue the request to be loaded by another thread
 			//virtual u32 loadRequest(const std::string& path, BaseResource* into, ResourceManager* callback) = 0;
@@ -149,6 +113,7 @@ namespace BitEngine {
 			virtual void waitForAll() = 0;
 			virtual void waitForResource(BaseResource* resource) = 0;
 
+			virtual void releaseAll() = 0;
 
 			struct DataRequest
 			{
@@ -210,6 +175,24 @@ namespace BitEngine {
 			typedef std::shared_ptr<RawResourceLoaderTask> RawResourceTask;
 		protected:
 			friend class ResourceManager;
+			template<typename T> friend class RR;
+
+			void incReference(BaseResource* r) {
+				++(r->getMeta()->references);
+			}
+
+			void decReference(BaseResource* r) {
+				ResourceMeta* meta = r->getMeta();
+				if (--(meta->references) == 0){
+					resourceNotInUse(meta); // TODO: Delegate this to be done by a task? Or later?
+				}
+			}
+
+			// Called when the given Resource Meta is not in use anymore
+			// This will only be called after a previous call to loadResource() was made
+			// Release the resource or not is up to the implementation
+			// Usually cheap resources are kept in memory (may be released from drivers)
+			virtual void resourceNotInUse(ResourceMeta* meta) = 0;
 
 			// Non blocking call
 			// Retrieve the required resource by name
@@ -220,12 +203,90 @@ namespace BitEngine {
 			// follow this call by a waitForAll() or waitForResource(name)
 			virtual BaseResource* loadResource(const std::string& name) = 0;
 
+			// Will force a resource to be reloaded.
+			virtual void reloadResource(BaseResource* resource) = 0;
+
 			// Used internally by resource managers, to retrieve raw resource data
 			// Like, texture image data, sound data, and others.
 			// This will create a background task to load the resource.
 			// The task shall be sent to the TaskManager before this function returns.
 			virtual RawResourceTask requestResourceData(ResourceMeta* meta) = 0;
 	};
+
+	template<typename T>
+	class RR
+	{
+		friend class ResouceLoader;
+		static_assert(std::is_base_of<BaseResource, T>::value, "Not a resource class");
+
+	public:
+		RR(T* nullinit)
+			: resource(nullptr), loader(nullptr)
+		{
+			BE_ASSERT(nullinit == nullptr);
+		}
+		RR(T* r, ResourceLoader* l)
+			: resource(r), loader(l)
+		{
+			loader->incReference(resource);
+		}
+		RR(RR&& r)
+			: resource(r.resource), loader(r.loader)
+		{}
+		RR(const RR& r)
+			: resource(r.resource), loader(r.loader)
+		{
+			loader->incReference(resource);
+		}
+		~RR()
+		{
+			loader->decReference(resource);
+		}
+		RR& operator=(RR&& r)
+		{
+			resource = r.resource;
+			loader = r.loader;
+			return *this;
+		}
+		RR& operator=(const RR& r)
+		{
+			resource = r.resource;
+			loader = r.loader;
+			loader->incReference(resource);
+			return *this;
+		}
+		T* operator->() {
+			return resource;
+		}
+		const T* operator->() const {
+			return resource;
+		}
+
+		bool operator !=(const RR& r) const
+		{
+			return resource == r.resource && loader == r.loader;
+		}
+
+		bool isValid() const {
+			return resource != nullptr && loader != nullptr;
+		}
+
+		T* get() {
+			return resource;
+		}
+
+		const T* get() const {
+			return resource;
+		}
+
+	private:
+		T* resource;
+		ResourceLoader* loader;
+	};
+//	using rTexture = RR<Texture>;
+//	using rShader = RR<Shader>;
+//	using rSprite = RR<Sprite>;
+
 
 	// Resource manager interface
 	// Used to load and handle each resource type
@@ -240,6 +301,20 @@ namespace BitEngine {
 			virtual void setResourceLoader(ResourceLoader* loader) = 0;
 			virtual BaseResource* loadResource(ResourceMeta* meta) = 0;
 			
+			// Called when the given Resource Meta is not in use anymore
+			// This will only be called after a previous call to loadResource() was made
+			// Release the resource or not is up to the implementation
+			// Usually cheap resources are kept in memory (may be released from drivers)
+			virtual void resourceNotInUse(ResourceMeta* meta) = 0;
+
+			virtual void reloadResource(BaseResource* resource) = 0;
+
+			// Called after a while when the resource is not being used for some time.
+			// After this call it's expected that most memory used by the resource is freed.
+			// All resource references must still be valid, since we're just requesting the memory
+			// for the resource to be released.
+			virtual void resourceRelease(ResourceMeta* meta) = 0;
+
 			// in bytes
 			virtual u32 getCurrentRamUsage() const = 0;
 			virtual u32 getCurrentGPUMemoryUsage() const = 0;

@@ -25,6 +25,10 @@ namespace BitEngine {
 
 		BaseResource* loadResource(ResourceMeta* base) override;
 
+		void resourceNotInUse(ResourceMeta* meta) override {}
+		void reloadResource(BaseResource* resource) override {}
+		void resourceRelease(ResourceMeta* meta) override {}
+
 		// Shader Manager
 		//void Update() override;
 

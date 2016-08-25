@@ -127,6 +127,7 @@ namespace BitEngine {
 		{
 			u16 id = shaders.addResource(meta);
 			shader = shaders.getResourceAddress(id);
+			new (shader) GL2Shader(meta);
 
 			initShadeDefinition(shader->getDefinition(), meta);
 						

@@ -69,6 +69,7 @@
     <ClInclude Include="include\bitengine\Core\ModelManager.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSystem.h" />
     <ClInclude Include="include\bitengine\Common\ThreadSafeQueue.h" />
+    <ClInclude Include="include\bitengine\Core\Resources\ResourceProperties.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_Headers.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\FrameBuffer.h" />
@@ -82,7 +83,6 @@
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL_Headers.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\ShaderProgram.h" />
     <ClInclude Include="include\bitengine\Core\Sprite.h" />
-    <ClInclude Include="include\bitengine\Core\Sprite2DShader.h" />
     <ClInclude Include="include\bitengine\Core\SpriteManager.h" />
     <ClInclude Include="include\bitengine\Core\System.h" />
     <ClInclude Include="include\bitengine\Core\SystemConfiguration.h" />
@@ -131,10 +131,6 @@
     <ClCompile Include="src\Core\Logger.cpp" />
     <ClCompile Include="src\Core\ModelManager.cpp" />
     <ClCompile Include="src\Core\ResourceSystem.cpp" />
-    <ClCompile Include="src\Core\Sprite2DShader.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestBitfield|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="src\Core\SpriteManager.cpp" />
     <ClCompile Include="src\Core\GeneralTaskManager.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />

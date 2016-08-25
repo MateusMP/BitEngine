@@ -85,9 +85,10 @@ namespace BitEngine
 		protected:
 			// Retrieve 
 			virtual BaseResource* loadResource(const std::string& name) override;
+			virtual void reloadResource(BaseResource* resource) override;
 
 			virtual void releaseAll() override;
-			virtual void releaseResource(u32 id) override;
+			virtual void resourceNotInUse(ResourceMeta* meta) override;
 
 			virtual void waitForAll() override;
 			virtual void waitForResource(BaseResource* resource) override;

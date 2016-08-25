@@ -38,12 +38,12 @@ namespace BitEngine {
 		sprite_materials[2].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
 
 		shader = m_engine->getResourceLoader()->getResource<Shader>("data/shaders/sprite2D");
-		if (shader == nullptr) {
+		if (!shader.isValid()) {
 			return false;
 		}
 
-		legacyRefs.init(shader);
-		newRefs.init(shader);
+		legacyRefs.init(shader.get());
+		newRefs.init(shader.get());
 		m_batch = shader->createBatch();
 
 		return true;
@@ -74,7 +74,7 @@ namespace BitEngine {
 			for (auto& it : batchesMap) {
 				prepare_new(batches[it.second]);
 				m_batch->load();
-				m_batch->render(shader);
+				m_batch->render(shader.get());
 			}
 		}
 		else
@@ -83,7 +83,7 @@ namespace BitEngine {
 				prepare_legacy(batches[it.second]);
 				m_batch->load();
 				m_engine->getVideoDriver()->configure(batches[it.second].bid.material);
-				m_batch->render(shader);
+				m_batch->render(shader.get());
 			}
 		}
 	}
@@ -102,7 +102,7 @@ namespace BitEngine {
 		{
 			if (insideScreen(viewScreen, transform->getGlobal(), 64))
 			{
-				BatchIdentifier idtf(sprite->layer, sprite->material, sprite->sprite->getTexture());
+				BatchIdentifier idtf(sprite->layer, sprite->material, sprite->sprite->getTexture().get());
 				const auto& it = batchesMap.find(idtf);
 				if (it != batchesMap.end()) {
 					batches[it->second].batchInstances.emplace_back(transform.ref(), sprite.ref());
@@ -119,7 +119,7 @@ namespace BitEngine {
 
     void Sprite2DRenderer::buildLegacySpriteVertices(std::vector<SpriteBatchInstance>& batchInstances, Sprite2D_DD_legacy::VertexContainer* vertexContainer, const u32 vtxOffset, const u32 idx){
         const SpriteBatchInstance& inst = batchInstances[idx];
-        const Sprite* lastSprite = inst.sprite.sprite;
+        const RR<Sprite>& lastSprite = inst.sprite.sprite;
         const glm::vec4& uvrect = lastSprite->getUV();
         const glm::vec2 sizes(lastSprite->getWidth(), lastSprite->getHeight());
         const glm::vec2 offsets(-lastSprite->getOffsetX(), -lastSprite->getOffsetY());
