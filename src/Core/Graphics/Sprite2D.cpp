@@ -10,7 +10,7 @@ namespace BitEngine {
 	const Material* Sprite2DRenderer::EFFECT_SPRITE = &sprite_materials[2];
 
 	Sprite2DRenderer::Sprite2DRenderer(GameEngine* engine)
-		: ComponentProcessor(engine->getMessenger()), m_batch(nullptr), m_engine(engine), shader(nullptr)
+		: ComponentProcessor(engine->getMessenger()), m_batch(nullptr), m_engine(engine)
 	{
 	}
 

@@ -79,6 +79,7 @@ namespace BitEngine
 	{
 		public:
 			GL2TextureManager();
+			~GL2TextureManager();
 
 			bool init() override;
 

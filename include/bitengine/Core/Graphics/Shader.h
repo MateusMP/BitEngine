@@ -192,6 +192,6 @@ namespace BitEngine {
 		{
 			return def.m_containers[mode];
 		}
-
 	};
+	using RShader = RR<Shader>;
 }

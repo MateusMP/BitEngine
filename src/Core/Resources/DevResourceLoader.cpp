@@ -36,6 +36,14 @@ BitEngine::DevResourceLoader::DevResourceLoader(GameEngine* ge)
 	resourceMeta.reserve(4096);
 }
 
+BitEngine::DevResourceLoader::~DevResourceLoader()
+{
+	for (ResourceManager* it : managers)
+	{
+		delete it;
+	}
+}
+
 bool BitEngine::DevResourceLoader::init()
 {
 	for (ResourceManager* it : managers)
@@ -61,14 +69,8 @@ void BitEngine::DevResourceLoader::shutdown()
 
 void BitEngine::DevResourceLoader::registerResourceManager(const std::string& resourceType, ResourceManager* manager)
 {
-	if (manager == nullptr)
-	{
-		LOG(EngineLog, BE_LOG_ERROR) << "Registering invalid manager for type " << resourceType;
-	}
-	else
-	{
-		manager->setResourceLoader(this);
-	}
+	BE_ASSERT(manager != nullptr);
+	manager->setResourceLoader(this);
 	managers.emplace_back(manager);
 	managersMap[resourceType] = manager;
 }

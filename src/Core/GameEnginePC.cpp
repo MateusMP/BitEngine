@@ -55,6 +55,7 @@ GameEnginePC::GameEnginePC(const std::string& configFile, ResourceLoader* _loade
 GameEnginePC::~GameEnginePC()
 {
 	delete loader;
+	delete videoDriver;
 }
 
 void GameEnginePC::stopRunning()

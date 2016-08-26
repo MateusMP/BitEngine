@@ -85,7 +85,7 @@ namespace BitEngine
 
 	GL2Shader::~GL2Shader()
 	{
-		FreeShaders();
+		releaseShader();
 	}
 	
 	IGraphicBatch* GL2Shader::createBatch()
@@ -160,14 +160,6 @@ namespace BitEngine
 	void GL2Shader::bind()
 	{
 		GL2::bindShaderProgram(m_programID);
-/*
-                for (const auto& unif : uniformHolder.containers)
-                {
-                    for (const auto& defs : unif.defs) {
-                        defs.type
-                        glActiveTexture(GL_TEXTURE0 + ud->location);
-                    }
-                }*/
 	}
 
 	/// Unbinds the shader
@@ -176,7 +168,7 @@ namespace BitEngine
 		GL2::bindShaderProgram(0);
 	}
 
-	void GL2Shader::FreeShaders()
+	void GL2Shader::releaseShader()
 	{
 		if (m_programID != 0)
 		{
@@ -184,16 +176,18 @@ namespace BitEngine
 			GL_CHECK(glDeleteProgram(m_programID));
 			m_programID = 0;
 		}
+		sources.clear();
 	}
 
 	void GL2Shader::introspect()
 	{
-		std::string nameBuffer;
-		GLint nAttrs;
 		GLint nameRead;
+		std::string nameBuffer;
+
+		// Introspect ATTRIBUTES
+		GLint nAttrs;
 		GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTES, &nAttrs));
 		GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &nameRead));
-
 		nameBuffer.resize(nameRead);
 		
 		for (int i = 0; i < nAttrs; ++i)
@@ -227,8 +221,11 @@ namespace BitEngine
 		// Load attributes
 		genVBOAttributes(baseVaoContainer);
 
+		// Introspect UNIFORMS
 		GLint nUnif;
 		GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_UNIFORMS, &nUnif));
+		GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameRead));
+		nameBuffer.resize(nameRead);
 		
 		for (int i = 0; i < nUnif; ++i)
 		{
@@ -367,7 +364,7 @@ namespace BitEngine
 
 	int GL2Shader::buildFinalProgram(std::vector<GLuint>& shaders)
 	{
-		FreeShaders();
+		releaseShader();
 
 		m_programID = glCreateProgram();
 
@@ -380,6 +377,8 @@ namespace BitEngine
 		else {
 			return FAILED_TO_LINK;
 		}
+
+		GL_CHECK(;);
 	}
 
 	int GL2Shader::linkShaders(std::vector<GLuint>& shaders)

@@ -33,7 +33,7 @@ namespace BitEngine {
 		}
 
 		static void genVbo(GLsizei num, GLuint* _array) {
-			glGenBuffers(num, _array);
+			GL_CHECK(glGenBuffers(num, _array));
 		}
 
 		static void setupVbo(GLuint attrIndex, GLuint vbo, GLint size, GLenum dataType, GLboolean normalized, GLsizei stride, u64 offset, GLuint divisor) {

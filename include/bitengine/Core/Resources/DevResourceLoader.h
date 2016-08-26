@@ -62,6 +62,7 @@ namespace BitEngine
 	{
 		public:
 			DevResourceLoader(GameEngine* ge);
+			~DevResourceLoader();
 
 			bool init() override;
 			virtual void update() override;

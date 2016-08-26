@@ -12,7 +12,7 @@ namespace BitEngine {
 	{
 		public:
 		GL2ShaderManager();
-		~GL2ShaderManager() {};
+		~GL2ShaderManager();
 
 		// Resource Manager
 		bool init() override;
@@ -26,7 +26,7 @@ namespace BitEngine {
 		BaseResource* loadResource(ResourceMeta* base) override;
 
 		void resourceNotInUse(ResourceMeta* meta) override {}
-		void reloadResource(BaseResource* resource) override {}
+		void reloadResource(BaseResource* resource) override;
 		void resourceRelease(ResourceMeta* meta) override {}
 
 		// Shader Manager
@@ -44,6 +44,7 @@ namespace BitEngine {
 
 		private:
 			ResourceLoader::RawResourceTask loadShaderSource(ResourcePropertyContainer& rpc, GL2Shader* shader);
+			void makeFullLoad(ResourceMeta* meta, GL2Shader* shader);
 
 		private:
 			ResourceLoader* loader;

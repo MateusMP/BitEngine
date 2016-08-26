@@ -12,4 +12,5 @@ namespace BitEngine
 			virtual u32 getTextureID() const = 0;
 			virtual u32 getTextureType() const = 0;
 	};
+	using RTexture = RR<Texture>;
 }

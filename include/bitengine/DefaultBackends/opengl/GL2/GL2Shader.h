@@ -21,8 +21,9 @@ namespace BitEngine
     
 	class GL2Shader : public Shader
 	{
+		friend class GL2ShaderManager;
 		public:      
-			GL2Shader() : Shader(nullptr) {}
+			GL2Shader() : Shader(nullptr), m_programID(0){}
 			GL2Shader(ResourceMeta* meta);
 			virtual ~GL2Shader();
 
@@ -62,7 +63,6 @@ namespace BitEngine
 				GLuint shader; // compiled
 				std::vector<char> data;
 			};
-			GLuint m_programID; //!< program unique id
 
 			void introspect();
 			// ATTRIBUTE/UNIFORM FUNCTIONS
@@ -120,7 +120,7 @@ namespace BitEngine
 			int buildFinalProgram(std::vector<GLuint>& shaders);
 			
 			/// Destroy shaders
-			void FreeShaders();
+			void releaseShader();
 
 			void registerAttributes(){}
 			void registerUniforms(){}
@@ -132,16 +132,17 @@ namespace BitEngine
 			VBOAttrib* findAttributeConfigByName(const std::string& str);
 
 			// members
+			GLuint m_programID; //!< program unique id
+			u16 expectedSources;
+
+			std::vector<ShaderSource> sources;
+
 			ShaderDataDefinition m_shaderDefinition;
 			std::vector<VBOAttrib> m_attributes;
 			std::vector<UniformDefinition> m_uniforms;
 
 			VAOContainer baseVaoContainer;
 			UniformHolder uniformHolder;
-
-			std::vector<ShaderSource> sources;
-			u16 expectedSources;
-			u16 managerResourceId;
 
 			std::vector<GL2Batch*> batches;
 	};

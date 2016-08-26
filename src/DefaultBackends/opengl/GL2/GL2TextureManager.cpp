@@ -31,17 +31,17 @@ namespace BitEngine {
 	GLuint GL2TextureManager::GenerateErrorTexture()
 	{
 		GLuint textureID;
-		glGenTextures(1, &textureID);
+		GL_CHECK(glGenTextures(1, &textureID));
 		LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "GENERATING ERROR TEXTURE: " << textureID << error_texture_data.width << error_texture_data.height;
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, error_texture_data.width, error_texture_data.height,
-			0, GL_RGB, GL_UNSIGNED_BYTE, error_texture_data.pixel_data);
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, textureID));
+		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, error_texture_data.width, error_texture_data.height,
+			0, GL_RGB, GL_UNSIGNED_BYTE, error_texture_data.pixel_data));
 		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
 		return textureID;
 	}
@@ -106,6 +106,14 @@ namespace BitEngine {
 		gpuMemInUse = 0;
 	}
 
+	GL2TextureManager::~GL2TextureManager()
+	{
+		for (GL2Texture& t : textures.getResources())
+		{
+			releaseDriverData(&t);
+		}
+	}
+
 	bool GL2TextureManager::init()
 	{
 		stbi_set_flip_vertically_on_load(true);
@@ -137,9 +145,12 @@ namespace BitEngine {
 
 	void GL2TextureManager::releaseDriverData(GL2Texture* texture)
 	{
-		glDeleteTextures(1, &texture->m_textureID);
-		texture->m_textureID = errorTexture->m_textureID;
-		texture->m_loaded = GL2Texture::TextureLoadState::NOT_LOADED;
+		if (texture->m_loaded ==  GL2Texture::TextureLoadState::LOADED)
+		{
+			glDeleteTextures(1, &texture->m_textureID);
+			texture->m_textureID = errorTexture->m_textureID;
+			texture->m_loaded = GL2Texture::TextureLoadState::NOT_LOADED;
+		}
 	}
 
 	void GL2TextureManager::releaseStbiRawData(GL2Texture::StbiImageData& data)
@@ -230,19 +241,12 @@ namespace BitEngine {
 		GL2Texture* texture = textures.findResource(meta);
 		BE_ASSERT(texture != nullptr);
 
-		if (texture->m_loaded == GL2Texture::TextureLoadState::LOADING)
-			return;
-
-		if (texture->m_loaded ==  GL2Texture::TextureLoadState::LOADED)
-		{
-			releaseDriverData(texture);
-		}
+		releaseDriverData(texture);
 	}
 
 	void GL2TextureManager::reloadResource(BaseResource* resource)
 	{
 		GL2Texture* texture = static_cast<GL2Texture*>(resource);
-
 		makeLoadFullResource(texture->getMeta(), texture);
 	}
 
@@ -253,10 +257,7 @@ namespace BitEngine {
 		BE_ASSERT(texture != nullptr);
 
 		texture->releaseMemoryData();
-		if (texture->m_loaded == GL2Texture::TextureLoadState::LOADED)
-		{
-			texture->releaseMemoryData();
-		}
+		releaseDriverData(texture);
 	}
 
 	void GL2TextureManager::uploadToGPU(GL2Texture* texture)
@@ -276,40 +277,39 @@ namespace BitEngine {
 		else
 		{
 			// If the texture is not yet loaded, we need to generate a new gl texture
-			// Generate new texture index
-			glGenTextures(1, &textureID);
+			GL_CHECK(glGenTextures(1, &textureID));
 		}
 
-		glBindTexture(GL_TEXTURE_2D, textureID);
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, textureID));
 		if (data.color == 1)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RED, GL_UNSIGNED_BYTE, data.pixelData);
+			GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RED, GL_UNSIGNED_BYTE, data.pixelData));
 			LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "GRAYSCALE TEXTURE!";
 		}
 		else if (data.color == 2)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RG, GL_UNSIGNED_BYTE, data.pixelData);
+			GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RG, GL_UNSIGNED_BYTE, data.pixelData));
 			LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "GRAYSCALE ALPHA TEXTURE!";
 		}
 		else if (data.color == 3) // RGB
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.pixelData);
+			GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.pixelData));
 		}
 		else if (data.color == 4) // RGBA
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.pixelData);
+			GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.pixelData));
 		}
 		else {
 			LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "LoadTexture: Unknow color " << data.color;
 		}
 
 		// MIPMAPS
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 
 		// Create final texture object
 		texture.m_textureID = textureID;

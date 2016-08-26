@@ -56,6 +56,14 @@ namespace BitEngine {
 		gpuMemInUse = 0;
 	}
 
+	GL2ShaderManager::~GL2ShaderManager()
+	{
+		for (GL2Shader& shader : shaders.getResources())
+		{
+			shader.releaseShader();
+		}
+	};
+
 	bool GL2ShaderManager::init()
 	{
 		// Init error texture
@@ -119,6 +127,40 @@ namespace BitEngine {
 		return nullptr;
 	}
 
+	void GL2ShaderManager::makeFullLoad(ResourceMeta* meta, GL2Shader* shader)
+	{
+		initShadeDefinition(shader->getDefinition(), meta);
+		// Load source files
+		int expectedTypes = 0;
+		auto gl2Props = meta->properties["gl2"];
+		auto vertexProp = gl2Props["vertex"];
+		auto fragmentProp = gl2Props["fragment"];
+		auto geometryProp = gl2Props["geometry"];
+		if (vertexProp.isValid() && !vertexProp.getValueString().empty()) {
+			expectedTypes++;
+		}
+		if (fragmentProp.isValid()) {
+			expectedTypes++;
+		}
+		if (geometryProp.isValid()) {
+			expectedTypes++;
+		}
+		shader->setExpectedShaderSources(expectedTypes);
+		std::shared_ptr<ShaderSourceLoader> shaderSourceLoader = std::make_shared<ShaderSourceLoader>(this, shader);
+		if (vertexProp.isValid()) {
+			shaderSourceLoader->addDependency(loadShaderSource(vertexProp, shader));
+		}
+		if (fragmentProp.isValid()) {
+			shaderSourceLoader->addDependency(
+					loadShaderSource(fragmentProp, shader));
+		}
+		if (geometryProp.isValid()) {
+			shaderSourceLoader->addDependency(
+					loadShaderSource(geometryProp, shader));
+		}
+		loader->getEngine()->getTaskManager()->addTask(shaderSourceLoader);
+	}
+
 	BaseResource* GL2ShaderManager::loadResource(ResourceMeta* meta)
 	{
 		GL2Shader* shader = shaders.findResource(meta);
@@ -129,43 +171,17 @@ namespace BitEngine {
 			shader = shaders.getResourceAddress(id);
 			new (shader) GL2Shader(meta);
 
-			initShadeDefinition(shader->getDefinition(), meta);
-						
-			// Load source files
-			int expectedTypes = 0;
-			auto gl2Props = meta->properties["gl2"];
-
-			auto vertexProp = gl2Props["vertex"];
-			auto fragmentProp = gl2Props["fragment"];
-			auto geometryProp = gl2Props["geometry"];
-
-			if (vertexProp.isValid() && !vertexProp.getValueString().empty()) {
-				expectedTypes++;
-			}
-			if (fragmentProp.isValid()) {
-				expectedTypes++;
-			}
-			if (geometryProp.isValid()) {
-				expectedTypes++;
-			}
-			shader->setExpectedShaderSources(expectedTypes);
-
-			std::shared_ptr<ShaderSourceLoader> shaderSourceLoader = std::make_shared<ShaderSourceLoader>(this, shader);
-
-			if (vertexProp.isValid()) {
-				shaderSourceLoader->addDependency(loadShaderSource(vertexProp, shader));
-			}
-			if (fragmentProp.isValid()) {
-				shaderSourceLoader->addDependency(loadShaderSource(fragmentProp, shader));
-			}
-			if (geometryProp.isValid())	{
-				shaderSourceLoader->addDependency(loadShaderSource(geometryProp, shader));
-			}
-
-			loader->getEngine()->getTaskManager()->addTask(shaderSourceLoader);
+			makeFullLoad(meta, shader);
 		}
 
 		return shader;
+	}
+
+	void GL2ShaderManager::reloadResource(BaseResource* resource)
+	{
+		GL2Shader* shader = static_cast<GL2Shader*>(resource);
+		shader->releaseShader();
+		makeFullLoad(resource->getMeta(), shader);
 	}
 		
 	void GL2ShaderManager::sendToGPU(GL2Shader* shader)

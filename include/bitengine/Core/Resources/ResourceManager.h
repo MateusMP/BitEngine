@@ -89,12 +89,7 @@ namespace BitEngine {
 			template<typename T>
 			RR<T> getResource(const std::string& name) {
 				T* resource = static_cast<T*>(loadResource(name));
-				if (resource != nullptr)
-				{
-					return RR<T>(resource, this);
-				} else {
-					return RR<T>(nullptr);
-				}
+				return RR<T>(resource, this);
 			}
 
 			template<typename T>
@@ -220,15 +215,13 @@ namespace BitEngine {
 		static_assert(std::is_base_of<BaseResource, T>::value, "Not a resource class");
 
 	public:
-		RR(T* nullinit)
+		RR()
 			: resource(nullptr), loader(nullptr)
-		{
-			BE_ASSERT(nullinit == nullptr);
-		}
+		{}
 		RR(T* r, ResourceLoader* l)
 			: resource(r), loader(l)
 		{
-			loader->incReference(resource);
+			incRef();
 		}
 		RR(RR&& r)
 			: resource(r.resource), loader(r.loader)
@@ -236,11 +229,11 @@ namespace BitEngine {
 		RR(const RR& r)
 			: resource(r.resource), loader(r.loader)
 		{
-			loader->incReference(resource);
+			incRef();
 		}
 		~RR()
 		{
-			loader->decReference(resource);
+			decRef();
 		}
 		RR& operator=(RR&& r)
 		{
@@ -252,7 +245,7 @@ namespace BitEngine {
 		{
 			resource = r.resource;
 			loader = r.loader;
-			loader->incReference(resource);
+			incRef();
 			return *this;
 		}
 		T* operator->() {
@@ -280,13 +273,19 @@ namespace BitEngine {
 		}
 
 	private:
+		void incRef() {
+			if (resource == nullptr) return;
+			loader->incReference(resource);
+		}
+
+		void decRef() {
+			if (resource == nullptr) return;
+			loader->decReference(resource);
+		}
+
 		T* resource;
 		ResourceLoader* loader;
 	};
-//	using rTexture = RR<Texture>;
-//	using rShader = RR<Shader>;
-//	using rSprite = RR<Sprite>;
-
 
 	// Resource manager interface
 	// Used to load and handle each resource type

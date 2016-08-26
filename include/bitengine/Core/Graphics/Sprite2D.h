@@ -195,7 +195,7 @@ namespace BitEngine
 	{
 		public:
 			ComponentHolder(GameEngine* _engine)
-				: BaseComponentHolder(_engine->getMessenger(), sizeof(Sprite2DComponent)), engine(_engine), defaultSprite(nullptr)
+				: BaseComponentHolder(_engine->getMessenger(), sizeof(Sprite2DComponent)), engine(_engine)
 			{
 
 			}
