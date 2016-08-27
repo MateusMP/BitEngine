@@ -2,6 +2,7 @@
 #include "DefaultBackends/opengl/GL2/GL2Batch.h"
 
 #include "DefaultBackends/opengl/GL2/GL2TextureManager.h"
+#include "DefaultBackends/opengl/GL2/GL2Impl.h"
 
 
 #include "Common/ErrorCodes.h"

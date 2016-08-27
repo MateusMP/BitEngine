@@ -1,20 +1,23 @@
 
-#include "DefaultBackends/glfw/GLFW_VideoDriver.h"
+#include "DefaultBackends/glfw/GLFW_VideoSystem.h"
 
 #include "Core/Graphics/Material.h"
 #include "Core/MessageType.h"
 
-
 using namespace BitEngine;
 
-void GLFW_VideoDriver::GLFW_ErrorCallback(int error, const char* description)
-{
-	LOGCLASS(BE_LOG_ERROR) << "GLFW Error: " << error << ": " << description;
-}
+std::map<GLFW_VideoSystem::Window_glfw*, GLFW_VideoSystem*> resizeCallbackReceivers;
+std::set<GLFW_VideoSystem::Window_glfw*> windowsOpen;
 
-bool GLFW_VideoDriver::init(const VideoConfiguration& config)
+bool GLFW_VideoSystem::Init()
 {
 	LOGCLASS(BE_LOG_VERBOSE) << "Video: Init video...";
+	driver = getEngine()->getVideoDriver();
+	if (!(driver->getVideoAdapter() & VideoAdapterType::GL_ANY))
+	{
+		LOGCLASS(BE_LOG_ERROR) << "GLFW Video System only supports OpenGL drivers.";
+		return false;
+	}
 
 	glewExperimental = GL_TRUE;
 	if (!glfwInit()) {
@@ -24,20 +27,55 @@ bool GLFW_VideoDriver::init(const VideoConfiguration& config)
 
 	glfwSetErrorCallback(GLFW_ErrorCallback);
 
+	if (!driver->init()) {
+		LOGCLASS(BE_LOG_ERROR) << "Video: Failed to initialize driver!";
+		return false;
+	}
+
 	LOGCLASS(BE_LOG_VERBOSE) << "Video initialized!";
-	return adapter->init();
+
+	WindowConfiguration windowConfig;
+
+	windowConfig.m_Title = "WINDOW";
+	windowConfig.m_Width = 1280;
+	windowConfig.m_Height = 720;
+	windowConfig.m_Resizable = true;
+	windowConfig.m_FullScreen = getConfig("Fullscreen", "false")->getValueAsBool();
+
+	windowConfig.m_RedBits = 8;
+	windowConfig.m_GreenBits = 8;
+	windowConfig.m_BlueBits = 8;
+	windowConfig.m_AlphaBits = 8;
+
+	windowConfig.m_DepthBits = 8;
+	windowConfig.m_StencilBits = 8;
+
+	m_window = static_cast<Window_glfw*>(createWindow(windowConfig));
+	return m_window != nullptr;
+
+	return false;
 }
 
-void GLFW_VideoDriver::shutdown()
+void GLFW_VideoSystem::Update()
 {
-	for (Window_glfw *w : windowsOpen) {
+	for (Window_glfw *w : windowsOpen)
+	{
+		CheckWindowClosed(w);
+	}
+}
+
+void GLFW_VideoSystem::Shutdown()
+{
+	driver->shutdown();
+	auto copy = windowsOpen;
+	for (Window_glfw *w : copy) {
 		closeWindow(w);
 	}
 
 	glfwTerminate();
 }
 
-void GLFW_VideoDriver::closeWindow(BitEngine::Window* window)
+void GLFW_VideoSystem::closeWindow(BitEngine::Window* window)
 {
 	Window_glfw* wglfw = static_cast<Window_glfw*>(window);
 
@@ -50,7 +88,7 @@ void GLFW_VideoDriver::closeWindow(BitEngine::Window* window)
 	resizeCallbackReceivers.erase(wglfw);
 }
 
-Window* GLFW_VideoDriver::recreateWindow(Window* window)
+Window* GLFW_VideoSystem::recreateWindow(Window* window)
 {
 	Window_glfw* wglfw = static_cast<Window_glfw*>(window);
 
@@ -68,7 +106,7 @@ Window* GLFW_VideoDriver::recreateWindow(Window* window)
 	return window;
 }
 
-Window* GLFW_VideoDriver::createWindow(const WindowConfiguration& wc)
+Window* GLFW_VideoSystem::createWindow(const WindowConfiguration& wc)
 {
 	Window_glfw* window = new Window_glfw();
 
@@ -121,111 +159,17 @@ Window* GLFW_VideoDriver::createWindow(const WindowConfiguration& wc)
 	return window;
 }
 
-void GLFW_VideoDriver::updateWindow(BitEngine::Window* window)
+void GLFW_VideoSystem::updateWindow(BitEngine::Window* window)
 {
 	Window_glfw* wglfw = static_cast<Window_glfw*>(window);
+	if (wglfw == nullptr) {
+		wglfw = m_window;
+	}
 
 	glfwSwapBuffers(wglfw->m_glfwWindow);
 }
 
-void GLFW_VideoDriver::update()
-{
-	for (Window_glfw *w : windowsOpen)
-	{
-		CheckWindowClosed(w);
-	}
-}
-
-void GLFW_VideoDriver::clearBuffer(BitEngine::RenderBuffer* buffer, BitEngine::BufferClearBitMask mask)
-{
-	GLbitfield bitfield = 0;
-	if (mask & BitEngine::BufferClearBitMask::COLOR)
-		bitfield |= GL_COLOR_BUFFER_BIT;
-	if (mask & BitEngine::BufferClearBitMask::DEPTH)
-		bitfield |= GL_DEPTH_BUFFER_BIT;
-
-	glClear(bitfield);
-}
-
-void GLFW_VideoDriver::clearBufferColor(BitEngine::RenderBuffer* buffer, const BitEngine::ColorRGBA& color)
-{
-	glClearColor(color.r(), color.g(), color.b(), color.a());
-}
-
-void GLFW_VideoDriver::setViewPort(int x, int y, int width, int height)
-{
-	glViewport(x, y, width, height);
-}
-
-void GLFW_VideoDriver::configure(const BitEngine::Material* material)
-{
-	// BLEND
-	if (material->getState(RenderConfig::BLEND) != BlendConfig::BLEND_NONE)
-	{
-		GL2::enableState(GL2::getGLState(RenderConfig::BLEND), true);
-		if (material->getState(RenderConfig::BLEND) == BlendConfig::BLEND_ALL)
-		{
-			glBlendFunc(GL2::getBlendMode(material->srcColorBlendMode), GL2::getBlendMode(material->dstColorBlendMode));
-		}
-		else
-		{
-			glBlendFuncSeparate(GL2::getBlendMode(material->srcColorBlendMode), GL2::getBlendMode(material->dstColorBlendMode),
-								GL2::getBlendMode(material->srcAlphaBlendMode), GL2::getBlendMode(material->dstAlphaBlendMode));
-		}
-		glBlendEquation(GL2::getBlendEquation(material->blendEquation));
-	}
-	else
-	{
-		GL2::enableState(GL2::getGLState(RenderConfig::BLEND), false);
-	}
-
-	// ALPHA TEST
-	GL2::enableState(GL2::getGLState(RenderConfig::ALPHA_TEST), material->getState(RenderConfig::ALPHA_TEST) == 0);
-
-	// FACE CULL
-	if (material->getState(RenderConfig::CULL_FACE) != CULL_FACE_NONE)
-	{
-		GL2::enableState(GL2::getGLState(RenderConfig::CULL_FACE), true);
-		switch (material->getState(RenderConfig::CULL_FACE)) 
-		{
-			case CullFaceConfig::BACK_FACE:
-				glCullFace(GL_BACK);
-			break;
-			case CullFaceConfig::FRONT_FACE:
-				glCullFace(GL_FRONT);
-			break;
-			case CullFaceConfig::FRONT_AND_BACK:
-				glCullFace(GL_FRONT_AND_BACK);
-			break;
-		}
-	}
-	else
-	{
-		GL2::enableState(GL2::getGLState(RenderConfig::CULL_FACE), false);
-	}
-
-	u8 depthMode = GL2::getGLState(RenderConfig::DEPTH_TEST);
-	if (depthMode &  DepthConfig::DEPTH_TEST_DISABLED) {
-		GL2::enableState(GL_DEPTH_TEST, false);
-	}
-	else if (depthMode &  DepthConfig::DEPTH_TEST_ENABLED) {
-		GL2::enableState(GL_DEPTH_TEST, true);
-	}
-	if (depthMode &  DepthConfig::DEPTH_TEST_WRITE_ENABLED) {
-		GL_CHECK(glDepthMask(true));
-	} else {
-		GL_CHECK(glDepthMask(false));
-	}
-	GL2::enableState(GL2::getGLState(RenderConfig::DEPTH_TEST),  material->getState(RenderConfig::DEPTH_TEST) == 0);
-
-	GL2::enableState(GL2::getGLState(RenderConfig::MULTISAMPLE), material->getState(RenderConfig::MULTISAMPLE) == 0);
-	GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_1D),  material->getState(RenderConfig::TEXTURE_1D) == 0);
-	GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_2D),  material->getState(RenderConfig::TEXTURE_2D) == 0);
-	GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_3D),  material->getState(RenderConfig::TEXTURE_3D) == 0);
-	GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_CUBE), material->getState(RenderConfig::TEXTURE_CUBE) == 0);
-}
-
-bool GLFW_VideoDriver::CheckWindowClosed(Window_glfw* window)
+bool GLFW_VideoSystem::CheckWindowClosed(Window_glfw* window)
 {
 	if (glfwWindowShouldClose(window->m_glfwWindow)) {
 		getEngine()->getMessenger()->dispatch(MsgWindowClosed(window));
@@ -235,7 +179,7 @@ bool GLFW_VideoDriver::CheckWindowClosed(Window_glfw* window)
 	return false;
 }
 
-bool GLFW_VideoDriver::CreateGLFWWindow(Window_glfw* window)
+bool GLFW_VideoSystem::CreateGLFWWindow(Window_glfw* window)
 {
 	// TODO: Use configs
 
@@ -285,7 +229,13 @@ bool GLFW_VideoDriver::CreateGLFWWindow(Window_glfw* window)
 	return true;
 }
 
-void GLFW_VideoDriver::GlfwFrameResizeCallback(GLFWwindow* window, int width, int height)
+
+void GLFW_VideoSystem::GLFW_ErrorCallback(int error, const char* description)
+{
+	LOGCLASS(BE_LOG_ERROR) << "GLFW Error: " << error << ": " << description;
+}
+
+void GLFW_VideoSystem::GlfwFrameResizeCallback(GLFWwindow* window, int width, int height)
 {
 	Window_glfw* resizedWindow = nullptr;
 	for (Window_glfw* wg : windowsOpen)
@@ -311,5 +261,15 @@ void GLFW_VideoDriver::GlfwFrameResizeCallback(GLFWwindow* window, int width, in
 	}
 }
 
-std::map<GLFW_VideoDriver::Window_glfw*, GLFW_VideoDriver*> GLFW_VideoDriver::resizeCallbackReceivers;
-std::set<GLFW_VideoDriver::Window_glfw*> GLFW_VideoDriver::windowsOpen;
+void GLFW_VideoSystem::OnWindowResize(Window_glfw* window, int width, int height)
+{
+	if (m_currentContext != window) {
+		glfwMakeContextCurrent(window->m_glfwWindow);
+	}
+
+	driver->setViewPort(0, 0, width, height);
+
+	if (m_currentContext != window) {
+		glfwMakeContextCurrent(m_currentContext->m_glfwWindow);
+	}
+}

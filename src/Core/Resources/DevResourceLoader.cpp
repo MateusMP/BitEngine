@@ -38,10 +38,7 @@ BitEngine::DevResourceLoader::DevResourceLoader(GameEngine* ge)
 
 BitEngine::DevResourceLoader::~DevResourceLoader()
 {
-	for (ResourceManager* it : managers)
-	{
-		delete it;
-	}
+
 }
 
 bool BitEngine::DevResourceLoader::init()
@@ -63,9 +60,11 @@ void BitEngine::DevResourceLoader::update()
 
 void BitEngine::DevResourceLoader::shutdown()
 {
-
+	for (auto& it = managers.rbegin(); it != managers.rend(); ++it)
+	{
+		delete *it;
+	}
 }
-
 
 void BitEngine::DevResourceLoader::registerResourceManager(const std::string& resourceType, ResourceManager* manager)
 {

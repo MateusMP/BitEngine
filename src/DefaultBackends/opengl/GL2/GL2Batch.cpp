@@ -1,5 +1,7 @@
+#include "DefaultBackends/opengl/GL2/GL2Batch.h"
+#include "DefaultBackends/opengl/GL2/GL2Impl.h"
+
 #include "DefaultBackends/opengl/GL2/GL2Shader.h"
-#include "DefaultBackends/opengl/GL2/GL2Pipeline.h"
 
 namespace BitEngine
 {

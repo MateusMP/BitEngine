@@ -2,12 +2,10 @@
 
 #include <set>
 
-#include "Core/Graphics.h"
 #include "Core/System.h"
 #include "Core/Window.h"
-#include "Core/Graphics/VideoRenderer.h"
 #include "Core/Messenger.h"
-#include "Core/EngineConfiguration.h"
+#include "Core/Graphics/VideoDriver.h"
 
 namespace BitEngine {
     
@@ -17,45 +15,6 @@ namespace BitEngine {
 	{
 	};
 
-	class VideoDriver : public EnginePiece
-	{
-		friend class VideoSystem;
-
-		public:
-			VideoDriver(GameEngine* ge)
-				: EnginePiece(ge)
-			{}
-			virtual ~VideoDriver(){}
-		
-			virtual bool init(const VideoConfiguration& config) = 0;
-			virtual void update() = 0;
-			virtual void shutdown() = 0;
-
-			virtual Window* createWindow(const WindowConfiguration& wc) = 0;
-			virtual void closeWindow(Window* window) = 0;
-			virtual Window* recreateWindow(Window* window) = 0;
-			virtual void updateWindow(Window* window) = 0;
-
-			virtual u32 getVideoAdapter() = 0;
-
-			/**
-			* Clear buffer on defined options
-			* \param buffer Buffer reference, if null, applies to screen
-			* \param mask Options to clear, see BufferClearBitMask
-			*/
-			virtual void clearBuffer(RenderBuffer* buffer, BufferClearBitMask mask) = 0;
-
-			/**
-			* If buffer == nullptr, clears the screen
-			* otherwise, clears the given RenderBuffer
-			**/
-			virtual void clearBufferColor(RenderBuffer* buffer, const ColorRGBA& color) = 0;
-
-			virtual void setViewPort(int x, int y, int width, int height) = 0;
-			
-			virtual void configure(const Material* material) = 0;
-	};
-
 	/** Default class for Video configuration
 	 * Basic video initialization
 	 * Uses just one window
@@ -63,60 +22,30 @@ namespace BitEngine {
 	class VideoSystem : public System
 	{
 		public:
-			VideoSystem(GameEngine* ge, VideoDriver* driver) 
-				: System(ge), m_driver(driver)
+			VideoSystem(GameEngine* ge) 
+				: System(ge)
 			{
 				getConfig("Fullscreen", "false")->setDescription("Use fullscreen mode, true, false ");
 			}
-
-
-			virtual ~VideoSystem()
-			{
-				delete m_driver;
-			}
+			
+			virtual ~VideoSystem() {}
 
 			const char* getName() const override {
 				return "Video";
 			}
-
-			VideoDriver* getDriver() {
-				return m_driver;
-			}
-
-			/**
-			 * Initializes a window and it's rendering driver
-			 */
-			bool Init() override;
-
-			/**
-			 * Close the Video System
-			 */
-			void Shutdown() override 
-			{
-				m_driver->closeWindow(m_window);
-				m_driver->shutdown();
-			}
-
-			/**
-			 * Called once a frame
-			 */
-			void Update()
-			{
-				m_driver->update();
-			}
-
-			/**
-			 * Redraws the default window
-			 */
-			void UpdateWindow()
-			{
-				m_driver->updateWindow(m_window);
-			}
 			
-		protected:
-			VideoDriver* m_driver;
+			bool Init() = 0;
+			void Shutdown() = 0;
+			void Update() = 0;
 
-			Window* m_window;
+			virtual u32 getVideoAdapter() = 0;
+			virtual VideoDriver* getDriver() = 0;
+			virtual BitEngine::Window* createWindow(const BitEngine::WindowConfiguration& wc) = 0;
+			virtual void closeWindow(BitEngine::Window* window) = 0;
+			virtual BitEngine::Window* recreateWindow(BitEngine::Window* window) = 0;
+
+			// If nullptr, updates the default window
+			virtual void updateWindow(BitEngine::Window* window = nullptr) = 0;
 	};
 
 }

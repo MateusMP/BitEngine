@@ -7,16 +7,16 @@ namespace BitEngine {
 	
 	enum VideoAdapterType{
 		NONE,
-		OPENGL_2,
-		OPENGL_4,
+		OPENGL_2 = 1 << 1,
+		OPENGL_4 = 1 << 2,
 
-		VULKAN_1,
+		VULKAN_1 = 1 << 3,
 
-		GL_ALL,
-		GL_2_OR_LOWER,
-		GL_2_OR_GREATER,
+		GL_ANY = OPENGL_2 | OPENGL_4,
+		GL_2_OR_LOWER = OPENGL_2,
+		GL_2_OR_GREATER = OPENGL_2 | OPENGL_4,
 
-		VULKAN_ALL,
+		VULKAN_ANY = VULKAN_1,
 	};
 
 	enum DataType

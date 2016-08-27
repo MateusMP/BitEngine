@@ -1,5 +1,9 @@
 #pragma once
 
+#include "Core/Graphics/VideoRenderer.h"
+#include "Core/Graphics/Texture.h"
+#include "Core/Graphics/Shader.h"
+#include "Core/Graphics/Material.h"
 #include "Common/TypeDefinition.h"
 
 #ifdef _BITENGINE_USE_GLEW_STATIC_
@@ -23,13 +27,3 @@ static void GL_BREAK() {
 		LOG(EngineLog, BE_LOG_ERROR) << "GL ERROR: " << std::hex << a__glerr; GL_BREAK(); } }
 
 #define GL_CALL_AVAILABLE(call) ((*call)!=nullptr)
-
-
-class GLAdapter
-{
-	public:
-	virtual ~GLAdapter() {}
-	virtual bool init() = 0;
-
-	virtual u32 getVideoAdapter() = 0;
-};

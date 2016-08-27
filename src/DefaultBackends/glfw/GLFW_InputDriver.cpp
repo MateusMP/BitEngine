@@ -1,7 +1,7 @@
 #include <unordered_map>
 
 #include "Defaultbackends/glfw/GLFW_InputDriver.h"
-#include "Defaultbackends/glfw/GLFW_VideoDriver.h"
+#include "Defaultbackends/glfw/GLFW_VideoSystem.h"
 
 void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
@@ -22,7 +22,7 @@ bool GLFW_InputDriver::Init()
 
 void GLFW_InputDriver::inputWindowCreated(BitEngine::Window* window)
 {
-	GLFW_VideoDriver::Window_glfw* w = static_cast<GLFW_VideoDriver::Window_glfw*>(window);
+	GLFW_VideoSystem::Window_glfw* w = static_cast<GLFW_VideoSystem::Window_glfw*>(window);
 
 	// Creates instance for this window
 	inputReceivers.emplace(w->m_glfwWindow, getMessenger());
@@ -35,7 +35,7 @@ void GLFW_InputDriver::inputWindowCreated(BitEngine::Window* window)
 
 void GLFW_InputDriver::inputWindowDestroyed(BitEngine::Window* window)
 {
-	inputReceivers.erase(static_cast<GLFW_VideoDriver::Window_glfw*>(window)->m_glfwWindow);
+	inputReceivers.erase(static_cast<GLFW_VideoSystem::Window_glfw*>(window)->m_glfwWindow);
 }
 
 

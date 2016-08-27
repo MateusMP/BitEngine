@@ -23,8 +23,10 @@ void _check_gl_error(const char *file, int line)
 	}
 }
 
+/*
 RendererVersion DetectBestRenderer()
 {
+	
 	static RendererVersion useRenderer = NOT_DEFINED;
 
 	if (useRenderer != NOT_DEFINED) {
@@ -43,6 +45,6 @@ RendererVersion DetectBestRenderer()
 	{
 		useRenderer = RendererVersion::USE_GL2;
 	}
-
+	
 	return useRenderer;
-}
+}*/

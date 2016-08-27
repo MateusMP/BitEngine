@@ -25,9 +25,6 @@ namespace BitEngine{
 
 	private:
 		void loadSpriteData(ResourceMeta* meta, Sprite* sprite);
-
-		ResourceLoader* resourceLoader;
-		ResourceIndexer<Sprite, 2048> sprites;
 		
 		// Inherited via ResourceManager
 		virtual bool init() override;
@@ -47,6 +44,9 @@ namespace BitEngine{
 
 		virtual u32 getCurrentGPUMemoryUsage() const override;
 
+
+		ResourceLoader* resourceLoader;
+		ResourceIndexer<Sprite, 2048> sprites;
 	};
 
 

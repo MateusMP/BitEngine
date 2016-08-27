@@ -5,7 +5,6 @@
 #include "DefaultBackends/opengl/GL2/GL2Shader.h"
 #include "DefaultBackends/opengl/GL2/GL2ShaderManager.h"
 
-
 namespace BitEngine {
 
 	class ShaderSourceLoader : public Task {

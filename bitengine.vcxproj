@@ -54,6 +54,7 @@
     <ClInclude Include="include\bitengine\Core\Graphics\Shader.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\Sprite2D.h" />
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
+    <ClInclude Include="include\bitengine\Core\Graphics\VideoDriver.h" />
     <ClInclude Include="include\bitengine\Core\Input.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSpecification.h" />
     <ClInclude Include="include\bitengine\Core\InputSystem.h" />
@@ -78,7 +79,6 @@
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Shader.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2ShaderManager.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2TextureManager.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Pipeline.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL_Headers.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\ShaderProgram.h" />
@@ -93,14 +93,14 @@
     <ClInclude Include="include\bitengine\Common\TypeDefinition.h" />
     <ClInclude Include="include\bitengine\Core\VideoSystem.h" />
     <ClInclude Include="include\bitengine\Core\Window.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_VideoDriver.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_VideoSystem.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\VertexArrayObject.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\Sprite2DGL4.h" />
     <ClInclude Include="include\bitengine\bitengine.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\OpenGL2.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Structs.h" />
     <ClInclude Include="include\bitengine\json.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_Backend.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Driver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Graphics\Sprite2D.cpp" />
@@ -139,11 +139,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestBitfield|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\DefaultBackends\glfw\GLFW_VideoDriver.cpp">
+    <ClCompile Include="src\DefaultBackends\glfw\GLFW_VideoSystem.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestBitfield|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Batch.cpp" />
+    <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Driver.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Shader.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2ShaderManager.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\OpenGL.cpp">
@@ -169,10 +170,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="include\bitengine\Core\Graphics\Shaders\sprite2D_gl2.vert" />
-    <None Include="include\bitengine\Core\Graphics\Shaders\sprite2D_gl2.frag" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{36D2A43C-8165-4450-9B3D-39C12078BA1D}</ProjectGuid>

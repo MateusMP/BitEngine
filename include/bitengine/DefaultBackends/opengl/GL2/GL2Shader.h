@@ -1,8 +1,6 @@
 #pragma once
 
-#include "OpenGL2.h"
-
-#include "GL2Structs.h"
+#include "GL2Batch.h"
 
 namespace BitEngine
 {

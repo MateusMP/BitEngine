@@ -1,7 +1,5 @@
-
 #include "Core/ResourceSystem.h"
 
-#include "Core/Graphics.h"
 #include "Core/Logger.h"
 
 namespace BitEngine{

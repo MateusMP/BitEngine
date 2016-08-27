@@ -4,8 +4,6 @@
 #include <vector>
 #include <map>
 
-#include "DefaultBackends/opengl/OpenGL.h"
-
 #include <glm/common.hpp>
 
 #include "Common/TypeDefinition.h"

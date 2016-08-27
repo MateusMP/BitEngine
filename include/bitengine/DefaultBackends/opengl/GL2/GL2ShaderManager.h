@@ -6,6 +6,8 @@
 
 #include "OpenGL2.h"
 
+#include "DefaultBackends/opengl/GL2/GL2Shader.h"
+
 namespace BitEngine {
 
 	class GL2ShaderManager : public ResourceManager
