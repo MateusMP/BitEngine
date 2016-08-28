@@ -106,14 +106,12 @@
     <ClCompile Include="src\Core\ModelManager.cpp" />
     <ClCompile Include="src\Core\ResourceSystem.cpp" />
     <ClCompile Include="src\Core\SpriteManager.cpp" />
-    <ClCompile Include="src\Core\VideoSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\ShaderProgram.cpp" />
     <ClCompile Include="src\Core\Logger.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\error_texture.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\OpenGL.cpp" />
     <ClCompile Include="src\Core\ECS\Camera3DComponent.cpp" />
-    <ClCompile Include="src\Core\Messenger.cpp" />
     <ClCompile Include="src\Tests\bitset.cpp" />
     <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
     <ClCompile Include="src\Tests\testES.cpp" />

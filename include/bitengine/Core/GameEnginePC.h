@@ -31,42 +31,42 @@ namespace BitEngine
 	class GameEnginePC : public GameEngine
 	{
 		public:
-		GameEnginePC(const std::string& configFile, ResourceLoader* loader, VideoDriver* driver);
-		~GameEnginePC();
+			GameEnginePC(const std::string& configFile, ResourceLoader* loader, VideoDriver* driver);
+			~GameEnginePC();
 
-		// Will call the @see CreateSystems() method
-		// Load all configurations
-		// Call init() on all systems
-		// Start the main loop and will block until the game is closed. @see StopRunning()
-		bool run();
+			// Will call the @see CreateSystems() method
+			// Load all configurations
+			// Call init() on all systems
+			// Start the main loop and will block until the game is closed. @see StopRunning()
+			bool run();
 
-		// Stop the game main loop.
-		// Will finish as soon as the current frame ends.
-		void stopRunning();
+			// Stop the game main loop.
+			// Will finish as soon as the current frame ends.
+			void stopRunning();
 
-		virtual EngineConfiguration* getConfigurations() override {
-			return &configuration;
-		}
-		virtual ResourceLoader* getResourceLoader() override {
-			return loader;
-		}
-		virtual Messenger* getMessenger() override {
-			return &messenger;
-		}
-		virtual System* getSystem(const std::string& name) override;
+			virtual EngineConfiguration* getConfigurations() override {
+				return &configuration;
+			}
+			virtual ResourceLoader* getResourceLoader() override {
+				return loader;
+			}
+			virtual Messenger* getMessenger() override {
+				return &messenger;
+			}
+			virtual System* getSystem(const std::string& name) override;
 
-		virtual TaskManager* getTaskManager() override {
-			return &taskManager;
-		}
+			virtual TaskManager* getTaskManager() override {
+				return &taskManager;
+			}
 
-		virtual VideoDriver* getVideoDriver() override {
-			return videoDriver;
-		}
+			virtual VideoDriver* getVideoDriver() override {
+				return videoDriver;
+			}
 
 		protected:
 			void addSystem(System *sys);
 
-			private:
+		private:
 			bool initSystems();
 			void shutdownSystems();
 

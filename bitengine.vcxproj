@@ -107,7 +107,6 @@
     <ClCompile Include="src\Core\Resources\DevResourceLoader.cpp" />
     <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
     <ClCompile Include="src\Core\VideoRenderer.cpp" />
-    <ClCompile Include="src\Core\Messenger.cpp" />
     <ClCompile Include="src\Core\CommandSystem.cpp" />
     <ClCompile Include="src\Core\ECS\BaseEntitySystem.cpp" />
     <ClCompile Include="src\Core\ECS\Camera2DComponent.cpp" />
@@ -133,7 +132,6 @@
     <ClCompile Include="src\Core\SpriteManager.cpp" />
     <ClCompile Include="src\Core\GeneralTaskManager.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
-    <ClCompile Include="src\Core\VideoSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputSystem.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestBitfield|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">false</ExcludedFromBuild>
