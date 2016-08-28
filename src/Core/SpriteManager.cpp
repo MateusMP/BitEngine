@@ -70,7 +70,7 @@ namespace BitEngine{
 		bool transparent = props["transparent"].getValueInt() > 0;
 
 		RR<Texture> texture = resourceLoader->getResource<Texture>(textureMeta);
-		if (texture.isValid()) {
+		if (!texture.isValid()) {
 			LOG(EngineLog, BE_LOG_ERROR) << "Coulnd't find texture resource " << textureMeta << " for sprite " << meta->resourceName;
 		}
 

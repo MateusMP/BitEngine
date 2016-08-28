@@ -72,7 +72,7 @@
     <ClInclude Include="include\bitengine\Common\ThreadSafeQueue.h" />
     <ClInclude Include="include\bitengine\Core\Resources\ResourceProperties.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_Headers.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputDriver.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputSystem.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\FrameBuffer.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Batch.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Impl.h" />
@@ -127,7 +127,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\Core\GameEnginePC.cpp" />
-    <ClCompile Include="src\Core\InputSystem.cpp" />
     <ClCompile Include="src\Core\Logger.cpp" />
     <ClCompile Include="src\Core\ModelManager.cpp" />
     <ClCompile Include="src\Core\ResourceSystem.cpp" />
@@ -135,7 +134,7 @@
     <ClCompile Include="src\Core\GeneralTaskManager.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\Core\VideoSystem.cpp" />
-    <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputDriver.cpp">
+    <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputSystem.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestBitfield|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='testES|Win32'">false</ExcludedFromBuild>
     </ClCompile>

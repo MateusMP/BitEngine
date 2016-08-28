@@ -11,21 +11,22 @@ namespace BitEngine {
 		: public System
 	{
 		public:
-			InputSystem(GameEngine* ge, Input::InputDriver *input);
-			~InputSystem();
+			InputSystem(GameEngine* ge) : System(ge) {}
+			virtual ~InputSystem() {}
 
 			const char* getName() const override {
 				return "Input";
 			}
 
-			bool Init() override;
-			void Shutdown() override;
-			void Update() override;
+			virtual bool Init() = 0;
+			virtual void Shutdown() = 0;
+			virtual void Update() = 0;
 
-			void onMessage(const MsgWindowCreated& wndcr);
-			void onMessage(const MsgWindowClosed& wndcr);
+			virtual Input::KeyMod isKeyPressed(int key) = 0;
+			virtual Input::KeyMod keyReleased(int key) = 0;
 
-		private:
-			Input::InputDriver *driver;
+			virtual double getMouseX() const = 0;
+			virtual double getMouseY() const = 0;
+			
 	};
 }

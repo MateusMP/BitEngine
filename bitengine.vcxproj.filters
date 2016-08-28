@@ -49,7 +49,6 @@
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\ShaderProgram.h" />
     <ClInclude Include="include\bitengine\bitengine.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\OpenGL.h" />
-    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\FrameBuffer.h" />
     <ClInclude Include="include\bitengine\Common\MacroHelpers.h" />
     <ClInclude Include="include\bitengine\Common\ThreadSafeQueue.h" />
@@ -89,6 +88,7 @@
     <ClInclude Include="include\bitengine\DefaultBackends\opengl\GL2\GL2Driver.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\VideoDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_VideoSystem.h" />
+    <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -103,13 +103,11 @@
     <ClCompile Include="src\Core\ECS\Transform3DComponent.cpp" />
     <ClCompile Include="src\Core\ECS\Transform3DProcessor.cpp" />
     <ClCompile Include="src\Core\EngineConfiguration.cpp" />
-    <ClCompile Include="src\Core\InputSystem.cpp" />
     <ClCompile Include="src\Core\ModelManager.cpp" />
     <ClCompile Include="src\Core\ResourceSystem.cpp" />
     <ClCompile Include="src\Core\SpriteManager.cpp" />
     <ClCompile Include="src\Core\VideoSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\ShaderProgram.cpp" />
-    <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputDriver.cpp" />
     <ClCompile Include="src\Core\Logger.cpp" />
     <ClCompile Include="src\Core\Timer.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\error_texture.cpp" />
@@ -131,5 +129,6 @@
     <ClCompile Include="src\Core\VideoRenderer.cpp" />
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Driver.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_VideoSystem.cpp" />
+    <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputSystem.cpp" />
   </ItemGroup>
 </Project>

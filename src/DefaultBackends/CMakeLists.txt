@@ -1,7 +1,7 @@
 
 if (BACKEND_WITH_GLFW)
     set(SRCS
-        glfw/GLFW_InputDriver.cpp
+        glfw/GLFW_InputSystem.cpp
         glfw/GLFW_VideoSystem.cpp
     )
     add_library(backend-glfw ${SRCS})

@@ -120,26 +120,5 @@ namespace BitEngine {
 				double cursorInScreenX;
 				double cursorInScreenY;
 		};
-
-		class InputDriver : public Messaging::MessengerEndpoint
-		{
-			public:
-			InputDriver(Messenger* m) : MessengerEndpoint(m) {}
-			virtual ~InputDriver() {}
-
-			virtual bool Init() = 0;
-
-			virtual void inputWindowCreated(BitEngine::Window* window) = 0;
-			virtual void inputWindowDestroyed(BitEngine::Window* window) = 0;
-
-			virtual KeyMod isKeyPressed(int key) = 0;
-			virtual KeyMod keyReleased(int key) = 0;
-
-			virtual double getMouseX() const = 0;
-			virtual double getMouseY() const = 0;
-
-			virtual void poolEvents() = 0;
-		};
-
 	}
 }
