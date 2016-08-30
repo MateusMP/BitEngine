@@ -37,7 +37,7 @@ namespace BitEngine{
 
 		virtual BaseResource * loadResource(ResourceMeta* meta) override;
 		void resourceNotInUse(ResourceMeta* meta) override {}
-		void reloadResource(BaseResource* resource) override {}
+		void reloadResource(BaseResource* resource) override;
 		void resourceRelease(ResourceMeta* meta) override {}
 
 		virtual u32 getCurrentRamUsage() const override;

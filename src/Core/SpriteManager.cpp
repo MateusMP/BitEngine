@@ -77,6 +77,13 @@ namespace BitEngine{
 		new (sprite) Sprite(meta, texture, w, h, ox, oy, uv, transparent);
 	}
 
+	void SpriteManager::reloadResource(BaseResource* resource)
+	{
+		Sprite* spr = static_cast<Sprite*>(resource);
+		spr->~Sprite();
+		loadSpriteData(resource->getMeta(), spr);
+	}
+
 	u32 SpriteManager::getCurrentRamUsage() const
 	{
 		return sizeof(sprites);

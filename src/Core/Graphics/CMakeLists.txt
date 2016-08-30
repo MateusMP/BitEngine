@@ -1,5 +1,3 @@
-set(SRCS
+set(SRCS ${SRCS}
     Sprite2D.cpp
 )
-
-add_library(BEcore-graphics $(SRCS))

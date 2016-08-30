@@ -100,24 +100,65 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::includeMeta(const std::st
 	meta.resourceName = resourceName;
 	meta.type = type;
 	meta.properties = properties;
-	return addResourceMeta(meta);
+	return addResourceMeta(meta, false);
+}
+
+BitEngine::DevResourceLoader::LoadedIndex* BitEngine::DevResourceLoader::findIndexByName(const std::string& string)
+{
+	for (u32 i = 0; i < resourceMetaIndexes.size(); ++i)
+	{
+		if (resourceMetaIndexes[i].name == string)
+		{
+			return &resourceMetaIndexes[i];
+		}
+	}
+	return nullptr;
 }
 
 bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
 {
-	u32 indexId = loadedMetaIndexes;
-	loadedMetaIndexes++;
+	LoadedIndex* index = findIndexByName(indexFilename);
 
 	std::ifstream file(indexFilename);
 	if (file.is_open())
 	{
-		// TODO: Save this to use only referenced ResourceProperty
-		resourceMetaIndexes[indexId] = nlohmann::json(file);
-		nlohmann::json& j = resourceMetaIndexes[indexId];
-		
-		if (!j["data"].empty())
+		bool allowOverride = false;
+		if (index == nullptr)
 		{
-			loadPackages(j["data"].get_ref<nlohmann::json::object_t&>());
+			u32 indexId = loadedMetaIndexes;
+			loadedMetaIndexes++;
+			index = &resourceMetaIndexes[indexId];
+			index->name = indexFilename;
+		}
+		else
+		{
+			allowOverride = true;
+			index->metas.clear();
+		}
+
+		index->data = nlohmann::json(file);
+		loadPackages(index, allowOverride);
+
+		if (allowOverride)
+		{
+			// Reload all resources in order of manager
+			for (ResourceManager* m : managers)
+			{
+				for (ResourceMeta* meta : index->metas)
+				{
+					if (m == managersMap[meta->type])
+					{
+						// Check if the resource is loaded
+						// and the ask to realod it
+						if (meta->getReferences() > 0)
+						{
+							// If the resource have references, this means someone already requested it to be loaded.
+							BaseResource* r = m->loadResource(meta); // just get a reference
+							m->reloadResource(r);
+						}
+					}
+				}
+			}
 		}
 	}
 	else
@@ -150,8 +191,14 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::findMeta(const std::strin
 	}
 }
 
-void BitEngine::DevResourceLoader::loadPackages(nlohmann::json::object_t& data)
+void BitEngine::DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
 {
+	if (index->data["data"].empty())
+	{
+		return;
+	}
+	nlohmann::json::object_t& data = index->data["data"].get_ref<nlohmann::json::object_t&>();
+	
 	for (auto &package : data)
 	{
 		for (auto &resource : package.second)
@@ -178,9 +225,14 @@ void BitEngine::DevResourceLoader::loadPackages(nlohmann::json::object_t& data)
 				}
 			}
 
-			if (addResourceMeta(tmpResMeta) == nullptr)
+			ResourceMeta* meta = addResourceMeta(tmpResMeta, allowOverride);
+			if (meta == nullptr)
 			{
 				LOG(EngineLog, BE_LOG_ERROR) << "Meta would override another one.\n" << tmpResMeta.toString();
+			}
+			else
+			{
+				index->metas.emplace_back(meta);
 			}
 		}
 	}
@@ -223,7 +275,7 @@ void BitEngine::DevResourceLoader::waitForResource(BaseResource* resource)
 {
 }
 
-BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const ResourceMeta& meta)
+BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const ResourceMeta& meta, bool allowOverride)
 {
 	const std::string fullPath = getDirectoryPath(&meta);
 	auto it = byName.find(fullPath);
@@ -237,6 +289,13 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const Res
 		byName[fullPath] = id;
 		newRm.properties = meta.properties;
 		return &resourceMeta[id];
+	}
+	else if (allowOverride) // Override current loaded options
+	{
+		ResourceMeta& rm = resourceMeta[it->second];
+		rm.properties = meta.properties;
+		rm.type = meta.type;
+		return &rm;
 	}
 	else
 	{

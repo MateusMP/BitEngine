@@ -32,6 +32,14 @@ namespace BitEngine {
 		std::string type;
 		ResourcePropertyContainer properties;
 
+		u32 getReferences() const {
+			return references;
+		}
+
+		std::string getNameId() const {
+			return "[" + type + "]" + package + "/" + resourceName;
+		}
+
 	private:
 		friend class ResourceLoader;
 		u32 references;

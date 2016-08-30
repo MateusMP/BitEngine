@@ -10,8 +10,8 @@ set(SRCS
     VideoRenderer.cpp
     VideoSystem.cpp
 )
-#add_subdirectory(ECS)
-#add_subdirectory(Graphics)
-#add_subdirectory(Resources)
+add_subdirectory(ECS)
+add_subdirectory(Graphics)
+add_subdirectory(Resources)
 
 add_library(core ${SRCS})

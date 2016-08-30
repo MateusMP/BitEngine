@@ -79,7 +79,6 @@ namespace BitEngine
 			static std::string getDirectoryPath(const ResourceMeta* meta);
 			static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
 
-
 			BitEngine::ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
 				const std::string& type, ResourcePropertyContainer properties) override;
 
@@ -94,24 +93,30 @@ namespace BitEngine
 			virtual void waitForAll() override;
 			virtual void waitForResource(BaseResource* resource) override;
 
-			// Returns nullptr if meta conflicts
-			ResourceMeta* addResourceMeta(const ResourceMeta& meta);
+			// Returns nullptr if meta conflicts and allowOverride == false
+			ResourceMeta* addResourceMeta(const ResourceMeta& meta, bool allowOverride);
 
 
 		private:
+			struct LoadedIndex {
+				std::string name;
+				nlohmann::json data;
+				std::vector<ResourceMeta*> metas;
+			};
 			RawResourceTask requestResourceData(ResourceMeta* meta) override;
 			
 			bool isManagerForTypeAvailable(const std::string& type);
 			BitEngine::BaseResource* getResourceFromManager(ResourceMeta* meta);
 
-			void loadPackages(nlohmann::json::object_t& data);
+			void loadPackages(LoadedIndex* index, bool allowOverride);
+			LoadedIndex* findIndexByName(const std::string& string);
 			
 			// Holds the managers
 			std::vector<ResourceManager*> managers;
 			std::unordered_map<std::string, ResourceManager*> managersMap;
 
 			std::vector<ResourceMeta> resourceMeta;
-			std::array<nlohmann::json, 8> resourceMetaIndexes;
+			std::array<LoadedIndex, 8> resourceMetaIndexes;
 			u32 loadedMetaIndexes;
 			std::unordered_map<std::string, u32> byName;
 	};

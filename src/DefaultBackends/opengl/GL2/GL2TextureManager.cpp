@@ -76,17 +76,17 @@ namespace BitEngine {
 				texture->imgData.fileData.swap(dr.data);
 				texture->imgData.pixelData = stbi_load_from_memory((unsigned char*)texture->imgData.fileData.data(), texture->imgData.fileData.size(), &texture->imgData.width, &texture->imgData.height, &texture->imgData.color, 0);
 				if (texture->imgData.pixelData != nullptr) {
-					LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << dr.meta->id << " w: " << texture->imgData.width << " h: " << texture->imgData.height;
+					LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << dr.meta->getNameId() << " w: " << texture->imgData.width << " h: " << texture->imgData.height;
 					manager->uploadToGPU(texture);
 				}
 				else
 				{
-					LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "stbi failed to load texture: " << dr.meta->id << " reason: " << stbi_failure_reason();
+					LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "stbi failed to load texture: " << dr.meta->getNameId() << " reason: " << stbi_failure_reason();
 				}
 			}
 			else
 			{
-				LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Resource meta " << dr.meta->id << " on state: " << dr.loadState;
+				LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Resource meta " << dr.meta->getNameId() << " on state: " << dr.loadState;
 			}
 		}
 
