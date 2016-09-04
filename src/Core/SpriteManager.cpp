@@ -61,8 +61,8 @@ namespace BitEngine{
 		const std::string& textureMeta = props["texture"].getValueString();
 		u16 w = props["w"].getValueInt();
 		u16 h = props["h"].getValueInt();
-		double ox = props["ox"].getValueDouble();
-		double oy = props["oy"].getValueDouble();
+		float ox = static_cast<float>(props["ox"].getValueDouble());
+		float oy = static_cast<float>(props["oy"].getValueDouble());
 
 		const ResourcePropertyContainer& uvContainer = props["uv"];
 		glm::vec4 uv(uvContainer["xi"].getValueDouble(), uvContainer["yi"].getValueDouble(), 

@@ -2,6 +2,8 @@
 
 #include <string>
 
+#define SINGLE_ARG(...) __VA_ARGS__
+
 namespace BitEngine
 {
 	template <class T>
@@ -12,7 +14,7 @@ namespace BitEngine
 		{
 			std::string name = __FUNCTION__;
 
-			// Parte to get class name
+			// Some parsing to get class name
 			size_t pos = name.find_first_of('<');
 			if (pos != std::string::npos) {
 				name = name.substr(pos + 7);
@@ -53,6 +55,20 @@ namespace BitEngine
                 name = "_";
             return name;
         }
+	};
+
+	template<typename S, typename T>
+	class is_streamable
+	{
+		template<typename SS, typename TT>
+		static auto test(int)
+			-> decltype(std::declval<SS&>() << std::declval<TT>(), std::true_type());
+
+		template<typename, typename>
+		static auto test(...)->std::false_type;
+
+		public:
+		static const bool value = decltype(test<S, T>(0))::value;
 	};
 
 #define GetCurrentNamespace()			\

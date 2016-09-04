@@ -56,6 +56,7 @@
     <ClInclude Include="include\bitengine\Core\GameEnginePC.h" />
     <ClInclude Include="include\bitengine\Core\Graphics\VideoDriver.h" />
     <ClInclude Include="include\bitengine\Core\Input.h" />
+    <ClInclude Include="include\bitengine\Core\Reflection.h" />
     <ClInclude Include="include\bitengine\Core\ResourceSpecification.h" />
     <ClInclude Include="include\bitengine\Core\InputSystem.h" />
     <ClInclude Include="include\bitengine\Core\Resources\DevResourceLoader.h" />
@@ -104,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Graphics\Sprite2D.cpp" />
+    <ClCompile Include="src\Core\Reflection.cpp" />
     <ClCompile Include="src\Core\Resources\DevResourceLoader.cpp" />
     <ClCompile Include="src\Core\ECS\ComponentProcessor.cpp" />
     <ClCompile Include="src\Core\VideoRenderer.cpp" />

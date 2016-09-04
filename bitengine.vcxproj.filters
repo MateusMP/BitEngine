@@ -89,6 +89,7 @@
     <ClInclude Include="include\bitengine\Core\Graphics\VideoDriver.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_VideoSystem.h" />
     <ClInclude Include="include\bitengine\DefaultBackends\glfw\GLFW_InputSystem.h" />
+    <ClInclude Include="include\bitengine\Core\Reflection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CommandSystem.cpp" />
@@ -128,5 +129,6 @@
     <ClCompile Include="src\DefaultBackends\opengl\GL2\GL2Driver.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_VideoSystem.cpp" />
     <ClCompile Include="src\DefaultBackends\glfw\GLFW_InputSystem.cpp" />
+    <ClCompile Include="src\Core\Reflection.cpp" />
   </ItemGroup>
 </Project>
