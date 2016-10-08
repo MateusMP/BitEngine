@@ -54,40 +54,15 @@ namespace Reflection {
 		std::map<std::string, MemberType> m_members;
 	};
 
-
 	std::map<TypeId, ReflectionData*>& GetReflectedClasses();
+	std::string ToStringForTypeId(TypeId typeId, void* value, StrGenFunc func = nullptr);
 
 	template<typename T>
 	static int GetUniqueID() {
 		static int value = ++globalUniqueValue;
-		//printf("Type %s has id: %d\n", typeid(T).name(), value);
 		return value;
 	}
 
-	static std::string ToStringForTypeId(TypeId typeId, void* value, StrGenFunc func = nullptr)
-	{
-		static std::map<TypeId, StrGenFunc> generators;
-		if (func != nullptr)
-		{
-			printf("Str Generator for type %d - %p\n", typeId, func);
-			generators[typeId] = func;
-		}
-
-		if (value == nullptr)
-		{
-			return "<NULL>";
-		}
-		else
-		{
-			auto it = generators.find(typeId);
-			if (it == generators.end()) {
-				throw "INVALID TYPE";
-			}
-			else {
-				return (*it->second)(value);
-			}
-		}
-	}
 
 	class Reflected
 	{
@@ -103,18 +78,11 @@ namespace Reflection {
 		};
 
 		public:
-		Reflected(char* instance, ReflectionData* reflectionData)
-			: classData(reflectionData)
-		{
-			std::map<std::string, MemberType>& members = reflectionData->m_members;
-			for (auto& it : members)
-			{
-				MemberType& m = it.second;
-				m_members.emplace(std::piecewise_construct,
-					std::forward_as_tuple(it.first),
-					std::forward_as_tuple(&m, (instance + m.offset)));
-			}
-		}
+		Reflected(char* instance, ReflectionData* reflectionData);
+
+		bool hasMember(const std::string& memberName) const;
+		std::string getValueAsStr(const std::string& memberName) const;
+		std::string jsonize() const;
 
 		template<typename X>
 		X& get(const std::string& memberName)
@@ -129,28 +97,12 @@ namespace Reflection {
 				}
 				else
 				{
-					std::cout << "Invalid member type?" << std::endl;
-					exit(-1);
+					throw std::exception("Invalid member type, correct type: " + it->second.member->getType());
 				}
 			}
 			else
 			{
-				std::cout << "Invalid member name?" << std::endl;
-				exit(-1);
-			}
-		}
-
-		std::string getValueAsStr(const std::string& memberName)
-		{
-			auto it = m_members.find(memberName);
-			if (it != m_members.end())
-			{
-				return ToStringForTypeId(it->second.member->getType(), it->second.value);
-			}
-			else
-			{
-				std::cout << "Invalid member name?" << std::endl;
-				exit(-1);
+				throw std::exception("No member found for given name");
 			}
 		}
 
@@ -168,14 +120,12 @@ namespace Reflection {
 				}
 				else
 				{
-					std::cout << "Invalid member type?" << std::endl;
-					exit(-2);
+					throw std::exception("Invalid member type, correct type: " + it->second.member->getType());
 				}
 			}
 			else
 			{
-				std::cout << "Invalid member name?" << std::endl;
-				exit(-2);
+				throw std::exception("No member found for given name");
 			}
 		}
 
@@ -184,30 +134,7 @@ namespace Reflection {
 		}
 		std::map<std::string, MemberValue>& getMembers() {
 			return m_members;
-		}
-
-		std::string jsonize() {
-			std::stringstream ss;
-			ss << "{";
-
-			auto it = m_members.begin();
-			if (it != m_members.end())
-			{
-				do
-				{
-					MemberValue& m = it->second;
-					ss << it->first << ": " << ToStringForTypeId(m.member->getType(), m.value);
-					++it;
-					if (it != m_members.end()) {
-						ss << ",";
-					}
-				} while (it != m_members.end());
-			}
-
-			ss << "}";
-			return ss.str();
-		}
-
+		}		
 		const ReflectionData* getClass() const {
 			return classData;
 		}
@@ -273,7 +200,8 @@ namespace Reflection {
 		ClassReflection();
 		int Define(); // Use REFLECT_START and REFLECT_END macros.
 
-		void Mark() {
+		void Mark()
+		{
 			reflectionData.classId = GetUniqueID<T>();
 			reflectionData.className = ClassName<T>::Get();
 			GetReflectedClasses().emplace(reflectionData.classId, &reflectionData);
