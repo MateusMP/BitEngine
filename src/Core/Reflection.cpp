@@ -68,7 +68,7 @@ namespace Reflection{
 		}
 		else
 		{
-			throw std::exception("No member found for given name");
+			throw std::runtime_error("No member found for given name");
 		}
 	}
 

@@ -1,17 +1,23 @@
 set(SRCS
+	CommandSystem.cpp
+	EngineConfiguration.cpp
+	GameEnginePC.cpp
+	GeneralTaskManager.cpp
     Input.cpp
-    InputSystem.cpp
-    Logger.cpp
-    Messenger.cpp
+	Logger.cpp
     ModelManager.cpp
+	Reflection.cpp
     ResourceSystem.cpp
     SpriteManager.cpp
     Timer.cpp
     VideoRenderer.cpp
-    VideoSystem.cpp
 )
 add_subdirectory(ECS)
 add_subdirectory(Graphics)
 add_subdirectory(Resources)
 
-add_library(core ${SRCS})
+add_library(be_core STATIC 
+					${SRCS}
+					$<TARGET_OBJECTS:be_ecs>
+					$<TARGET_OBJECTS:be_graphics>
+					$<TARGET_OBJECTS:be_resources>)

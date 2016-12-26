@@ -60,9 +60,9 @@ void BitEngine::DevResourceLoader::update()
 
 void BitEngine::DevResourceLoader::shutdown()
 {
-	for (auto& it = managers.rbegin(); it != managers.rend(); ++it)
+	for (size_t i = managers.size(); i > 0; --i)
 	{
-		delete *it;
+		delete managers[i - 1];
 	}
 }
 

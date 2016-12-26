@@ -1,10 +1,9 @@
-set(SRCS ${SRCS}
+set(SRCS
 	BaseEntitySystem.cpp
 	Camera2DComponent.cpp
 	Camera2DProcessor.cpp
 	Camera3DComponent.cpp
 	Camera3DProcessor.cpp
-	CMakeLists.txt
 	ComponentProcessor.cpp
 	GameLogicProcessor.cpp
 	RenderableMeshProcessor.cpp
@@ -13,3 +12,5 @@ set(SRCS ${SRCS}
 	Transform3DComponent.cpp
 	Transform3DProcessor.cpp
 )
+
+add_library(be_ecs OBJECT ${SRCS})

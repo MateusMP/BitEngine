@@ -39,6 +39,7 @@ namespace BitEngine {
 
 		shader = m_engine->getResourceLoader()->getResource<Shader>("data/shaders/sprite2D");
 		if (!shader.isValid()) {
+			LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load sprite 2D shader";
 			return false;
 		}
 
@@ -59,6 +60,7 @@ namespace BitEngine {
 		if (m_batch == nullptr)
 		{
 			if (!shader->isReady()) {
+				LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Skipping rendering until shader is loaded";
 				return;
 			} else {
 				m_batch = shader->createBatch();
