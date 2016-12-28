@@ -6,7 +6,7 @@
 #include "Core/Task.h"
 #include "Core/TaskManager.h"
 
-#include "json.h"
+#include "json.hpp"
 
 
 // Load task
@@ -136,7 +136,7 @@ bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
 			index->metas.clear();
 		}
 
-		index->data = nlohmann::json(file);
+		index->data = nlohmann::json::parse(file);
 		loadPackages(index, allowOverride);
 
 		if (allowOverride)

@@ -25,6 +25,7 @@ option(BACKEND_WITH_GL2 "Compile GL2 backend" ON)
 
 
 #### DECIDE WHAT IS NEEDED
+set(NEED_NLOHMANN_JSON 1)
 set(NEED_GLM 1)
 set(NEED_STB 1)
 
@@ -40,6 +41,21 @@ endif()
 
 ## GET DEPENDENCIES
 include(ExternalProject)
+
+if (NEED_NLOHMANN_JSON)
+	ExternalProject_Add(nlohmann_json
+		PREFIX ${CMAKE_BINARY_DIR}/nlohmann_json
+		GIT_REPOSITORY https://github.com/nlohmann/json.git
+		UPDATE_COMMAND ""
+		CONFIGURE_COMMAND ""
+		BUILD_COMMAND ""
+		INSTALL_COMMAND ""
+	)
+	ExternalProject_Get_Property(nlohmann_json SOURCE_DIR)
+	set(NLOHJSON_INCLUDE ${SOURCE_DIR}/src)
+	include_directories(${NLOHJSON_INCLUDE})
+	message(STATUS "NLOHJSON_INCLUDE='${NLOHJSON_INCLUDE}'")
+endif()
 
 if (NEED_GLEW)
 	ExternalProject_Add(glew
@@ -132,6 +148,7 @@ ExternalProject_Add(googletest
   GIT_TAG           master
   CMAKE_ARGS		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
   TEST_COMMAND      ""
+  UPDATE_COMMAND ""
 )
 
 ExternalProject_Get_Property(googletest INSTALL_DIR)

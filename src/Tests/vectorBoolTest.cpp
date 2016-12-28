@@ -10,7 +10,7 @@ TEST(VectorBoolTest, ResizeInitWith0)
 	BitEngine::VectorBool vec;
 	vec.resize(1024);
 	for (int i = 0; i < 1024; ++i){
-		ASSERT_EQ(vec[i], 0);
+		ASSERT_EQ(vec[i], false);
 	}
 }
 
