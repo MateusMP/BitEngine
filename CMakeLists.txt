@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 project (BitEngine)
 
 # Options
-set(VideoBackEnd "GLFW_WITH_GL" CACHE STRING
-    "Select the video backend")
-set(VideoBackEndValues GLFW_WITH_GL;GLFW_WITH_VULKAN;DX11” CACHE STRING
-    "List of possible values for the VideoBackEnd cache variable")
+set(VideoBackEnd "GLFW_WITH_GL" CACHE STRING "Select the video backend")
+set(VideoBackEndValues "GLFW_WITH_GL;GLFW_WITH_VULKAN;DX11")
 set_property(CACHE VideoBackEnd PROPERTY STRINGS ${VideoBackEndValues})
 
 set(BE_BASE_DEPENDENCY_DIRECTORY "${CMAKE_BINARY_DIR}/externals/" CACHE PATH
@@ -153,14 +151,18 @@ ExternalProject_Add(googletest
 	GIT_REPOSITORY    https://github.com/google/googletest.git
 	GIT_TAG           master
 	CMAKE_ARGS		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+					-Dgtest_force_shared_crt:INTERNAL=ON
 	TEST_COMMAND      ""
 	UPDATE_COMMAND ""
+	# gtest_force_shared_crt ON CACHE BOOL "" FORCE
 )
 
 ExternalProject_Get_Property(googletest INSTALL_DIR)
 set(GTEST_INCLUDE ${INSTALL_DIR}/include)
 include_directories(${GTEST_INCLUDE})
-set(GTEST_LIBRARIES ${INSTALL_DIR}/lib/libgmock.a ${INSTALL_DIR}/lib/libgmock_main.a)
+set(GTEST_LIBRARIES 
+			#${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gmock${CMAKE_STATIC_LIBRARY_SUFFIX}
+			${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gmock_main${CMAKE_STATIC_LIBRARY_SUFFIX})
 message(STATUS "GTEST_INCLUDE='${GTEST_INCLUDE}'")
 message(STATUS "GTEST_LIBRARIES='${GTEST_LIBRARIES}'")
 
