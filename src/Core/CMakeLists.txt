@@ -12,12 +12,8 @@ set(SRCS
     Timer.cpp
     VideoRenderer.cpp
 )
+add_library(be_core OBJECT ${SRCS})
+
 add_subdirectory(ECS)
 add_subdirectory(Graphics)
 add_subdirectory(Resources)
-
-add_library(be_core STATIC 
-					${SRCS}
-					$<TARGET_OBJECTS:be_ecs>
-					$<TARGET_OBJECTS:be_graphics>
-					$<TARGET_OBJECTS:be_resources>)

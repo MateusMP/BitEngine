@@ -8,6 +8,10 @@ set(VideoBackEndValues GLFW_WITH_GL;GLFW_WITH_VULKAN;DX11” CACHE STRING
     "List of possible values for the VideoBackEnd cache variable")
 set_property(CACHE VideoBackEnd PROPERTY STRINGS ${VideoBackEndValues})
 
+set(BE_BASE_DEPENDENCY_DIRECTORY "${CMAKE_BINARY_DIR}/externals/" CACHE PATH
+    "Directory where dependencies are")
+set_property(CACHE BE_BASE_DEPENDENCY_DIRECTORY PROPERTY TYPE PATH)
+
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Set the default build configuration for this build" FORCE)
@@ -16,6 +20,7 @@ endif()
 message(STATUS "VideoBackEnd='${VideoBackEnd}'")
 message(STATUS "Installing libs in: ${CMAKE_BINARY_DIR}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Dependency dir: ${BE_BASE_DEPENDENCY_DIRECTORY}")
 
 option(BUILD_TESTS "Enable the test build" OFF)
 option(BACKEND_WITH_GLFW "Compile with GLFW backend" ON)
@@ -44,7 +49,7 @@ include(ExternalProject)
 
 if (NEED_NLOHMANN_JSON)
 	ExternalProject_Add(nlohmann_json
-		PREFIX ${CMAKE_BINARY_DIR}/nlohmann_json
+		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/nlohmann_json
 		GIT_REPOSITORY https://github.com/nlohmann/json.git
 		UPDATE_COMMAND ""
 		CONFIGURE_COMMAND ""
@@ -59,7 +64,7 @@ endif()
 
 if (NEED_GLEW)
 	ExternalProject_Add(glew
-		PREFIX ${CMAKE_BINARY_DIR}/glew
+		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/glew
 		GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
 		UPDATE_COMMAND ""
 		CMAKE_ARGS 
@@ -76,7 +81,7 @@ endif()
 
 if (NEED_GLFW)
     ExternalProject_Add(glfw
-		PREFIX ${CMAKE_BINARY_DIR}/glfw
+		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/glfw
 		GIT_REPOSITORY https://github.com/glfw/glfw.git
 		UPDATE_COMMAND ""
 		CMAKE_ARGS 
@@ -95,7 +100,7 @@ endif()
 
 if (NEED_GLM)
 	ExternalProject_Add(glm
-		PREFIX ${CMAKE_BINARY_DIR}/glm
+		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/glm
 		GIT_REPOSITORY https://github.com/g-truc/glm.git
 		UPDATE_COMMAND ""
 		CONFIGURE_COMMAND ""
@@ -112,8 +117,8 @@ endif()
 
 
 if (NEED_STB)
-	ExternalProject_Add(stb_ext
-		PREFIX ${CMAKE_BINARY_DIR}/stb_ext
+	ExternalProject_Add(stb
+		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/stb
 		GIT_REPOSITORY https://github.com/nothings/stb.git
 		UPDATE_COMMAND ""
 		CONFIGURE_COMMAND ""
@@ -123,7 +128,7 @@ if (NEED_STB)
 	)
 	
 	# Recover project paths for additional settings.
-	ExternalProject_Get_Property(stb_ext SOURCE_DIR)
+	ExternalProject_Get_Property(stb SOURCE_DIR)
 	set(STB_INCLUDE ${SOURCE_DIR})
 	include_directories(${STB_INCLUDE})
 	message(STATUS "STB_INCLUDE='${STB_INCLUDE}'")
@@ -144,11 +149,12 @@ add_subdirectory(src)
 # GTest
 
 ExternalProject_Add(googletest
-  GIT_REPOSITORY    https://github.com/google/googletest.git
-  GIT_TAG           master
-  CMAKE_ARGS		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-  TEST_COMMAND      ""
-  UPDATE_COMMAND ""
+	PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/gtest
+	GIT_REPOSITORY    https://github.com/google/googletest.git
+	GIT_TAG           master
+	CMAKE_ARGS		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+	TEST_COMMAND      ""
+	UPDATE_COMMAND ""
 )
 
 ExternalProject_Get_Property(googletest INSTALL_DIR)
@@ -159,8 +165,13 @@ message(STATUS "GTEST_INCLUDE='${GTEST_INCLUDE}'")
 message(STATUS "GTEST_LIBRARIES='${GTEST_LIBRARIES}'")
 
 enable_testing()
-add_executable(Test
-    src/Tests/test_build.cpp
+
+add_executable(TestBuild
+    src/Tests/test_build.cpp)
+add_test(BuildTests TestBuild)
+target_link_libraries(TestBuild ${GTEST_LIBRARIES})
+
+add_executable(TestCommonUtils
 	src/Tests/vectorBoolTest.cpp)
-add_test(GeneralTests Test)
-target_link_libraries(Test ${GTEST_LIBRARIES})
+add_test(CommonUtilsTests TestCommonUtils)
+target_link_libraries(TestCommonUtils ${GTEST_LIBRARIES})
