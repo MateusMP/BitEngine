@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Resources/ResourceManager.h"
+#include "bitengine/Core/Resources/ResourceManager.h"
 
 namespace BitEngine
 {

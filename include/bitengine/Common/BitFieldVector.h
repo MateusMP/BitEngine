@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Common/VectorBool.h"
-#include "Core/Logger.h"
-#include "Core/Assert.h"
+#include "bitengine/Common/VectorBool.h"
+#include "bitengine/Core/Logger.h"
+#include "bitengine/Core/Assert.h"
 
 namespace BitEngine{
 

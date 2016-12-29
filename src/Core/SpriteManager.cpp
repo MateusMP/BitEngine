@@ -1,8 +1,8 @@
-#include "Core/SpriteManager.h"
+#include "bitengine/Core/SpriteManager.h"
 
-#include "Core/Logger.h"
-#include "Core/Resources/ResourceManager.h"
-#include "Core/Graphics/Texture.h"
+#include "bitengine/Core/Logger.h"
+#include "bitengine/Core/Resources/ResourceManager.h"
+#include "bitengine/Core/Graphics/Texture.h"
 
 namespace BitEngine{
 

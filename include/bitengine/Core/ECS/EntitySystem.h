@@ -7,11 +7,11 @@
 
 #include <algorithm>
 
-#include "Common/TypeDefinition.h"
-#include "Core/Logger.h"
+#include "bitengine/Common/TypeDefinition.h"
+#include "bitengine/Core/Logger.h"
 
-#include "Core/ECS/BaseEntitySystem.h"
-#include "Core/ECS/ComponentProcessor.h"
+#include "bitengine/Core/ECS/BaseEntitySystem.h"
+#include "bitengine/Core/ECS/ComponentProcessor.h"
 
 namespace BitEngine{
 

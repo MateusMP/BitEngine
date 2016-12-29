@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Core/Graphics/VideoRenderer.h"
-#include "Core/Graphics/Texture.h"
-#include "Core/Graphics/Shader.h"
-#include "Core/Graphics/Material.h"
-#include "Common/TypeDefinition.h"
+#include "bitengine/Core/Graphics/VideoRenderer.h"
+#include "bitengine/Core/Graphics/Texture.h"
+#include "bitengine/Core/Graphics/Shader.h"
+#include "bitengine/Core/Graphics/Material.h"
+#include "bitengine/Common/TypeDefinition.h"
 
 #ifdef _BITENGINE_USE_GLEW_STATIC_
     #define GLEW_STATIC

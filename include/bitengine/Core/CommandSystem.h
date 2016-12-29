@@ -2,9 +2,9 @@
 
 #include <unordered_map>
 
-#include "Core/System.h"
-#include "Core/InputSystem.h"
-#include "Core/Message.h"
+#include "bitengine/Core/System.h"
+#include "bitengine/Core/InputSystem.h"
+#include "bitengine/Core/Message.h"
 
 namespace BitEngine{
 

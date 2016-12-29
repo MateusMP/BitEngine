@@ -2,9 +2,9 @@
 
 #include <fstream>
 
-#include "Common/ErrorCodes.h"
-#include "Core/GameEngine.h"
-#include "Core/SystemConfiguration.h"
+#include "bitengine/Common/ErrorCodes.h"
+#include "bitengine/Core/GameEngine.h"
+#include "bitengine/Core/SystemConfiguration.h"
 
 namespace BitEngine
 {

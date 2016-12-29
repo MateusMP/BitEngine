@@ -1,5 +1,5 @@
 
-#include "Core/ECS/ComponentProcessor.h"
+#include "bitengine/Core/ECS/ComponentProcessor.h"
 
 namespace BitEngine {
 

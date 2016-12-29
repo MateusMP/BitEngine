@@ -5,13 +5,13 @@
 #include <map>
 #include <type_traits>
 
-#include "Common/TypeDefinition.h"
-#include "Common/ThreadSafeQueue.h"
-#include "Core/Logger.h"
-#include "Core/GameEngine.h"
-#include "Core/Task.h"
-#include "Core/Resources/ResourceIndexer.h"
-#include "Core/Resources/ResourceProperties.h"
+#include "bitengine/Common/TypeDefinition.h"
+#include "bitengine/Common/ThreadSafeQueue.h"
+#include "bitengine/Core/Logger.h"
+#include "bitengine/Core/GameEngine.h"
+#include "bitengine/Core/Task.h"
+#include "bitengine/Core/Resources/ResourceIndexer.h"
+#include "bitengine/Core/Resources/ResourceProperties.h"
 
 namespace BitEngine {
 

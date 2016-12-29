@@ -5,9 +5,9 @@
 #include <map>
 #include <memory>
 
-#include "Common/ThreadSafeQueue.h"
-#include "Core/Messenger.h"
-#include "Core/TaskManager.h"
+#include "bitengine/Common/ThreadSafeQueue.h"
+#include "bitengine/Core/Messenger.h"
+#include "bitengine/Core/TaskManager.h"
 
 namespace BitEngine {
 

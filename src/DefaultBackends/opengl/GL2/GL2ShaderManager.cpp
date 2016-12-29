@@ -1,9 +1,9 @@
-#include "Common/MathUtils.h"
-#include "Core/Logger.h"
+#include "bitengine/Common/MathUtils.h"
+#include "bitengine/Core/Logger.h"
 
-#include "Core/TaskManager.h"
-#include "DefaultBackends/opengl/GL2/GL2Shader.h"
-#include "DefaultBackends/opengl/GL2/GL2ShaderManager.h"
+#include "bitengine/Core/TaskManager.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2Shader.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2ShaderManager.h"
 
 namespace BitEngine {
 

@@ -10,7 +10,7 @@
     #endif
 #endif
 
-#include "Common/TypeDefinition.h"
+#include "bitengine/Common/TypeDefinition.h"
 #include <type_traits>
 
 namespace BitEngine

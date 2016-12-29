@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GLFW_Headers.h"
-#include "Core/VideoSystem.h"
+#include "bitengine/Core/VideoSystem.h"
 
 class GLFW_VideoSystem : public BitEngine::VideoSystem
 {

@@ -2,8 +2,8 @@
 
 #include <unordered_map>
 
-#include "Core/Messenger.h"
-#include "Core/MessageType.h"
+#include "bitengine/Core/Messenger.h"
+#include "bitengine/Core/MessageType.h"
 
 namespace BitEngine {
 	namespace Input {

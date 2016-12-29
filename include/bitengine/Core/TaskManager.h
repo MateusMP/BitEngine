@@ -3,8 +3,8 @@
 #include <thread>
 #include <vector>
 
-#include "Core/Task.h"
-#include "Core/GameEngine.h"
+#include "bitengine/Core/Task.h"
+#include "bitengine/Core/GameEngine.h"
 
 namespace BitEngine{
 

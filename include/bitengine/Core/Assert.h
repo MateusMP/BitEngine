@@ -2,7 +2,7 @@
 
 #include <exception>
 
-#include "Core/Logger.h"
+#include "bitengine/Core/Logger.h"
 
 #define BE_ASSERT_THROW_ON_FAIL true
 

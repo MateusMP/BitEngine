@@ -10,8 +10,8 @@
 #include <map>
 #include <set>
 
-#include "Common/TypeDefinition.h"
-#include "Common/MacroHelpers.h"
+#include "bitengine/Common/TypeDefinition.h"
+#include "bitengine/Common/MacroHelpers.h"
 
 namespace BitEngine {
 namespace Reflection {

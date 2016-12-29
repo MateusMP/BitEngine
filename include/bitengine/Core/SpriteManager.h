@@ -3,8 +3,8 @@
 #include <vector>
 #include <map>
 
-#include "Core/Resources/ResourceManager.h"
-#include "Core/Sprite.h"
+#include "bitengine/Core/Resources/ResourceManager.h"
+#include "bitengine/Core/Sprite.h"
 
 namespace BitEngine{
 	

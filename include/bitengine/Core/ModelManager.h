@@ -6,11 +6,11 @@
 
 #include <glm/common.hpp>
 
-#include "Common/TypeDefinition.h"
+#include "bitengine/Common/TypeDefinition.h"
 
-#include "Core/Logger.h"
-#include "Core/Mesh.h"
-#include "Core/Resources/ResourceManager.h"
+#include "bitengine/Core/Logger.h"
+#include "bitengine/Core/Mesh.h"
+#include "bitengine/Core/Resources/ResourceManager.h"
 
 namespace BitEngine{
 

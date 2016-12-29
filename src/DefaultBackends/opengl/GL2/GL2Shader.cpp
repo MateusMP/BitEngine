@@ -1,13 +1,13 @@
-#include "DefaultBackends/opengl/GL2/GL2Shader.h"
-#include "DefaultBackends/opengl/GL2/GL2Batch.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2Shader.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2Batch.h"
 
-#include "DefaultBackends/opengl/GL2/GL2TextureManager.h"
-#include "DefaultBackends/opengl/GL2/GL2Impl.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2Impl.h"
 
 
-#include "Common/ErrorCodes.h"
+#include "bitengine/Common/ErrorCodes.h"
 
-#include "Core/Assert.h"
+#include "bitengine/Core/Assert.h"
 
 namespace BitEngine
 {

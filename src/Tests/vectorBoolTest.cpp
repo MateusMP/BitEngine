@@ -1,7 +1,6 @@
 #include <vector>
 
-#include "bitengine.h"
-#include "Common/TypeDefinition.h"
+#include "bitengine/bitengine.h"
 
 #include "gtest/gtest.h"
 

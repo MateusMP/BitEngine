@@ -1,4 +1,4 @@
-#include "Core/ECS/Camera2DComponent.h"
+#include "bitengine/Core/ECS/Camera2DComponent.h"
 
 namespace BitEngine{
     

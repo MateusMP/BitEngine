@@ -2,11 +2,11 @@
 
 #include <unordered_set>
 
-#include "Core/ECS/Camera3DComponent.h"
-#include "Core/ECS/ComponentProcessor.h"
+#include "bitengine/Core/ECS/Camera3DComponent.h"
+#include "bitengine/Core/ECS/ComponentProcessor.h"
 
-#include "Core/ECS/Transform3DProcessor.h"
-#include "Core/ECS/EntitySystem.h"
+#include "bitengine/Core/ECS/Transform3DProcessor.h"
+#include "bitengine/Core/ECS/EntitySystem.h"
 
 
 namespace BitEngine{

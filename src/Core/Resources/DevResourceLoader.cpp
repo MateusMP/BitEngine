@@ -1,10 +1,10 @@
 #include <fstream>
 
-#include "Core/Resources/DevResourceLoader.h"
+#include "bitengine/Core/Resources/DevResourceLoader.h"
 
-#include "Core/Logger.h"
-#include "Core/Task.h"
-#include "Core/TaskManager.h"
+#include "bitengine/Core/Logger.h"
+#include "bitengine/Core/Task.h"
+#include "bitengine/Core/TaskManager.h"
 
 #include "json.hpp"
 

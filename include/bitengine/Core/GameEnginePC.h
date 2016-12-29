@@ -2,29 +2,29 @@
 
 #include <vector>
 
-#include "Core/System.h"
-#include "Core/MessageType.h"
-#include "Core/Graphics.h"
-#include "Core/Timer.h"
+#include "bitengine/Core/System.h"
+#include "bitengine/Core/MessageType.h"
+#include "bitengine/Core/Graphics.h"
+#include "bitengine/Core/Timer.h"
 
 // Basic Systems
-#include "Core/VideoSystem.h"
-#include "Core/InputSystem.h"
-#include "Core/CommandSystem.h"
-#include "Core/ResourceSystem.h"
-#include "Core/ECS/EntitySystem.h"
+#include "bitengine/Core/VideoSystem.h"
+#include "bitengine/Core/InputSystem.h"
+#include "bitengine/Core/CommandSystem.h"
+#include "bitengine/Core/ResourceSystem.h"
+#include "bitengine/Core/ECS/EntitySystem.h"
 // Entity System Processors
-#include "Core/ECS/GameLogicProcessor.h"
-#include "Core/ECS/Transform2DProcessor.h"
-#include "Core/ECS/Transform3DProcessor.h"
-#include "Core/ECS/Camera2DProcessor.h"
-#include "Core/ECS/Camera3DProcessor.h"
-#include "Core/ECS/RenderableMeshProcessor.h"
+#include "bitengine/Core/ECS/GameLogicProcessor.h"
+#include "bitengine/Core/ECS/Transform2DProcessor.h"
+#include "bitengine/Core/ECS/Transform3DProcessor.h"
+#include "bitengine/Core/ECS/Camera2DProcessor.h"
+#include "bitengine/Core/ECS/Camera3DProcessor.h"
+#include "bitengine/Core/ECS/RenderableMeshProcessor.h"
 
-#include "Core/Messenger.h"
-#include "Core/GameEngine.h"
+#include "bitengine/Core/Messenger.h"
+#include "bitengine/Core/GameEngine.h"
 
-#include "Core/GeneralTaskManager.h"
+#include "bitengine/Core/GeneralTaskManager.h"
 
 namespace BitEngine 
 {

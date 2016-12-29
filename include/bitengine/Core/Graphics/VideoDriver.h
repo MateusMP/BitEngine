@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/GameEngine.h"
-#include "Core/EngineConfiguration.h"
-#include "Core/Graphics/VideoRenderer.h"
+#include "bitengine/Core/GameEngine.h"
+#include "bitengine/Core/EngineConfiguration.h"
+#include "bitengine/Core/Graphics/VideoRenderer.h"
 
 namespace BitEngine {
 

@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "Core/GameEngine.h"
-#include "Core/EngineConfiguration.h"
+#include "bitengine/Core/GameEngine.h"
+#include "bitengine/Core/EngineConfiguration.h"
 
 namespace BitEngine{
 

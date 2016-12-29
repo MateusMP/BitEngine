@@ -1,9 +1,9 @@
-#include "Core/EngineConfiguration.h"
+#include "bitengine/Core/EngineConfiguration.h"
 
 #include <string.h>
 
-#include "Core/GameEngine.h"
-#include "Core/Logger.h"
+#include "bitengine/Core/GameEngine.h"
+#include "bitengine/Core/Logger.h"
 
 
 namespace BitEngine {

@@ -1,7 +1,7 @@
 
-#include "Core/Input.h"
-#include "Core/Messenger.h"
-#include "Core/Logger.h"
+#include "bitengine/Core/Input.h"
+#include "bitengine/Core/Messenger.h"
+#include "bitengine/Core/Logger.h"
 
 namespace BitEngine {
 namespace Input {

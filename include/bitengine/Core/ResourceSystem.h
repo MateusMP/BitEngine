@@ -4,10 +4,10 @@
 #include <type_traits>
 #include <vector>
 
-#include "Core/System.h"
-#include "Core/SpriteManager.h"
-#include "Core/ModelManager.h"
-#include "Core/Resources/ResourceManager.h"
+#include "bitengine/Core/System.h"
+#include "bitengine/Core/SpriteManager.h"
+#include "bitengine/Core/ModelManager.h"
+#include "bitengine/Core/Resources/ResourceManager.h"
 
 namespace BitEngine {
 

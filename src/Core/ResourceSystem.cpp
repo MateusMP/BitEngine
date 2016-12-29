@@ -1,6 +1,6 @@
-#include "Core/ResourceSystem.h"
+#include "bitengine/Core/ResourceSystem.h"
 
-#include "Core/Logger.h"
+#include "bitengine/Core/Logger.h"
 
 namespace BitEngine{
 

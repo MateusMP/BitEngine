@@ -1,8 +1,8 @@
 
-#include "DefaultBackends/glfw/GLFW_VideoSystem.h"
+#include "bitengine/DefaultBackends/glfw/GLFW_VideoSystem.h"
 
-#include "Core/Graphics/Material.h"
-#include "Core/MessageType.h"
+#include "bitengine/Core/Graphics/Material.h"
+#include "bitengine/Core/MessageType.h"
 
 using namespace BitEngine;
 

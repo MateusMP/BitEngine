@@ -2,10 +2,10 @@
 
 #include <set>
 
-#include "Core/System.h"
-#include "Core/Window.h"
-#include "Core/Messenger.h"
-#include "Core/Graphics/VideoDriver.h"
+#include "bitengine/Core/System.h"
+#include "bitengine/Core/Window.h"
+#include "bitengine/Core/Messenger.h"
+#include "bitengine/Core/Graphics/VideoDriver.h"
 
 namespace BitEngine {
     

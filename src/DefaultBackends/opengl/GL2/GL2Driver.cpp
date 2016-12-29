@@ -1,8 +1,8 @@
-#include "DefaultBackends/opengl/GL2/GL2Driver.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2Driver.h"
 
-#include "DefaultBackends/opengl/GL2/GL2Impl.h"
-#include "DefaultBackends/opengl/GL2/GL2ShaderManager.h"
-#include "DefaultBackends/opengl/GL2/GL2TextureManager.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2Impl.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2ShaderManager.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
 
 
 bool BitEngine::GL2Driver::init()

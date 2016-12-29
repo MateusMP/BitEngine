@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/GameEngine.h"
-#include "Core/Graphics/VideoDriver.h"
+#include "bitengine/Core/GameEngine.h"
+#include "bitengine/Core/Graphics/VideoDriver.h"
 
 #include "OpenGL2.h"
 

@@ -4,12 +4,12 @@
 #endif
 #include <stb_image.h>
 
-#include "Common/MathUtils.h"
-#include "Core/Logger.h"
-#include "Core/TaskManager.h"
-#include "Core/Assert.h"
+#include "bitengine/Common/MathUtils.h"
+#include "bitengine/Core/Logger.h"
+#include "bitengine/Core/TaskManager.h"
+#include "bitengine/Core/Assert.h"
 
-#include "DefaultBackends/opengl/GL2/GL2TextureManager.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
 
 namespace BitEngine {
 

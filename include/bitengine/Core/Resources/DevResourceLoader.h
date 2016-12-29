@@ -2,8 +2,8 @@
 
 // Read json index file
 
-#include "Core/Resources/ResourceManager.h"
-#include "Core/Task.h"
+#include "bitengine/Core/Resources/ResourceManager.h"
+#include "bitengine/Core/Task.h"
 
 #include "json.hpp"
 

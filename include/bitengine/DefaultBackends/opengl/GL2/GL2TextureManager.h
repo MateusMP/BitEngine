@@ -4,8 +4,8 @@
 #include <array>
 #include <unordered_map>
 
-#include "Core/Resources/ResourceManager.h"
-#include "Common/ThreadSafeQueue.h"
+#include "bitengine/Core/Resources/ResourceManager.h"
+#include "bitengine/Common/ThreadSafeQueue.h"
 
 #include "OpenGL2.h"
 

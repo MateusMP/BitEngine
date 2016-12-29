@@ -2,8 +2,8 @@
 
 #include <unordered_map>
 
-#include "Core/System.h"
-#include "Core/Input.h"
+#include "bitengine/Core/System.h"
+#include "bitengine/Core/Input.h"
 
 namespace BitEngine {
 

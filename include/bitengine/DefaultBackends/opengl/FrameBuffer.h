@@ -4,8 +4,8 @@
 
 #include "OpenGL_Headers.h"
 
-#include "Common/TypeDefinition.h"
-#include "Core/Graphics/VideoRenderer.h"
+#include "bitengine/Common/TypeDefinition.h"
+#include "bitengine/Core/Graphics/VideoRenderer.h"
 
 class FrameBuffer : public BitEngine::RenderBuffer
 {

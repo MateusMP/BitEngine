@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Window.h"
+#include "bitengine/Core/Window.h"
 
 namespace BitEngine{
 

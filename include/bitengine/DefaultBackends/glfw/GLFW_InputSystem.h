@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/InputSystem.h"
+#include "bitengine/Core/InputSystem.h"
 
 class GLFW_InputSystem : public BitEngine::InputSystem
 {

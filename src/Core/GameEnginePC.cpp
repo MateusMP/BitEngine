@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Core/GameEnginePC.h"
-#include "Core/Logger.h"
+#include "bitengine/Core/GameEnginePC.h"
+#include "bitengine/Core/Logger.h"
 
 namespace BitEngine{
 

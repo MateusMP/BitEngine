@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/ECS/RenderableMeshComponent.h"
+#include "bitengine/Core/ECS/RenderableMeshComponent.h"
 
-#include "Core/ECS/ComponentProcessor.h"
-#include "Core/ECS/EntitySystem.h"
+#include "bitengine/Core/ECS/ComponentProcessor.h"
+#include "bitengine/Core/ECS/EntitySystem.h"
 
 
 namespace BitEngine

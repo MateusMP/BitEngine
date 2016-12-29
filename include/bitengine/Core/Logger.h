@@ -7,8 +7,8 @@
 #include <thread>
 #include <iomanip>
 
-#include "Core/Timer.h"
-#include "Common/MacroHelpers.h"
+#include "bitengine/Core/Timer.h"
+#include "bitengine/Common/MacroHelpers.h"
 
 //#define LOG_PERFORMANCE 1
 

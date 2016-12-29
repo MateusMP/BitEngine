@@ -6,8 +6,8 @@
 #include <map>
 #include <typeindex>
 
-#include "Core/Message.h"
-#include "Core/GameEngine.h"
+#include "bitengine/Core/Message.h"
+#include "bitengine/Core/GameEngine.h"
 
 namespace BitEngine {
 

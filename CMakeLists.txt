@@ -139,7 +139,6 @@ add_definitions(-std=c++1y)
 # BitEngine source
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/bitengine)
 
 add_subdirectory(src)
 

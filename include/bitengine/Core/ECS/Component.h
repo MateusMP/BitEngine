@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common/TypeDefinition.h"
+#include "bitengine/Common/TypeDefinition.h"
 
 namespace BitEngine{
 

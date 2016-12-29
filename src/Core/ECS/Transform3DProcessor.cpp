@@ -1,5 +1,5 @@
-#include "Core/ECS/Transform3DProcessor.h"
-#include "Core/ECS/EntitySystem.h"
+#include "bitengine/Core/ECS/Transform3DProcessor.h"
+#include "bitengine/Core/ECS/EntitySystem.h"
 #include <algorithm>
 
 namespace BitEngine{

@@ -4,9 +4,9 @@
 
 #include <glm/common.hpp>
 
-#include "Common/TypeDefinition.h"
-#include "Core/Resources/ResourceManager.h"
-#include "Core/Graphics/Texture.h"
+#include "bitengine/Common/TypeDefinition.h"
+#include "bitengine/Core/Resources/ResourceManager.h"
+#include "bitengine/Core/Graphics/Texture.h"
 
 namespace BitEngine{
 	

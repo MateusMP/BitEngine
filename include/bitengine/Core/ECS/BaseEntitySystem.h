@@ -2,11 +2,11 @@
 
 #include <vector>
 
-#include "Common/BitFieldVector.h"
-#include "Core/System.h"
-#include "Core/ECS/Component.h"
-#include "Core/ECS/ComponentProcessor.h"
-#include "Core/Logger.h"
+#include "bitengine/Common/BitFieldVector.h"
+#include "bitengine/Core/System.h"
+#include "bitengine/Core/ECS/Component.h"
+#include "bitengine/Core/ECS/ComponentProcessor.h"
+#include "bitengine/Core/Logger.h"
 
 namespace BitEngine {
 

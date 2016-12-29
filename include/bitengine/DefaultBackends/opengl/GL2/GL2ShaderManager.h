@@ -2,11 +2,11 @@
 
 #include <array>
 
-#include "Common/ThreadSafeQueue.h"
+#include "bitengine/Common/ThreadSafeQueue.h"
 
 #include "OpenGL2.h"
 
-#include "DefaultBackends/opengl/GL2/GL2Shader.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2Shader.h"
 
 namespace BitEngine {
 
