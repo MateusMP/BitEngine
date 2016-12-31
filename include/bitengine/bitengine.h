@@ -6,7 +6,7 @@
 #include "bitengine/Core/Messenger.h"
 #include "bitengine/Core/ResourceSystem.h"
 
-#include "bitengine/Core/Sprite.h"
+#include "bitengine/Core/Resources/Sprite.h"
 #include "bitengine/Core/Logger.h"
 #include "bitengine/Core/CommandSystem.h"
 #include "bitengine/Core/InputSystem.h"

@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "bitengine/Core/System.h"
-#include "bitengine/Core/SpriteManager.h"
+#include "bitengine/Core/Resources/SpriteManager.h"
 #include "bitengine/Core/ModelManager.h"
 #include "bitengine/Core/Resources/ResourceManager.h"
 

@@ -1,4 +1,4 @@
-#include "bitengine/Core/SpriteManager.h"
+#include "bitengine/Core/Resources/SpriteManager.h"
 
 #include "bitengine/Core/Logger.h"
 #include "bitengine/Core/Resources/ResourceManager.h"

@@ -8,7 +8,6 @@ set(SRCS
     ModelManager.cpp
 	Reflection.cpp
     ResourceSystem.cpp
-    SpriteManager.cpp
     Timer.cpp
     VideoRenderer.cpp
 )

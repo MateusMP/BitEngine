@@ -4,7 +4,7 @@
 
 #include "bitengine/Core/Graphics/VideoRenderer.h"
 #include "bitengine/Core/ECS/EntitySystem.h"
-#include "bitengine/Core/SpriteManager.h"
+#include "bitengine/Core/Resources/SpriteManager.h"
 
 #include "bitengine/Core/Graphics/Shader.h"
 #include "bitengine/Core/Graphics/Material.h"
