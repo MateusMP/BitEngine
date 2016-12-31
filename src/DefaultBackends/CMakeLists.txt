@@ -1,24 +1,41 @@
 
 if (BACKEND_WITH_GLFW)
+	find_package(OpenGL REQUIRED)
+	
     set(SRCS
         glfw/GLFW_InputSystem.cpp
         glfw/GLFW_VideoSystem.cpp
     )
-    add_library(backend-glfw ${SRCS})
-	set(LINK_BACKENDS "${LINK_BACKENDS} backend-glfw" PARENT_SCOPE)
+    add_library(backend-glfw STATIC ${SRCS})
+	target_compile_definitions(backend-glfw PUBLIC -DGLEW_STATIC)
+	message(STATUS "backend-glfw link with='${GLFW_LIBRARIES} ${GLEW_LIBRARIES}'")
+	target_link_libraries(backend-glfw ${GLFW_LIBRARIES} ${GLEW_LIBRARIES})
+	target_link_libraries(backend-glfw ${OPENGL_LIBRARIES})
+	target_include_directories(backend-glfw PUBLIC ${ALL_BE_INCLUDES})
+	set(BE_LINK_BACKENDS "${BE_LINK_BACKENDS} backend-glfw" PARENT_SCOPE)
 endif()
 
 if (BACKEND_WITH_GL2)
+	find_package(OpenGL REQUIRED)
+
     set(SRCS
+		opengl/error_texture.cpp
+		opengl/OpenGL.cpp
+		opengl/ShaderProgram.cpp
         opengl/GL2/GL2Batch.cpp
         opengl/GL2/GL2Driver.cpp
         opengl/GL2/GL2Shader.cpp
         opengl/GL2/GL2ShaderManager.cpp
         opengl/GL2/GL2TextureManager.cpp
     )
-    add_library(backend-gl2 ${SRCS})
-	set(LINK_BACKENDS "${LINK_BACKENDS} backend-gl2" PARENT_SCOPE)
+    add_library(backend-gl2 STATIC ${SRCS} ${GLEW_LIBRARIES})
+	target_compile_definitions(backend-gl2 PUBLIC -DGLEW_STATIC)
+	message(STATUS "backend-gl2 link with='${GLEW_LIBRARIES}'")
+	target_link_libraries(backend-gl2 ${GLEW_LIBRARIES})
+	target_link_libraries(backend-gl2 ${OPENGL_LIBRARIES})
+	target_include_directories(backend-gl2 PUBLIC ${ALL_BE_INCLUDES})
+	set(BE_LINK_BACKENDS "${BE_LINK_BACKENDS} backend-gl2" PARENT_SCOPE)
 endif()
 
-string(STRIP "${LINK_BACKENDS}" LINK_BACKENDS)
-set(LINK_BACKENDS "${LINK_BACKENDS}" PARENT_SCOPE)
+string(STRIP "${BE_LINK_BACKENDS}" BE_LINK_BACKENDS)
+set(BE_LINK_BACKENDS "${BE_LINK_BACKENDS}" PARENT_SCOPE)

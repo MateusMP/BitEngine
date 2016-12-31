@@ -12,6 +12,7 @@ set(SRCS
     VideoRenderer.cpp
 )
 add_library(be_core OBJECT ${SRCS})
+target_include_directories(be_core PUBLIC ${ALL_BE_INCLUDES})
 
 add_subdirectory(ECS)
 add_subdirectory(Graphics)

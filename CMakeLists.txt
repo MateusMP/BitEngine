@@ -56,7 +56,6 @@ if (NEED_NLOHMANN_JSON)
 	)
 	ExternalProject_Get_Property(nlohmann_json SOURCE_DIR)
 	set(NLOHJSON_INCLUDE ${SOURCE_DIR}/src)
-	include_directories(${NLOHJSON_INCLUDE})
 	message(STATUS "NLOHJSON_INCLUDE='${NLOHJSON_INCLUDE}'")
 endif()
 
@@ -72,7 +71,6 @@ if (NEED_GLEW)
 	ExternalProject_Get_Property(glew INSTALL_DIR)
 	set(GLEW_INCLUDE ${INSTALL_DIR}/include)
 	set(GLEW_LIBRARIES ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glew${CMAKE_STATIC_LIBRARY_SUFFIX})
-	include_directories(${GLEW_INCLUDE})
 	message(STATUS "GLEW_INCLUDE='${GLEW_INCLUDE}'")
 	message(STATUS "GLEW_LIBRARIES='${GLEW_LIBRARIES}'")
 endif()
@@ -90,8 +88,7 @@ if (NEED_GLFW)
     )
 	ExternalProject_Get_Property(glfw INSTALL_DIR)
 	set(GLFW_INCLUDE ${INSTALL_DIR}/include)
-	set(GLEW_LIBRARIES ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX})
-	include_directories(${GLFW_INCLUDE})
+	set(GLFW_LIBRARIES ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX})
 	message(STATUS "GLFW_INCLUDE='${GLFW_INCLUDE}'")
 	message(STATUS "GLEW_LIBRARIES='${GLEW_LIBRARIES}'")
 endif()
@@ -109,7 +106,6 @@ if (NEED_GLM)
 		)
 	ExternalProject_Get_Property(glm SOURCE_DIR)
 	set(GLM_INCLUDE ${SOURCE_DIR})
-	include_directories(${GLM_INCLUDE})
 	message(STATUS "GLM_INCLUDE='${GLM_INCLUDE}'")
 endif()
 
@@ -128,9 +124,11 @@ if (NEED_STB)
 	# Recover project paths for additional settings.
 	ExternalProject_Get_Property(stb SOURCE_DIR)
 	set(STB_INCLUDE ${SOURCE_DIR})
-	include_directories(${STB_INCLUDE})
 	message(STATUS "STB_INCLUDE='${STB_INCLUDE}'")
 endif()
+
+
+
 
 # Project Configuration
 set(CMAKE_BUILD_TYPE Release)
@@ -138,12 +136,20 @@ add_definitions(-std=c++1y)
 
 # BitEngine source
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
+set(ALL_BE_INCLUDES ${NLOHJSON_INCLUDE}
+					${GLEW_INCLUDE} 
+					${GLFW_INCLUDE}
+					${GLM_INCLUDE} 
+					${STB_INCLUDE}
+					${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 add_subdirectory(src)
 
 
+
+
 # GTest
+
 
 ExternalProject_Add(googletest
 	PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/gtest
@@ -158,7 +164,6 @@ ExternalProject_Add(googletest
 
 ExternalProject_Get_Property(googletest INSTALL_DIR)
 set(GTEST_INCLUDE ${INSTALL_DIR}/include)
-include_directories(${GTEST_INCLUDE})
 set(GTEST_LIBRARIES 
 			#${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gmock${CMAKE_STATIC_LIBRARY_SUFFIX}
 			${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gmock_main${CMAKE_STATIC_LIBRARY_SUFFIX})
@@ -171,8 +176,10 @@ add_executable(TestBuild
     src/Tests/test_build.cpp)
 add_test(BuildTests TestBuild)
 target_link_libraries(TestBuild ${GTEST_LIBRARIES})
+target_include_directories(TestBuild PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
 
 add_executable(TestCommonUtils
 	src/Tests/vectorBoolTest.cpp)
 add_test(CommonUtilsTests TestCommonUtils)
 target_link_libraries(TestCommonUtils ${GTEST_LIBRARIES})
+target_include_directories(TestCommonUtils PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})

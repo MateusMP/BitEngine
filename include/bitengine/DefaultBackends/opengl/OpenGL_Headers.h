@@ -6,9 +6,6 @@
 #include "bitengine/Core/Graphics/Material.h"
 #include "bitengine/Common/TypeDefinition.h"
 
-#ifdef _BITENGINE_USE_GLEW_STATIC_
-    #define GLEW_STATIC
-#endif
 #include <GL/glew.h>
 
 static void GL_BREAK() {

@@ -14,3 +14,4 @@ set(SRCS
 )
 
 add_library(be_ecs OBJECT ${SRCS})
+target_include_directories(be_ecs PUBLIC ${ALL_BE_INCLUDES})
