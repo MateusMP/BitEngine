@@ -1,3 +1,4 @@
+# root
 set(SRCS
 	CommandSystem.cpp
 	EngineConfiguration.cpp
@@ -9,11 +10,35 @@ set(SRCS
 	Reflection.cpp
     ResourceSystem.cpp
     Timer.cpp
-    VideoRenderer.cpp
+    VideoRenderer.cpp	
+    
 )
-add_library(be_core OBJECT ${SRCS})
-target_include_directories(be_core PUBLIC ${ALL_BE_INCLUDES})
+# Resources
+set(SRCS ${SRCS}
+	Resources/DevResourceLoader.cpp
+	Resources/SpriteManager.cpp
+)
+# Graphics
+set(SRCS ${SRCS}
+	Graphics/Sprite2D.cpp
+)
 
-add_subdirectory(ECS)
-add_subdirectory(Graphics)
-add_subdirectory(Resources)
+set(SRCS ${SRCS}
+	ECS/BaseEntitySystem.cpp
+	ECS/Camera2DComponent.cpp
+	ECS/Camera2DProcessor.cpp
+	ECS/Camera3DComponent.cpp
+	ECS/Camera3DProcessor.cpp
+	ECS/ComponentProcessor.cpp
+	ECS/GameLogicProcessor.cpp
+	ECS/RenderableMeshProcessor.cpp
+	ECS/Transform2DComponent.cpp
+	ECS/Transform2DProcessor.cpp
+	ECS/Transform3DComponent.cpp
+	ECS/Transform3DProcessor.cpp
+)
+
+add_library(bitengine ${SRCS})
+target_include_directories(bitengine PUBLIC ${ALL_BE_INCLUDES})
+
+install(TARGETS bitengine DESTINATION ${LIB_INSTALL_DIR} EXPORT bitengine-targets)

@@ -6,10 +6,14 @@ set(VideoBackEnd "GLFW_WITH_GL" CACHE STRING "Select the video backend")
 set(VideoBackEndValues "GLFW_WITH_GL;GLFW_WITH_VULKAN;DX11")
 set_property(CACHE VideoBackEnd PROPERTY STRINGS ${VideoBackEndValues})
 
+
+
 set(BE_BASE_DEPENDENCY_DIRECTORY "${CMAKE_BINARY_DIR}/externals/" CACHE PATH
     "Directory where dependencies are")
 set_property(CACHE BE_BASE_DEPENDENCY_DIRECTORY PROPERTY TYPE PATH)
 
+set(LIB_INSTALL_DIR lib)
+set(BIT_ENGINE_INCLUDE_DESTINATION include)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Set the default build configuration for this build" FORCE)
@@ -50,12 +54,12 @@ if (NEED_NLOHMANN_JSON)
 		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/nlohmann_json
 		GIT_REPOSITORY https://github.com/nlohmann/json.git
 		UPDATE_COMMAND ""
-		CONFIGURE_COMMAND ""
-		BUILD_COMMAND ""
-		INSTALL_COMMAND ""
+		CMAKE_ARGS 
+			-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+			-DBuildTests=OFF
 	)
-	ExternalProject_Get_Property(nlohmann_json SOURCE_DIR)
-	set(NLOHJSON_INCLUDE ${SOURCE_DIR}/src)
+	ExternalProject_Get_Property(nlohmann_json INSTALL_DIR)
+	set(NLOHJSON_INCLUDE ${INSTALL_DIR}/include/nlohmann)
 	message(STATUS "NLOHJSON_INCLUDE='${NLOHJSON_INCLUDE}'")
 endif()
 
@@ -146,6 +150,10 @@ set(ALL_BE_INCLUDES ${NLOHJSON_INCLUDE}
 add_subdirectory(src)
 
 
+# Installing
+
+install(DIRECTORY "include/"
+DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
 
 
 # GTest

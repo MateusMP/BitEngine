@@ -13,6 +13,9 @@ if (BACKEND_WITH_GLFW)
 	target_link_libraries(backend-glfw ${OPENGL_LIBRARIES})
 	target_include_directories(backend-glfw PUBLIC ${ALL_BE_INCLUDES})
 	set(BE_LINK_BACKENDS "${BE_LINK_BACKENDS} backend-glfw" PARENT_SCOPE)
+	
+	install(TARGETS backend-glfw DESTINATION ${LIB_INSTALL_DIR} EXPORT bitengine-targets)
+	
 endif()
 
 if (BACKEND_WITH_GL2)
@@ -35,6 +38,8 @@ if (BACKEND_WITH_GL2)
 	target_link_libraries(backend-gl2 ${OPENGL_LIBRARIES})
 	target_include_directories(backend-gl2 PUBLIC ${ALL_BE_INCLUDES})
 	set(BE_LINK_BACKENDS "${BE_LINK_BACKENDS} backend-gl2" PARENT_SCOPE)
+	
+	install(TARGETS backend-gl2 DESTINATION ${LIB_INSTALL_DIR} EXPORT bitengine-targets)
 endif()
 
 string(STRIP "${BE_LINK_BACKENDS}" BE_LINK_BACKENDS)
