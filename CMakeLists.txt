@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.0)
-project (BitEngine)
+cmake_minimum_required(VERSION 3.1.0)
+project(BitEngine CXX)
 
 # Options
 set(VideoBackEnd "GLFW_WITH_GL" CACHE STRING "Select the video backend")
@@ -136,7 +136,7 @@ endif()
 
 # Project Configuration
 set(CMAKE_BUILD_TYPE Release)
-add_definitions(-std=c++1y)
+add_definitions(-static-libstdc++)
 
 # BitEngine source
 
@@ -162,9 +162,10 @@ DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
 ExternalProject_Add(googletest
 	PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/gtest
 	GIT_REPOSITORY    https://github.com/google/googletest.git
-	GIT_TAG           master
+	GIT_TAG           0e0ff5c3410f88e09701fef04dcfcaad9cd3494f
 	CMAKE_ARGS		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 					-Dgtest_force_shared_crt:INTERNAL=ON
+					-DBUILD_SHARED_LIBS=OFF
 	TEST_COMMAND      ""
 	UPDATE_COMMAND ""
 	# gtest_force_shared_crt ON CACHE BOOL "" FORCE
@@ -173,7 +174,7 @@ ExternalProject_Add(googletest
 ExternalProject_Get_Property(googletest INSTALL_DIR)
 set(GTEST_INCLUDE ${INSTALL_DIR}/include)
 set(GTEST_LIBRARIES 
-			#${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gmock${CMAKE_STATIC_LIBRARY_SUFFIX}
+			${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX}
 			${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gmock_main${CMAKE_STATIC_LIBRARY_SUFFIX})
 message(STATUS "GTEST_INCLUDE='${GTEST_INCLUDE}'")
 message(STATUS "GTEST_LIBRARIES='${GTEST_LIBRARIES}'")
@@ -183,11 +184,11 @@ enable_testing()
 add_executable(TestBuild
     src/Tests/test_build.cpp)
 add_test(BuildTests TestBuild)
-target_link_libraries(TestBuild ${GTEST_LIBRARIES})
+target_link_libraries(TestBuild ${GTEST_LIBRARIES} -static-libstdc++)
 target_include_directories(TestBuild PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
 
 add_executable(TestCommonUtils
 	src/Tests/vectorBoolTest.cpp)
 add_test(CommonUtilsTests TestCommonUtils)
-target_link_libraries(TestCommonUtils ${GTEST_LIBRARIES})
+target_link_libraries(TestCommonUtils ${GTEST_LIBRARIES} -static-libstdc++)
 target_include_directories(TestCommonUtils PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})

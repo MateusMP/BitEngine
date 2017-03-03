@@ -31,7 +31,7 @@ if (BACKEND_WITH_GL2)
         opengl/GL2/GL2ShaderManager.cpp
         opengl/GL2/GL2TextureManager.cpp
     )
-    add_library(backend-gl2 STATIC ${SRCS} ${GLEW_LIBRARIES})
+    add_library(backend-gl2 STATIC ${SRCS})
 	target_compile_definitions(backend-gl2 PUBLIC -DGLEW_STATIC)
 	message(STATUS "backend-gl2 link with='${GLEW_LIBRARIES}'")
 	target_link_libraries(backend-gl2 ${GLEW_LIBRARIES})
