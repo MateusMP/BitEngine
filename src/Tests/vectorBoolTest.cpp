@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "bitengine/bitengine.h"
+#include "bitengine\Common\VectorBool.h"
 
 #include "gtest/gtest.h"
 

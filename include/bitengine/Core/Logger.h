@@ -32,7 +32,7 @@
 //
 
 #ifdef _DEBUG
-	#define BE_DEBUG 1
+        #define BE_DEBUG 1
 #else
 	#define BE_DEBUG 0
 #endif
@@ -42,15 +42,6 @@
 		#define BE_LOG_SHOW_CALL_PLACE
 	#endif
 #endif
-
-// Get correct preprocessor define based on compiler
-#if defined(__GNUC__) || defined(__GNUG__)
-    #define BE_FUNCTION_FULL_NAME __PRETTY_FUNCTION__
-#elif defined(_MSC_VER)
-    #define BE_FUNCTION_FULL_NAME __FUNCTION__
-#else
-    #define BE_FUNCTION_FULL_NAME __FUNCTION__
-#endif // defined
 
 #ifndef BE_LOG_ENABLE_PERFORMANCE
 	#ifdef _DEBUG

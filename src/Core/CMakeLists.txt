@@ -38,7 +38,10 @@ set(SRCS ${SRCS}
 	ECS/Transform3DProcessor.cpp
 )
 
-add_library(bitengine ${SRCS})
+FILE(GLOB_RECURSE BE_INCLUDE_FILES ${PROJECT_SOURCE_DIR}/include/*.h)
+add_custom_target(headers SOURCES ${BE_INCLUDE_FILES})
+
+add_library(bitengine ${SRCS} ${BE_INCLUDE_FILES})
 target_include_directories(bitengine PUBLIC ${ALL_BE_INCLUDES})
 
 install(TARGETS bitengine DESTINATION ${LIB_INSTALL_DIR} EXPORT bitengine-targets)

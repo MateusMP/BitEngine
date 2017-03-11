@@ -10,24 +10,21 @@ namespace Reflection{
 		static std::map<TypeId, StrGenFunc> generators;
 		if (func != nullptr)
 		{
-			printf("Str Generator for type %d - %p\n", typeId, func);
+            printf("Str Generator for type %d - %p()\n", typeId, func);
 			generators[typeId] = func;
-		}
-
-		if (value == nullptr)
-		{
-			return "<NULL>";
-		}
-		else
-		{
-			auto it = generators.find(typeId);
-			if (it == generators.end()) {
-				throw "INVALID TYPE";
-			}
-			else {
-				return (*it->second)(value);
-			}
-		}
+            printf("Print for %p: %s\n", value, func(value).c_str());
+            return func(value); // test nullptr should not break!
+        }
+        else
+        {
+            const auto it = generators.find(typeId);
+            if (it == generators.end()) {
+                throw std::invalid_argument("INVALID TYPE: " + typeId);
+            }
+            else {
+                return (*it->second)(value);
+            }
+        }
 	}
 
 	std::map<TypeId, ReflectionData*>& GetReflectedClasses()

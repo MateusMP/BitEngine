@@ -135,7 +135,6 @@ endif()
 
 
 # Project Configuration
-set(CMAKE_BUILD_TYPE Release)
 add_definitions(-static-libstdc++)
 
 # BitEngine source
@@ -187,7 +186,14 @@ add_test(BuildTests TestBuild)
 target_link_libraries(TestBuild ${GTEST_LIBRARIES} -static-libstdc++)
 target_include_directories(TestBuild PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
 
+add_executable(TestCore
+        src/Tests/reflectiontest.cpp)
+add_test(ReflectionTests TestCore)
+target_link_libraries(TestCore bitengine ${GTEST_LIBRARIES} -static-libstdc++)
+target_include_directories(TestCore PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
+
 add_executable(TestCommonUtils
+        src/Tests/commonTests.cpp
 	src/Tests/vectorBoolTest.cpp)
 add_test(CommonUtilsTests TestCommonUtils)
 target_link_libraries(TestCommonUtils ${GTEST_LIBRARIES} -static-libstdc++)
