@@ -62,6 +62,11 @@
 #define LOG_IF_SHOULD_LOG(severity)                 \
     if (severity > BE_LOG_LOGGING_THRESHOLD) ;  else   \
 
+/**
+ * \param output may be any code to get a reference to a std::ofstream.
+ * To log using the LOG_CLASS logger call:
+ * LOGCLASS(BE_LOG_TYPE) << "my log";
+ */
 #define LOG_CLASS(output)														\
 		private:																\
 			void __getselfclassfunc__(){};										\

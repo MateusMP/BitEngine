@@ -2,12 +2,6 @@ cmake_minimum_required(VERSION 3.1.0)
 project(BitEngine CXX)
 
 # Options
-set(VideoBackEnd "GLFW_WITH_GL" CACHE STRING "Select the video backend")
-set(VideoBackEndValues "GLFW_WITH_GL;GLFW_WITH_VULKAN;DX11")
-set_property(CACHE VideoBackEnd PROPERTY STRINGS ${VideoBackEndValues})
-
-
-
 set(BE_BASE_DEPENDENCY_DIRECTORY "${CMAKE_BINARY_DIR}/externals/" CACHE PATH
     "Directory where dependencies are")
 set_property(CACHE BE_BASE_DEPENDENCY_DIRECTORY PROPERTY TYPE PATH)
@@ -24,7 +18,7 @@ message(STATUS "Installing libs in: ${CMAKE_BINARY_DIR}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Dependency dir: ${BE_BASE_DEPENDENCY_DIRECTORY}")
 
-option(BUILD_TESTS "Enable the test build" OFF)
+option(BUILD_TESTS "Enable the test build" ON)
 option(BACKEND_WITH_GLFW "Compile with GLFW backend" ON)
 option(BACKEND_WITH_GL2 "Compile GL2 backend" ON)
 
@@ -178,23 +172,25 @@ set(GTEST_LIBRARIES
 message(STATUS "GTEST_INCLUDE='${GTEST_INCLUDE}'")
 message(STATUS "GTEST_LIBRARIES='${GTEST_LIBRARIES}'")
 
-enable_testing()
+if (BUILD_TESTS)
+    enable_testing()
 
-add_executable(TestBuild
-    src/Tests/test_build.cpp)
-add_test(BuildTests TestBuild)
-target_link_libraries(TestBuild ${GTEST_LIBRARIES} -static-libstdc++)
-target_include_directories(TestBuild PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
+    add_executable(TestBuild
+        src/Tests/test_build.cpp)
+    add_test(BuildTests TestBuild)
+    target_link_libraries(TestBuild ${GTEST_LIBRARIES} -static-libstdc++)
+    target_include_directories(TestBuild PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
 
-add_executable(TestCore
-        src/Tests/reflectiontest.cpp)
-add_test(ReflectionTests TestCore)
-target_link_libraries(TestCore bitengine ${GTEST_LIBRARIES} -static-libstdc++)
-target_include_directories(TestCore PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
+    add_executable(TestCore
+            src/Tests/reflectiontest.cpp)
+    add_test(ReflectionTests TestCore)
+    target_link_libraries(TestCore bitengine ${GTEST_LIBRARIES} -static-libstdc++)
+    target_include_directories(TestCore PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
 
-add_executable(TestCommonUtils
-        src/Tests/commonTests.cpp
-	src/Tests/vectorBoolTest.cpp)
-add_test(CommonUtilsTests TestCommonUtils)
-target_link_libraries(TestCommonUtils ${GTEST_LIBRARIES} -static-libstdc++)
-target_include_directories(TestCommonUtils PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
+    add_executable(TestCommonUtils
+            src/Tests/commonTests.cpp
+            src/Tests/vectorBoolTest.cpp)
+    add_test(CommonUtilsTests TestCommonUtils)
+    target_link_libraries(TestCommonUtils ${GTEST_LIBRARIES} -static-libstdc++)
+    target_include_directories(TestCommonUtils PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
+endif()
