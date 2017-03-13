@@ -10,9 +10,8 @@ namespace Reflection{
 		static std::map<TypeId, StrGenFunc> generators;
 		if (func != nullptr)
 		{
-            printf("Str Generator for type %d - %p()\n", typeId, func);
+			LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Str Generator for type " << typeId << " func: " << func;
 			generators[typeId] = func;
-            printf("Print for %p: %s\n", value, func(value).c_str());
             return func(value); // test nullptr should not break!
         }
         else
@@ -40,10 +39,10 @@ namespace Reflection{
 	Reflected::Reflected(char* instance, ReflectionData* reflectionData)
 		: classData(reflectionData)
 	{
-		std::map<std::string, MemberType>& members = reflectionData->m_members;
-		for (auto& it : members)
+		const std::map<std::string, MemberType>& members = reflectionData->m_members;
+		for (const auto& it : members)
 		{
-			MemberType& m = it.second;
+			const MemberType& m = it.second;
 			m_members.emplace(std::piecewise_construct,
 				std::forward_as_tuple(it.first),
 				std::forward_as_tuple(&m, (instance + m.offset)));
@@ -65,7 +64,9 @@ namespace Reflection{
 		}
 		else
 		{
-			throw std::runtime_error("No member found for given name");
+			std::stringstream str;
+			str << "No member found for given name: " << memberName;
+			throw std::runtime_error(str.str());
 		}
 	}
 

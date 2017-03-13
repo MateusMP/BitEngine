@@ -10,6 +10,18 @@
 #include "bitengine/Core/Timer.h"
 #include "bitengine/Common/MacroHelpers.h"
 
+/**
+ *	Available DEFINED functions:
+ *	LOG(Logger, Level) << "Log with a given level";
+ *	LOGIFTRUE(Logger, Level, Expression) << "Log only if expression is true";
+ *	LOGIFNULL(Logger, Level, Expression) << "Log only if expression returns nullptr";
+ *	LOG_CLASS(Logger) Create a static logger to be used by the class. Includes class name in every log.
+ *  LOGCLASS(SEVERITY) << "Log to class logger";
+ *	LOG_SCOPE_TIME(Logger, Description) << "Log the time to execute the current scope"
+ *	LOG_FUNCTION_TIME(Logger) << "Log the time to execute the current function";
+ *
+ **/
+
 //#define LOG_PERFORMANCE 1
 
 // These values will be used on the file as a log type identifier
@@ -22,10 +34,12 @@
 #define BE_LOG_WARNING 3
 #define BE_LOG_INFO 5
 #define BE_LOG_VERBOSE 7
-#define BE_LOG_PERFORMANCE 9
+#define BE_LOG_PERFORMANCE 8
+#define BE_LOG_DEBUG 9
 #define BE_LOG_ALL 128
 
 // Force to output more information while on development, even for release build
+// TODO: Define this with cmake options
 #define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
 #define BE_LOG_SHOW_CALL_PLACE
 #define BE_LOG_FORCE_OUTPUT_CONSOLE
@@ -75,6 +89,12 @@
 				return _log;													\
 			}
 
+/**
+ * \brief usage:
+ * LOG(Logger&, BE_LOG_TYPE) << "your log"
+ * \param logger The Logger& to use when saving data
+ * \param severity one of the BE_LOG_**** severities
+ */
 #ifdef BE_LOG_SHOW_CALL_PLACE
 	#define LOG(logger,severity)						\
         LOG_IF_SHOULD_LOG(severity)		                \
@@ -108,16 +128,6 @@
 #define LOG_FUNCTION_TIME(logto)
 #endif
 
-/*
-	Available DEFINED functions:
-	LOG(Logger, Level) << "Log with a given level";
-	LOGIFTRUE(Logger, Level, Expression) << "Log only if expression is true";
-	LOGIFNULL(Logger, Level, Expression) << "Log only if expression returns nullptr";
-	LOG_CLASS(Logger) << "Create a static logger to be used by the class";
-	LOG_SCOPE_TIME(Logger, Description) << "Log the time to execute the current scope"
-	LOG_FUNCTION_TIME(Logger) << "Log the time to execute the current function";
-
-*/
 
 namespace BitEngine {
 
