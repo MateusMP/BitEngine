@@ -133,21 +133,26 @@ add_definitions(-static-libstdc++)
 
 # BitEngine source
 
+set(BE_INCLUDE ${CMAKE_SOURCE_DIR}/include/)
+message(STATUS "BE_INCLUDE='${BE_INCLUDE}'")
+
 set(ALL_BE_INCLUDES ${NLOHJSON_INCLUDE}
 					${GLEW_INCLUDE} 
 					${GLFW_INCLUDE}
 					${GLM_INCLUDE} 
 					${STB_INCLUDE}
-					${CMAKE_CURRENT_SOURCE_DIR}/include/)
+					${BE_INCLUDE}
+					)
 
 add_subdirectory(src)
-
 
 # Installing
 
 install(DIRECTORY "include/"
 		DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
-
+install(EXPORT bitengine-targets DESTINATION targets)
+#install(EXPORT bitengine-glfw-targets DESTINATION targets)
+#install(EXPORT bitengine-gl2-targets DESTINATION targets)
 
 # GTest
 

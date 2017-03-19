@@ -20,18 +20,19 @@ namespace BitEngine
 {
 	class AssertFail : std::exception
 	{
-	public:
-		AssertFail(const std::string& msg)
-                    : message(msg)
-		{
-		}
-                    
-                const char* what() const noexcept override{
-                    return message.c_str();
-                }
+		public:
+			AssertFail(const std::string& msg)
+					: message(msg)
+			{
+			}
 
-        private:
-            std::string message;
+			const char* what() const noexcept override
+			{
+				return message.c_str();
+			}
+
+		private:
+			std::string message;
 	};
 
 	static void onFailure(const std::string& msg) {

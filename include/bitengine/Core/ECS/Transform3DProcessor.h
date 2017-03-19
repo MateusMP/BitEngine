@@ -5,7 +5,9 @@
 
 namespace BitEngine{
 
-	// TODO: Fix parents on childs when a parent Transform is destroyed
+	/**
+	 * TODO: Fix parents on childs when a parent Transform is destroyed
+	 */
 	class Transform3DProcessor : public ComponentProcessor
 	{
 	public:
@@ -46,7 +48,7 @@ namespace BitEngine{
 		void setParentOf(ComponentHandle a, ComponentHandle parent);
 
 		struct Hierarchy {
-			Hierarchy() {
+			Hierarchy() : dirty(true){
 				parent = 0;
 			}
 

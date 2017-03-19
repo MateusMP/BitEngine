@@ -7,10 +7,12 @@
 
 namespace BitEngine{
 
-	// TODO: Fix parents on childs when a parent Transform is destroyed
-	// Basic Tranform 2D Implementation
-	// Uses Transform2DComponents
-	// Can create hierarchies and generate local and global transform matrices
+	/**
+	 * TODO: Fix parents on childs when a parent Transform is destroyed
+	 * Basic Tranform 2D Implementation
+	 * Uses Transform2DComponents
+	 * Can create hierarchies and generate local and global transform matrices
+	 **/
 	class Transform2DProcessor : public ComponentProcessor
 	{
 		public:
@@ -66,34 +68,39 @@ namespace BitEngine{
 			void setParentOf(ComponentHandle a, ComponentHandle parent);
 
 			// Processor
-			struct Hierarchy {
-				Hierarchy() {
-					//self = 0;
-					parent = 0;
-				}
-
-				void removeChild(ComponentHandle a)
-				{
-					for (ComponentHandle& h : childs)
+			struct Hierarchy
+			{
+				public:
+					Hierarchy()
+							: dirty(true)
 					{
-						if (h == a)
+						//self = 0;
+						parent = 0;
+					}
+
+					void removeChild(ComponentHandle a)
+					{
+						for (ComponentHandle& h : childs)
 						{
-							h = childs.back();
-							childs.pop_back();
-							break;
+							if (h == a)
+							{
+								h = childs.back();
+								childs.pop_back();
+								break;
+							}
 						}
 					}
-				}
 
-				void addChild(ComponentHandle a) {
-					childs.push_back(a);
-				}
+					void addChild(ComponentHandle a)
+					{
+						childs.push_back(a);
+					}
 
-				// Members
-				//ComponentHandle self;
-				ComponentHandle parent;
-				bool dirty;
-				std::vector<ComponentHandle> childs;
+					// Members
+					//ComponentHandle self;
+					ComponentHandle parent;
+					bool dirty;
+					std::vector<ComponentHandle> childs;
 			};
 
 			// TODO: Make iterative version

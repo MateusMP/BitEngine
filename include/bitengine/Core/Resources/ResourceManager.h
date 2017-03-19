@@ -45,7 +45,9 @@ namespace BitEngine {
 		u32 references;
 	};
 
-	// All resources types should come from this
+	/**
+	 * All resources types should come from this
+	 */
 	class BaseResource
 	{
 		public:
@@ -67,8 +69,10 @@ namespace BitEngine {
 			ResourceMeta* meta;
 	};
 	
-	// Resource Loader interface
-	// Used by the application to retrieve the final resource.
+	/**
+	 * Resource Loader interface
+	 * Used by the application to retrieve the final resource.
+	 */
 	class ResourceLoader : public EnginePiece
 	{
 		public:
@@ -81,25 +85,42 @@ namespace BitEngine {
 
 			virtual void registerResourceManager(const std::string& resourceType, ResourceManager* manager) = 0;
 
-			// Blocking call
-			// Read a file and map all indices
-			// If any resource override would happen, they're skipped
-			// and a warning is logged.
-			// \return true if succeded
+			/**
+			 * Blocking call
+			 * Read a file and map all indices
+			 * If any resource override would happen, they're skipped
+			 * and a warning is logged.
+			 * @param index The index file to load
+			 * @return true if succeded
+			 */
 			virtual bool loadIndex(const std::string& index) = 0;
 
 			virtual BitEngine::ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
 									 const std::string& type, ResourcePropertyContainer properties = ResourcePropertyContainer()) = 0;
 			
-			// Find a resource meta for a given name
+			/**
+			 * Find a resource meta for a given name.
+			 * @param name the name to search for.
+			 * @return the resource meta
+			 */
 			virtual ResourceMeta* findMeta(const std::string& name) = 0;
 
+			/**
+			 * Retrieve resource by name.
+			 * @param name the resource name.
+			 * @return a reference to the resource. It might not be fully loaded yet!
+			 */
 			template<typename T>
 			RR<T> getResource(const std::string& name) {
 				T* resource = static_cast<T*>(loadResource(name));
 				return RR<T>(resource, this);
 			}
 
+			/**
+			 * Force a resource to be reloaded.
+			 * @param resource the resource reference
+			 * @param wait if waiting the resource to be fully loaded is required, pass true here.
+			 */
 			template<typename T>
 			void reloadResource(RR<T>& resource, bool wait = false) {
 				reloadResource(resource.get());
@@ -113,9 +134,21 @@ namespace BitEngine {
 			//virtual u32 loadRequest(const std::string& path, BaseResource* into, ResourceManager* callback) = 0;
 			//virtual bool reloadResource(u32 resourceID, ResourceManager* callback) = 0;
 
+			/**
+			 * Wait all resources to be loaded.
+			 * This only considers resources that were previously requested.
+			 */
 			virtual void waitForAll() = 0;
+
+			/**
+			 * Wait a specifc resource to be loaded.
+			 * @param resource the resouce.
+			 */
 			virtual void waitForResource(BaseResource* resource) = 0;
 
+			/**
+			 * Release all resources in use. TAKE CARE WITH THIS!
+			 */
 			virtual void releaseAll() = 0;
 
 			struct DataRequest
@@ -156,7 +189,10 @@ namespace BitEngine {
 				std::vector<char> data;
 			};
 
-			// Load file data from file system
+			/**
+			 * This task is used when we need to load
+			 * file data from the file system.
+			 */
 			class RawResourceLoaderTask : public Task
 			{
 				public:
@@ -191,19 +227,24 @@ namespace BitEngine {
 				}
 			}
 
-			// Called when the given Resource Meta is not in use anymore
-			// This will only be called after a previous call to loadResource() was made
-			// Release the resource or not is up to the implementation
-			// Usually cheap resources are kept in memory (may be released from drivers)
+			/**
+			 * Called when the given Resource Meta is not in use anymore
+			 * This will only be called after a previous call to loadResource() was made
+			 * Release the resource or not is up to the implementation
+			 * Usually cheap resources are kept in memory (may be released from drivers)
+			 */
 			virtual void resourceNotInUse(ResourceMeta* meta) = 0;
 
-			// Non blocking call
-			// Retrieve the required resource by name
-			// The resource is loaded on the first request
-			// and stay loaded until not required anymore by any instance****
-			// A temporary resource may be loaded, like a temporary texture or null sound.
-			// To guarantee that the resource returned by this call is ready to use
-			// follow this call by a waitForAll() or waitForResource(name)
+			/** Non blocking call
+			 * Retrieve the required resource by name
+			 * The resource is loaded on the first request
+			 * and stay loaded until not required anymore by any instance****
+			 * A temporary resource may be loaded, like a temporary texture or null sound.
+			 * To guarantee that the resource returned by this call is ready to use
+			 * follow this call by a waitForAll() or waitForResource(name)
+			 * @param name
+			 * @return
+			 */
 			virtual BaseResource* loadResource(const std::string& name) = 0;
 
 			// Will force a resource to be reloaded.
@@ -216,6 +257,10 @@ namespace BitEngine {
 			virtual RawResourceTask requestResourceData(ResourceMeta* meta) = 0;
 	};
 
+	/**
+	 * Resource Reference class.
+	 * This is a Reference Counted reference to a given resource.
+	 */
 	template<typename T>
 	class RR
 	{
@@ -295,8 +340,14 @@ namespace BitEngine {
 		ResourceLoader* loader;
 	};
 
-	// Resource manager interface
-	// Used to load and handle each resource type
+	/**
+	 * Resource manager interface.
+	 * Used to load and handle each resource type.
+	 * Usually a ResourceManager takes care of loading one type of resource.
+	 * Like Textures, Shaders, Models, etc.
+	 * It's possible that a ResourceManager will ask for resources from different managers.
+	 * e.g: The ModelManager asks for Textures which the TextureManager loaded.
+	 */
 	class ResourceManager
 	{
 		public:
