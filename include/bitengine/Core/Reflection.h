@@ -15,7 +15,7 @@
 namespace BitEngine {
 namespace Reflection {
 
-	extern u32 globalUniqueValue;
+	extern u32 globalUniqueValue; // defined in the reflection.cpp
 
 	class Reflected;
 	class Class;
@@ -259,7 +259,7 @@ namespace Reflection {
 	protected:
 		static Reflected buildReflectedInstance(char* instance)
 		{
-			LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Reflecting instance " << instance;
+			LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Reflecting instance " << ((void*)instance);
 			return Reflected(instance, &CR().reflectionData);
 		}
 

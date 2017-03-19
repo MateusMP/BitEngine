@@ -8,9 +8,16 @@
 
 namespace BitEngine{
 
+	/**
+	 * Command System is a default system used to define commands for inputs.
+	 * The inputs should be registered to a command, that will be triggered by an event.
+	 */
 	class CommandSystem : public System
 	{
 		public:
+			/**
+			 * The body for command events.
+			 */
 			struct MsgCommandInput
 			{
 				public:
@@ -19,8 +26,8 @@ namespace BitEngine{
 					MsgCommandInput(int _id, float _intensity, Input::MouseAction _other, double x, double y);
 					MsgCommandInput(int _id, float _intensity);
 
-					const int commandID;
-					const float intensity;
+					const int commandID; // The registered command id
+					const float intensity; // If it was an analogic input
 					double mouse_x; // Invalid unless Mouse input was used
 					double mouse_y; // Invalid unless Mouse input was used
 
@@ -28,7 +35,7 @@ namespace BitEngine{
 						Input::KeyAction fromButton; // keyboard / mouse / joystick buttons
 						Input::MouseAction fromMouse;
 						int other;
-					} other;
+					} action; // If there was some other action
 			};
 
 			CommandSystem(GameEngine* ge);
@@ -49,34 +56,37 @@ namespace BitEngine{
 			 */
 			void UnregisterCommand(int commandID);
 
-			/** \param commandID	the command ID returned when given key/action/mod combination ocurrs
-			  * \param commandState		CommandSystem state necessary for processing this command
-			  *							Use -1 to assign it as a "Global" command. Useful for debug purposes.
-			  * \param key	keyboard key needed
-			  * Note that this function will register the commandID for both inputs: RELEASE and PRESS
-			  */
+			/**
+			 * @param commandID	the command ID returned when given key/action/mod combination ocurrs
+			 * @param commandState		CommandSystem state necessary for processing this command
+			 *							Use -1 to assign it as a "Global" command. Useful for debug purposes.
+			 * @param key	keyboard key needed
+			 * Note that this function will register the commandID for both inputs: RELEASE and PRESS
+			 */
 			bool RegisterKeyboardCommand(int commandID, int commandState, int key);
 
-			/** \param commandID	the command ID returned when given key/action/mod combination ocurrs
-			  * \param commandState		CommandSystem state necessary for processing this command
-			  *							Use -1 to assign it as a "Global" command. Useful for debug purposes.
-			  * \param key	keyboard key needed
-			  * Note that this function will register the commandID for both inputs: RELEASE and PRESS and to be accepted with any keymod combination
-			  * 
-			  * If an ambiguous keybind is found, it wont be overwritten and the command being bind will not be fully binded.
-			  * In this case, the function returns false.
-			  * It's recommended that all commands for the requested commandID are cleared if this function fails. 
-			  * Left optional for the caller, so no other binding will be silently removed.
-			  */
+			/**
+			 * @param commandID	the command ID returned when given key/action/mod combination ocurrs
+			 * @param commandState		CommandSystem state necessary for processing this command
+			 *							Use -1 to assign it as a "Global" command. Useful for debug purposes.
+			 * @param key	keyboard key needed
+			 * Note that this function will register the commandID for both inputs: RELEASE and PRESS and to be accepted with any keymod combination
+			 *
+			 * If an ambiguous keybind is found, it wont be overwritten and the command being bind will not be fully binded.
+			 * In this case, the function returns false.
+			 * It's recommended that all commands for the requested commandID are cleared if this function fails.
+			 * Left optional for the caller, so no other binding will be silently removed.
+			 */
 			bool RegisterKeyCommandForAllMods(int commandID, int commandState, int key);
 
-			/** \param commandID	Command ID returned when given key/action/mod combination ocurrs
-			  * \param commandState		CommandSystem state necessary for processing this command
-			  *							Use -1 to assign it as a "Global" command. Useful for debug purposes.
-			  * \param key	Keyboard key needed
-			  * \param action	Key state needed
-			  * \param mod	Key modifiers (Shift, Alt, Ctrl, Super)
-			  */
+			/**
+			 * @param commandID	Command ID returned when given key/action/mod combination ocurrs
+			 * @param commandState		CommandSystem state necessary for processing this command
+			 *							Use -1 to assign it as a "Global" command. Useful for debug purposes.
+			 * @param key	Keyboard key needed
+			 * @param action	Key state needed
+			 * @param mod	Key modifiers (Shift, Alt, Ctrl, Super)
+			 */
 			bool RegisterKeyboardCommand(int commandID, int commandState, int key, Input::KeyAction action, Input::KeyMod mod = Input::KeyMod::NONE);
 
 			/**
@@ -84,32 +94,48 @@ namespace BitEngine{
 			 */
 			bool RegisterMouseCommand(int commandID, int commandState, int button, Input::MouseAction action, Input::KeyMod mod = Input::KeyMod::NONE);
 
+			/**
+			 *
+			 * @param commandID
+			 * @param commandState
+			 * @param mod
+			 * @return
+			 */
 			bool RegisterMouseMove(int commandID, int commandState, Input::KeyMod mod = Input::KeyMod::NONE){
 				return RegisterMouseCommand(commandID, commandState, 0, Input::MouseAction::MOVE, mod);
 			}
 
+			/**
+			 * The command system listen to Input::MsgKeyboardInput so it can check for command triggers.
+			 */
 			void onMessage(const Input::MsgKeyboardInput& msg_);
+
+			/**
+			 * The command system listen to Input::MsgKeyboardInput so it can check for command triggers.
+			 */
 			void onMessage(const Input::MsgMouseInput& msg);
 
 		private:
 			enum class InputType : char{
 				keyboard,
 				mouse,
-				joystick
+				joystick,
+				other,
 			};
 
 			struct CommandIdentifier{
 				CommandIdentifier()
+					: commandState(0), msgCommandInputType(InputType::other)
 				{}
 
 				CommandIdentifier(int s, const Input::MsgKeyboardInput& k)
-					: commandState(s), MsgCommandInputType(InputType::keyboard), keyboard(k){}
+					: commandState(s), msgCommandInputType(InputType::keyboard), keyboard(k){}
 
 				CommandIdentifier(int s, const Input::MsgMouseInput& m)
-					: commandState(s), MsgCommandInputType(InputType::mouse), mouse(m){}
+					: commandState(s), msgCommandInputType(InputType::mouse), mouse(m){}
 
 				int commandState;
-				InputType MsgCommandInputType;
+				InputType msgCommandInputType;
 
 				Input::MsgKeyboardInput keyboard;
 				Input::MsgMouseInput mouse;
@@ -118,46 +144,14 @@ namespace BitEngine{
 			// CommandIdentifier Hash and Equal
 			class CIHash{
 			public:
-				std::size_t operator()(const CommandIdentifier& k) const
-				{
-					if (k.MsgCommandInputType == InputType::keyboard)
-						return (std::hash<int>()(k.commandState << 24)
-							 ^ (std::hash<int>()((int)k.MsgCommandInputType) << 16))
-							 ^ (std::hash<int>()(k.keyboard.key) << 8)
-							 ^ (std::hash<int>()((int)k.keyboard.keyAction) << 4)
-							 ^ (std::hash<int>()((int)k.keyboard.keyMod));
-					else if (k.MsgCommandInputType == InputType::mouse)
-						return (std::hash<int>()(k.commandState << 24)
-							^ (std::hash<int>()((int)k.MsgCommandInputType) << 16))
-							^ (std::hash<int>()(k.mouse.button) << 8)
-							^ (std::hash<int>()((int)k.mouse.action) << 4)
-							^ (std::hash<int>()((int)k.mouse.keyMod));
-
-					return 0;
-				}
+				std::size_t operator()(const CommandIdentifier& k) const;
 			};
 			class CIEqual{
 			public:
-				bool operator() (const CommandIdentifier& t1, const CommandIdentifier& t2) const
-				{
-					if (t1.MsgCommandInputType == InputType::keyboard && t2.MsgCommandInputType == InputType::keyboard)
-						return (t1.commandState == t2.commandState
-							&& t1.keyboard.key == t2.keyboard.key
-							&& t1.keyboard.keyAction == t2.keyboard.keyAction
-							&& t1.keyboard.keyMod == t2.keyboard.keyMod);
-					else if (t1.MsgCommandInputType == InputType::mouse && t2.MsgCommandInputType == InputType::mouse)
-						return (t1.commandState == t2.commandState
-							&& t1.mouse.button == t2.mouse.button
-							&& t1.mouse.action == t2.mouse.action
-							&& t1.mouse.keyMod == t2.mouse.keyMod);
-
-					return false;
-				}
+				bool operator() (const CommandIdentifier& t1, const CommandIdentifier& t2) const;
 			};
 
 			std::unordered_map<CommandIdentifier, int, CIHash, CIEqual> m_commands;
 			int m_commandState;
-
 	};
-
 }

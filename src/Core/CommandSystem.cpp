@@ -3,28 +3,61 @@
 
 namespace BitEngine
 {
+	std::size_t CommandSystem::CIHash::operator()(const CommandIdentifier& k) const
+	{
+		if (k.msgCommandInputType == InputType::keyboard)
+			return (std::hash<int>()(k.commandState << 24)
+					^ (std::hash<int>()((int) k.msgCommandInputType) << 16))
+					^ (std::hash<int>()(k.keyboard.key) << 8)
+					^ (std::hash<int>()((int) k.keyboard.keyAction) << 4)
+					^ (std::hash<int>()((int) k.keyboard.keyMod));
+		else if (k.msgCommandInputType == InputType::mouse)
+			return (std::hash<int>()(k.commandState << 24)
+					^ (std::hash<int>()((int) k.msgCommandInputType) << 16))
+					^ (std::hash<int>()(k.mouse.button) << 8)
+					^ (std::hash<int>()((int) k.mouse.action) << 4)
+					^ (std::hash<int>()((int) k.mouse.keyMod));
+
+		return 0;
+	}
+	bool CommandSystem::CIEqual::operator()(const CommandIdentifier& t1, const CommandIdentifier& t2) const
+	{
+		if (t1.msgCommandInputType == InputType::keyboard && t2.msgCommandInputType == InputType::keyboard)
+			return (t1.commandState == t2.commandState
+					&& t1.keyboard.key == t2.keyboard.key
+					&& t1.keyboard.keyAction == t2.keyboard.keyAction
+					&& t1.keyboard.keyMod == t2.keyboard.keyMod);
+		else if (t1.msgCommandInputType == InputType::mouse && t2.msgCommandInputType == InputType::mouse)
+			return (t1.commandState == t2.commandState
+					&& t1.mouse.button == t2.mouse.button
+					&& t1.mouse.action == t2.mouse.action
+					&& t1.mouse.keyMod == t2.mouse.keyMod);
+
+		return false;
+	}
+
 	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, int _other)
 		: commandID(_id), intensity(_intensity), mouse_x(0), mouse_y(0)
 	{
-		other.other = _other;
+		action.other = _other;
 	}
 
 	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, Input::KeyAction _other)
 		: commandID(_id), intensity(_intensity), mouse_x(0), mouse_y(0)
 	{
-		other.fromButton = _other;
+		action.fromButton = _other;
 	}
 
 	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity, Input::MouseAction _other, double x, double y)
 		: commandID(_id), intensity(_intensity), mouse_x(x), mouse_y(y)
 	{
-		other.fromMouse = _other;
+		action.fromMouse = _other;
 	}
 
 	CommandSystem::MsgCommandInput::MsgCommandInput(int _id, float _intensity)
 		: commandID(_id), intensity(_intensity), mouse_x(0), mouse_y(0)
 	{
-		other.other = 0;
+		action.other = 0;
 	}
 
 
@@ -39,7 +72,6 @@ namespace BitEngine
 
 	CommandSystem::~CommandSystem()
 	{
-
 	}
 
 	bool CommandSystem::Init()
@@ -67,8 +99,9 @@ namespace BitEngine
 	{
 		for (auto it = m_commands.begin(); it != m_commands.end(); ++it)
 		{
-			if (it->second == commandID)
+			if (it->second == commandID) {
 				it = m_commands.erase(it);
+			}
 		}
 	}
 
@@ -125,20 +158,18 @@ namespace BitEngine
 	{
 		CommandIdentifier idtf;
 		idtf.commandState = commandState;
-		idtf.MsgCommandInputType = InputType::keyboard;
+		idtf.msgCommandInputType = InputType::keyboard;
 
 		idtf.keyboard.key = key;
 		idtf.keyboard.keyAction = Input::KeyAction::PRESS;
 		idtf.keyboard.keyMod = Input::KeyMod::NONE;
 
 		// Search for PRESS
-		auto it = m_commands.find(idtf);
-		if (it == m_commands.end())
+		if (m_commands.find(idtf) == m_commands.end())
 		{
 			// Search for RELEASE
 			idtf.keyboard.keyAction = Input::KeyAction::RELEASE;
-			it = m_commands.find(idtf);
-			if (it == m_commands.end())
+			if (m_commands.find(idtf) == m_commands.end())
 			{
 				// Register for RELEASE
 				m_commands[idtf] = commandID;
@@ -157,7 +188,7 @@ namespace BitEngine
 	{
 		CommandIdentifier idtf;
 		idtf.commandState = commandState;
-		idtf.MsgCommandInputType = InputType::keyboard;
+		idtf.msgCommandInputType = InputType::keyboard;
 
 		idtf.keyboard.key = key;
 		idtf.keyboard.keyAction = action;
@@ -176,7 +207,7 @@ namespace BitEngine
 	{
 		CommandIdentifier idtf;
 		idtf.commandState = commandState;
-		idtf.MsgCommandInputType = InputType::mouse;
+		idtf.msgCommandInputType = InputType::mouse;
 
 		idtf.mouse.button = button;
 		idtf.mouse.action = action;

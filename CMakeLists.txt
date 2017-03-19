@@ -146,7 +146,7 @@ add_subdirectory(src)
 # Installing
 
 install(DIRECTORY "include/"
-DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
+		DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
 
 
 # GTest
@@ -155,7 +155,7 @@ DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
 ExternalProject_Add(googletest
 	PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/gtest
 	GIT_REPOSITORY    https://github.com/google/googletest.git
-	GIT_TAG           0e0ff5c3410f88e09701fef04dcfcaad9cd3494f
+	GIT_TAG           aa148eb2b7f70ede0eb10de34b6254826bfb34f4
 	CMAKE_ARGS		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 					-Dgtest_force_shared_crt:INTERNAL=ON
 					-DBUILD_SHARED_LIBS=OFF
@@ -173,24 +173,6 @@ message(STATUS "GTEST_INCLUDE='${GTEST_INCLUDE}'")
 message(STATUS "GTEST_LIBRARIES='${GTEST_LIBRARIES}'")
 
 if (BUILD_TESTS)
-    enable_testing()
-
-    add_executable(TestBuild
-        src/Tests/test_build.cpp)
-    add_test(BuildTests TestBuild)
-    target_link_libraries(TestBuild ${GTEST_LIBRARIES} -static-libstdc++)
-    target_include_directories(TestBuild PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
-
-    add_executable(TestCore
-            src/Tests/reflectiontest.cpp)
-    add_test(ReflectionTests TestCore)
-    target_link_libraries(TestCore bitengine ${GTEST_LIBRARIES} -static-libstdc++)
-    target_include_directories(TestCore PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
-
-    add_executable(TestCommonUtils
-            src/Tests/commonTests.cpp
-            src/Tests/vectorBoolTest.cpp)
-    add_test(CommonUtilsTests TestCommonUtils)
-    target_link_libraries(TestCommonUtils ${GTEST_LIBRARIES} -static-libstdc++)
-    target_include_directories(TestCommonUtils PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
+	enable_testing()
+	add_subdirectory(Tests)
 endif()

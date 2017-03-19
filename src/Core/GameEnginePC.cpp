@@ -4,7 +4,7 @@
 #include "bitengine/Core/GameEnginePC.h"
 #include "bitengine/Core/Logger.h"
 
-namespace BitEngine{
+namespace BitEngine {
 
 class UpdateSystemTask : public Task
 {
