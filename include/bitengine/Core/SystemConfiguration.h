@@ -68,37 +68,47 @@ namespace BitEngine
 
 	class SystemConfiguration
 	{
-	public:
-		SystemConfiguration()
-		{
-		}
-
-		const std::map<std::string, ConfigurationItem>& getConfigs() const {
-			return configs;
-		}
-
-		bool AddConfiguration(const std::string& name, const std::string& description, const std::string& defaultValue="")
-		{
-			return configs.insert(std::pair<std::string, ConfigurationItem>(name, ConfigurationItem(name, defaultValue, description))).second;
-		}
-
-		ConfigurationItem* getConfig(const std::string& name)
-		{
-			auto it = configs.find(name);
-			if (it == configs.end())
-				return nullptr;
-
-			return &it->second;
-		}
-
-		void ResetToDefaults(){
-			for (auto& it : configs){
-				it.second.setValue(it.second.getDefaultValue());
+		public:
+			SystemConfiguration(const std::string name)
+					: systemName(name)
+			{
 			}
-		}
 
-	private:
-		std::map<std::string, ConfigurationItem> configs;
+			const std::map<std::string, ConfigurationItem>& getConfigs() const
+			{
+				return configs;
+			}
+
+			bool addConfiguration(const std::string& name, const std::string& description, const std::string& defaultValue = "")
+			{
+				return configs.insert(std::pair<std::string, ConfigurationItem>(name, ConfigurationItem(name, defaultValue, description))).second;
+			}
+
+			ConfigurationItem* getConfig(const std::string& name)
+			{
+				auto it = configs.find(name);
+				if (it == configs.end())
+					return nullptr;
+
+				return &it->second;
+			}
+
+			void ResetToDefaults()
+			{
+				for (auto& it : configs)
+				{
+					it.second.setValue(it.second.getDefaultValue());
+				}
+			}
+
+			const std::string& getSystemName() const
+			{
+				return systemName;
+			}
+
+		private:
+			std::string systemName;
+			std::map<std::string, ConfigurationItem> configs;
 	};
 
 

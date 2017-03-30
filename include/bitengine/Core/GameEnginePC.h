@@ -4,7 +4,6 @@
 
 #include "bitengine/Core/System.h"
 #include "bitengine/Core/MessageType.h"
-#include "bitengine/Core/Graphics.h"
 #include "bitengine/Core/Timer.h"
 
 // Basic Systems
@@ -31,7 +30,7 @@ namespace BitEngine
 	class GameEnginePC : public GameEngine
 	{
 		public:
-			GameEnginePC(const std::string& configFile, ResourceLoader* loader, VideoDriver* driver);
+			GameEnginePC(ConfigurationLoader* configLoader, ResourceLoader* resourceLoader, VideoDriver* driver);
 			~GameEnginePC();
 
 			// Will call the @see CreateSystems() method
@@ -48,7 +47,7 @@ namespace BitEngine
 				return &configuration;
 			}
 			virtual ResourceLoader* getResourceLoader() override {
-				return loader;
+				return resourceLoader;
 			}
 			virtual Messenger* getMessenger() override {
 				return &messenger;
@@ -70,13 +69,15 @@ namespace BitEngine
 			bool initSystems();
 			void shutdownSystems();
 
+
 			std::map<std::string, System*> systemsMap;
 			std::vector<System*> systems;
 			std::vector<System*> systemsToShutdown;
 
+			ConfigurationLoader* configurationLoader;
+			ResourceLoader* resourceLoader;
 			Messenger messenger;
 			EngineConfiguration configuration;
-			ResourceLoader* loader;
 			GeneralTaskManager taskManager;
 			VideoDriver* videoDriver;
 	};

@@ -3,7 +3,8 @@
 #include <bitset>
 #include <random>
 
-#include "bitengine/bitengine.h"
+#include "bitengine/Common/TypeDefinition.h"
+#include "bitengine/Common/BitFieldVector.h"
 
 #include "gtest/gtest.h"
 

@@ -3,17 +3,15 @@ project(BitEngine CXX)
 
 # Options
 set(BE_BASE_DEPENDENCY_DIRECTORY "${CMAKE_BINARY_DIR}/externals/" CACHE PATH
-    "Directory where dependencies are")
+    "Directory where to find dependencies. We will automatically download the repositories if needed.")
 set_property(CACHE BE_BASE_DEPENDENCY_DIRECTORY PROPERTY TYPE PATH)
 
-set(LIB_INSTALL_DIR lib)
 set(BIT_ENGINE_INCLUDE_DESTINATION include)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Set the default build configuration for this build" FORCE)
 endif()
 
-message(STATUS "VideoBackEnd='${VideoBackEnd}'")
 message(STATUS "Installing libs in: ${CMAKE_BINARY_DIR}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Dependency dir: ${BE_BASE_DEPENDENCY_DIRECTORY}")
@@ -43,35 +41,9 @@ endif()
 ## GET DEPENDENCIES
 include(ExternalProject)
 
-if (NEED_NLOHMANN_JSON)
-	ExternalProject_Add(nlohmann_json
-		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/nlohmann_json
-		GIT_REPOSITORY https://github.com/nlohmann/json.git
-		UPDATE_COMMAND ""
-		CMAKE_ARGS 
-			-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-			-DBuildTests=OFF
-	)
-	ExternalProject_Get_Property(nlohmann_json INSTALL_DIR)
-	set(NLOHJSON_INCLUDE ${INSTALL_DIR}/include/nlohmann)
-	message(STATUS "NLOHJSON_INCLUDE='${NLOHJSON_INCLUDE}'")
-endif()
+include("cmake/nlohmann_json.cmake")
 
-if (NEED_GLEW)
-	ExternalProject_Add(glew
-		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/glew
-		GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
-		UPDATE_COMMAND ""
-		CMAKE_ARGS 
-			-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-			-Dglew-cmake_BUILD_SHARED=OFF
-	)
-	ExternalProject_Get_Property(glew INSTALL_DIR)
-	set(GLEW_INCLUDE ${INSTALL_DIR}/include)
-	set(GLEW_LIBRARIES ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glew${CMAKE_STATIC_LIBRARY_SUFFIX})
-	message(STATUS "GLEW_INCLUDE='${GLEW_INCLUDE}'")
-	message(STATUS "GLEW_LIBRARIES='${GLEW_LIBRARIES}'")
-endif()
+include("cmake/glew.cmake")
 
 if (NEED_GLFW)
     ExternalProject_Add(glfw
@@ -79,34 +51,18 @@ if (NEED_GLFW)
 		GIT_REPOSITORY https://github.com/glfw/glfw.git
 		UPDATE_COMMAND ""
 		CMAKE_ARGS 
+			-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 			-DGLFW_BUILD_EXAMPLES=OFF
 			-DGLFW_BUILD_TESTS=OFF
-			-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 		# LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
     )
-	ExternalProject_Get_Property(glfw INSTALL_DIR)
-	set(GLFW_INCLUDE ${INSTALL_DIR}/include)
-	set(GLFW_LIBRARIES ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX})
+	set(GLFW_INCLUDE ${CMAKE_INSTALL_PREFIX}/include)
+	set(GLFW_LIBRARIES ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX})
 	message(STATUS "GLFW_INCLUDE='${GLFW_INCLUDE}'")
 	message(STATUS "GLEW_LIBRARIES='${GLEW_LIBRARIES}'")
 endif()
 
-if (NEED_GLM)
-	ExternalProject_Add(glm
-		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/glm
-		GIT_REPOSITORY https://github.com/g-truc/glm.git
-		UPDATE_COMMAND ""
-		CONFIGURE_COMMAND ""
-		BUILD_COMMAND ""
-		INSTALL_COMMAND ""
-		#${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/glm <INSTALL_DIR>/include
-		LOG_DOWNLOAD ON
-		)
-	ExternalProject_Get_Property(glm SOURCE_DIR)
-	set(GLM_INCLUDE ${SOURCE_DIR})
-	message(STATUS "GLM_INCLUDE='${GLM_INCLUDE}'")
-endif()
-
+include("cmake/glm.cmake")
 
 if (NEED_STB)
 	ExternalProject_Add(stb
@@ -126,22 +82,15 @@ if (NEED_STB)
 endif()
 
 
-
-
-# Project Configuration
-add_definitions(-static-libstdc++)
-
 # BitEngine source
 
-set(BE_INCLUDE ${CMAKE_SOURCE_DIR}/include/)
-message(STATUS "BE_INCLUDE='${BE_INCLUDE}'")
+set(BE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/)
 
-set(ALL_BE_INCLUDES ${NLOHJSON_INCLUDE}
-					${GLEW_INCLUDE} 
-					${GLFW_INCLUDE}
-					${GLM_INCLUDE} 
+set(ALL_BE_INCLUDES #${NLOHJSON_INCLUDE}
+					#${GLEW_INCLUDE} 
+					#${GLFW_INCLUDE}
 					${STB_INCLUDE}
-					${BE_INCLUDE}
+					${BE_INCLUDE_DIR}
 					)
 
 add_subdirectory(src)
@@ -150,9 +99,7 @@ add_subdirectory(src)
 
 install(DIRECTORY "include/"
 		DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
-install(EXPORT bitengine-targets DESTINATION targets)
-#install(EXPORT bitengine-glfw-targets DESTINATION targets)
-#install(EXPORT bitengine-gl2-targets DESTINATION targets)
+install(EXPORT bitengineTargets DESTINATION lib/cmake/bitengine)
 
 # GTest
 

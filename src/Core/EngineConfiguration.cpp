@@ -14,8 +14,8 @@ const char SYSTEM_BEGIN_CHAR = '!';
 const char CONFIG_VALUE_SEPARATOR_CHAR = ':';
 
 
-EngineConfiguration::EngineConfiguration(GameEngine* ge, const std::string& fileName)
-	: EnginePiece(ge), file(fileName)
+EngineConfiguration::EngineConfiguration(GameEngine* ge)
+	: EnginePiece(ge)
 {
 }
 
@@ -27,17 +27,47 @@ EngineConfiguration::~EngineConfiguration()
 	}
 }
 
-void EngineConfiguration::LoadConfigurations(){
+ConfigurationItem* EngineConfiguration::getConfiguration(const std::string& systemName, const std::string& configName, const std::string& defaultValue)
+{
+	BitEngine::SystemConfiguration* sc = getSystemConfiguration(systemName);
+	if (sc != nullptr)
+	{
+		return sc->getConfig(configName);
+	}
+	else
+	{
+		sc = new SystemConfiguration(systemName);
+		if (sc->addConfiguration(configName, "", defaultValue))
+		{
+			systemConfigs[systemName] = sc;
+			return sc->getConfig(configName);
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+}
+
+
+EngineConfigurationFileLoader::EngineConfigurationFileLoader(const std::string& fileName)
+: file(fileName)
+{
+}
+
+
+void EngineConfigurationFileLoader::loadConfigurations(EngineConfiguration& ec) const
+{
 	std::ifstream inFile(file);
 
 	// Save configs if couldn't open the file
 	if (!inFile.is_open()){
-		SaveConfigurations();
+		saveConfigurations(ec);
 		return;
 	}
 
 	// Read configs
-	std::map<std::string, SystemConfiguration*>::iterator workingSystem = systemConfigs.end();
+	SystemConfiguration* workingSystem = nullptr;
 	while (!inFile.eof())
 	{
 		std::string line;
@@ -46,15 +76,16 @@ void EngineConfiguration::LoadConfigurations(){
 		/*auto& linestream = */inFile.getline(&line[0], line.capacity());
 		line.resize(strlen(line.c_str()));
 
-		readLine(line, workingSystem);
+		readLine(line, workingSystem, ec);
 	}
 }
 
-void EngineConfiguration::SaveConfigurations()
+void EngineConfigurationFileLoader::saveConfigurations(const EngineConfiguration& ec) const
 {
 	std::ofstream fileOut(file);
 
-	const char* CONFIG_HEADER = "# Configuration file\n# Comment lines begin with #.\n"				\
+	const char* CONFIG_HEADER =
+		"# Configuration file\n# Comment lines begin with #.\n"				\
 		"# Define a system config should have a line with !SystemName\n"	\
 		"# Configurations are set as:\n# ConfigName: value\n\n";
 
@@ -65,6 +96,7 @@ void EngineConfiguration::SaveConfigurations()
 
 	fileOut << CONFIG_HEADER;
 
+	const std::map<std::string, SystemConfiguration*>& systemConfigs = ec.getConfigurations();
 	for (const auto& it : systemConfigs)
 	{
 		const SystemConfiguration* sysConf = it.second;
@@ -81,29 +113,8 @@ void EngineConfiguration::SaveConfigurations()
 	}
 }
 
-ConfigurationItem* EngineConfiguration::getConfiguration(const std::string& systemName, const std::string& configName, const std::string& defaultValue)
-{
-	auto it = systemConfigs.find(systemName);
-	if (it != systemConfigs.end())
-	{
-		return it->second->getConfig(configName);
-	}
-	else
-	{
-		SystemConfiguration* sc = new SystemConfiguration();
-		if (sc->AddConfiguration(configName, "", defaultValue))
-		{
-			systemConfigs[systemName] = sc;
-			return sc->getConfig(configName);
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
-}
-
-int EngineConfiguration::readLine(const std::string& line, std::map<std::string, SystemConfiguration*>::iterator& workingSystem)
+int EngineConfigurationFileLoader::readLine(const std::string& line, SystemConfiguration*& workingSystem,
+		EngineConfiguration& ec)  const
 {
 	std::string workLine = line;
 
@@ -121,8 +132,8 @@ int EngineConfiguration::readLine(const std::string& line, std::map<std::string,
 
 		std::string sysName = workLine.substr(1, nameEnd);
 
-		workingSystem = systemConfigs.find(sysName);
-		if (workingSystem == systemConfigs.end()){
+		workingSystem = ec.getSystemConfiguration(sysName);
+		if (workingSystem == nullptr){
 			LOG(EngineLog, BE_LOG_WARNING) << "EngineConfiguration: system not found: '" << sysName << "'";
 			return ERROR_UNKNOWN_SYSTEM;
 		}
@@ -145,14 +156,14 @@ int EngineConfiguration::readLine(const std::string& line, std::map<std::string,
 
 		// It's a config item
 		// Check if we are on a valid system
-		if (workingSystem == systemConfigs.end()){
+		if (workingSystem == nullptr){
 			LOG(EngineLog, BE_LOG_WARNING) << "EngineConfiguration: configuration is not defined for a system: " << configName;
 			return ERROR_CONFIG_WITHOUT_SYS;
 		}
 
-		ConfigurationItem* configItem = workingSystem->second->getConfig(configName);
+		ConfigurationItem* configItem = workingSystem->getConfig(configName);
 		if (configItem == nullptr){
-			LOG(EngineLog, BE_LOG_WARNING) << "Unknown configuration for system " << workingSystem->first << " with name: " << configName;
+			LOG(EngineLog, BE_LOG_WARNING) << "Unknown configuration for system " << workingSystem->getSystemName() << " with name: " << configName;
 			return ERROR_UNKNOWN_CONFIG;
 		}
 
@@ -165,7 +176,7 @@ int EngineConfiguration::readLine(const std::string& line, std::map<std::string,
 				end = begin-1;
 			const std::string configValue = workLine.substr(begin, end - begin);
 			configItem->setValue(configValue);
-			LOG(EngineLog, BE_LOG_INFO) << "CONFIG " << workingSystem->first << ": " << configName << " set to '" << configValue << "'";
+			LOG(EngineLog, BE_LOG_INFO) << "CONFIG " << workingSystem->getSystemName() << ": " << configName << " set to '" << configValue << "'";
 		}
 
 		return 2;
@@ -173,7 +184,7 @@ int EngineConfiguration::readLine(const std::string& line, std::map<std::string,
 
 }
 
-int EngineConfiguration::removeCommentsNTrim(std::string& line)
+int EngineConfigurationFileLoader::removeCommentsNTrim(std::string& line) const
 {
 	auto pos = line.find_first_of(LINE_COMMENT);
 	if (pos > 0){

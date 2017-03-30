@@ -18,6 +18,9 @@ namespace BitEngine {
 	template<typename T>
 	class RR;
 
+	/***
+	 * Stores resource meta data.
+	 */
 	struct ResourceMeta
 	{
 		ResourceMeta(const std::string& pack)
@@ -26,7 +29,7 @@ namespace BitEngine {
 
 		const std::string toString() const;
 
-		u32 id;
+		u32 id; /// unique resource id
 		std::string package;
 		std::string resourceName;
 		std::string type;
@@ -83,9 +86,15 @@ namespace BitEngine {
 			virtual void update() = 0;
 			virtual void shutdown() = 0;
 
+			/**
+			 * Register a resource manage to take case of a given resource type.
+			 * @param resourceType the resource type.
+			 * @param manager the manager
+			 */
 			virtual void registerResourceManager(const std::string& resourceType, ResourceManager* manager) = 0;
 
 			/**
+			 * TODO: This should not exist here. Loading from a file is not in this scope.
 			 * Blocking call
 			 * Read a file and map all indices
 			 * If any resource override would happen, they're skipped
@@ -95,6 +104,14 @@ namespace BitEngine {
 			 */
 			virtual bool loadIndex(const std::string& index) = 0;
 
+			/**
+			 * Include a meta in the internal index.
+			 * @param package
+			 * @param resourceName
+			 * @param type
+			 * @param properties
+			 * @return
+			 */
 			virtual BitEngine::ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
 									 const std::string& type, ResourcePropertyContainer properties = ResourcePropertyContainer()) = 0;
 			

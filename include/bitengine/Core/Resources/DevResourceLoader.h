@@ -5,7 +5,7 @@
 #include "bitengine/Core/Resources/ResourceManager.h"
 #include "bitengine/Core/Task.h"
 
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 
 
 namespace BitEngine 
@@ -56,8 +56,11 @@ namespace BitEngine
 		nlohmann::json& properties;
 	};
 
-	// Resource Loader implementation
-	// This loader loads files from the standard file system
+	/**
+	 * Resource Loader implementation
+	 * This loader loads files from the standard file system.
+	 * All resources are indexed in a json file.
+	 */
 	class DevResourceLoader : public ResourceLoader
 	{
 		public:

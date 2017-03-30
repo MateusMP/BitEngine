@@ -8,13 +8,14 @@ if (BACKEND_WITH_GLFW)
     )
     add_library(backend-glfw STATIC ${SRCS})
 	target_compile_definitions(backend-glfw PUBLIC -DGLEW_STATIC)
-	message(STATUS "backend-glfw link with='${GLFW_LIBRARIES} ${GLEW_LIBRARIES}'")
-	target_link_libraries(backend-glfw ${GLFW_LIBRARIES} ${GLEW_LIBRARIES})
-	target_link_libraries(backend-glfw ${OPENGL_LIBRARIES})
-	target_include_directories(backend-glfw PRIVATE ${ALL_BE_INCLUDES} ${BE_INCLUDE})
+	message(STATUS "backend-glfw link with='${OPENGL_LIBRARIES} ${BE_INCLUDE_DIR}'")
+	target_link_libraries(backend-glfw glfw3 libglew_static ${OPENGL_LIBRARIES})
+	target_include_directories(backend-glfw PUBLIC $<BUILD_INTERFACE:${BE_INCLUDE_DIR}>
+												  $<INSTALL_INTERFACE:include/>)
+	target_include_directories(backend-glfw PRIVATE ${ALL_BE_INCLUDES})
 	set(BE_LINK_BACKENDS "${BE_LINK_BACKENDS} backend-glfw" PARENT_SCOPE)
 	
-	install(TARGETS backend-glfw DESTINATION ${LIB_INSTALL_DIR} EXPORT bitengine-targets)
+	install(TARGETS backend-glfw DESTINATION lib EXPORT bitengineTargets)
 	
 endif()
 
@@ -33,13 +34,15 @@ if (BACKEND_WITH_GL2)
     )
     add_library(backend-gl2 STATIC ${SRCS})
 	target_compile_definitions(backend-gl2 PUBLIC -DGLEW_STATIC)
-	message(STATUS "backend-gl2 link with='${GLEW_LIBRARIES}'")
-	target_link_libraries(backend-gl2 ${GLEW_LIBRARIES})
-	target_link_libraries(backend-gl2 ${OPENGL_LIBRARIES})
-	target_include_directories(backend-gl2 PRIVATE ${ALL_BE_INCLUDES} ${BE_INCLUDE})
+	message(STATUS "backend-gl2 link with='${OPENGL_LIBRARIES}'")
+	target_link_libraries(backend-gl2 libglew_static ${OPENGL_LIBRARIES})
+	target_include_directories(backend-gl2 PUBLIC $<BUILD_INTERFACE:${BE_INCLUDE_DIR}>
+												  $<INSTALL_INTERFACE:include/>)
+	target_include_directories(backend-gl2 PRIVATE ${ALL_BE_INCLUDES})
+	
 	set(BE_LINK_BACKENDS "${BE_LINK_BACKENDS} backend-gl2" PARENT_SCOPE)
 	
-	install(TARGETS backend-gl2 DESTINATION ${LIB_INSTALL_DIR} EXPORT bitengine-targets)
+	install(TARGETS backend-gl2 DESTINATION lib EXPORT bitengineTargets)
 endif()
 
 string(STRIP "${BE_LINK_BACKENDS}" BE_LINK_BACKENDS)

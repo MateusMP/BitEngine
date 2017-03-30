@@ -6,8 +6,6 @@
 #include "bitengine/Core/Task.h"
 #include "bitengine/Core/TaskManager.h"
 
-#include "json.hpp"
-
 
 // Load task
 class DevLoaderTask : public BitEngine::ResourceLoader::RawResourceLoaderTask

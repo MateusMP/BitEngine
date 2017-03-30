@@ -6,7 +6,8 @@ target_link_libraries(TestBuild ${GTEST_LIBRARIES} -static-libstdc++)
 target_include_directories(TestBuild PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})
 
 add_executable(TestCore
-		Core/reflectiontest.cpp)
+		Core/reflectiontest.cpp
+		Core/Resource/resourceLoaderTests.cpp)
 add_test(ReflectionTests TestCore)
 target_link_libraries(TestCore bitengine ${GTEST_LIBRARIES} -static-libstdc++)
 target_include_directories(TestCore PUBLIC ${GTEST_INCLUDE} ${ALL_BE_INCLUDES})

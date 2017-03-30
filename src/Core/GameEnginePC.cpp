@@ -47,14 +47,14 @@ class MessengerDispatchTask : public Task
 };
 
 
-GameEnginePC::GameEnginePC(const std::string& configFile, ResourceLoader* _loader, VideoDriver* driver)
-	: messenger(this), configuration(this, configFile), loader(_loader), taskManager(this), videoDriver(driver)
+GameEnginePC::GameEnginePC(ConfigurationLoader* _configLoader, ResourceLoader* _resourceLoader, VideoDriver* _driver)
+	: configurationLoader(_configLoader), resourceLoader(_resourceLoader),  messenger(this), configuration(this), taskManager(this), videoDriver(_driver)
 {
 }
 
 GameEnginePC::~GameEnginePC()
 {
-	delete loader;
+	delete resourceLoader;
 	delete videoDriver;
 }
 
@@ -145,7 +145,7 @@ bool GameEnginePC::run()
     LOG(EngineLog, BE_LOG_INFO) << "Run Started";
    
 	LOG(EngineLog, BE_LOG_INFO) << "Loadiging system configurations...";
-	configuration.LoadConfigurations();
+	configurationLoader->loadConfigurations(configuration);
 
 	taskManager.init();
 	
