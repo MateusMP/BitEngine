@@ -1,8 +1,11 @@
 if (NEED_NLOHMANN_JSON)
-	find_package(nlohmann_json PATHS ${CMAKE_INSTALL_PREFIX}/cmake NO_DEFAULT_PATH)
+	list(APPEND DEPENDENCIES nlohmann_json_dep)
+
+	find_package(nlohmann_json PATHS ${CMAKE_INSTALL_PREFIX}/cmake NO_DEFAULT_PATH QUIET)
 	
 	if (NOT ${JSON_INCLUDE_DIR} STREQUAL "")
 		message(STATUS "nlohmann_json FOUND!")
+		add_custom_target(nlohmann_json_dep)
 	else()
 
 		ExternalProject_Add(nlohmann_json_dep
@@ -13,6 +16,7 @@ if (NEED_NLOHMANN_JSON)
 				-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 				-DBuildTests=OFF
 		)
+
 		#set(NLOHJSON_INCLUDE ${CMAKE_INSTALL_PREFIX}/include/nlohmann)
 		#message(STATUS "NLOHJSON_INCLUDE='${NLOHJSON_INCLUDE}'")
 	endif()	
