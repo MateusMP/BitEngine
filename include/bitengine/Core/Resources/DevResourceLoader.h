@@ -64,6 +64,18 @@ namespace BitEngine
 	class DevResourceLoader : public ResourceLoader
 	{
 		public:
+			// Returns the full directory where the file for this meta is.
+			static std::string getDirectoryPath(const ResourceMeta* meta);
+
+			/**
+			 * Load file to memory
+			 * @param fname full path to file
+			 * @param out the file data
+			 * @return true if the file was loaded
+			 */
+			static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
+
+
 			DevResourceLoader(GameEngine* ge);
 			~DevResourceLoader();
 
@@ -77,10 +89,6 @@ namespace BitEngine
 			virtual bool loadIndex(const std::string& indexFilename) override;
 
 			virtual ResourceMeta* findMeta(const std::string& name) override;
-
-			// Returns the full directory where the file for this meta is.
-			static std::string getDirectoryPath(const ResourceMeta* meta);
-			static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
 
 			BitEngine::ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
 				const std::string& type, ResourcePropertyContainer properties) override;
@@ -119,8 +127,7 @@ namespace BitEngine
 			std::unordered_map<std::string, ResourceManager*> managersMap;
 
 			std::vector<ResourceMeta> resourceMeta;
-			std::array<LoadedIndex, 8> resourceMetaIndexes;
-			u32 loadedMetaIndexes;
+			std::vector<LoadedIndex> resourceMetaIndexes;
 			std::unordered_map<std::string, u32> byName;
 	};
 

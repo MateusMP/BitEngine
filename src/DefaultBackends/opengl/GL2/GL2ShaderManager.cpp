@@ -50,6 +50,7 @@ namespace BitEngine {
 	//
 
 	GL2ShaderManager::GL2ShaderManager()
+		: loader(nullptr)
 	{
 		ramInUse = 0;
 		gpuMemInUse = 0;

@@ -20,18 +20,33 @@ class DevLoaderTask : public BitEngine::ResourceLoader::RawResourceLoaderTask
 
 };
 
-const std::string BitEngine::ResourceMeta::toString() const {
-	return ("Resource Meta id: " + std::to_string(id) +
-		"\n\tpackage: " + package +
-		"\n\ttype: " + type +
-		"\n\tfiledDir: " + resourceName +
-		"\n\tprops: " + /*properties.dump() + */"\n");
+void DevLoaderTask::run()
+{
+	using namespace BitEngine;
+
+	dr.loadState = ResourceLoader::DataRequest::LoadState::LOADING;
+	const std::string path = DevResourceLoader::getDirectoryPath(dr.meta);
+
+	LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
+
+	if (DevResourceLoader::loadFileToMemory(path, dr.data))
+	{
+		dr.loadState = ResourceLoader::DataRequest::LoadState::LOADED;
+	}
+	else
+	{
+		LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
+		dr.loadState = ResourceLoader::DataRequest::LoadState::ERROR;
+	}
 }
 
+//
+
 BitEngine::DevResourceLoader::DevResourceLoader(GameEngine* ge)
-	: ResourceLoader(ge), loadedMetaIndexes(0)
+	: ResourceLoader(ge)
 {
 	resourceMeta.reserve(4096);
+	resourceMetaIndexes.reserve(8);
 }
 
 BitEngine::DevResourceLoader::~DevResourceLoader()
@@ -72,25 +87,6 @@ void BitEngine::DevResourceLoader::registerResourceManager(const std::string& re
 	managersMap[resourceType] = manager;
 }
 
-bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, std::vector<char>& out)
-{
-	LOG(EngineLog, BE_LOG_VERBOSE) << "Loading resource index " << fname;
-	std::ifstream file(fname, std::ios::in | std::ios::binary | std::ios::ate);
-	if (!file.is_open())
-	{
-		LOG(EngineLog, BE_LOG_ERROR) << "Failed to open index file " << fname;
-		return false;
-	}
-	std::streamsize size = file.tellg();
-	file.seekg(0, std::ios::beg);
-	out.resize(static_cast<size_t>(size));
-
-	LOG(EngineLog, BE_LOG_VERBOSE) << fname << " size: " << size;
-
-	file.read(out.data(), size);
-	return file.gcount() == size;
-}
-
 BitEngine::ResourceMeta* BitEngine::DevResourceLoader::includeMeta(const std::string& package, const std::string& resourceName,
 	const std::string& type, ResourcePropertyContainer properties)
 {
@@ -123,8 +119,8 @@ bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
 		bool allowOverride = false;
 		if (index == nullptr)
 		{
-			u32 indexId = loadedMetaIndexes;
-			loadedMetaIndexes++;
+			u32 indexId = resourceMetaIndexes.size();
+			resourceMetaIndexes.push_back(LoadedIndex());
 			index = &resourceMetaIndexes[indexId];
 			index->name = indexFilename;
 		}
@@ -318,29 +314,28 @@ BitEngine::BaseResource* BitEngine::DevResourceLoader::getResourceFromManager(Re
 	return managersMap[meta->type]->loadResource(meta);
 }
 
+// Static
+
 std::string BitEngine::DevResourceLoader::getDirectoryPath(const ResourceMeta* meta)
 {
 	return "data/" + meta->package + "/" + meta->resourceName;
 }
 
-
-
-void DevLoaderTask::run()
+bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, std::vector<char>& out)
 {
-	using namespace BitEngine;
-
-	dr.loadState = ResourceLoader::DataRequest::LoadState::LOADING;
-	const std::string path = DevResourceLoader::getDirectoryPath(dr.meta);
-
-	LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
-
-	if (DevResourceLoader::loadFileToMemory(path, dr.data))
+	LOG(EngineLog, BE_LOG_VERBOSE) << "Loading resource index " << fname;
+	std::ifstream file(fname, std::ios::in | std::ios::binary | std::ios::ate);
+	if (!file.is_open())
 	{
-		dr.loadState = ResourceLoader::DataRequest::LoadState::LOADED;
+		LOG(EngineLog, BE_LOG_ERROR) << "Failed to open index file " << fname;
+		return false;
 	}
-	else
-	{
-		LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
-		dr.loadState = ResourceLoader::DataRequest::LoadState::ERROR;
-	}
+	std::streamsize size = file.tellg();
+	file.seekg(0, std::ios::beg);
+	out.resize(static_cast<size_t>(size));
+
+	LOG(EngineLog, BE_LOG_VERBOSE) << fname << " size: " << size;
+
+	file.read(out.data(), size);
+	return file.gcount() == size;
 }

@@ -1,0 +1,24 @@
+{
+
+"data": {
+		"someGroup": [
+			{
+				"name": "A piece of data",
+				"type": "TYPE1",
+				"customField1": "custom data f1",
+				"customField2": "custom data f2"
+			},
+			{
+				"name": "Another piece of data",
+				"type": "TYPE1",
+				"customField1": "custom data 2"
+			},
+			{
+				"name": "Yet another",
+				"type": "TYPE2",
+				"customField1": "custom for t2"
+			}
+		]
+	}
+
+}

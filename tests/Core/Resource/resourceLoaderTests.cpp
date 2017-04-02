@@ -7,6 +7,7 @@
 
 using namespace BitEngine;
 using ::testing::_;
+using ::testing::Return;
 
 class MockGameEngine : public GameEngine {
 	public:
@@ -31,18 +32,38 @@ class MockResourceManager : public ResourceManager {
 		MOCK_CONST_METHOD0(getCurrentGPUMemoryUsage, u32());
 };
 
+class MockResourceType1 : public BitEngine::BaseResource {
+	public:
+		MockResourceType1(ResourceMeta* _meta)
+			: BaseResource(_meta){}
+};
 
 TEST(ResourceLoader, LoadMultipleResources)
 {
 	MockGameEngine mockGE;
 	MockResourceManager manager1, manager2;
-	DevResourceLoader resourceLoader(&mockGE);
+	DevResourceLoader devResourceLoader(&mockGE);
+	ResourceLoader* resourceLoader = &devResourceLoader;;
 
-	EXPECT_CALL(manager1, setResourceLoader(&resourceLoader));
-	EXPECT_CALL(manager2, setResourceLoader(&resourceLoader));
+	EXPECT_CALL(manager1, setResourceLoader(&devResourceLoader));
+	EXPECT_CALL(manager2, setResourceLoader(&devResourceLoader));
 
-	resourceLoader.registerResourceManager("TYPE1", &manager1);
-	resourceLoader.registerResourceManager("TYPE2", &manager2);
+	devResourceLoader.registerResourceManager("TYPE1", &manager1);
+	devResourceLoader.registerResourceManager("TYPE2", &manager2);
 
-	//resourceLoader.loadIndex();
+	ASSERT_TRUE(resourceLoader->loadIndex("resources/tests/test_resources.idx")) << "Could not load resources/tests/test_resources.idx";
+
+	ResourceMeta* metaR1 = resourceLoader->findMeta("data/someGroup/A piece of data");
+	ASSERT_EQ(metaR1->package, "someGroup");
+	ASSERT_EQ(metaR1->resourceName, "A piece of data");
+	ASSERT_EQ(metaR1->type, "TYPE1");
+	ASSERT_EQ(metaR1->properties.getNumberOfProperties(), 4);
+
+	MockResourceType1 r1(metaR1);
+	EXPECT_CALL(manager1, loadResource(metaR1)).WillRepeatedly(Return(&r1));
+
+	RR<MockResourceType1> refR1 = resourceLoader->getResource<MockResourceType1>(std::string("data/someGroup/A piece of data"));
+
+	ASSERT_TRUE(refR1.isValid());
+	ASSERT_EQ(refR1.get(), &r1);
 }

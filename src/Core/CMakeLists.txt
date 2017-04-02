@@ -17,6 +17,7 @@ set(SRCS
 set(SRCS ${SRCS}
 	Resources/DevResourceLoader.cpp
 	Resources/SpriteManager.cpp
+	Resources/ResourceManager.cpp
 )
 # Graphics
 set(SRCS ${SRCS}
