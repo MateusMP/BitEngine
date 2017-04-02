@@ -58,10 +58,7 @@ message(STATUS "Dependency dir: ${BE_BASE_DEPENDENCY_DIRECTORY}")
 
 set(BE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/)
 
-set(ALL_BE_INCLUDES #${NLOHJSON_INCLUDE}
-					#${GLEW_INCLUDE} 
-					#${GLFW_INCLUDE}
-					${STB_INCLUDE}
+set(ALL_BE_INCLUDES ${STB_INCLUDE}
 					${BE_INCLUDE_DIR}
 					)
 
@@ -69,7 +66,7 @@ add_subdirectory(src)
 
 # Installing
 
-install(DIRECTORY "include/"
+install(DIRECTORY include/
 		DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
 install(EXPORT bitengineTargets DESTINATION lib/cmake/bitengine)
 
