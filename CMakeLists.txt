@@ -32,21 +32,23 @@ if (BACKEND_WITH_GLFW)
 	set(NEED_GLFW 1)
 endif()
 
+
+project(BitEngine CXX)
+
 include("cmake/nlohmann_json.cmake")
 include("cmake/glm.cmake")
 include("cmake/stb.cmake")
 include("cmake/glew.cmake")
 include("cmake/glfw.cmake")
+include("cmake/gtest.cmake")
 
 # THEN BUILD
 
 if (BUILD_DEPENDENCIES)
-	project(BitEngine NONE)
 	include("cmake/bitengine.cmake")
 	return()
 endif()
 
-project(BitEngine CXX)
 
 set(BIT_ENGINE_INCLUDE_DESTINATION include)
 
@@ -70,29 +72,7 @@ install(DIRECTORY include/
 		DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
 install(EXPORT bitengineTargets DESTINATION lib/cmake/bitengine)
 
-# GTest
-
-
-ExternalProject_Add(googletest
-	PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/gtest
-	GIT_REPOSITORY    https://github.com/google/googletest.git
-	GIT_TAG           aa148eb2b7f70ede0eb10de34b6254826bfb34f4
-	CMAKE_ARGS		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-					-Dgtest_force_shared_crt:INTERNAL=ON
-					-DBUILD_SHARED_LIBS=OFF
-	TEST_COMMAND      ""
-	UPDATE_COMMAND ""
-	# gtest_force_shared_crt ON CACHE BOOL "" FORCE
-)
-
-ExternalProject_Get_Property(googletest INSTALL_DIR)
-set(GTEST_INCLUDE ${INSTALL_DIR}/include)
-set(GTEST_LIBRARIES 
-			${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX}
-			${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gmock_main${CMAKE_STATIC_LIBRARY_SUFFIX})
-message(STATUS "GTEST_INCLUDE='${GTEST_INCLUDE}'")
-message(STATUS "GTEST_LIBRARIES='${GTEST_LIBRARIES}'")
-
+# Test
 if (BUILD_TESTS)
 	enable_testing()
 	add_subdirectory(Tests)

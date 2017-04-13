@@ -1,9 +1,10 @@
 if (NEED_STB)	
 	list(APPEND DEPENDENCIES stb_dep)
 	
-	if (EXISTS ${BE_BASE_DEPENDENCY_DIRECTORY}/stb/src/stb_dep)
+	if (EXISTS ${BE_BASE_DEPENDENCY_DIRECTORY}/stb/src/stb_dep/.git)
 		set(STB_INCLUDE ${BE_BASE_DEPENDENCY_DIRECTORY}/stb/src/stb_dep)
 		add_custom_target(stb_dep)
+		message(STATUS "STB READY!")
 	else()
 
 		ExternalProject_Add(stb_dep
