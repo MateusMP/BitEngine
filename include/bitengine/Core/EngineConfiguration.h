@@ -6,6 +6,11 @@
 #include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/SystemConfiguration.h"
 
+// Param will cause log to be sent to the console and the default file
+#define BE_PARAM_DEBUG "--debug"
+// Log only to file
+#define BE_PARAM_DEBUG_FILE_ONLY "--debug-file-only"
+
 namespace BitEngine
 {
 	class EngineConfiguration : public EnginePiece

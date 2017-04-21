@@ -53,7 +53,7 @@ namespace Reflection {
 		std::map<std::string, MemberType> m_members;
 
 		void addMember(const std::string& n, TypeId t, int off) {
-			std::cout << "F: " << n <<  "T: " << t << "OFF: " << off << std::endl;
+			LOG(EngineLog, BE_LOG_VERBOSE) << "F: " << n <<  "T: " << t << "OFF: " << off << std::endl;
 
 			/*m_members.reflectionData.m_members.emplace(std::piecewise_construct,
 						std::forward_as_tuple(n),

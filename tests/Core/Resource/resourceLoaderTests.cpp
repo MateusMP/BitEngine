@@ -40,6 +40,9 @@ class MockResourceType1 : public BitEngine::BaseResource {
 
 TEST(ResourceLoader, LoadMultipleResources)
 {
+	const char* argv[] = {BE_PARAM_DEBUG,  BE_PARAM_DEBUG_FILE_ONLY};
+	BitEngine::LoggerSetup::Setup(2, argv);
+
 	MockGameEngine mockGE;
 	MockResourceManager manager1, manager2;
 	DevResourceLoader devResourceLoader(&mockGE);

@@ -10,7 +10,7 @@
 
 using namespace BitEngine;
 
-Logger TestLog("TestBitSet", std::cout);
+BitEngine::Logger TestLog("TestBitSet", {&std::cout});
 
 std::string BitMaskStr(const BitMask& s){
     std::ostringstream str;

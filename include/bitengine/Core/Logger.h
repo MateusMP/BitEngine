@@ -6,6 +6,8 @@
 #include <ctime>
 #include <thread>
 #include <iomanip>
+#include <initializer_list>
+#include <vector>
 
 #include "bitengine/Core/Timer.h"
 #include "bitengine/Common/MacroHelpers.h"
@@ -38,18 +40,20 @@
 #define BE_LOG_DEBUG 9
 #define BE_LOG_ALL 128
 
-// Force to output more information while on development, even for release build
-// TODO: Define this with cmake options
-#define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
-#define BE_LOG_SHOW_CALL_PLACE
-#define BE_LOG_FORCE_OUTPUT_CONSOLE
-//
-
 #ifdef _DEBUG
-        #define BE_DEBUG 1
+		#define BE_DEBUG 1
 #else
 	#define BE_DEBUG 0
 #endif
+
+// Force to output more information while on development, even for release build
+// TODO: Define this with cmake options
+#ifdef BE_DEBUG
+	#define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
+	#define BE_LOG_SHOW_CALL_PLACE
+	#define BE_LOG_FORCE_OUTPUT_CONSOLE
+#endif
+//
 
 #ifndef BE_LOG_SHOW_CALL_PLACE
 	#ifdef _DEBUG
@@ -128,53 +132,100 @@
 #define LOG_FUNCTION_TIME(logto)
 #endif
 
+#define BE_LOG_SETUP(argc, argv) \
+	BitEngine::LoggerSetup::Setup(argc, argv)
 
 namespace BitEngine {
-
-
+	class Logger;
 	class LogLine;
+	extern Logger* EngineLog;
+
+	class LoggerSetup {
+		static LoggerSetup loggerSetup;
+
+		bool initialized;
+		std::ofstream file;
+
+		LoggerSetup();
+		~LoggerSetup();
+
+	public:
+		static Setup(int argc, const char* argv[]);
+	};
 
 	class Logger
 	{
 		private:
 			std::string logName;
 
-			std::ofstream outFStream;
-			std::ostream outStream;
+			std::vector<std::ostream*> outStream;
 
 		public:
-			Logger(const std::string& name, std::ostream& output)
-				: logName(name), outStream(output.rdbuf())
+			/*Logger(const std::string& name, std::ostream& output)
+				: logName(name), outStream{output.rdbuf()}
 			{
 				std::ostringstream str;
 				str << header() << " LOG STARTED" << std::endl;
-				outStream << str.str();
+				output(str.str());
+			}*/
+
+			Logger(const std::string& name, std::initializer_list<std::ostream*> outputStreams)
+				: logName(name)
+			{
+				for (const std::ostream* r : outputStreams) {
+					outStream.emplace_back(new std::ostream(r->rdbuf()));
+				}
+				Begin();
 			}
 
-			Logger(const std::string& name, Logger& output)
-				: Logger(name, output.getOutputSink())
+			Logger(const std::string& name, const Logger* outputLogger)
+				: Logger(name, outputLogger->getOutputSink())
 			{}
 
-			Logger(const std::string& name, const char* file, std::ios_base::openmode mode)
-				: logName(name), outFStream(file, mode), outStream(outFStream.rdbuf())
-			{
-				std::ostringstream str;
-				str << header() << " LOG STARTED" << std::endl;
-				outStream << str.str();
+			Logger(const char* name, std::ostream& stream)
+				: Logger(std::string(name), {&stream})
+			{}
+
+			Logger(const std::string& name, std::ostream& stream)
+				: Logger(name, {&stream})
+			{}
+
+			~Logger() {
+				for (std::ostream* stream : outStream) {
+					delete stream;
+				}
 			}
 
 			inline void Log(const std::string& line)
 			{
 				std::ostringstream str;
 				str << header() << line;
-				outStream << str.str();
+				output(str.str());
 			}
 
-			std::ostream& getOutputSink() {
+			const std::vector<std::ostream*>& getOutputSink() const {
 				return outStream;
 			}
 
 		private:
+			Logger(const std::string& name, std::vector<std::ostream*> outputStreams)
+				: logName(name), outStream(outputStreams)
+			{
+				Begin();
+			}
+
+			Begin() {
+				std::ostringstream str;
+				str << header() << " LOG STARTED" << std::endl;
+				output(str.str());
+			}
+
+			void output(const std::string& str) {
+				for (std::ostream* stream : outStream) {
+					(*stream) << str;
+				}
+			}
+
 			inline std::string header()
 			{
 				std::ostringstream a;
@@ -200,9 +251,14 @@ namespace BitEngine {
 	{
 		public:
 			LogLine(Logger& l, int severity)
-				: log(l)
+			: log(l)
 			{
 				out << "<" << severity << "> - ";
+			}
+
+			LogLine(Logger* l, int severity)
+				: LogLine(*l, severity)
+			{
 			}
 
 			~LogLine()
@@ -226,8 +282,8 @@ namespace BitEngine {
 	class ScopeLogger
 	{
 		public:
-			ScopeLogger(Logger& l, const std::string& descrp)
-				: log(l), description(descrp)
+			ScopeLogger(Logger* l, const std::string& descrp)
+				: log(*l), description(descrp)
 			{
 				timer.setTime();
 			}
@@ -235,7 +291,7 @@ namespace BitEngine {
 			~ScopeLogger()
 			{
 				double elapsed = timer.timeElapsedMs<double>();
-				BitEngine::LogLine(log, 9) << description << " took " << elapsed << " ms";
+				BitEngine::LogLine(&log, 9) << description << " took " << elapsed << " ms";
 			}
 
 		private:
@@ -245,5 +301,4 @@ namespace BitEngine {
 			BitEngine::Timer timer;
 	};
 
-	extern Logger EngineLog;
 }
