@@ -25,7 +25,8 @@ void DevLoaderTask::run()
 	using namespace BitEngine;
 
 	dr.loadState = ResourceLoader::DataRequest::LoadState::LOADING;
-	const std::string path = DevResourceLoader::getDirectoryPath(dr.meta);
+	DevResourceMeta* drm = static_cast<DevResourceMeta*>(dr.meta);
+	const std::string& path =  drm->filePath;
 
 	LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
 
@@ -90,10 +91,11 @@ void BitEngine::DevResourceLoader::registerResourceManager(const std::string& re
 BitEngine::ResourceMeta* BitEngine::DevResourceLoader::includeMeta(const std::string& package, const std::string& resourceName,
 	const std::string& type, ResourcePropertyContainer properties)
 {
-	ResourceMeta meta(package);
+	DevResourceMeta meta(package);
 	meta.resourceName = resourceName;
 	meta.type = type;
 	meta.properties = properties;
+	meta.filePath = "<in-memory>";
 	return addResourceMeta(meta, false);
 }
 
@@ -138,7 +140,7 @@ bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
 			// Reload all resources in order of manager
 			for (ResourceManager* m : managers)
 			{
-				for (ResourceMeta* meta : index->metas)
+				for (DevResourceMeta* meta : index->metas)
 				{
 					if (m == managersMap[meta->type])
 					{
@@ -197,7 +199,7 @@ void BitEngine::DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOv
 	{
 		for (auto &resource : package.second)
 		{
-			BitEngine::ResourceMeta tmpResMeta(package.first);
+			DevResourceMeta tmpResMeta(package.first);
 
 			for (auto &property : resource.get_ref<nlohmann::json::object_t&>())
 			{
@@ -213,13 +215,17 @@ void BitEngine::DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOv
 						LOG(EngineLog, BE_LOG_WARNING) << "No resource manager for type " << type;
 					}
 				}
+				else if (property.first == "filePath")
+				{
+					tmpResMeta.filePath = property.second.get<std::string>();
+				}
 				else
 				{
 					tmpResMeta.properties = ResourcePropertyContainer(new DevResourcePropertyRef(resource));
 				}
 			}
 
-			ResourceMeta* meta = addResourceMeta(tmpResMeta, allowOverride);
+			DevResourceMeta* meta = addResourceMeta(tmpResMeta, allowOverride);
 			if (meta == nullptr)
 			{
 				LOG(EngineLog, BE_LOG_ERROR) << "Meta would override another one.\n" << tmpResMeta.toString();
@@ -269,16 +275,16 @@ void BitEngine::DevResourceLoader::waitForResource(BaseResource* resource)
 {
 }
 
-BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const ResourceMeta& meta, bool allowOverride)
+BitEngine::DevResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const DevResourceMeta &meta, bool allowOverride)
 {
-	const std::string fullPath = getDirectoryPath(&meta);
+	const std::string fullPath = getPackagePath(&meta);
 	auto it = byName.find(fullPath);
 	if (it == byName.end())
 	{
 		u32 id = resourceMeta.size();
 		resourceMeta.emplace_back(meta);
 
-		ResourceMeta& newRm = resourceMeta.back();
+		DevResourceMeta& newRm = resourceMeta.back();
 		newRm.id = id;
 		byName[fullPath] = id;
 		newRm.properties = meta.properties;
@@ -286,7 +292,7 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const Res
 	}
 	else if (allowOverride) // Override current loaded options
 	{
-		ResourceMeta& rm = resourceMeta[it->second];
+		DevResourceMeta& rm = resourceMeta[it->second];
 		rm.properties = meta.properties;
 		rm.type = meta.type;
 		return &rm;
@@ -316,7 +322,7 @@ BitEngine::BaseResource* BitEngine::DevResourceLoader::getResourceFromManager(Re
 
 // Static
 
-std::string BitEngine::DevResourceLoader::getDirectoryPath(const ResourceMeta* meta)
+std::string BitEngine::DevResourceLoader::getPackagePath(const ResourceMeta* meta)
 {
 	return "data/" + meta->package + "/" + meta->resourceName;
 }

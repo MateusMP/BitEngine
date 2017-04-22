@@ -204,7 +204,8 @@ namespace BitEngine {
 			u16 id = textures.addResource(meta);
 			texture = textures.getResourceAddress(id);
 
-			new (texture)GL2Texture(meta); // Reconstruct object giving it the meta
+			// Reconstruct in place, giving it the meta
+			new (texture)GL2Texture(meta);
 
 			// Make new load request
 			makeLoadFullResource(meta, texture);

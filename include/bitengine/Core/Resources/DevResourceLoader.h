@@ -10,6 +10,14 @@
 
 namespace BitEngine 
 {
+	struct DevResourceMeta : public ResourceMeta {
+		std::string filePath; // In case the resource is associated with a file
+
+		DevResourceMeta(const std::string& pack)
+			: ResourceMeta(pack)
+		{}
+	};
+
 	struct DevResourcePropertyRef : public ResourceProperty
 	{
 		DevResourcePropertyRef(nlohmann::json& json)
@@ -65,7 +73,7 @@ namespace BitEngine
 	{
 		public:
 			// Returns the full directory where the file for this meta is.
-			static std::string getDirectoryPath(const ResourceMeta* meta);
+			static std::string getPackagePath(const ResourceMeta* meta);
 
 			/**
 			 * Load file to memory
@@ -105,14 +113,14 @@ namespace BitEngine
 			virtual void waitForResource(BaseResource* resource) override;
 
 			// Returns nullptr if meta conflicts and allowOverride == false
-			ResourceMeta* addResourceMeta(const ResourceMeta& meta, bool allowOverride);
+			DevResourceMeta* addResourceMeta(const DevResourceMeta& meta, bool allowOverride);
 
 
 		private:
 			struct LoadedIndex {
 				std::string name;
 				nlohmann::json data;
-				std::vector<ResourceMeta*> metas;
+				std::vector<DevResourceMeta*> metas;
 			};
 			RawResourceTask requestResourceData(ResourceMeta* meta) override;
 			
@@ -126,7 +134,7 @@ namespace BitEngine
 			std::vector<ResourceManager*> managers;
 			std::unordered_map<std::string, ResourceManager*> managersMap;
 
-			std::vector<ResourceMeta> resourceMeta;
+			std::vector<DevResourceMeta> resourceMeta;
 			std::vector<LoadedIndex> resourceMetaIndexes;
 			std::unordered_map<std::string, u32> byName;
 	};
