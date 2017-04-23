@@ -10,8 +10,6 @@
 
 using namespace BitEngine;
 
-BitEngine::Logger TestLog("TestBitSet", {&std::cout});
-
 std::string BitMaskStr(const BitMask& s){
     std::ostringstream str;
     for (int i = 0; i < 8; ++i){
@@ -33,7 +31,7 @@ bool checkIfAllZeros(const ObjBitField& obf, const std::string& idf)
         {
             if (obf.test(i, b))
             {
-                LOG(TestLog, BE_LOG_ERROR) << "ERROR: "<<idf<<" object at index " << i << " not zeroed [bit check].";
+                LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR: "<<idf<<" object at index " << i << " not zeroed [bit check].";
                 return false;
             }
         }
@@ -45,7 +43,7 @@ bool checkIfAllZeros(const ObjBitField& obf, const std::string& idf)
         u64 x = obf.getObj(i).b64;
         if (x != 0)
         {
-            LOG(TestLog, BE_LOG_INFO) << "ERROR: "<<idf<<" obj at " << i << " not zeroed! Found: " << x;
+            LOG(BitEngine::EngineLog, BE_LOG_INFO) << "ERROR: "<<idf<<" obj at " << i << " not zeroed! Found: " << x;
             return false;
         }
     }
@@ -57,6 +55,7 @@ void testBitCase(u16 nBits)
 {
     const u32 nObjs = 10000;
     u64 seed = std::chrono::system_clock::now().time_since_epoch().count();
+    LOG(BitEngine::EngineLog, BE_LOG_INFO) << "TEST SEED: " << seed;
 
     std::mt19937_64 generator(seed);
 
@@ -70,7 +69,7 @@ void testBitCase(u16 nBits)
     }
     ASSERT_EQ(compareMask.b64, bitmask.b64);
 
-    //LOG(TestLog, BE_LOG_INFO) << "Creating " << nObjs << " bitfield objects with " << nBits << " each";
+    //LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Creating " << nObjs << " bitfield objects with " << nBits << " each";
     for (u32 i = 0; i < nObjs; ++i)
     {
         bitfield.push();
@@ -85,10 +84,10 @@ void testBitCase(u16 nBits)
         }
     }
 
-    // LOG(TestLog, BE_LOG_INFO) << "Testing if all objects are set to 0";
+    // LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Testing if all objects are set to 0";
     ASSERT_TRUE(checkIfAllZeros(bitfield, "[1]"));
 
-    // LOG(TestLog, BE_LOG_INFO) << "OK: all objects bits are 0.";
+    // LOG(BitEngine::EngineLog, BE_LOG_INFO) << "OK: all objects bits are 0.";
     bitfield.set(0, 0);
     bitfield.set(0, 1);
     bitfield.set(0, 3);
@@ -96,9 +95,9 @@ void testBitCase(u16 nBits)
     bitfield.set(0, 7);
     bitfield.set(0, 9);
     bitfield.set(0, 10);
-    //LOG(TestLog, BE_LOG_ERROR) << "BITS: " << std::bitset<8>(bitfield.getObj(0).b8[0]) << std::bitset<8>(bitfield.getObj(0).b8[1]);
+    //LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "BITS: " << std::bitset<8>(bitfield.getObj(0).b8[0]) << std::bitset<8>(bitfield.getObj(0).b8[1]);
 
-    //LOG(TestLog, BE_LOG_INFO) << "Set even bits to 1";
+    //LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Set even bits to 1";
     for (u32 i = 0; i < nObjs; ++i)
     {
         for (u16 b = 0; b < nBits; ++b)
@@ -112,7 +111,7 @@ void testBitCase(u16 nBits)
         }
     }
 
-    //LOG(TestLog, BE_LOG_INFO) << "Test if even bits are 1";
+    //LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Test if even bits are 1";
     for (u32 i = 0; i < nObjs; ++i)
     {
         for (u16 b = 0; b < nBits; ++b)
@@ -120,11 +119,11 @@ void testBitCase(u16 nBits)
             bool test = bitfield.test(i, b);
             bool expected = (b%2==0);
             ASSERT_EQ(test, expected);
-            // LOG(TestLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " have bit " << b << " value: " << bitfield.test(i, b);
+            // LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " have bit " << b << " value: " << bitfield.test(i, b);
         }
     }
 
-    //LOG(TestLog, BE_LOG_INFO) << "Clear bitset for some objects and check if all were changed";
+    //LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Clear bitset for some objects and check if all were changed";
     //u32 objClear = 3;// generator()%7 + 1;
     u32 objRandom = 5;// generator()%7 + 1;
 
@@ -134,7 +133,7 @@ void testBitCase(u16 nBits)
     for (u32 i = 0; i < nRandomBits; ++i){
         u16 rbit = ((u16)generator())%nBits;
         randomBits.emplace_back(rbit);
-        // LOG(TestLog, BE_LOG_ERROR) << "Random Bit: " << rbit;
+        // LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Random Bit: " << rbit;
     }
 
     // Clear all
@@ -169,14 +168,14 @@ void testBitCase(u16 nBits)
             for (u32 j = 0; j < randomBits.size(); ++j)
             {
                 ASSERT_TRUE(bitfield.test(i, randomBits[j]));
-                //    LOG(TestLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should have bit " << randomBits[j] << " set!";
+                //    LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should have bit " << randomBits[j] << " set!";
             }
         }
         else
         {
             BitMask x = bitfield.getObj(i);
 			ASSERT_EQ(x.b64, 0);
-			//LOG(TestLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should be zero! Found: " << BitMaskStr(x);
+			//LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should be zero! Found: " << BitMaskStr(x);
         }
     }
 
@@ -195,13 +194,13 @@ void testBitCase(u16 nBits)
         for (u16 j = 0; j < nBits; ++j)
 		{
 			ASSERT_TRUE(bitfield.test(i, j));
-			//LOG(TestLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should have bit " << randomBits[j] << " set!";
+			//LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should have bit " << randomBits[j] << " set!";
         }
 
 
         BitMask a = bitfield.getObj(i);
         ASSERT_EQ(a.b64, bitmask.b64);
-		//LOG(TestLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should have all bits equal to the bitmask " << a.b64 << " expected: " << bitmask.b64;
+		//LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR: object at index " << i << " should have all bits equal to the bitmask " << a.b64 << " expected: " << bitmask.b64;
     }
 }
 
