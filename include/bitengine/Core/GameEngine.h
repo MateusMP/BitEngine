@@ -10,7 +10,7 @@ namespace BitEngine{
 	class System;
 	class TaskManager;
 	class VideoDriver;
-
+    
 	class GameEngine
 	{
 		public:

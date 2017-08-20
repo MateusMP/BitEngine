@@ -12,9 +12,9 @@
 	}
 
 #define BE_ASSERT(expr)	\
-	if (BE_DEBUG)		\
-		if (!(expr) )	\
-			ASSERT_FAIL("Expression failed to validate: <"#expr">");
+	if (BE_DEBUG){		\
+		if (!(expr) ){	\
+			ASSERT_FAIL("Expression failed to validate: <"#expr">");}}
 
 namespace BitEngine
 {
@@ -24,6 +24,7 @@ namespace BitEngine
 			AssertFail(const std::string& msg)
 					: message(msg)
 			{
+                LOG(BitEngine::EngineLog, BE_LOG_ERROR) << msg;
 			}
 
 			const char* what() const noexcept override
@@ -34,40 +35,4 @@ namespace BitEngine
 		private:
 			std::string message;
 	};
-
-	static void onFailure(const std::string& msg) {
-		if (BE_ASSERT_THROW_ON_FAIL) {
-			throw AssertFail(msg.c_str());
-		}
-	}
-
-	template<typename T>
-	static void assertEqual(const T& expected, const T& value) {
-		if (BE_DEBUG) {
-			if (expected != value) {
-				LOG(EngineLog, BE_LOG_ERROR) << "ASSERT FAIL expected: " << expected << " got: " << value;
-				onFailure("Failed");
-			}
-		}
-	}
-
-	template<typename T>
-	static void assertNull(const T& value) {
-		if (BE_DEBUG) {
-			if (nullptr != value) {
-				LOG(EngineLog, BE_LOG_ERROR) << "ASSERT FAIL expected value to be nullptr, got " << value;
-				onFailure("ASSERT Null failed.");
-			}
-		}
-	}
-
-	template<typename T>
-	static void assertNotNull(const T& value) {
-		if (BE_DEBUG) {
-			if (nullptr == value) {
-				LOG(EngineLog, BE_LOG_ERROR) << "ASSERT FAIL expected value to be non nullptr";
-				onFailure("ASSERT value is null failed.");
-			}
-		}
-	}
 }

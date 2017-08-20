@@ -275,7 +275,7 @@ namespace BitEngine
 				VBOAttrib* ac = findAttributeConfigByName(dd.name);
 				if (ac != nullptr)
 				{
-					assertEqual(GL2::toGLType(dd.type), ac->type);
+					BE_ASSERT(GL2::toGLType(dd.type) == ac->type);
 					ac->normalized = 0; // TODO: get this from dd
 					ac->stride = strideSize;
 					ac->offset = offsetAccum;
