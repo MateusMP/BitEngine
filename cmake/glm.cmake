@@ -12,7 +12,7 @@ if (NEED_GLM)
 	else()
 		ExternalProject_Add(glm_dep
 		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/glm
-		GIT_REPOSITORY https://github.com/g-truc/glm.git
+		URL https://github.com/g-truc/glm/releases/download/0.9.8.5/glm-0.9.8.5.zip
 		UPDATE_COMMAND ""
 		BUILD_COMMAND $(MAKE) COMMAND $(MAKE) install
 		LOG_DOWNLOAD ON
