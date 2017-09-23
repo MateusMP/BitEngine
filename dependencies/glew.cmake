@@ -4,7 +4,7 @@ if (NEED_GLEW)
 
 	set(GLEW_USE_STATIC_LIBS ON)
 	message(STATUS "GLEW_USE_STATIC_LIBS= ${GLEW_USE_STATIC_LIBS}")
-        find_package(glew CONFIG PATHS ${CMAKE_INSTALL_PREFIX}/lib/cmake/glew NO_DEFAULT_PATH QUIET)
+    find_package(glew CONFIG PATHS ${CMAKE_INSTALL_PREFIX}/lib/cmake/glew NO_DEFAULT_PATH QUIET)
 	
 	if (TARGET GLEW::glew_s)
 		message(STATUS "GLEW_FOUND!")

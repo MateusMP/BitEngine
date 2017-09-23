@@ -1,0 +1,7 @@
+message(STATUS "FIND ASSIMP?")
+if (NEED_ASSIMP)
+    message(STATUS "FIND ASSIMP!")
+    find_package(assimp CONFIG PATHS "${CMAKE_INSTALL_PREFIX}/lib/cmake/assimp-4.0")
+    set(ASSIMP_INCLUDE ${CMAKE_INSTALL_PREFIX}/include)
+    set(ASSIMP_LIBRARY ${CMAKE_INSTALL_PREFIX}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}assimp${CMAKE_SHARED_LIBRARY_SUFFIX})
+endif()

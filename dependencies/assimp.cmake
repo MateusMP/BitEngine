@@ -1,0 +1,26 @@
+# Sets
+# ASSIMP_INCLUDE
+# ASSIMP_LIBRARY
+#
+
+if (NEED_ASSIMP)
+    ExternalProject_Add(assimp_dep
+        PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/assimp
+        GIT_REPOSITORY https://github.com/assimp/assimp.git
+        GIT_TAG v4.0.1
+        CMAKE_ARGS
+                -DASSIMP_BUILD_TESTS=OFF
+                -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
+                -DASSIMP_BUILD_SAMPLES=OFF
+                -DASSIMP_INSTALL_PDB=FALSE
+                -DBUILD_SHARED_LIBS=ON
+                -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+                -DASSIMP_BUILD_NO_OGRE_IMPORTER=ON
+                #-DASSIMP_BIN_INSTALL_DIR=${DEMO_INSTALL_DIR}
+    )
+    set(ASSIMP_INCLUDE ${CMAKE_INSTALL_PREFIX}/include)
+    set(ASSIMP_LIBRARY ${CMAKE_INSTALL_PREFIX}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}assimp${CMAKE_SHARED_LIBRARY_SUFFIX})
+                        #${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}zlibstatic${CMAKE_SHARED_LIBRARY_SUFFIX})
+    message(STATUS "ASSIMP_INCLUDE='${ASSIMP_INCLUDE}'")
+
+endif()

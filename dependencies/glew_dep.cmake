@@ -1,0 +1,7 @@
+if (NEED_GLEW)
+	list(APPEND DEPENDENCIES glew)
+	set(GLEW_USE_STATIC_LIBS ON)
+	message(STATUS "GLEW_USE_STATIC_LIBS= ${GLEW_USE_STATIC_LIBS}")
+    find_package(glew CONFIG PATHS ${CMAKE_INSTALL_PREFIX}/lib/cmake/glew NO_DEFAULT_PATH QUIET)
+	
+endif()

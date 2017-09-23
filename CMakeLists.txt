@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.1.0)
 
 include (ExternalProject)
+project(BitEngine CXX)
 
-option(BUILD_DEPENDENCIES "Build dependencies first?" ON)
 option(BUILD_TESTS "Enable the test build" ON)
+option(BUILD_SAMPLES "Build samples?" ON)
 option(BACKEND_WITH_GLFW "Compile with GLFW backend" ON)
 option(BACKEND_WITH_GL2 "Compile GL2 backend" ON)
 
@@ -27,28 +28,24 @@ if (BACKEND_WITH_GL2)
     set(NEED_GLEW 1)
 endif()
 
+if (BUILD_SAMPLES)
+    set(NEED_ASSIMP 1)
+endif()
+
 if (BACKEND_WITH_GLFW)
 	set(NEED_GLEW 1)
 	set(NEED_GLFW 1)
 endif()
 
+add_subdirectory(dependencies/)
 
-project(BitEngine CXX)
-
-include("cmake/nlohmann_json.cmake")
-include("cmake/glm.cmake")
-include("cmake/stb.cmake")
-include("cmake/glew.cmake")
-include("cmake/glfw.cmake")
-include("cmake/gtest.cmake")
-
-# THEN BUILD
-
-if (BUILD_DEPENDENCIES)
-	include("cmake/bitengine.cmake")
-	return()
-endif()
-
+include("dependencies/nlohmann_json_dep.cmake")
+include("dependencies/glm_dep.cmake")
+include("dependencies/stb_dep.cmake")
+include("dependencies/glew_dep.cmake")
+include("dependencies/glfw_dep.cmake")
+include("dependencies/gtest_dep.cmake")
+include("dependencies/assimp_dep.cmake")
 
 set(BIT_ENGINE_INCLUDE_DESTINATION include)
 
@@ -58,11 +55,8 @@ message(STATUS "Dependency dir: ${BE_BASE_DEPENDENCY_DIRECTORY}")
 
 # BitEngine source
 
-set(BE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/)
 
-set(ALL_BE_INCLUDES ${STB_INCLUDE}
-					${BE_INCLUDE_DIR}
-					)
+set(BE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/)
 
 add_subdirectory(src)
 
@@ -71,6 +65,10 @@ add_subdirectory(src)
 install(DIRECTORY include/
 		DESTINATION ${BIT_ENGINE_INCLUDE_DESTINATION} FILES_MATCHING PATTERN "*.h")
 install(EXPORT bitengineTargets DESTINATION lib/cmake/bitengine)
+
+# Build Samples (Or your game!)
+# Samples are built as DLLs
+add_subdirectory(samples/sample01)
 
 # Test
 if (BUILD_TESTS)

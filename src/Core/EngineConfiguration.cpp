@@ -13,7 +13,6 @@ const char* BLANK_SPACES = " \n\r\t";
 const char SYSTEM_BEGIN_CHAR = '!';
 const char CONFIG_VALUE_SEPARATOR_CHAR = ':';
 
-
 EngineConfiguration::EngineConfiguration(GameEngine* ge)
 	: EnginePiece(ge)
 {

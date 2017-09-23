@@ -1,5 +1,3 @@
-
-
 if (NEED_GLM)
 	list(APPEND DEPENDENCIES glm_dep)
 
@@ -8,7 +6,6 @@ if (NEED_GLM)
 	
 	if (NOT ${GLM_INCLUDE_DIRS} STREQUAL "") # glm does not set GLM_FOUND
 		message(STATUS "GLM_FOUND='${GLM_INCLUDE_DIRS}', ${GLM_LIBRARIES}")
-		add_custom_target(glm_dep)
 	else()
 		ExternalProject_Add(glm_dep
 		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/glm

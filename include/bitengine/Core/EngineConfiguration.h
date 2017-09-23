@@ -36,8 +36,6 @@ namespace BitEngine
 
 	private:
 		std::map<std::string, SystemConfiguration*> systemConfigs;
-
-
 	};
 
 	class ConfigurationLoader
@@ -47,6 +45,7 @@ namespace BitEngine
 			virtual void loadConfigurations(EngineConfiguration& ec) const = 0;
 			virtual void saveConfigurations(const EngineConfiguration& ec) const = 0;
 	};
+    inline ConfigurationLoader::~ConfigurationLoader() {};
 
 	class EngineConfigurationFileLoader : public ConfigurationLoader
 	{
