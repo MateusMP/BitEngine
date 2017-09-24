@@ -64,7 +64,7 @@ namespace BitEngine
     };
 
     template <class T>
-    const std::string& GetClassName(void (T::*f)()) {
+    const std::string& GetClassNameB(void (T::*f)()) {
         return ClassName<T>::Get();
     }
 

@@ -61,7 +61,7 @@ TEST(ReflectionTest, GetDataFromReflectedInstance)
 {
     MyClass myClass;
     myClass.x = 5;
-    myClass.y = 117.68;
+    myClass.y = 117.68f;
 
     BitEngine::Reflection::Reflected reflected = BitEngine::Reflection::Class::FromInstance(myClass);
     ASSERT_EQ(myClass.x, reflected.get<int>("x"));

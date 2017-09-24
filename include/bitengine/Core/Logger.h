@@ -89,7 +89,7 @@
 		private:																\
 			void __getselfclassfunc__(){};										\
 			static BitEngine::Logger& CL() {									\
-				static BitEngine::Logger _log(BitEngine::GetClassName(&__getselfclassfunc__), output);			\
+				static BitEngine::Logger _log(BitEngine::GetClassNameB(&__getselfclassfunc__), output);			\
 				return _log;													\
 			}
 
@@ -150,7 +150,7 @@ namespace BitEngine {
 		~LoggerSetup();
 
 	public:
-		static Setup(int argc, const char* argv[]);
+		static void Setup(int argc, const char* argv[]);
 	};
 
 	class Logger
@@ -172,8 +172,8 @@ namespace BitEngine {
 			Logger(const std::string& name, std::initializer_list<std::ostream*> outputStreams)
 				: logName(name)
 			{
-				for (const std::ostream* r : outputStreams) {
-					outStream.emplace_back(new std::ostream(r->rdbuf()));
+				for (std::ostream* r : outputStreams) {
+					outStream.emplace_back(r);
 				}
 				Begin();
 			}
@@ -191,9 +191,6 @@ namespace BitEngine {
 			{}
 
 			~Logger() {
-				for (std::ostream* stream : outStream) {
-					delete stream;
-				}
 			}
 
 			inline void Log(const std::string& line)
@@ -214,7 +211,7 @@ namespace BitEngine {
 				Begin();
 			}
 
-			Begin() {
+			void Begin() {
 				std::ostringstream str;
 				str << header() << " LOG STARTED" << std::endl;
 				output(str.str());

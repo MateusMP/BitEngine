@@ -5,7 +5,7 @@
 #include "bitengine/Core/Resources/ResourceManager.h"
 #include "bitengine/Core/Task.h"
 
-#include "nlohmann/json.hpp"
+#include "json.hpp"
 
 
 namespace BitEngine 

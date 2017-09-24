@@ -1,5 +1,5 @@
 
-if (BACKEND_WITH_GLFW)
+if (BITENGINE_BACKEND_WITH_GLFW)
 	find_package(OpenGL REQUIRED)
 	
     set(SRCS
@@ -7,19 +7,17 @@ if (BACKEND_WITH_GLFW)
         glfw/GLFW_VideoSystem.cpp
     )
     add_library(backend-glfw STATIC ${SRCS})
-	target_compile_definitions(backend-glfw PUBLIC -DGLEW_STATIC)
-	message(STATUS "backend-glfw link with='${OPENGL_LIBRARIES} ${BE_INCLUDE_DIR}'")
-	target_link_libraries(backend-glfw PUBLIC bitengine glfw GLEW::glew_s ${OPENGL_LIBRARIES})
-	target_include_directories(backend-glfw PUBLIC $<BUILD_INTERFACE:${BE_INCLUDE_DIR}>
+    
+    include_directories(${CMAKE_SOURCE_DIR}/dependencies/glew-2.1.0/include)
+	target_link_libraries(backend-glfw PUBLIC bitengine glew_s glfw ${OPENGL_LIBRARIES})
+	target_include_directories(backend-glfw PUBLIC $<BUILD_INTERFACE:${BITENGINE_INCLUDE_DIR}>
 												  $<INSTALL_INTERFACE:include/>)
-	target_include_directories(backend-glfw PRIVATE ${ALL_BE_INCLUDES})
-	set(BE_LINK_BACKENDS "${BE_LINK_BACKENDS} backend-glfw" PARENT_SCOPE)
 	
 	install(TARGETS backend-glfw DESTINATION lib EXPORT bitengineTargets)
 	
 endif()
 
-if (BACKEND_WITH_GL2)
+if (BITENGINE_BACKEND_WITH_GL2)
 	find_package(OpenGL REQUIRED)
 
     set(SRCS
@@ -33,14 +31,14 @@ if (BACKEND_WITH_GL2)
         opengl/GL2/GL2TextureManager.cpp
     )
     add_library(backend-gl2 STATIC ${SRCS})
-	target_compile_definitions(backend-gl2 PUBLIC -DGLEW_STATIC)
-	message(STATUS "backend-gl2 link with='${OPENGL_LIBRARIES}'")
-	target_link_libraries(backend-gl2 PUBLIC bitengine GLEW::glew_s stb ${OPENGL_LIBRARIES})
-	target_include_directories(backend-gl2 PUBLIC $<BUILD_INTERFACE:${BE_INCLUDE_DIR}>
+	#target_include_directories(backend-gl2 PUBLIC dependencies/glew/glew-2.1.0/include)
+	include_directories(${CMAKE_SOURCE_DIR}/dependencies/stb)
+	target_include_directories(backend-gl2 PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/dependencies/glew-2.1.0/include>
 												  $<INSTALL_INTERFACE:include/>)
-	target_include_directories(backend-gl2 PRIVATE ${ALL_BE_INCLUDES})
 	
-	set(BE_LINK_BACKENDS "${BE_LINK_BACKENDS} backend-gl2" PARENT_SCOPE)
+	target_link_libraries(backend-gl2 PUBLIC bitengine glew_s ${OPENGL_LIBRARIES})
+	target_include_directories(backend-gl2 PUBLIC $<BUILD_INTERFACE:${BITENGINE_INCLUDE_DIR}>
+												  $<INSTALL_INTERFACE:include/>)
 	
 	install(TARGETS backend-gl2 DESTINATION lib EXPORT bitengineTargets)
 endif()

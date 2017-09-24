@@ -11,7 +11,6 @@ if (NEED_GLM)
 		PREFIX ${BE_BASE_DEPENDENCY_DIRECTORY}/glm
 		URL https://github.com/g-truc/glm/releases/download/0.9.8.5/glm-0.9.8.5.zip
 		UPDATE_COMMAND ""
-		BUILD_COMMAND $(MAKE) COMMAND $(MAKE) install
 		LOG_DOWNLOAD ON
 		CMAKE_ARGS
 			-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}

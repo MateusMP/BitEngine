@@ -13,7 +13,6 @@ std::ofstream file("EngineLog.log", std::ios_base::app);
 	Logger EngineLog("EngineLog", file);
 #endif
 */
-
 	// By default, the logger will log to the console
 	Logger* EngineLog = new Logger("EngineLog", {&std::cout});
 	LoggerSetup LoggerSetup::loggerSetup;
@@ -27,7 +26,7 @@ std::ofstream file("EngineLog.log", std::ios_base::app);
 		return false;
 	}
 
-	LoggerSetup::Setup(int argc, const char* argv[]) {
+	void LoggerSetup::Setup(int argc, const char* argv[]) {
 
 		if (loggerSetup.initialized) {
 			throw std::runtime_error("Logger already initiliazed");

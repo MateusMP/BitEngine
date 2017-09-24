@@ -30,6 +30,10 @@ void DevLoaderTask::run()
 
 	LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
 
+	if (path.empty()) {
+		throw "EMPTY PATH FOR RESOURCE";
+	}
+
 	if (DevResourceLoader::loadFileToMemory(path, dr.data))
 	{
 		dr.loadState = ResourceLoader::DataRequest::LoadState::LOADED;
@@ -333,7 +337,7 @@ bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, st
 	std::ifstream file(fname, std::ios::in | std::ios::binary | std::ios::ate);
 	if (!file.is_open())
 	{
-		LOG(EngineLog, BE_LOG_ERROR) << "Failed to open index file " << fname;
+		LOG(EngineLog, BE_LOG_ERROR) << "Failed to open index file '" << fname << "'";
 		return false;
 	}
 	std::streamsize size = file.tellg();

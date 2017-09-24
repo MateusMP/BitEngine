@@ -39,17 +39,15 @@ set(SRCS ${SRCS}
 	ECS/Transform3DProcessor.cpp
 )
 
-message(STATUS "BE_INCLUDE_DIR='${BE_INCLUDE_DIR}'")
-
-# Find header files
-FILE(GLOB_RECURSE BE_INCLUDE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "../../include/*.h")
-
-# Create header custom project so that they show up correctly on generated projects
-add_custom_target(headers SOURCES ${BE_INCLUDE_FILES})
+message(STATUS "BITENGINE_INCLUDE_DIR='${BITENGINE_INCLUDE_DIR}'")
 
 # Create the bitengine lib
-add_library(bitengine ${SRCS} ${BE_INCLUDE_FILES})
-target_compile_options(bitengine PUBLIC -static-libstdc++)
+add_library(bitengine ${SRCS} ${BITENGINE_INCLUDE_FILES})
+
+if (CMAKE_COMPILER_IS_GNUCC)
+	target_link_libraries(bitengine PUBLIC -static-libstdc++)
+endif()
+
 if (NEED_GLM)
 	message(STATUS "Linking bitengine with glm")
 	target_link_libraries(bitengine PUBLIC glm)
@@ -59,7 +57,7 @@ if (NEED_NLOHMANN_JSON)
 	target_link_libraries(bitengine PUBLIC nlohmann_json)
 endif()
 
-target_include_directories(bitengine PUBLIC $<BUILD_INTERFACE:${BE_INCLUDE_DIR}>
+target_include_directories(bitengine PUBLIC $<BUILD_INTERFACE:${BITENGINE_INCLUDE_DIR}>
 											$<INSTALL_INTERFACE:include/>)
 
 install(TARGETS bitengine DESTINATION lib EXPORT bitengineTargets)
