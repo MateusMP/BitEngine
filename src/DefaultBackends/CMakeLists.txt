@@ -8,7 +8,7 @@ if (BITENGINE_BACKEND_WITH_GLFW)
     )
     add_library(backend-glfw STATIC ${SRCS})
     
-    include_directories(${CMAKE_SOURCE_DIR}/dependencies/glew-2.1.0/include)
+    include_directories(${CMAKE_SOURCE_DIR}/dependencies/glew/include)
 	target_link_libraries(backend-glfw PUBLIC bitengine glew_s glfw ${OPENGL_LIBRARIES})
 	target_include_directories(backend-glfw PUBLIC $<BUILD_INTERFACE:${BITENGINE_INCLUDE_DIR}>
 												  $<INSTALL_INTERFACE:include/>)
@@ -33,7 +33,7 @@ if (BITENGINE_BACKEND_WITH_GL2)
     add_library(backend-gl2 STATIC ${SRCS})
 	#target_include_directories(backend-gl2 PUBLIC dependencies/glew/glew-2.1.0/include)
 	include_directories(${CMAKE_SOURCE_DIR}/dependencies/stb)
-	target_include_directories(backend-gl2 PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/dependencies/glew-2.1.0/include>
+	target_include_directories(backend-gl2 PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/dependencies/glew/include>
 												  $<INSTALL_INTERFACE:include/>)
 	
 	target_link_libraries(backend-gl2 PUBLIC bitengine glew_s ${OPENGL_LIBRARIES})

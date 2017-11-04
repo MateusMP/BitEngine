@@ -51,7 +51,7 @@ TEST(ResourceLoader, LoadMultipleResources)
 	devResourceLoader.registerResourceManager("TYPE1", &manager1);
 	devResourceLoader.registerResourceManager("TYPE2", &manager2);
 
-	ASSERT_TRUE(resourceLoader->loadIndex("resources/tests/test_resources.idx")) << "Could not load resources/tests/test_resources.idx";
+	ASSERT_TRUE(resourceLoader->loadIndex("resources/test_resources.idx")) << "Could not load resources/test_resources.idx";
 
 	ResourceMeta* metaR1 = resourceLoader->findMeta("data/someGroup/A piece of data");
 	ASSERT_EQ(metaR1->package, "someGroup");
