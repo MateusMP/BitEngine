@@ -20,3 +20,6 @@
 [submodule "dependencies/assimp"]
 	path = dependencies/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "dependencies/Wink-Signals"]
+	path = dependencies/Wink-Signals
+	url = https://github.com/miguelmartin75/Wink-Signals.git

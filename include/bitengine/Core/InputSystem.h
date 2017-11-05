@@ -27,6 +27,6 @@ namespace BitEngine {
 
 			virtual double getMouseX() const = 0;
 			virtual double getMouseY() const = 0;
-			
+						
 	};
 }

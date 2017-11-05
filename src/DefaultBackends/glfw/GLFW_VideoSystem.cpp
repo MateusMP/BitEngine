@@ -2,7 +2,7 @@
 #include "bitengine/DefaultBackends/glfw/GLFW_VideoSystem.h"
 
 #include "bitengine/Core/Graphics/Material.h"
-#include "bitengine/Core/MessageType.h"
+#include "bitengine/Core/Window.h"
 
 using namespace BitEngine;
 

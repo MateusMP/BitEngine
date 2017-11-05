@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "bitengine/Core/System.h"
-#include "bitengine/Core/MessageType.h"
+#include "bitengine/Core/Window.h"
 #include "bitengine/Core/Timer.h"
 
 // Basic Systems

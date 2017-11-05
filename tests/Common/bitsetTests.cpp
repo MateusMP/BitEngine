@@ -88,13 +88,9 @@ void testBitCase(u16 nBits)
     ASSERT_TRUE(checkIfAllZeros(bitfield, "[1]"));
 
     // LOG(BitEngine::EngineLog, BE_LOG_INFO) << "OK: all objects bits are 0.";
-    bitfield.set(0, 0);
-    bitfield.set(0, 1);
-    bitfield.set(0, 3);
-    bitfield.set(0, 5);
-    bitfield.set(0, 7);
-    bitfield.set(0, 9);
-    bitfield.set(0, 10);
+	for (int i = 0; i < bitfield.getBitPerObj(); i += 3) {
+		bitfield.set(0, i);
+	}
     //LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "BITS: " << std::bitset<8>(bitfield.getObj(0).b8[0]) << std::bitset<8>(bitfield.getObj(0).b8[1]);
 
     //LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Set even bits to 1";

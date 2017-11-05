@@ -2,6 +2,7 @@
 
 #include <set>
 
+#include "bitengine/Core/Signal.h"
 #include "bitengine/Core/System.h"
 #include "bitengine/Core/Window.h"
 #include "bitengine/Core/Messenger.h"
@@ -46,6 +47,7 @@ namespace BitEngine {
 
 			// If nullptr, updates the default window
 			virtual void updateWindow(BitEngine::Window* window = nullptr) = 0;
+
 	};
 
 }

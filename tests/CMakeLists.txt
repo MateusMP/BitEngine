@@ -20,4 +20,8 @@ add_executable(TestCore beTestMain.cpp ${TEST_SRCS}
 )
 target_link_libraries(TestCore ${GTEST_LIBRARIES} bitengine)
 target_include_directories(TestCore PUBLIC ${GTEST_INCLUDE})
+set_target_properties(TestCore PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(CoreTests TestCore WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+message(STATUS "FROM ${CMAKE_CURRENT_SOURCE_DIR} TO FILE RESOURCES: ${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY resources/ DESTINATION resources/)

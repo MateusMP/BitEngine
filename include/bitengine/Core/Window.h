@@ -43,6 +43,23 @@ namespace BitEngine{
 
 			std::string m_Title;
 	};
+
+
+	struct MsgWindowClosed
+	{
+		MsgWindowClosed(Window *w) :window(w)
+		{}
+
+		Window* window;
+	};
+
+	struct MsgWindowCreated
+	{
+		MsgWindowCreated(Window *w) : window(w)
+		{}
+
+		Window* window;
+	};
 }
 
 

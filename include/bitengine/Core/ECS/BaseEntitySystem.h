@@ -92,6 +92,8 @@ namespace BitEngine {
 				{
 					delete h.second;
 				}
+
+				delete m_objBitField;
 			}
 
 			// Register a component holder for given component type

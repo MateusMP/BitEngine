@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 #include "bitengine/Core/Messenger.h"
-#include "bitengine/Core/MessageType.h"
+#include "bitengine/Core/Window.h"
 
 namespace BitEngine {
 	namespace Input {

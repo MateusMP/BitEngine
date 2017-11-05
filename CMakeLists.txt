@@ -37,6 +37,7 @@ message(STATUS "Dependency dir: ${BE_BASE_DEPENDENCY_DIRECTORY}")
 # BitEngine source
 
 set(BITENGINE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/)
+include_directories(dependencies/Wink-Signals/)
 
 add_subdirectory(src)
 
