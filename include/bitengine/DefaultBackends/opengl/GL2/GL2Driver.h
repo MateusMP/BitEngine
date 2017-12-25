@@ -3,7 +3,9 @@
 #include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/Graphics/VideoDriver.h"
 
-#include "OpenGL2.h"
+#include "bitengine/DefaultBackends/opengl/GL2/OpenGL2.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2ShaderManager.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
 
 namespace BitEngine {
 
@@ -39,7 +41,7 @@ namespace BitEngine {
 
 
 	private:
-		BitEngine::GL2ShaderManager* shaderManager;
-		BitEngine::GL2TextureManager* textureManager;
+		BitEngine::GL2ShaderManager shaderManager;
+		BitEngine::GL2TextureManager textureManager;
 	};
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "OpenGL2.h"
+#include "bitengine/DefaultBackends/opengl/GL2/OpenGL2.h"
 
 namespace BitEngine {
 	class GL2

@@ -78,10 +78,6 @@ void BitEngine::DevResourceLoader::update()
 
 void BitEngine::DevResourceLoader::shutdown()
 {
-	for (size_t i = managers.size(); i > 0; --i)
-	{
-		delete managers[i - 1];
-	}
 }
 
 void BitEngine::DevResourceLoader::registerResourceManager(const std::string& resourceType, ResourceManager* manager)

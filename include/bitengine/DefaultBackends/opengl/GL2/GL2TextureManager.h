@@ -7,7 +7,7 @@
 #include "bitengine/Core/Resources/ResourceManager.h"
 #include "bitengine/Common/ThreadSafeQueue.h"
 
-#include "OpenGL2.h"
+#include "bitengine/DefaultBackends/opengl/GL2/OpenGL2.h"
 
 namespace BitEngine 
 {

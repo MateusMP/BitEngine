@@ -69,7 +69,7 @@ namespace BitEngine
 	class SystemConfiguration
 	{
 		public:
-			SystemConfiguration(const std::string name)
+			SystemConfiguration(const std::string& name)
 					: systemName(name)
 			{
 			}
@@ -93,7 +93,7 @@ namespace BitEngine
 				return &it->second;
 			}
 
-			void ResetToDefaults()
+			void resetToDefaults()
 			{
 				for (auto& it : configs)
 				{

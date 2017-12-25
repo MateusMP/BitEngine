@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include <memory>
 #include <typeindex>
 
 #include "bitengine/Core/Message.h"
@@ -28,83 +29,51 @@ namespace BitEngine {
 		template<typename MessageType, typename Handler>
 		void registerListener(Handler* handler)
 		{
-			Messaging::TypedMessageDispatcher<MessageType>* dispatcher;
-			auto typeIndex = std::type_index(typeid(MessageType));
-			auto it = dispatchers.find(typeIndex);
-			if (it == dispatchers.end())
-			{
-				dispatcher = new Messaging::TypedMessageDispatcher<MessageType>();
-				dispatchers.emplace(typeIndex, dispatcher);
-			}
-			else
-			{
-				dispatcher = static_cast<Messaging::TypedMessageDispatcher<MessageType>*>(it->second);
-			}
-
 			auto addr = new Messaging::MessageHandleBridge<MessageType, Handler>(handler);
 			//printf("Registering: %p with bridge %p\n", handler, addr);
-			dispatcher->registerListener(handler, addr);
+			getDispatcher<MessageType>().registerListener(handler, addr);
 		}
 
 		template<typename MessageType, typename Handler>
 		void unregisterListener(Handler* handler)
 		{
-			Messaging::TypedMessageDispatcher<MessageType>* dispatcher;
-			auto typeIndex = std::type_index(typeid(MessageType));
-			auto it = dispatchers.find(typeIndex);
-			if (it == dispatchers.end())
-			{
-				dispatcher = new Messaging::TypedMessageDispatcher<MessageType>();
-				dispatchers.emplace(typeIndex, dispatcher);
-			}
-			else
-			{
-				dispatcher = static_cast<Messaging::TypedMessageDispatcher<MessageType>*>(it->second);
-			}
-
-			//printf("Registering: %p with bridge %p\n", handler, addr);
-			dispatcher->unregisterListener(handler);
+			getDispatcher<MessageType>().unregisterListener(handler);
 		}
 
 		// Instant dispatch
 		template<typename MessageType>
 		void dispatch(const MessageType& msg)
 		{
-			auto typeIndex = std::type_index(typeid(MessageType));
-			auto it = dispatchers.find(typeIndex);
-			if (it == dispatchers.end())
-			{
-				//LOG(EngineLog, BE_LOG_WARNING) << "No dispatcher registered for this type.";
-			}
-			else
-			{
-				Messaging::TypedMessageDispatcher<MessageType>* dispatcher = static_cast<Messaging::TypedMessageDispatcher<MessageType>*>(it->second);
-				dispatcher->typedDispatch(msg);
-			}
+			getDispatcher<MessageType>().typedDispatch(msg);
 		}
 
 		// Instant dispatch
 		template<typename MessageType>
 		void delayedDispatch(const MessageType& msg)
 		{
-			Messaging::TypedMessageDispatcher<MessageType>* dispatcher;
+			getDispatcher<MessageType>().typedEnqueue(msg);
+		}
+
+		private:
+
+		template<typename MessageType>
+		Messaging::TypedMessageDispatcher<MessageType>& getDispatcher()
+		{
 			auto typeIndex = std::type_index(typeid(MessageType));
 			auto it = dispatchers.find(typeIndex);
 			if (it == dispatchers.end())
 			{
-				dispatcher = new Messaging::TypedMessageDispatcher<MessageType>();
-				dispatchers.emplace(typeIndex, dispatcher);
+				Messaging::TypedMessageDispatcher<MessageType> *value = new Messaging::TypedMessageDispatcher<MessageType>();
+				dispatchers.emplace(typeIndex, value);
+				return *value;
 			}
 			else
 			{
-				dispatcher = static_cast<Messaging::TypedMessageDispatcher<MessageType>*>(it->second);
+				return (Messaging::TypedMessageDispatcher<MessageType>&) *((it->second).get());
 			}
-
-			dispatcher->typedEnqueue(msg);
 		}
 
-		private:
-		std::map<std::type_index, Messaging::MessageDispatcher*> dispatchers;
+		std::map<std::type_index, std::unique_ptr<Messaging::MessageDispatcher>> dispatchers;
 	};
 
 	namespace Messaging

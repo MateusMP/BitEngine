@@ -22,11 +22,13 @@ class MyResourceSystem : public BitEngine::ResourceSystem
 	}
 
 	bool Init() override {
-		BitEngine::SpriteManager* sprManager = new BitEngine::SpriteManager();
-		getResourceLoader()->registerResourceManager("SPRITE", sprManager);
+		getResourceLoader()->registerResourceManager("SPRITE", &spriteManager);
 
 		ResourceSystem::Init();
 
 		return getResourceLoader()->loadIndex("data/main.idx");
 	}
+
+	private:
+		BitEngine::SpriteManager spriteManager;
 };

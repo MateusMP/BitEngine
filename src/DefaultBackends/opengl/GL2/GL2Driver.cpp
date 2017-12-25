@@ -1,16 +1,12 @@
 #include "bitengine/DefaultBackends/opengl/GL2/GL2Driver.h"
 
 #include "bitengine/DefaultBackends/opengl/GL2/GL2Impl.h"
-#include "bitengine/DefaultBackends/opengl/GL2/GL2ShaderManager.h"
-#include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
 
 
 bool BitEngine::GL2Driver::init()
 {
-	shaderManager = new BitEngine::GL2ShaderManager();
-	textureManager = new BitEngine::GL2TextureManager();
-	getEngine()->getResourceLoader()->registerResourceManager("SHADER", shaderManager);
-	getEngine()->getResourceLoader()->registerResourceManager("TEXTURE", textureManager);
+	getEngine()->getResourceLoader()->registerResourceManager("SHADER", &shaderManager);
+	getEngine()->getResourceLoader()->registerResourceManager("TEXTURE", &textureManager);
 
 	return true;
 }

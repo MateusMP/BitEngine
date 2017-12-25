@@ -54,6 +54,7 @@ GameEnginePC::GameEnginePC(ConfigurationLoader* _configLoader, ResourceLoader* _
 
 GameEnginePC::~GameEnginePC()
 {
+	delete configurationLoader;
 	delete resourceLoader;
 	delete videoDriver;
 }
@@ -93,7 +94,7 @@ System* GameEnginePC::getSystem(const std::string& name)
 bool GameEnginePC::initSystems()
 {	
 	LOG(EngineLog, BE_LOG_INFO) << "Initializing " << systemsMap.size() << " systems ";
-    for ( System* s : systems)
+    for (System* s : systems)
     {
         if (!s->Init())
         {
