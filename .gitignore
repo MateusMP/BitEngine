@@ -15,3 +15,7 @@ Debug/vc120.idb
 *.*~
 build/
 ProjectFiles/
+
+
+# glew
+glew.pc
