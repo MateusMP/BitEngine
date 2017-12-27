@@ -56,7 +56,6 @@ GameEnginePC::~GameEnginePC()
 {
 	delete configurationLoader;
 	delete resourceLoader;
-	delete videoDriver;
 }
 
 void GameEnginePC::stopRunning()
@@ -117,22 +116,15 @@ bool GameEnginePC::initSystems()
 void GameEnginePC::shutdownSystems()
 {
 	LOG(EngineLog, BE_LOG_INFO) << "Shutitng down systems...";
-
+	
 	// Shutdown in reverse order
 	for (auto it = systemsToShutdown.rbegin(); it != systemsToShutdown.rend(); ++it){
 		LOG(EngineLog, BE_LOG_INFO) << "Shutting down " << (*it)->getName();
         (*it)->Shutdown();
 		LOG(EngineLog, BE_LOG_INFO) << "done " << (*it)->getName();
+
+		delete *it;
     }
-
-	LOG(EngineLog, BE_LOG_INFO) << "Clean up memory... ";
-
-	// Delete all systems.
-	for (auto& it : systemsMap)
-	{
-		System* s = it.second;
-		delete s;
-	}
 
 	systems.clear();
 	systemsMap.clear();

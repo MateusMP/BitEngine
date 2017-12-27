@@ -67,6 +67,8 @@ void GLFW_VideoSystem::Update()
 void GLFW_VideoSystem::Shutdown()
 {
 	driver->shutdown();
+	delete driver;
+
 	auto copy = windowsOpen;
 	for (Window_glfw *w : copy) {
 		closeWindow(w);
