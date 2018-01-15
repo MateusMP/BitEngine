@@ -13,8 +13,7 @@ Debug/vc120.idb
 *.exe
 *.lib
 *.*~
-build/
-ProjectFiles/
+./build/
 
 
 # glew

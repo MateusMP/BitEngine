@@ -54,5 +54,5 @@ add_subdirectory(samples/sample01)
 # Test
 if (BITENGINE_BUILD_TESTS)
 	enable_testing()
-	add_subdirectory(Tests)
+	add_subdirectory(tests)
 endif()
