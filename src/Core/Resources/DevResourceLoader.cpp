@@ -47,8 +47,8 @@ void DevLoaderTask::run()
 
 //
 
-BitEngine::DevResourceLoader::DevResourceLoader(GameEngine* ge)
-	: ResourceLoader(ge)
+BitEngine::DevResourceLoader::DevResourceLoader(Messenger* msg, TaskManager* tm)
+	: ResourceLoader(msg), taskManager(tm)
 {
 	resourceMeta.reserve(4096);
 	resourceMetaIndexes.reserve(8);
@@ -86,6 +86,10 @@ void BitEngine::DevResourceLoader::registerResourceManager(const std::string& re
 	manager->setResourceLoader(this);
 	managers.emplace_back(manager);
 	managersMap[resourceType] = manager;
+}
+
+bool BitEngine::DevResourceLoader::hasManagerForType(const std::string& resourceType) {
+	return managersMap.find(resourceType) != managersMap.end();
 }
 
 BitEngine::ResourceMeta* BitEngine::DevResourceLoader::includeMeta(const std::string& package, const std::string& resourceName,
@@ -306,7 +310,7 @@ BitEngine::DevResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const 
 BitEngine::ResourceLoader::RawResourceTask BitEngine::DevResourceLoader::requestResourceData(ResourceMeta* meta)
 {
 	RawResourceTask task = std::make_shared<DevLoaderTask>(meta);
-	getEngine()->getTaskManager()->addTask(task);
+	taskManager->addTask(task);
 	return task;
 }
 

@@ -6,9 +6,20 @@ set(NEED_ASSIMP 1)
 set(CPP_FILES src/main.cpp
 			  src/Graphics/Shader3DBatchRenderer.cpp
 			  src/Graphics/Shader3DSimple.cpp)
+
+set(HEADERS
+	include/Graphics/Shader3DProcessor.h
+	include/Graphics/Shader3DSimple.h
+	include/Common/GameGlobal.h
+	include/MyGame.h
+	include/MyGameEntitySystem.h
+	include/MyGameSystem.h
+	include/Overworld.h
+	include/PlayerControlLogic.h
+)
 message(STATUS "ASSIMP LIB='${ASSIMP_LIBRARY}'")
 
-add_executable(SAMPLE_01 ${CPP_FILES})
+add_executable(SAMPLE_01 ${CPP_FILES} ${HEADERS})
 #target_compile_options(SAMPLE_01 PUBLIC -static-libstdc++)
 
 if (CMAKE_COMPILER_IS_GNUCC)

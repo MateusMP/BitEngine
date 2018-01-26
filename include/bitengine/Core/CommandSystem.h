@@ -4,7 +4,7 @@
 
 #include "bitengine/Core/System.h"
 #include "bitengine/Core/InputSystem.h"
-#include "bitengine/Core/Message.h"
+#include "bitengine/Core/Messenger.h"
 
 namespace BitEngine{
 
@@ -12,7 +12,7 @@ namespace BitEngine{
 	 * Command System is a default system used to define commands for inputs.
 	 * The inputs should be registered to a command, that will be triggered by an event.
 	 */
-	class CommandSystem : public System
+	class CommandSystem : public MessengerEndpoint
 	{
 		public:
 			/**
@@ -38,23 +38,18 @@ namespace BitEngine{
 					} action; // If there was some other action
 			};
 
-			CommandSystem(GameEngine* ge);
+			CommandSystem(Messenger* ge);
 			~CommandSystem();
 
-			const char* getName() const override {
-				return "Command";
-			}
-
-			bool Init() override;
-			void Shutdown() override;
-			void Update() override;
+			bool init();
+			void shutdown();
 
 			void setCommandState(int state);
 
 			/**
 			 * Remove all keybinds to given command
 			 */
-			void UnregisterCommand(int commandID);
+			void unregisterCommand(int commandID);
 
 			/**
 			 * @param commandID	the command ID returned when given key/action/mod combination ocurrs
@@ -63,7 +58,7 @@ namespace BitEngine{
 			 * @param key	keyboard key needed
 			 * Note that this function will register the commandID for both inputs: RELEASE and PRESS
 			 */
-			bool RegisterKeyboardCommand(int commandID, int commandState, int key);
+			bool registerKeyboardCommand(int commandID, int commandState, int key);
 
 			/**
 			 * @param commandID	the command ID returned when given key/action/mod combination ocurrs
@@ -77,7 +72,7 @@ namespace BitEngine{
 			 * It's recommended that all commands for the requested commandID are cleared if this function fails.
 			 * Left optional for the caller, so no other binding will be silently removed.
 			 */
-			bool RegisterKeyCommandForAllMods(int commandID, int commandState, int key);
+			bool registerKeyCommandForAllMods(int commandID, int commandState, int key);
 
 			/**
 			 * @param commandID	Command ID returned when given key/action/mod combination ocurrs
@@ -87,7 +82,7 @@ namespace BitEngine{
 			 * @param action	Key state needed
 			 * @param mod	Key modifiers (Shift, Alt, Ctrl, Super)
 			 */
-			bool RegisterKeyboardCommand(int commandID, int commandState, int key, Input::KeyAction action, Input::KeyMod mod = Input::KeyMod::NONE);
+			bool registerKeyboardCommand(int commandID, int commandState, int key, Input::KeyAction action, Input::KeyMod mod = Input::KeyMod::NONE);
 
 			/**
 			 * Same for mouse commands

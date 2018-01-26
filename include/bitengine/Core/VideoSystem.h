@@ -20,34 +20,23 @@ namespace BitEngine {
 	 * Basic video initialization
 	 * Uses just one window
 	 */
-	class VideoSystem : public System
+	class VideoSystem : public MessengerEndpoint
 	{
 		public:
-			VideoSystem(GameEngine* ge) 
-				: System(ge)
+			VideoSystem(Messenger* m) 
+				: MessengerEndpoint(m)
 			{
-				getConfig("Fullscreen", "false")->setDescription("Use fullscreen mode, true, false ");
+				//getConfig("Fullscreen", "false")->setDescription("Use fullscreen mode, true, false ");
 			}
 			
 			virtual ~VideoSystem() {}
-
-			const char* getName() const override {
-				return "Video";
-			}
+						
+			virtual bool init() = 0;
+			virtual void shutdown() = 0;
 			
-			bool Init() = 0;
-			void Shutdown() = 0;
-			void Update() = 0;
-
 			virtual u32 getVideoAdapter() = 0;
 			virtual VideoDriver* getDriver() = 0;
-			virtual BitEngine::Window* createWindow(const BitEngine::WindowConfiguration& wc) = 0;
-			virtual void closeWindow(BitEngine::Window* window) = 0;
-			virtual BitEngine::Window* recreateWindow(BitEngine::Window* window) = 0;
-
-			// If nullptr, updates the default window
-			virtual void updateWindow(BitEngine::Window* window = nullptr) = 0;
-
+			
 	};
 
 }

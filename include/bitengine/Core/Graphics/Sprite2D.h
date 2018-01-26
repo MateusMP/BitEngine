@@ -98,13 +98,13 @@ namespace BitEngine
 			const static Material* TRANSPARENT_SPRITE;
 			const static Material* EFFECT_SPRITE;
 
-			Sprite2DRenderer(GameEngine* engine);
+			Sprite2DRenderer(Messenger* m, ResourceLoader* resourceLoader);
 
 			bool Init() override;
 			void Stop() override;
 
 			void setActiveCamera(ComponentRef<Camera2DComponent>& handle);
-			void Render();
+			void Render(VideoDriver* driver);
 
 		private:
 			struct SpriteBatchInstance {
@@ -183,8 +183,8 @@ namespace BitEngine
 			std::map<BatchIdentifier, u32> batchesMap;
 			std::vector<Sprite2DBatch> batches;
 			ComponentRef<Camera2DComponent> activeCamera;
+			ResourceLoader* resourceLoader;
 			IGraphicBatch* m_batch;
-			GameEngine* m_engine;
 			RR<Shader> shader;
 			Sprite2D_DD_legacy legacyRefs;
 			Sprite2D_DD_new newRefs;
@@ -194,15 +194,14 @@ namespace BitEngine
 	class ComponentHolder<Sprite2DComponent> : public BaseComponentHolder
 	{
 		public:
-			ComponentHolder(GameEngine* _engine)
-				: BaseComponentHolder(_engine->getMessenger(), sizeof(Sprite2DComponent)), engine(_engine)
+			ComponentHolder(Messenger* m)
+				: BaseComponentHolder(m, sizeof(Sprite2DComponent))
 			{
 
 			}
 
 			bool init() override {
-				defaultSprite = engine->getResourceLoader()->getResource<Sprite>("data/default/sprite");
-				return defaultSprite.isValid();
+				return true;
 			}
 
 			void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override {
@@ -222,12 +221,8 @@ namespace BitEngine
 			}
 
 			void initComponent(Sprite2DComponent* outPtr) {
-				new (outPtr) Sprite2DComponent(0, defaultSprite, Sprite2DRenderer::DEFAULT_SPRITE);
+				new (outPtr) Sprite2DComponent(0, RR<Sprite>::invalid(), Sprite2DRenderer::DEFAULT_SPRITE);
 			}
-
-
-			GameEngine* engine;
-			RR<Sprite> defaultSprite;
 	};
 
 

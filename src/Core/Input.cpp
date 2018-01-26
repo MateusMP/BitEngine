@@ -30,7 +30,7 @@ namespace Input {
 				return;
 		}
 
-		getMessenger()->dispatch(MsgKeyboardInput(key, action, (KeyMod)mods));
+		getMessenger()->emit(MsgKeyboardInput(key, action, (KeyMod)mods));
 	}
 
 	void InputReceiver::mouseInput(int button, MouseAction action, int mods)
@@ -52,7 +52,7 @@ namespace Input {
 				return;
 		}
 
-		getMessenger()->dispatch(MsgMouseInput(button, action, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
+		getMessenger()->emit(MsgMouseInput(button, action, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
 	}
 
 	void InputReceiver::mouseInput(double x, double y)
@@ -60,7 +60,7 @@ namespace Input {
 		cursorInScreenX = x;
 		cursorInScreenY = y;
 
-		getMessenger()->dispatch(MsgMouseInput(cursorInScreenX, cursorInScreenY));
+		getMessenger()->emit(MsgMouseInput(cursorInScreenX, cursorInScreenY));
 	}
 
 	Input::KeyMod InputReceiver::isKeyPressed(int key)

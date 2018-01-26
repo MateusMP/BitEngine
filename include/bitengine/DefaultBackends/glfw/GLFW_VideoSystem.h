@@ -3,60 +3,52 @@
 #include "GLFW_Headers.h"
 #include "bitengine/Core/VideoSystem.h"
 
+struct WindowResized {
+	GLFWwindow* window;
+	int width;
+	int height;
+};
+
 class GLFW_VideoSystem : public BitEngine::VideoSystem
 {
 	public:
-		class Window_glfw : public BitEngine::Window
+		GLFW_VideoSystem(BitEngine::Messenger* m)
+			: BitEngine::VideoSystem(m), glewStarted(false)
 		{
-			public:
-				Window_glfw()
-					: m_glfwWindow(nullptr)
-				{}
-
-				GLFWwindow* m_glfwWindow;
-		};
-
-		GLFW_VideoSystem(BitEngine::GameEngine* ge)
-			: BitEngine::VideoSystem(ge), glewStarted(false), m_currentContext(nullptr)
-		{}
+		}
 		~GLFW_VideoSystem() {}
 
 		/**
 		* Initializes a window and openGL related stuff (Extensions and functions)
 		* Currently using GLFW and GLEW
 		*/
-		bool Init() override;
-		void Shutdown() override;
-		void Update() override;
+		bool init() override;
+		void shutdown() override;
+		void update();
 		
-		BitEngine::VideoDriver* getDriver() override { return driver; }
-		u32 getVideoAdapter() override { return driver->getVideoAdapter(); }
+		virtual u32 getVideoAdapter() override {
+			return driver.getVideoAdapter();
+		}
+		virtual BitEngine::VideoDriver* getDriver() override {
+			return &driver;
+		}
 
-		BitEngine::Window* createWindow(const BitEngine::WindowConfiguration& wc) override;
-		void closeWindow(BitEngine::Window* window) override;
-		BitEngine::Window* recreateWindow(BitEngine::Window* window) override;
-		void updateWindow(BitEngine::Window* window) override;		
+		GLFWwindow* createWindow(const BitEngine::WindowConfiguration& wc);
+		void closeWindow(GLFWwindow* window);
+		void updateWindow(GLFWwindow* window);
 
 
 	protected:
 		/** Helper function
 		* Swap buffers drawing new screen
 		*/
-		bool CheckWindowClosed(Window_glfw* window);
-
-		/**
-		* Called when the window is resized
-		* Set glViewport for the resized window
-		*/
-		void OnWindowResize(Window_glfw* window, int width, int height);
+		bool checkWindowClosed(GLFWwindow* window);
 
 	private:
 		bool glewStarted;
-		BitEngine::VideoDriver *driver;
-		Window_glfw* m_currentContext;
-		Window_glfw* m_window;
+		BitEngine::VideoDriver driver;
 
-		bool CreateGLFWWindow(Window_glfw* window);
+		GLFWwindow* createGLFWWindow(const BitEngine::WindowConfiguration& wndConf);
 
 		static void GLFW_ErrorCallback(int error, const char* description);
 		static void GlfwFrameResizeCallback(GLFWwindow* window, int width, int height);

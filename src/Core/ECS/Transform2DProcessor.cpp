@@ -8,6 +8,8 @@ namespace BitEngine{
 	Transform2DProcessor::Transform2DProcessor(Messenger* m)
 		: ComponentProcessor(m)
 	{
+		subscribe<MsgComponentCreated<Transform2DComponent> >(&Transform2DProcessor::onMessage, this);
+		subscribe<MsgComponentDestroyed<Transform2DComponent> >(&Transform2DProcessor::onMessage, this);
 	}
 
 
@@ -17,9 +19,6 @@ namespace BitEngine{
 
 	bool Transform2DProcessor::Init()
 	{
-		getMessenger()->registerListener<MsgComponentCreated<Transform2DComponent> >(this);
-		getMessenger()->registerListener<MsgComponentDestroyed<Transform2DComponent> >(this);
-
 		return true;
 	}
 

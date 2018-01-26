@@ -84,7 +84,7 @@ namespace BitEngine
 			static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
 
 
-			DevResourceLoader(GameEngine* ge);
+			DevResourceLoader(Messenger* ge, TaskManager* taskManager);
 			~DevResourceLoader();
 
 			bool init() override;
@@ -100,6 +100,8 @@ namespace BitEngine
 
 			BitEngine::ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
 				const std::string& type, ResourcePropertyContainer properties) override;
+
+			virtual bool hasManagerForType(const std::string& resourceType) override;
 
 		protected:
 			// Retrieve 
@@ -137,6 +139,8 @@ namespace BitEngine
 			std::vector<DevResourceMeta> resourceMeta;
 			std::vector<LoadedIndex> resourceMetaIndexes;
 			std::unordered_map<std::string, u32> byName;
+
+			TaskManager* taskManager;
 	};
 
 }

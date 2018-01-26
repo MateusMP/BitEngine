@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "bitengine/Core/Task.h"
+#include "bitengine/Core/Messenger.h"
 #include "bitengine/Core/GameEngine.h"
 
 namespace BitEngine{
@@ -11,10 +12,10 @@ namespace BitEngine{
 	struct MsgFrameStart {};
 	struct MsgFrameEnd {};
 
-	class TaskManager : public EnginePiece
+	class TaskManager : public MessengerEndpoint
 	{
 		public:
-			TaskManager(GameEngine * ge) : EnginePiece(ge){}
+			TaskManager(Messenger* m) : MessengerEndpoint(m){}
 			virtual ~TaskManager(){}
 
 			virtual void init() = 0;

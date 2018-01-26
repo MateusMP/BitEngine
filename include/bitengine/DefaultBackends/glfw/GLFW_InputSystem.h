@@ -1,16 +1,17 @@
 #pragma once
 
 #include "bitengine/Core/InputSystem.h"
+#include "bitengine/DefaultBackends/glfw/GLFW_Headers.h"
 
 class GLFW_InputSystem : public BitEngine::InputSystem
 {
 public:
-	GLFW_InputSystem(BitEngine::GameEngine* m);
+	GLFW_InputSystem(BitEngine::Messenger* m);
 	~GLFW_InputSystem(){}
 
-	bool Init() override;
-	void Shutdown() override;
-	void Update() override;
+	bool init() override;
+	void shutdown() override;
+	void update() override;
 	
 	BitEngine::Input::KeyMod isKeyPressed(int key) override;
 	BitEngine::Input::KeyMod keyReleased(int key) override;
@@ -18,6 +19,6 @@ public:
 	double getMouseX() const override;
 	double getMouseY() const override;
 
-	void onMessage(const BitEngine::MsgWindowCreated& wndcr);
-	void onMessage(const BitEngine::MsgWindowClosed& wndcr);
+	void registerWindow(GLFWwindow* glfwWindow);
+	void unregisterWindow(GLFWwindow* glfwWindow);
 };

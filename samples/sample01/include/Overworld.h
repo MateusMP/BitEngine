@@ -2,16 +2,126 @@
 
 #include <bitengine/Core/GameEngine.h>
 
-#include "Common/GameGlobal.h"
-#include "GameWorld.h"
-#include "Player.h"
+#include "MyGameEntitySystem.h"
 
-#include "BasicTypes.h"
+class GameWorld
+{
+	public:
+	GameWorld(MyGameEntitySystem* es)
+		: m_ES(es)
+	{
+	}
+	virtual ~GameWorld() {};
+
+	// Prepare all resources
+	virtual bool Init() = 0;
+	// Releases all resources
+	virtual void Shutdown() = 0;
+
+	void setActiveCamera(const BitEngine::ComponentRef<BitEngine::Camera3DComponent>& camera)
+	{
+		activeCamera = camera;
+	}
+
+	const BitEngine::ComponentRef<BitEngine::Camera3DComponent> getActiveCamera() const
+	{
+		return activeCamera;
+	}
+
+	virtual int AddPlayer(Player* player) = 0;
+
+	// Begin world game
+	virtual void Start() = 0;
+
+	protected:
+	MyGameEntitySystem * m_ES;
+	BitEngine::ComponentRef<BitEngine::Camera3DComponent> activeCamera;
+
+};
+
+
+class Character
+{
+	public:
+	Character(u32 _id)
+		: id(_id)
+	{}
+
+	virtual void Create(MyGameEntitySystem* esys)
+	{
+		entity = esys->createEntity();
+		transform = esys->AddComponent<BitEngine::Transform3DComponent>(entity);
+		renderable = esys->AddComponent<BitEngine::RenderableMeshComponent>(entity);
+	}
+
+	void setPosition(const glm::vec3& pos) {
+		transform->setPosition(pos);
+	}
+
+	u32 getID() const {
+		return id;
+	}
+
+	BitEngine::EntityHandle getEntity() const {
+		return entity;
+	}
+
+	BitEngine::ComponentRef<BitEngine::Transform3DComponent>& getTransform() {
+		return transform;
+	}
+
+	protected:
+	BitEngine::EntityHandle entity;
+	BitEngine::ComponentRef<BitEngine::Transform3DComponent> transform;
+	BitEngine::ComponentRef<BitEngine::RenderableMeshComponent> renderable;
+
+	private:
+	u32 id;
+};
+
+class OverworldCharacter : public Character
+{
+	public:
+	OverworldCharacter(u32 id)
+		: Character(id)
+	{}
+
+	private:
+
+};
+
+class Player
+{
+	public:
+	Player(const std::string& nick, u32 netid)
+		: m_nickname(nick), m_netID(netid), m_character(nullptr)
+	{
+	}
+
+	const std::string& getNickname() const {
+		return m_nickname;
+	}
+
+	u32 getNetID() const {
+		return m_netID;
+	}
+
+	void setCharacter(Character* character) {
+		m_character = character;
+	}
+
+	private:
+	std::string m_nickname;
+	u32 m_netID;
+
+	Character* m_character;
+
+};
 
 class PlayerCamera
 {
 public:
-	virtual bool Create(MyGameEntitySystem* esys)
+	bool Create(MyGameEntitySystem* esys)
 	{
 		entity = esys->createEntity();
 		transform = esys->AddComponent<BitEngine::Transform3DComponent>(entity);
@@ -61,7 +171,7 @@ public:
 			return false;
 		}
 
-		getMessenger()->registerListener<BitEngine::CommandSystem::MsgCommandInput>(this);
+		getMessenger()->subscribe<BitEngine::CommandSystem::MsgCommandInput>(&PlayerController::onMessage, this);
 
 		return true;
 	}
@@ -177,9 +287,9 @@ private:
 			LOG(GameLog(), BE_LOG_ERROR) << "FAILED TO CREATE PlayerCamera";
 		}
 
-		m_ES->t3p->setParentOf(playerCamera->getTransform(), character->getTransform());
+		m_ES->t3p.setParentOf(playerCamera->getTransform(), character->getTransform());
 
-		PlayerController* playerController = new PlayerController(m_ES->getEngine()->getMessenger(), player, playerCamera);
+		PlayerController* playerController = new PlayerController(m_ES->getMessenger(), player, playerCamera);
 
 		plCtrlComp = m_ES->AddComponent<BitEngine::GameLogicComponent>(character->getEntity());
 		plCtrlComp->addLogicPiece(playerController);

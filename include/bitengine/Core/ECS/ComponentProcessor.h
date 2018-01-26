@@ -55,7 +55,7 @@ public:
 	EntityHandle entity;
 };
 
-class ComponentProcessor : public Messaging::MessengerEndpoint
+class ComponentProcessor : public MessengerEndpoint
 {
 	friend class EntitySystem;
 	public:
@@ -80,7 +80,7 @@ class ComponentProcessor : public Messaging::MessengerEndpoint
 
 };
 
-class BaseComponentHolder : public Messaging::MessengerEndpoint
+class BaseComponentHolder : public MessengerEndpoint
 {
 	friend class BaseEntitySystem;
 	public:
@@ -132,7 +132,7 @@ class BaseComponentHolder : public Messaging::MessengerEndpoint
 
 		template<typename CompClass>
 		void sendComponentDestroyedMessage(EntityHandle entity, ComponentHandle component) {
-			getMessenger()->dispatch(MsgComponentDestroyed<CompClass>(entity, CompClass::getComponentType(), component));
+			getMessenger()->emit(MsgComponentDestroyed<CompClass>(entity, CompClass::getComponentType(), component));
 		}
 
 		u32 newComponentID(EntityHandle entity);

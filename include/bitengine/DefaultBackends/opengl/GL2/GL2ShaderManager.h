@@ -12,7 +12,7 @@ namespace BitEngine {
 	class GL2ShaderManager : public ResourceManager
 	{
 		public:
-		GL2ShaderManager();
+		GL2ShaderManager(TaskManager* taskManager);
 		~GL2ShaderManager();
 
 		// Resource Manager
@@ -59,6 +59,8 @@ namespace BitEngine {
 
 			u32 ramInUse;
 			u32 gpuMemInUse;
+
+			TaskManager* taskManager;
 	};
 
 }

@@ -99,8 +99,8 @@ namespace BitEngine {
 
 	//
 
-	GL2TextureManager::GL2TextureManager()
-		: loader(nullptr), errorTexture(nullptr)
+	GL2TextureManager::GL2TextureManager(TaskManager* tm)
+		: taskManager(tm), loader(nullptr), errorTexture(nullptr)
 	{
 		ramInUse = 0;
 		gpuMemInUse = 0;
@@ -191,7 +191,7 @@ namespace BitEngine {
 		ResourceLoader::RawResourceTask rawDataTask = loadRawData(loader, meta);
 		TaskPtr textureLoader = std::make_shared<RawTextureLoader>(this, texture, rawDataTask);
 		textureLoader->addDependency(rawDataTask);
-		loader->getEngine()->getTaskManager()->addTask(textureLoader);
+		taskManager->addTask(textureLoader);
 	}
 
 	BaseResource* GL2TextureManager::loadResource(ResourceMeta* meta)
@@ -228,7 +228,7 @@ namespace BitEngine {
 
 					// Load from the compacted data
 					TaskPtr textureLoader = std::make_shared<RawTextureLoader>(this, texture, data);
-					loader->getEngine()->getTaskManager()->addTask(textureLoader);
+					taskManager->addTask(textureLoader);
 				}
 			}
 		}

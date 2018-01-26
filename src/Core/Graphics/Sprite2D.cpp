@@ -9,9 +9,10 @@ namespace BitEngine {
 	const Material* Sprite2DRenderer::TRANSPARENT_SPRITE = &sprite_materials[1];
 	const Material* Sprite2DRenderer::EFFECT_SPRITE = &sprite_materials[2];
 
-	Sprite2DRenderer::Sprite2DRenderer(GameEngine* engine)
-		: ComponentProcessor(engine->getMessenger()), m_batch(nullptr), m_engine(engine)
+	Sprite2DRenderer::Sprite2DRenderer(Messenger* m, ResourceLoader* resourceLoader)
+		: ComponentProcessor(m), m_batch(nullptr), resourceLoader(resourceLoader)
 	{
+		Init();
 	}
 
 	void Sprite2DRenderer::setActiveCamera(ComponentRef<Camera2DComponent>& handle)
@@ -37,7 +38,7 @@ namespace BitEngine {
 		sprite_materials[2].setBlendEquation(BlendEquation::ADD);
 		sprite_materials[2].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
 
-		shader = m_engine->getResourceLoader()->getResource<Shader>("data/shaders/sprite2D");
+		shader = resourceLoader->getResource<Shader>("data/shaders/sprite2D");
 		if (!shader.isValid()) {
 			LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load sprite 2D shader";
 			return false;
@@ -55,7 +56,7 @@ namespace BitEngine {
 		delete m_batch;
 	}
 
-	void Sprite2DRenderer::Render()
+	void Sprite2DRenderer::Render(VideoDriver* driver)
 	{
 		if (m_batch == nullptr)
 		{
@@ -71,7 +72,7 @@ namespace BitEngine {
 
 		buildBatchInstances();
 
-		if (getES()->getEngine()->getVideoDriver()->getVideoAdapter() == VideoAdapterType::OPENGL_4)
+		if (false) //getES()->getEngine()->getVideoDriver()->getVideoAdapter() == VideoAdapterType::OPENGL_4)
 		{
 			for (auto& it : batchesMap) {
 				prepare_new(batches[it.second]);
@@ -84,7 +85,7 @@ namespace BitEngine {
 			for (auto& it : batchesMap) {
 				prepare_legacy(batches[it.second]);
 				m_batch->load();
-				m_engine->getVideoDriver()->configure(batches[it.second].bid.material);
+				driver->configure(batches[it.second].bid.material);
 				m_batch->render(shader.get());
 			}
 		}

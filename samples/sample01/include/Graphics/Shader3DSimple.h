@@ -15,7 +15,6 @@
 #include <bitengine/DefaultBackends/opengl/VertexArrayObject.h>
 #include <bitengine/DefaultBackends/opengl/ShaderProgram.h>
 
-#include "Common/GameGlobal.h"
 
 // GL4/3
 DECLARE_VERTEXDATA(Simple3Dmatrix_VD, 4)
@@ -111,7 +110,7 @@ public:
 			Material* material)
 			: BitEngine::Mesh(name), m_material(material)
 		{
-			LOG(GameLog(), BE_LOG_INFO) << "Creating VAO and VBOS: v: " << vertex.size() << " idx: " << indices.size();
+			LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Creating VAO and VBOS: v: " << vertex.size() << " idx: " << indices.size();
 			// Create buffers
 			glGenVertexArrays(1, &vao);
 			glGenBuffers(NUM_VBOS, vbo);
@@ -265,7 +264,7 @@ public:
 
 		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
-			LOG(GameLog(), BE_LOG_ERROR) << "ERROR::ASSIMP::" << importer.GetErrorString();
+			LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR::ASSIMP::" << importer.GetErrorString();
 			return nullptr;
 		}
 

@@ -39,7 +39,7 @@ namespace BitEngine{
 				}
 			}
 
-			manager->getEngine()->getMessenger()->delayedDispatch(MsgTaskCompleted(task));
+			manager->getMessenger()->enqueue(MsgTaskCompleted(task));
 		}
 		else
 		{
@@ -92,14 +92,15 @@ namespace BitEngine{
 		}
 	}
 
-	GeneralTaskManager::GeneralTaskManager(GameEngine* ge)
-		: TaskManager(ge)
+	GeneralTaskManager::GeneralTaskManager(Messenger* m)
+		: TaskManager(m)
 	{
 		mainThread = std::this_thread::get_id();
 		LOG(EngineLog, BE_LOG_INFO) << "Main thread: " << mainThread;
 		mainloop = true;
 		requiredTasksFrame = 0;
 		finishedRequiredTasks = 0;
+		init();
 	}
 
 	void GeneralTaskManager::init()
@@ -125,18 +126,19 @@ namespace BitEngine{
 	{
 		while (mainloop)
 		{
-			getEngine()->getMessenger()->dispatch(MsgFrameStart());
+			getMessenger()->emit(MsgFrameStart());
 
 			while (finishedRequiredTasks != requiredTasksFrame)
 			{
 				executeMain();
 			}
 
-			getEngine()->getMessenger()->dispatch(MsgFrameEnd());
+			getMessenger()->emit(MsgFrameEnd());
 
 			prepareNextFrame();
 
 			Time::Tick();
+			mainloop = false; // TODO: remove mainloop
 		}
 	}
 

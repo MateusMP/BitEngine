@@ -5,14 +5,12 @@ namespace BitEngine{
 	GameLogicProcessor::GameLogicProcessor(Messenger* m)
 		: ComponentProcessor(m)
 	{
-		getMessenger()->registerListener<MsgComponentCreated<GameLogicComponent> >(this);
-		getMessenger()->registerListener<MsgComponentDestroyed<GameLogicComponent> >(this);
+		subscribe<MsgComponentCreated<GameLogicComponent> >(&GameLogicProcessor::onMessage, this);
+		subscribe<MsgComponentDestroyed<GameLogicComponent> >(&GameLogicProcessor::onMessage, this);
 	}
 
 	GameLogicProcessor::~GameLogicProcessor()
 	{
-		getMessenger()->unregisterListener<MsgComponentCreated<GameLogicComponent> >(this);
-		getMessenger()->unregisterListener<MsgComponentDestroyed<GameLogicComponent> >(this);
 	}
 
 	bool GameLogicProcessor::Init()

@@ -2,16 +2,14 @@
 
 #include <bitengine\bitengine.h>
 
-#include "BasicTypes.h"
 #include "MyGameEntitySystem.h"
 
 class PlayerControl : public BitEngine::GameLogic
 {
 public:
-	static BitEngine::EntityHandle CreatePlayerTemplate(MyGameEntitySystem* es)
+	static BitEngine::EntityHandle CreatePlayerTemplate(BitEngine::ResourceLoader* loader, MyGameEntitySystem* es)
 	{
 		using namespace BitEngine;
-		BitEngine::ResourceLoader* loader = es->getEngine()->getResourceLoader();
 
 		RR<Sprite> playerSPR = loader->getResource<BitEngine::Sprite>("data/sprites/spr_skybox");
 		RR<Sprite> playerOrbitSPR = loader->getResource<BitEngine::Sprite>("data/sprites/spr_skybox_orbit");
@@ -33,7 +31,7 @@ public:
 		playerT2D->setLocalPosition(128, 128);
 		playerSpr2D->layer = 5;
 		playerSpr2D->sprite = playerSPR;
-		gamelogic->addLogicPiece(new PlayerControl(es->getEngine()->getMessenger()));
+		gamelogic->addLogicPiece(new PlayerControl(es->getMessenger()));
 
 		// 2D orbit
 		ComponentRef<Transform2DComponent> pcT;
@@ -43,7 +41,7 @@ public:
 		ADD_COMPONENT_ERROR(pcT = es->AddComponent<Transform2DComponent>(playerConnected));
 		ADD_COMPONENT_ERROR(pcST = es->AddComponent<SceneTransform2DComponent>(playerConnected));
 		ADD_COMPONENT_ERROR(pcS = es->AddComponent<Sprite2DComponent>(playerConnected));
-		es->t2p->setParentOf(pcT, playerT2D);
+		es->t2p.setParentOf(pcT, playerT2D);
 		pcT->setLocalPosition(128, 128);
 		pcT->setLocalRotation(45 * 3.1415f / 180.0f);
 		pcS->layer = 6;
@@ -103,7 +101,7 @@ public:
 
 	bool init() override
 	{
-		getMessenger()->registerListener<BitEngine::CommandSystem::MsgCommandInput>(this);
+		getMessenger()->subscribe<BitEngine::CommandSystem::MsgCommandInput>(&PlayerControl::onMessage, this);
 
 		movH = movV = 0.0f;
 

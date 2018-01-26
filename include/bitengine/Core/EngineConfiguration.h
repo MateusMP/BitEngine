@@ -13,10 +13,10 @@
 
 namespace BitEngine
 {
-	class EngineConfiguration : public EnginePiece
+	class EngineConfiguration
 	{
 	public:
-		EngineConfiguration(GameEngine* ge);
+		EngineConfiguration();
 		~EngineConfiguration();
 
 		ConfigurationItem* getConfiguration(const std::string& systemName, const std::string& configName, const std::string& defaultValue);

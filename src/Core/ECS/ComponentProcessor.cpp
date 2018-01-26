@@ -5,7 +5,8 @@ namespace BitEngine {
 
 	BaseComponentHolder::BaseComponentHolder(Messenger* m, u32 componentSize, u32 nCompPerPool /*= 100*/)
 		: MessengerEndpoint(m),
-		m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool),
+		m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool), 
+		m_byComponent(nCompPerPool),
 		m_IDcurrent(1), m_workingComponents(0), m_pools(), m_byEntity(128, 0)
 	{
 		m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]); // init first pool
@@ -48,9 +49,9 @@ namespace BitEngine {
 	}
 
 	// resize to be able to contain up to given component id
-	void BaseComponentHolder::resize(u32 id)
+	void BaseComponentHolder::resize(u32 componentId)
 	{
-		while (m_IDcapacity <= id)
+		while (m_IDcapacity <= componentId)
 		{
 			m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]);
 			m_byComponent.resize(m_byComponent.size() + m_nComponentsPerPool, 0);
@@ -71,8 +72,9 @@ namespace BitEngine {
 		// find the new ID
 		if (m_freeIDs.empty())
 		{
-			if (m_IDcurrent <= m_IDcapacity)
+			if (m_IDcurrent >= m_IDcapacity) {
 				resize(m_IDcapacity * 2);
+			}
 
 			id = m_IDcurrent++;
 

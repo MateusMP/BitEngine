@@ -24,61 +24,16 @@ Shader3DSimple::BatchRenderer* Shader3DSimple::CreateRenderer()
 
 int Shader3DSimple::Init()
 {
-	// Try to guess the best renderer
-	/*if (useRenderer == NOT_DEFINED){
-		useRenderer = DetectBestRenderer();
-	}
-
-	if (useRenderer == NOT_AVAILABLE){
-		return SHADER_INIT_ERROR_NO_RENDERER;
-	}
-
-	// Try to compile the shaders
-
-	// GL3 and GL4 [instancing]
-	if ((useRenderer == USE_GL4 || useRenderer == USE_GL3))
+	Shader3DSimpleGL4* s = new Shader3DSimpleGL4();
+	int error = s->Init();
+	if (error == BE_NO_ERROR)
 	{
-		Shader3DSimpleGL4* s = new Shader3DSimpleGL4();
-		int error = s->Init();
-		if (error == BE_NO_ERROR)
-		{
-			shader = s;
-			useRenderer = USE_GL4;
-			LOG(GameLog(), BE_LOG_INFO) << "Using Shader3DSimple GL4";
-			return BE_NO_ERROR;
-		} else {
-			delete s;
-		}
-
-		// If failed to compile -> fallback to GL2
-		LOG(GameLog(), BE_LOG_WARNING) << "Error: "<<error<<" Could not compile GL3/GL4 shader for Shader3DSimple, driver update needed? Fallback to GL2...";
-		useRenderer = USE_GL2;
+		shader = s;
+		LOG(GameLog(), BE_LOG_INFO) << "Using Shader3DSimple GL4";
+		return BE_NO_ERROR;
+	} else {
+		delete s;
 	}
-
-	// GL2
-	if (useRenderer == USE_GL2)
-	{
-		Shader3DSimpleGL2* s = new Shader3DSimpleGL2();
-		int error = s->Init();
-		if (error == BE_NO_ERROR)
-		{
-			shader = s;
-			LOG(GameLog(), BE_LOG_INFO) << "Using Shader3DSimple GL2";
-			return BE_NO_ERROR;
-		}
-		else {
-			delete s;
-		}
-
-		LOG(GameLog(), BE_LOG_ERROR) << "ERROR: " << error << " Shader3DSimple not available for GL2!";
-		useRenderer = NOT_AVAILABLE;
-	}
-
-
-	shader = nullptr;
-	LOG(GameLog(), BE_LOG_ERROR) << "Could not initialize Shader3DSimple shader!";
-	return SHADER_INIT_ERROR_NO_RENDERER;*/
-	return false;
 }
 
 void Shader3DSimple::LoadViewMatrix(const glm::mat4& matrix)
@@ -224,8 +179,8 @@ int Shader3DSimple::Shader3DSimpleGL4::Init()
 		return SHADER_INIT_ERROR_NO_FUNCTIONS;
 	}
 
-	return BuildProgramFromFile(GL_VERTEX_SHADER, "Shaders/shader3Dsimple.vtx",
-								GL_FRAGMENT_SHADER, "Shaders/shader3Dsimple.fgt");
+	return BuildProgramFromFile(GL_VERTEX_SHADER, "data/shaders/shader3Dsimple.vtx",
+								GL_FRAGMENT_SHADER, "data/shaders/shader3Dsimple.fgt");
 
 }
 

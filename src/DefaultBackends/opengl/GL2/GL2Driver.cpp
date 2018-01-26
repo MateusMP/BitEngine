@@ -1,21 +1,33 @@
-#include "bitengine/DefaultBackends/opengl/GL2/GL2Driver.h"
 
+#include "bitengine/Core/Memory.h"
+#include "bitengine/Core/GameEngine.h"
+#include "bitengine/Core/Graphics/VideoDriver.h"
+
+#include "bitengine/DefaultBackends/opengl/GL2/OpenGL2.h"
 #include "bitengine/DefaultBackends/opengl/GL2/GL2Impl.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2ShaderManager.h"
+#include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
 
+BitEngine::VideoDriver::VideoDriver() {
+}
+BitEngine::VideoDriver::~VideoDriver() {
 
-bool BitEngine::GL2Driver::init()
+}
+
+BitEngine::VideoAdapterType BitEngine::VideoDriver::getVideoAdapter() const {
+	return VideoAdapterType::GL_2_OR_GREATER;
+}
+
+bool BitEngine::VideoDriver::init()
 {
-	getEngine()->getResourceLoader()->registerResourceManager("SHADER", &shaderManager);
-	getEngine()->getResourceLoader()->registerResourceManager("TEXTURE", &textureManager);
-
 	return true;
 }
 
-void BitEngine::GL2Driver::shutdown()
+void BitEngine::VideoDriver::shutdown()
 {
 }
 
-void BitEngine::GL2Driver::clearBuffer(BitEngine::RenderBuffer* buffer, BitEngine::BufferClearBitMask mask)
+void BitEngine::VideoDriver::clearBuffer(BitEngine::RenderBuffer* buffer, BitEngine::BufferClearBitMask mask)
 {
 	GLbitfield bitfield = 0;
 	if (mask & BitEngine::BufferClearBitMask::COLOR)
@@ -26,17 +38,17 @@ void BitEngine::GL2Driver::clearBuffer(BitEngine::RenderBuffer* buffer, BitEngin
 	GL_CHECK(glClear(bitfield));
 }
 
-void BitEngine::GL2Driver::clearBufferColor(BitEngine::RenderBuffer* buffer, const BitEngine::ColorRGBA& color)
+void BitEngine::VideoDriver::clearBufferColor(BitEngine::RenderBuffer* buffer, const BitEngine::ColorRGBA& color)
 {
 	GL_CHECK(glClearColor(color.r(), color.g(), color.b(), color.a()));
 }
 
-void BitEngine::GL2Driver::setViewPort(int x, int y, int width, int height)
+void BitEngine::VideoDriver::setViewPort(int x, int y, int width, int height)
 {
 	GL_CHECK(glViewport(x, y, width, height));
 }
 
-void BitEngine::GL2Driver::configure(const BitEngine::Material* material)
+void BitEngine::VideoDriver::configure(const BitEngine::Material* material)
 {
 	// BLEND
 	if (material->getState(RenderConfig::BLEND) != BlendConfig::BLEND_NONE)

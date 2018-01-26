@@ -8,19 +8,15 @@
 namespace BitEngine {
 
 	class InputSystem
-		: public System
+		: public MessengerEndpoint
 	{
 		public:
-			InputSystem(GameEngine* ge) : System(ge) {}
+			InputSystem(Messenger* m) : MessengerEndpoint(m) {}
 			virtual ~InputSystem() {}
-
-			const char* getName() const override {
-				return "Input";
-			}
-
-			virtual bool Init() = 0;
-			virtual void Shutdown() = 0;
-			virtual void Update() = 0;
+			
+			virtual bool init() = 0;
+			virtual void shutdown() = 0;
+			virtual void update() = 0;
 
 			virtual Input::KeyMod isKeyPressed(int key) = 0;
 			virtual Input::KeyMod keyReleased(int key) = 0;

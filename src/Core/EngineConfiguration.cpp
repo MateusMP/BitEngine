@@ -13,8 +13,7 @@ const char* BLANK_SPACES = " \n\r\t";
 const char SYSTEM_BEGIN_CHAR = '!';
 const char CONFIG_VALUE_SEPARATOR_CHAR = ':';
 
-EngineConfiguration::EngineConfiguration(GameEngine* ge)
-	: EnginePiece(ge)
+EngineConfiguration::EngineConfiguration()
 {
 }
 
@@ -31,7 +30,14 @@ ConfigurationItem* EngineConfiguration::getConfiguration(const std::string& syst
 	BitEngine::SystemConfiguration* sc = getSystemConfiguration(systemName);
 	if (sc != nullptr)
 	{
-		return sc->getConfig(configName);
+		ConfigurationItem *value = sc->getConfig(configName);
+		if (value == nullptr) {
+			sc->addConfiguration(configName, "", defaultValue);
+			return sc->getConfig(configName);
+		}
+		else {
+			return value;
+		}
 	}
 	else
 	{

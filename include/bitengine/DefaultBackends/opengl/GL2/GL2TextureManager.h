@@ -78,7 +78,7 @@ namespace BitEngine
 	class GL2TextureManager : public BitEngine::ResourceManager
 	{
 		public:
-			GL2TextureManager();
+			GL2TextureManager(TaskManager* taskManager);
 			~GL2TextureManager();
 
 			bool init() override;
@@ -116,6 +116,7 @@ namespace BitEngine
 			void makeLoadFullResource(ResourceMeta* meta, GL2Texture* texture);
 
 			// Members
+			TaskManager* taskManager;
 			ResourceLoader* loader;
 			ResourceIndexer<GL2Texture, 1024> textures;
 			ThreadSafeQueue<GL2Texture*> rawData; // raw data loaded and waiting to be sent to gpu

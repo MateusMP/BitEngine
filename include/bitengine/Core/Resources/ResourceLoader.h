@@ -3,6 +3,7 @@
 
 #include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/Task.h"
+#include "bitengine/Core/Messenger.h"
 
 #include "bitengine/Core/Resources/ResourceIndexer.h"
 #include "bitengine/Core/Resources/ResourceProperties.h"
@@ -70,16 +71,16 @@ namespace BitEngine {
 	 * Resource Loader interface
 	 * Used by the application to retrieve the final resource.
 	 */
-	class ResourceLoader : public EnginePiece
+	class ResourceLoader : public MessengerEndpoint
 	{
 		public:
-			ResourceLoader(GameEngine* ge) : EnginePiece(ge) {}
+			ResourceLoader(Messenger* msg) : MessengerEndpoint(msg) {}
 			virtual ~ResourceLoader(){}
 
 			virtual bool init() = 0;
 			virtual void update() = 0;
 			virtual void shutdown() = 0;
-
+			
 			/**
 			 * Register a resource manage to take case of a given resource type.
 			 * @param resourceType the resource type.
@@ -161,6 +162,12 @@ namespace BitEngine {
 			 * Release all resources in use. TAKE CARE WITH THIS!
 			 */
 			virtual void releaseAll() = 0;
+			
+			/**
+			 * Returns whether a manager for specified type is available
+			 * Useful for safety checks on game start
+			 */
+			virtual bool hasManagerForType(const std::string& type) = 0;
 
 			struct DataRequest
 			{
@@ -277,10 +284,13 @@ namespace BitEngine {
 	template<typename T>
 	class RR
 	{
-		friend class ResouceLoader;
 		static_assert(std::is_base_of<BaseResource, T>::value, "Not a resource class");
 
 	public:
+		static RR<T> invalid() {
+			return RR();
+		}
+
 		RR()
 			: resource(nullptr), loader(nullptr)
 		{}

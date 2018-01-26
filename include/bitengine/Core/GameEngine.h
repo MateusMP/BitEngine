@@ -17,10 +17,11 @@ namespace BitEngine{
 		virtual ~GameEngine() {}
 		virtual EngineConfiguration* getConfigurations() = 0;
 		virtual ResourceLoader* getResourceLoader() = 0;
-		virtual Messenger* getMessenger() = 0;
-		virtual System* getSystem(const std::string& name) = 0;
 		virtual TaskManager* getTaskManager() = 0;
-		virtual VideoDriver* getVideoDriver() = 0;
+
+		virtual Messenger* getMessenger() = 0;
+
+		virtual System* getSystem(const std::string& name) = 0;
 	};
 
 	class EnginePiece

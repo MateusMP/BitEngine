@@ -1,4 +1,41 @@
 # root
+set(HEADERS
+	../../include/bitengine/bitengine.h
+	../../include/bitengine/Common/BitFieldVector.h
+	../../include/bitengine/Common/MacroHelpers.h
+	../../include/bitengine/Common/ThreadSafeQueue.h
+	../../include/bitengine/Common/VectorBool.h
+	../../include/bitengine/Common/ErrorCodes.h
+	../../include/bitengine/Common/MathUtils.h
+	../../include/bitengine/Common/TypeDefinition.h
+
+	../../include/bitengine/Core/Assert.h               
+	../../include/bitengine/Core/Graphics.h
+	../../include/bitengine/Core/Messenger.h
+	../../include/bitengine/Core/Task.h
+	../../include/bitengine/Core/CommandSystem.h
+	../../include/bitengine/Core/Input.h
+	../../include/bitengine/Core/ModelManager.h
+	../../include/bitengine/Core/TaskManager.h
+	../../include/bitengine/Core/InputSystem.h
+	../../include/bitengine/Core/Reflection.h
+	../../include/bitengine/Core/Timer.h
+	../../include/bitengine/Core/EngineConfiguration.h  
+	../../include/bitengine/Core/Logger.h       
+	../../include/bitengine/Core/VideoSystem.h
+	../../include/bitengine/Core/GameEngine.h           
+	../../include/bitengine/Core/Math.h         
+	../../include/bitengine/Core/ResourceSystem.h       
+	../../include/bitengine/Core/Window.h
+	../../include/bitengine/Core/GameEnginePC.h         
+	../../include/bitengine/Core/Memory.h       
+	../../include/bitengine/Core/Signal.h
+	../../include/bitengine/Core/GeneralTaskManager.h   
+	../../include/bitengine/Core/Mesh.h         
+	../../include/bitengine/Core/System.h
+	../../include/bitengine/Core/SystemConfiguration.h
+)
+
 set(SRCS
 	CommandSystem.cpp
 	EngineConfiguration.cpp
@@ -11,6 +48,7 @@ set(SRCS
     ResourceSystem.cpp
     Timer.cpp
     VideoRenderer.cpp	
+	Messenger.cpp
     
 )
 # Resources
@@ -41,8 +79,11 @@ set(SRCS ${SRCS}
 
 message(STATUS "BITENGINE_INCLUDE_DIR='${BITENGINE_INCLUDE_DIR}'")
 
+set(CMAKE_CXX_STANDARD 11)
+
 # Create the bitengine lib
-add_library(bitengine ${SRCS} ${BITENGINE_INCLUDE_FILES})
+add_library(bitengine ${SRCS} ${BITENGINE_INCLUDE_FILES} ${HEADERS})
+SET_TARGET_PROPERTIES(bitengine PROPERTIES LINKER_LANGUAGE CXX)
 
 if (CMAKE_COMPILER_IS_GNUCC)
 	target_link_libraries(bitengine PUBLIC -static-libstdc++)

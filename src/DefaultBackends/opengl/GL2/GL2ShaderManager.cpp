@@ -49,8 +49,8 @@ namespace BitEngine {
 
 	//
 
-	GL2ShaderManager::GL2ShaderManager()
-		: loader(nullptr)
+	GL2ShaderManager::GL2ShaderManager(TaskManager* tm)
+		: taskManager(tm), loader(nullptr)
 	{
 		ramInUse = 0;
 		gpuMemInUse = 0;
@@ -158,7 +158,7 @@ namespace BitEngine {
 			shaderSourceLoader->addDependency(
 					loadShaderSource(geometryProp, shader));
 		}
-		loader->getEngine()->getTaskManager()->addTask(shaderSourceLoader);
+		taskManager->addTask(shaderSourceLoader);
 	}
 
 	BaseResource* GL2ShaderManager::loadResource(ResourceMeta* meta)

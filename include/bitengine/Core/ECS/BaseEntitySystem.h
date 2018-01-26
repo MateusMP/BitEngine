@@ -10,7 +10,7 @@
 
 namespace BitEngine {
 
-    class BaseEntitySystem : public EnginePiece
+    class BaseEntitySystem : public MessengerEndpoint
 	{
 		public:
 			template<typename CompClass>
@@ -19,8 +19,8 @@ namespace BitEngine {
 				return CompClass::getGlobalComponentID();
 			}
 
-			BaseEntitySystem(GameEngine* ge)
-                : EnginePiece(ge)
+			BaseEntitySystem(Messenger* m)
+                : MessengerEndpoint(m)
 			{
 				m_initialized = false;
 				m_objBitField = nullptr;

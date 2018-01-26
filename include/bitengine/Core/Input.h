@@ -93,7 +93,7 @@ namespace BitEngine {
 			double y;
 		};
 
-		class InputReceiver : public Messaging::MessengerEndpoint
+		class InputReceiver : public MessengerEndpoint
 		{
 			public:
 			InputReceiver(Messenger* m)

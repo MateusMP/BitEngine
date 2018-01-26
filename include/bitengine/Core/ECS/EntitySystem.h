@@ -22,8 +22,8 @@ namespace BitEngine{
 class EntitySystem : public BaseEntitySystem
 {
 	public:
-		EntitySystem(GameEngine* ge)
-			: BaseEntitySystem(ge)
+		EntitySystem(Messenger* m)
+			: BaseEntitySystem(m)
 		{
 		}
 
@@ -147,7 +147,7 @@ class EntitySystem : public BaseEntitySystem
 		bool RegisterComponent()
 		{
 			LOG(EngineLog, BE_LOG_WARNING) << "Using generic ComponentHolder for " << typeid(CompClass).name();
-			return RegisterComponent(new ComponentHolder<CompClass>(getEngine()->getMessenger()));
+			return RegisterComponent<CompClass>(new ComponentHolder<CompClass>(getMessenger()));
 		}
 
 		template<typename CompClass>
@@ -176,7 +176,7 @@ class EntitySystem : public BaseEntitySystem
 				compID = holder->createComponent(entity, comp);
 				holder->initializeComponent(comp, args...);
 
-				getEngine()->getMessenger()->dispatch(MsgComponentCreated<CompClass>(entity, type, compID));
+				getMessenger()->emit(MsgComponentCreated<CompClass>(entity, type, compID));
 			}
 
 			return ComponentRef<CompClass>(entity, compID, this, comp);

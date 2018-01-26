@@ -6,16 +6,16 @@
 #include <bitengine/Core/Graphics/Sprite2D.h>
 #include <bitengine/Core/ECS/EntitySystem.h>
 
-#include "MyGameSystem.h"
 #include "Graphics/Shader3DSimple.h"
-#include "BasicTypes.h"
 
 class Shader3DProcessor : public BitEngine::ComponentProcessor
 {
 	public:
 	Shader3DProcessor(BitEngine::Transform3DProcessor *t3dp_)
 		: ComponentProcessor(t3dp_->getMessenger()), t3dp(t3dp_)
-	{}
+	{
+		Init();
+	}
 
 	bool Init() override
 	{

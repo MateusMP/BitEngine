@@ -29,17 +29,13 @@ class UpdateSystemTask : public Task
 class MessengerDispatchTask : public Task
 {
 	public:
-	MessengerDispatchTask(Messenger* m)
-			: Task(Task::TaskMode::REPEAT_ONCE_PER_FRAME_REQUIRED, Task::Affinity::MAIN), msgr(m) {}
+		MessengerDispatchTask(Messenger* m)
+				: Task(Task::TaskMode::REPEAT_ONCE_PER_FRAME_REQUIRED, Task::Affinity::MAIN), msgr(m)
+		{}
 
 		void run()
 		{
-			msgr->dispatchEnqueued();
-		}
-
-		bool finished()
-		{
-			return false;
+			msgr->dispatch();
 		}
 
 	private:
@@ -47,8 +43,8 @@ class MessengerDispatchTask : public Task
 };
 
 
-GameEnginePC::GameEnginePC(ConfigurationLoader* _configLoader, ResourceLoader* _resourceLoader, VideoDriver* _driver)
-	: configurationLoader(_configLoader), resourceLoader(_resourceLoader),  messenger(this), configuration(this), taskManager(this), videoDriver(_driver)
+GameEnginePC::GameEnginePC(ConfigurationLoader* _configLoader, ResourceLoader* _resourceLoader, Messenger* _messenger)
+	: configurationLoader(_configLoader), resourceLoader(_resourceLoader), messenger(_messenger), taskManager(_messenger)
 {
 }
 
@@ -142,7 +138,7 @@ bool GameEnginePC::run()
 
 	taskManager.init();
 	
-	taskManager.addTask(std::make_shared<MessengerDispatchTask>(&messenger));
+	taskManager.addTask(std::make_shared<MessengerDispatchTask>(messenger));
 
     if ( initSystems() )
     {

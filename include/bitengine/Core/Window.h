@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <bitengine/Common/TypeDefinition.h>
+
 namespace BitEngine{
 
 	class WindowConfiguration
@@ -10,55 +12,18 @@ namespace BitEngine{
 			bool m_Resizable;
 			bool m_FullScreen;
 
-			unsigned int m_Width;
-			unsigned int m_Height;
+			u32 m_Width;
+			u32 m_Height;
 
-			unsigned int m_RedBits;
-			unsigned int m_GreenBits;
-			unsigned int m_BlueBits;
-			unsigned int m_AlphaBits;
+			u32 m_RedBits;
+			u32 m_GreenBits;
+			u32 m_BlueBits;
+			u32 m_AlphaBits;
 
-			unsigned int m_DepthBits;
-			unsigned int m_StencilBits;
-
-			std::string m_Title;
-	};
-
-	class Window
-	{
-		public:
-			bool m_Resizable;
-			bool m_FullScreen;
-
-			unsigned int m_Width;
-			unsigned int m_Height;
-
-			unsigned int m_RedBits;
-			unsigned int m_GreenBits;
-			unsigned int m_BlueBits;
-			unsigned int m_AlphaBits;
-
-			unsigned int m_DepthBits;
-			unsigned int m_StencilBits;
+			u32 m_DepthBits;
+			u32 m_StencilBits;
 
 			std::string m_Title;
-	};
-
-
-	struct MsgWindowClosed
-	{
-		MsgWindowClosed(Window *w) :window(w)
-		{}
-
-		Window* window;
-	};
-
-	struct MsgWindowCreated
-	{
-		MsgWindowCreated(Window *w) : window(w)
-		{}
-
-		Window* window;
 	};
 }
 

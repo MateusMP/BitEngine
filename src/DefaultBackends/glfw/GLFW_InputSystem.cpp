@@ -9,24 +9,22 @@ void GlfwMousePosCallback(GLFWwindow* window, double x, double y);
 
 std::unordered_map<GLFWwindow*, BitEngine::Input::InputReceiver> inputReceivers;
 
-GLFW_InputSystem::GLFW_InputSystem(BitEngine::GameEngine* ge)
-	: InputSystem(ge)
+GLFW_InputSystem::GLFW_InputSystem(BitEngine::Messenger* m)
+	: InputSystem(m)
 {
 
 }
 
-bool GLFW_InputSystem::Init()
+bool GLFW_InputSystem::init()
 {
-	getEngine()->getMessenger()->registerListener<BitEngine::MsgWindowCreated>(this);
-	getEngine()->getMessenger()->registerListener<BitEngine::MsgWindowClosed>(this);
 	return true;
 }
 
-void GLFW_InputSystem::Shutdown()
+void GLFW_InputSystem::shutdown()
 {
 }
 
-void GLFW_InputSystem::Update()
+void GLFW_InputSystem::update()
 {
 	glfwPollEvents();
 }
@@ -67,22 +65,20 @@ double GLFW_InputSystem::getMouseY() const
 	return w->second.getMouseY();
 }
 
-void GLFW_InputSystem::onMessage(const BitEngine::MsgWindowCreated& msg)
+void GLFW_InputSystem::registerWindow(GLFWwindow* glfwWindow)
 {
-	GLFW_VideoSystem::Window_glfw* w = static_cast<GLFW_VideoSystem::Window_glfw*>(msg.window);
-
 	// Creates instance for this window
-	inputReceivers.emplace(w->m_glfwWindow, getEngine()->getMessenger());
+	inputReceivers.emplace(glfwWindow, getMessenger());
 
 	// Define callback for functions
-	glfwSetKeyCallback(w->m_glfwWindow, GlfwKeyCallback);
-	glfwSetMouseButtonCallback(w->m_glfwWindow, GlfwMouseCallback);
-	glfwSetCursorPosCallback(w->m_glfwWindow, GlfwMousePosCallback);
+	glfwSetKeyCallback(glfwWindow, GlfwKeyCallback);
+	glfwSetMouseButtonCallback(glfwWindow, GlfwMouseCallback);
+	glfwSetCursorPosCallback(glfwWindow, GlfwMousePosCallback);
 }
 
-void GLFW_InputSystem::onMessage(const BitEngine::MsgWindowClosed& msg)
+void GLFW_InputSystem::unregisterWindow(GLFWwindow* glfwWindow)
 {
-	inputReceivers.erase(static_cast<GLFW_VideoSystem::Window_glfw*>(msg.window)->m_glfwWindow);
+	inputReceivers.erase(glfwWindow);
 }
 
 

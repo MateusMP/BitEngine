@@ -1,3 +1,4 @@
+set(CMAKE_CXX_STANDARD 11)
 
 if (BITENGINE_BACKEND_WITH_GLFW)
 	find_package(OpenGL REQUIRED)
@@ -6,7 +7,14 @@ if (BITENGINE_BACKEND_WITH_GLFW)
         glfw/GLFW_InputSystem.cpp
         glfw/GLFW_VideoSystem.cpp
     )
-    add_library(backend-glfw STATIC ${SRCS})
+	set (HEADERS
+		../../include/bitengine/DefaultBackends/glfw/GLFW_Headers.h
+		../../include/bitengine/DefaultBackends/glfw/GLFW_InputSystem.h
+		../../include/bitengine/DefaultBackends/glfw/GLFW_Platform.h
+		../../include/bitengine/DefaultBackends/glfw/GLFW_VideoSystem.h
+	)
+
+    add_library(backend-glfw STATIC ${SRCS} ${HEADERS})
     
     include_directories(${CMAKE_SOURCE_DIR}/dependencies/glew/include)
 	target_link_libraries(backend-glfw PUBLIC bitengine glew_s glfw ${OPENGL_LIBRARIES})

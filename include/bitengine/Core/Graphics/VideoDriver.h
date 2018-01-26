@@ -1,41 +1,44 @@
 #pragma once
 
+#include <memory>
+
 #include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/EngineConfiguration.h"
 #include "bitengine/Core/Graphics/VideoRenderer.h"
+
 
 namespace BitEngine {
 
 	class Material;
 	class RenderBuffer;
-
-	class VideoDriver : public EnginePiece
+		
+	class VideoDriver
 	{
 	public:
-		VideoDriver(GameEngine* ge) : EnginePiece(ge) {}
-		virtual ~VideoDriver() {}
+		VideoDriver();
+		~VideoDriver();
 
-		virtual bool init() = 0;
-		virtual void shutdown() = 0;
+		bool init();
+		void shutdown();
 		
-		virtual VideoAdapterType getVideoAdapter() const = 0;
+		VideoAdapterType getVideoAdapter() const;
 
 		/**
 		* Clear buffer on defined options
 		* \param buffer Buffer reference, if null, applies to screen
 		* \param mask Options to clear, see BufferClearBitMask
 		*/
-		virtual void clearBuffer(RenderBuffer* buffer, BufferClearBitMask mask) = 0;
+		void clearBuffer(RenderBuffer* buffer, BufferClearBitMask mask);
 
 		/**
 		* If buffer == nullptr, clears the screen
 		* otherwise, clears the given RenderBuffer
 		**/
-		virtual void clearBufferColor(RenderBuffer* buffer, const ColorRGBA& color) = 0;
+		void clearBufferColor(RenderBuffer* buffer, const ColorRGBA& color);
 
-		virtual void setViewPort(int x, int y, int width, int height) = 0;
+		void setViewPort(int x, int y, int width, int height);
 
-		virtual void configure(const Material* material) = 0;
+		void configure(const Material* material);
 	};
 
 }

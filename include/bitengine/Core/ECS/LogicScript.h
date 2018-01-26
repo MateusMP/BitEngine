@@ -15,7 +15,7 @@ namespace BitEngine{
 		virtual void OnCollision() = 0;
 	};
 
-	class GameLogic : public Messaging::MessengerEndpoint
+	class GameLogic : public MessengerEndpoint
 	{
 		public:
 			GameLogic(Messenger* m)
