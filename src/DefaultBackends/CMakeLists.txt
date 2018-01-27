@@ -1,8 +1,8 @@
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 if (BITENGINE_BACKEND_WITH_GLFW)
 	find_package(OpenGL REQUIRED)
-	
+
     set(SRCS
         glfw/GLFW_InputSystem.cpp
         glfw/GLFW_VideoSystem.cpp

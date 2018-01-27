@@ -1,8 +1,8 @@
 #pragma once
 
-#include <glm\common.hpp>
-#include <glm\gtc\quaternion.hpp>
-#include <glm\gtc\matrix_transform.hpp>
+#include <glm/common.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "bitengine/Core/ECS/Component.h"
 

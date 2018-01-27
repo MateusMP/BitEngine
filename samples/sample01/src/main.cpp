@@ -2,8 +2,8 @@
 #include <string>
 
 #include <bitengine/bitengine.h>
-#include <bitengine/core/GameEnginePC.h>
-#include <bitengine/core/Resources/DevResourceLoader.h>
+#include <bitengine/Core/GameEnginePC.h>
+#include <bitengine/Core/Resources/DevResourceLoader.h>
 #include <bitengine/DefaultBackends/opengl/GL2/GL2Driver.h>
 #include <bitengine/DefaultBackends/glfw/GLFW_Platform.h>
 

@@ -52,6 +52,6 @@ class GLFW_VideoSystem : public BitEngine::VideoSystem
 
 		static void GLFW_ErrorCallback(int error, const char* description);
 		static void GlfwFrameResizeCallback(GLFWwindow* window, int width, int height);
-		
-		LOG_CLASS(BitEngine::EngineLog);
+
+		LOG_CLASS(GLFW_VideoSystem, BitEngine::EngineLog);
 };

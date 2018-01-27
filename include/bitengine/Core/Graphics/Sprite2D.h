@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm\common.hpp>
+#include <glm/common.hpp>
 
 #include "bitengine/Core/Graphics/VideoRenderer.h"
 #include "bitengine/Core/ECS/EntitySystem.h"

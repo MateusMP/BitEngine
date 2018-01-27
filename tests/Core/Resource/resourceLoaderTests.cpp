@@ -42,7 +42,7 @@ TEST(ResourceLoader, LoadMultipleResources)
 {
 	MockGameEngine mockGE;
 	MockResourceManager manager1, manager2;
-	DevResourceLoader devResourceLoader(&mockGE);
+	DevResourceLoader devResourceLoader(mockGE.getMessenger(), mockGE.getTaskManager());
 	ResourceLoader* resourceLoader = &devResourceLoader;;
 
 	EXPECT_CALL(manager1, setResourceLoader(&devResourceLoader));

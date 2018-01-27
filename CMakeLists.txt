@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.1.0)
 include (ExternalProject)
 project(BitEngine CXX)
 
+set(CMAKE_CXX_STANDARD 14)
+
 option(BITENGINE_BUILD_TESTS "Enable the test build" ON)
 option(BITENGINE_BUILD_SAMPLES "Build samples?" ON)
 option(BITENGINE_BACKEND_WITH_GLFW "Compile with GLFW backend" ON)

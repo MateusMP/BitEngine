@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm\glm.hpp>
-#include <glm\gtc\matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "bitengine/Core/ECS/Component.h"
 
@@ -10,7 +10,7 @@ namespace BitEngine{
 	class Camera3DComponent : public Component<Camera3DComponent>
 	{
         public:
-            
+
             enum ProjectionMode{
                 ORTHOGONAL = 1,
                 PERSPECTIVE,

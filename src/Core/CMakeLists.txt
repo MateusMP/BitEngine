@@ -9,7 +9,7 @@ set(HEADERS
 	../../include/bitengine/Common/MathUtils.h
 	../../include/bitengine/Common/TypeDefinition.h
 
-	../../include/bitengine/Core/Assert.h               
+	../../include/bitengine/Core/Assert.h
 	../../include/bitengine/Core/Graphics.h
 	../../include/bitengine/Core/Messenger.h
 	../../include/bitengine/Core/Task.h
@@ -78,8 +78,6 @@ set(SRCS ${SRCS}
 )
 
 message(STATUS "BITENGINE_INCLUDE_DIR='${BITENGINE_INCLUDE_DIR}'")
-
-set(CMAKE_CXX_STANDARD 11)
 
 # Create the bitengine lib
 add_library(bitengine ${SRCS} ${BITENGINE_INCLUDE_FILES} ${HEADERS})

@@ -85,11 +85,11 @@
  * To log using the LOG_CLASS logger call:
  * LOGCLASS(BE_LOG_TYPE) << "my log";
  */
-#define LOG_CLASS(output)														\
+#define LOG_CLASS(class, output)														\
 		private:																\
 			void __getselfclassfunc__(){};										\
 			static BitEngine::Logger& CL() {									\
-				static BitEngine::Logger _log(BitEngine::GetClassNameB(&__getselfclassfunc__), output);			\
+				static BitEngine::Logger _log(BitEngine::GetClassName<class>(), output);			\
 				return _log;													\
 			}
 
@@ -234,13 +234,10 @@ namespace BitEngine {
 
 			inline static std::string timeNowStr()
 			{
-				char buff[32];
-				tm sTm;
-
-				time_t now = std::chrono::system_clock::to_time_t(Time::currentTime());
-				localtime_s(&sTm, &now);
-				strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S ", &sTm);
-				return std::string(buff);
+                std::ostringstream a;
+                std::time_t time_now = std::time(nullptr);
+				a << std::put_time(std::localtime(&time_now), "%Y-%m-%d %H:%M:%S");
+				return a.str();
 			}
 	};
 

@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <typeindex>
+#include <cstring>
 
 #include "bitengine/Common/TypeDefinition.h"
 #include "bitengine/Core/GameEngine.h"

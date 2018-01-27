@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bitengine\bitengine.h>
+#include <bitengine/bitengine.h>
 
 #include "MyGameEntitySystem.h"
 
