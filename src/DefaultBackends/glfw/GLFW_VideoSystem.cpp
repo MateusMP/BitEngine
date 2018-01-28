@@ -38,7 +38,8 @@ bool GLFW_VideoSystem::init()
 
 void GLFW_VideoSystem::update()
 {
-	for (GLFWwindow *w : windowsOpen)
+    std::set<GLFWwindow*> tmp = windowsOpen;
+	for (GLFWwindow *w : tmp)
 	{
 		if (checkWindowClosed(w)) {
 

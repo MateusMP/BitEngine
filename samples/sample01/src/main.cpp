@@ -27,9 +27,7 @@ static GAME_UPDATE(gameUpdateTest)
 {
 	static MyGame game(gameMemory);
 
-	game.update();
-
-	return true;
+	return game.update();
 }
 
 void setupCommands(BitEngine::CommandSystem* cmdSys) {
@@ -51,11 +49,16 @@ class MyGamePlatform : public GLFW_Platform {
 		: GLFW_Platform(m)
 	{
 		subscribe<RenderEvent>(&MyGamePlatform::onMessage, this);
+        subscribe<GLFWWindowClosedMsg>(&MyGamePlatform::onMessage, this);
 	}
 
 	void init(BitEngine::EngineConfiguration& eg) {
 		GLFW_Platform::init(eg);
 	}
+
+    void onMessage(const GLFWWindowClosedMsg& msg) {
+        getMessenger()->emit<UserRequestQuitGame>({ GameQuitType::CLOSE_WINDOW });
+    }
 
 	void onMessage(const RenderEvent& ev)
 	{
@@ -86,85 +89,62 @@ class MyGamePlatform : public GLFW_Platform {
 	}
 };
 
+void gameExecute(MainMemory& gameMemory) {
+    
+    // Basic infrastructure
+    BitEngine::Messenger messenger;
+    BitEngine::EngineConfigurationFileLoader configurations("config.ini");
+    BitEngine::GeneralTaskManager taskManager(&messenger);
 
-class UpdateTask : public BitEngine::Task
-{
-	public:
-	UpdateTask(std::function<void()> s)
-		: Task(Task::TaskMode::REPEAT_ONCE_PER_FRAME_REQUIRED, Task::Affinity::MAIN), f(s) {}
 
-	void run()
-	{
-		f();
-	}
+    BitEngine::EngineConfiguration engineConfig;
+    configurations.loadConfigurations(engineConfig);
 
-	bool finished()
-	{
-		return false;
-	}
+    // Platform
+    MyGamePlatform glfwPlatform(&messenger);
+    glfwPlatform.init(engineConfig);
 
-	private:
-	std::function<void()> f;
-};
+    // Game Specific stuff
+    BitEngine::CommandSystem commandSystem(&messenger);
+
+    BitEngine::SpriteManager spriteManager;
+    BitEngine::GL2ShaderManager shaderManager(&taskManager);
+    BitEngine::GL2TextureManager textureManager(&taskManager);
+    gameMemory.spriteManager = &spriteManager;
+    gameMemory.shaderManager = &shaderManager;
+    gameMemory.textureManager = &textureManager;
+
+    // Setup game state
+    gameMemory.messenger = &messenger;
+    gameMemory.engineConfig = &engineConfig;
+    gameMemory.taskManager = &taskManager;
+
+    // TODO: Load game code
+    gameMemory.gameUpdate = &gameUpdateTest;
+
+    setupCommands(&commandSystem);
+
+    bool32 running = true;
+    while (running) {
+        glfwPlatform.input.update();
+        glfwPlatform.video.update();
+
+        running = gameMemory.gameUpdate(&gameMemory);
+
+        messenger.dispatch();
+    }
+}
 
 int main()
 {
-	LOG_FUNCTION_TIME(GameLog());
+    LOG_FUNCTION_TIME(GameLog());
 
-	GameMemory gameMemory = {};
-	gameMemory.memorySize = MEGABYTES(256);
-	gameMemory.memory = malloc(gameMemory.memorySize);
-	memset(gameMemory.memory, 0, gameMemory.memorySize);
-	
-	// Basic infrastructure
-	BitEngine::Messenger messenger;
-	BitEngine::EngineConfigurationFileLoader configurations("config.ini");
-	BitEngine::GeneralTaskManager taskManager(&messenger);
-	BitEngine::DevResourceLoader resourceLoader(&messenger, &taskManager);
-		
-	BitEngine::EngineConfiguration engineConfig;
-	configurations.loadConfigurations(engineConfig);
-	
-	// Platform
-	MyGamePlatform glfwPlatform(&messenger);
-	glfwPlatform.init(engineConfig);
-
-	// Game Specific stuff
-	BitEngine::CommandSystem commandSystem(&messenger);
-
-	BitEngine::SpriteManager spriteManager;
-	BitEngine::GL2ShaderManager shaderManager(&taskManager);
-	BitEngine::GL2TextureManager textureManager(&taskManager);
-
-	resourceLoader.registerResourceManager("SPRITE", &spriteManager);
-	resourceLoader.registerResourceManager("SHADER", &shaderManager);
-	resourceLoader.registerResourceManager("TEXTURE", &textureManager);
-	resourceLoader.init();
-	
-	// Setup game state
-	gameMemory.messenger = &messenger;
-	gameMemory.resources = &resourceLoader;
-	gameMemory.engineConfig = &engineConfig;
-	gameMemory.taskManager = &taskManager;
-		
-	// TODO: Load game code
-	gameMemory.gameUpdate = &gameUpdateTest;
-
-	setupCommands(&commandSystem);
-	
-	// Init resources
-	resourceLoader.loadIndex("data/main.idx");
-
-
-	taskManager.addTask(std::make_shared<UpdateTask>([&resourceLoader] {resourceLoader.update(); }));
-	
-	bool32 running = true;
-	while (running) {
-		glfwPlatform.input.update();
-
-		running = gameMemory.gameUpdate(&gameMemory);
-		messenger.dispatch();
-	}
+    MainMemory gameMemory = {};
+    gameMemory.memorySize = MEGABYTES(512);
+    gameMemory.memory = malloc(gameMemory.memorySize);
+    memset(gameMemory.memory, 0, gameMemory.memorySize);
+    
+    gameExecute(gameMemory);
 
 	free(gameMemory.memory);
 

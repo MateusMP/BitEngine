@@ -5,10 +5,10 @@
 
 extern BitEngine::Logger* GameLog();
 
-struct GameMemory;
+struct MainMemory;
 struct GameState;
 
-#define GAME_UPDATE(name) bool32 name(GameMemory* gameMemory)
+#define GAME_UPDATE(name) bool32 name(MainMemory* gameMemory)
 typedef GAME_UPDATE(GameUpdate);
 
 class MyGameEntitySystem;
@@ -37,19 +37,26 @@ enum TEST_COMMANDS {
 	end
 };
 
-struct GameMemory {
+
+enum GameQuitType {
+    CLOSE_WINDOW
+};
+
+// The game expect that all of these are initialized before the gameUpdate is called
+struct MainMemory {
 	
 	void* memory;
 	ptrsize memorySize;
 
 	GameUpdate* gameUpdate;
+
+	BitEngine::ResourceManager* spriteManager;
+	BitEngine::ResourceManager* shaderManager;
+	BitEngine::ResourceManager* textureManager;
 	
 	BitEngine::Messenger* messenger;
-	BitEngine::ResourceLoader *resources;
 	BitEngine::EngineConfiguration *engineConfig;
 	BitEngine::TaskManager* taskManager;
-
-
 };
 
 struct GameState {
@@ -57,6 +64,10 @@ struct GameState {
 	bool32 initialized;
 	bool32 running;
 
+	BitEngine::ResourceLoader *resources;
+
+	BitEngine::MemoryArena mainArena;
+	BitEngine::MemoryArena resourceArena;
 	BitEngine::MemoryArena permanentArena;
 	BitEngine::MemoryArena entityArena;
 
@@ -72,4 +83,8 @@ struct GameState {
 
 struct RenderEvent {
 	GameState* state;
+};
+
+struct UserRequestQuitGame {
+    GameQuitType quitType;
 };

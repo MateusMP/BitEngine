@@ -50,9 +50,9 @@ namespace BitEngine {
 		int getValueInt() const { return prop->getValueInt(); }
 		int getNumberOfProperties() const { return prop->getNumberOfProperties(); }
 
-		bool isValid() { return prop.get() != nullptr; }
+		bool isValid() { return prop != nullptr; }
 
 		private:
-		std::shared_ptr<ResourceProperty> prop;
+		ResourceProperty* prop;
 	};
 }

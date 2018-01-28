@@ -14,7 +14,6 @@ public:
 	void onMessage(const GLFWWindowClosedMsg& msg) {
 		if (m_currentWindow == msg.window) {
 			m_currentWindow = nullptr;
-			//getMessenger()->enqueue<UserQuitGame>(UserQuitGame());
 		}
 	}
 

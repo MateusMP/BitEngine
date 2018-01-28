@@ -33,6 +33,7 @@ int Shader3DSimple::Init()
 		return BE_NO_ERROR;
 	} else {
 		delete s;
+        return error;
 	}
 }
 

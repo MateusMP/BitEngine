@@ -47,8 +47,8 @@ void DevLoaderTask::run()
 
 //
 
-BitEngine::DevResourceLoader::DevResourceLoader(Messenger* msg, TaskManager* tm)
-	: ResourceLoader(msg), taskManager(tm)
+BitEngine::DevResourceLoader::DevResourceLoader(MemoryArena& memory, Messenger* msg, TaskManager* tm)
+	: memoryArena(memory), ResourceLoader(msg), taskManager(tm)
 {
 	resourceMeta.reserve(4096);
 	resourceMetaIndexes.reserve(8);
@@ -199,6 +199,10 @@ void BitEngine::DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOv
 	}
 	nlohmann::json::object_t& data = index->data["data"].get_ref<nlohmann::json::object_t&>();
 	
+#if BE_DEBUG
+	std::set<std::string> typesWithoutManager;
+#endif
+
 	for (auto &package : data)
 	{
 		for (auto &resource : package.second)
@@ -215,9 +219,12 @@ void BitEngine::DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOv
 				{
 					const std::string& type = property.second.get_ref<std::string&>();
 					tmpResMeta.type = type;
-					if (!isManagerForTypeAvailable(type)) {
+#if BE_DEBUG
+					if (!isManagerForTypeAvailable(type) && typesWithoutManager.find(type) == typesWithoutManager.end()) {
+						typesWithoutManager.emplace(type);
 						LOG(EngineLog, BE_LOG_WARNING) << "No resource manager for type " << type;
 					}
+#endif
 				}
 				else if (property.first == "filePath")
 				{
@@ -225,7 +232,8 @@ void BitEngine::DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOv
 				}
 				else
 				{
-					tmpResMeta.properties = ResourcePropertyContainer(new DevResourcePropertyRef(resource));
+                    DevResourcePropertyRef* ref = memoryArena.push<DevResourcePropertyRef>(resource);
+                    tmpResMeta.properties = ResourcePropertyContainer(ref);
 				}
 			}
 

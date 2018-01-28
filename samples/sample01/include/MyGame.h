@@ -4,16 +4,43 @@
 
 #include "MyGameSystem.h"
 
+class UpdateTask : public BitEngine::Task
+{
+	public:
+	UpdateTask(std::function<void()> s)
+		: Task(Task::TaskMode::REPEAT_ONCE_PER_FRAME_REQUIRED, Task::Affinity::MAIN), f(s) {}
+
+	void run()
+	{
+		f();
+	}
+
+	bool finished()
+	{
+		return false;
+	}
+
+	private:
+	std::function<void()> f;
+};
+
 class MyGame : public BitEngine::MessengerEndpoint
 {
 	public:
-	MyGame(GameMemory* gameMemory)
-		: MessengerEndpoint(gameMemory->messenger), gameMemory(gameMemory)
+	MyGame(MainMemory* gameMemory)
+		: MessengerEndpoint(gameMemory->messenger), gameMemory(gameMemory), running(false)
 	{
 		subscribe<BitEngine::Input::MsgKeyboardInput>(&MyGame::onMessage, this);
 		subscribe<BitEngine::CommandSystem::MsgCommandInput>(&MyGame::onMessage, this);
-
+        subscribe<UserRequestQuitGame>(&MyGame::onMessage, this);
+       		
 		gameState = (GameState*)gameMemory->memory;
+
+		// Create the main arena with all memory!
+		gameState->mainArena.init((u8*)gameMemory->memory + sizeof(GameState), gameMemory->memorySize - sizeof(GameState));
+		gameState->permanentArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(8)), MEGABYTES(8));
+		gameState->entityArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(64)), MEGABYTES(64));
+		gameState->resourceArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(256)), MEGABYTES(256));
 	}
 
 	~MyGame()
@@ -23,18 +50,19 @@ class MyGame : public BitEngine::MessengerEndpoint
 	bool init()
 	{
 		using namespace BitEngine;
-		BitEngine::ResourceLoader* loader = gameMemory->resources;
 
-		BE_ASSERT(loader->hasManagerForType("SHADER"));
-		BE_ASSERT(loader->hasManagerForType("SPRITE"));
-		BE_ASSERT(loader->hasManagerForType("TEXTURE"));
-		
 		MemoryArena& permanentArena = gameState->permanentArena;
+	
+		gameState->resources = permanentArena.push<DevResourceLoader>(gameState->resourceArena, gameMemory->messenger, gameMemory->taskManager);
+		ResourceLoader* loader = gameState->resources;
+		loader->registerResourceManager("SPRITE", gameMemory->spriteManager);
+		loader->registerResourceManager("SHADER", gameMemory->shaderManager);
+		loader->registerResourceManager("TEXTURE", gameMemory->textureManager);
+		loader->init();
+		loader->loadIndex("data/main.idx");
 
-		// Alloc memory
-		permanentArena.init((u8*)gameMemory->memory + sizeof(GameState), MEGABYTES(8));
-		gameState->entityArena.init(gameState->permanentArena.endPtr(), MEGABYTES(64));
-			
+		gameMemory->taskManager->addTask(std::make_shared<UpdateTask>([loader] {loader->update(); }));
+				
 		// Init game state stuff
 		gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, gameMemory->messenger, &gameState->entityArena);
 		gameState->entitySystem->Init();
@@ -90,32 +118,40 @@ class MyGame : public BitEngine::MessengerEndpoint
 
 		gameState->m_world->Start();
 
+        running = true;
 		return true;
 	}
 
-	void update()
+	bool32 update()
 	{
 		if (!gameState->initialized) {
-			// Init stuff
 			init();
 			gameState->initialized = true;
 		}
-		
+        		
 		gameState->entitySystem->Update();
 
 		gameMemory->taskManager->update();
 
 		// Render
-			
-		getMessenger()->emit<RenderEvent>(RenderEvent{ gameState });
+		
+        if (running) {
+            getMessenger()->emit<RenderEvent>(RenderEvent{ gameState });
+        }
+
+        return running;
 	}
+
+    void onMessage(const UserRequestQuitGame& msg) {
+        running = false;
+    }
 
 	void onMessage(const BitEngine::Input::MsgKeyboardInput& msg)
 	{
 		if (msg.key == GLFW_KEY_R && msg.keyAction == BitEngine::Input::KeyAction::PRESS && msg.keyMod == BitEngine::Input::KeyMod::CTRL_SHIFT)
 		{
 			LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Reloading index";
-			gameMemory->resources->loadIndex("data/main.idx");
+			gameState->resources->loadIndex("data/main.idx");
 		}
 	}
 
@@ -124,10 +160,10 @@ class MyGame : public BitEngine::MessengerEndpoint
 		LOG(GameLog(), BE_LOG_VERBOSE) << "Command: " << msg.commandID;
 		if (msg.commandID == RELOAD_SHADERS) {
 
-			BitEngine::RR<BitEngine::Texture> texture = gameMemory->resources->getResource<BitEngine::Texture>("data/sprites/texture.png");
-			gameMemory->resources->reloadResource(texture);
-			BitEngine::RR<BitEngine::Texture> texture2 = gameMemory->resources->getResource<BitEngine::Texture>("data/sprites/sun.png");
-			gameMemory->resources->reloadResource(texture2);
+			BitEngine::RR<BitEngine::Texture> texture = gameState->resources->getResource<BitEngine::Texture>("data/sprites/texture.png");
+			gameState->resources->reloadResource(texture);
+			BitEngine::RR<BitEngine::Texture> texture2 = gameState->resources->getResource<BitEngine::Texture>("data/sprites/sun.png");
+			gameState->resources->reloadResource(texture2);
 		}
 	}
 
@@ -137,9 +173,9 @@ class MyGame : public BitEngine::MessengerEndpoint
 	}
 
 	private:
-	GameMemory* gameMemory;
+	MainMemory* gameMemory;
 	GameState* gameState;
-
+    bool32 running;
 };
 
 

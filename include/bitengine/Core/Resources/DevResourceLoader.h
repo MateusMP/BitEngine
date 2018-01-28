@@ -4,6 +4,7 @@
 
 #include "bitengine/Core/Resources/ResourceManager.h"
 #include "bitengine/Core/Task.h"
+#include "bitengine/Core/Memory.h"
 
 #include "json.hpp"
 
@@ -84,7 +85,7 @@ namespace BitEngine
 			static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
 
 
-			DevResourceLoader(Messenger* ge, TaskManager* taskManager);
+			DevResourceLoader(MemoryArena& memoryArena,  Messenger* ge, TaskManager* taskManager);
 			~DevResourceLoader();
 
 			bool init() override;
@@ -141,6 +142,8 @@ namespace BitEngine
 			std::unordered_map<std::string, u32> byName;
 
 			TaskManager* taskManager;
+
+			MemoryArena& memoryArena;
 	};
 
 }

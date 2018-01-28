@@ -14,11 +14,11 @@ namespace BitEngine {
 		}
 
 		template<typename T, typename ... Args>
-		T* push(Args... args) {			
+		T* push(Args &&... args) {			
 			T* ptr = (T*) alloc(sizeof(T));
 
 			// Initialize type
-			new (ptr) T(std::forward<Args>(args)...);
+			new (ptr) T(std::forward<Args&&>(args)...);
 
 			return ptr;
 		}
@@ -41,7 +41,6 @@ namespace BitEngine {
 			return base + size;
 		}
 
-		private:
 		void* alloc(ptrsize allocSize) {
 			BE_ASSERT(used + allocSize < size);
 
