@@ -31,6 +31,8 @@ namespace BitEngine{
 
 		virtual void update() override;
 
+        virtual void shutdown() override;
+
 		void setResourceLoader(ResourceLoader* loader) override {
 			resourceLoader = loader;
 		}

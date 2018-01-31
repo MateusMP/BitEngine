@@ -36,6 +36,13 @@ namespace BitEngine{
 		}
 	}
 
+    void SpriteManager::shutdown()
+    {
+        for (Sprite& sprite : sprites.getResources()) {
+            sprite.release();
+        }
+    }
+
 	void SpriteManager::update()
 	{
 	}

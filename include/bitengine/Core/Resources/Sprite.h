@@ -12,7 +12,7 @@ namespace BitEngine{
 	
 	typedef unsigned short SpriteHandle;
 
-	class Sprite : public BaseResource
+	class Sprite final : public BaseResource
 	{
 		public:
 			Sprite()
@@ -28,6 +28,10 @@ namespace BitEngine{
 			{
 				calculateMaxRadius();
 			}
+
+            void release() {
+                m_textureID.invalidate();
+            }
 
 			float getMaxRadius() const {
 				return m_maxRadius;

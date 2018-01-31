@@ -348,6 +348,12 @@ namespace BitEngine {
 			return resource;
 		}
 
+        void invalidate() {
+            decRef();
+            resource = nullptr;
+            loader = nullptr;
+        }
+
 	private:
 		void incRef() {
 			if (resource == nullptr) return;

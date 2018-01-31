@@ -236,8 +236,15 @@ namespace BitEngine {
 			{
                 std::ostringstream a;
                 std::time_t time_now = std::time(nullptr);
-				a << std::put_time(std::localtime(&time_now), "%Y-%m-%d %H:%M:%S");
-				return a.str();
+#ifdef _WIN32
+                std::tm t;
+                localtime_s(&t, &time_now);
+                a << std::put_time(&t, "%Y-%m-%d %H:%M:%S");
+#else
+                auto t = std::localtime(&time_now);
+                a << std::put_time(t, "%Y-%m-%d %H:%M:%S");
+#endif
+                return a.str();
 			}
 	};
 

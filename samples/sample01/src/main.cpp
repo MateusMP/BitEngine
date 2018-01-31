@@ -16,19 +16,16 @@
 #include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
 #endif
 
+GAME_UPDATE(gameUpdateTest) {
+    return game->update();
+}
+
 BitEngine::Logger* GameLog()
 {
 	static BitEngine::Logger log("GameLog", BitEngine::EngineLog);
 	return &log;
 }
 
-//
-static GAME_UPDATE(gameUpdateTest) 
-{
-	static MyGame game(gameMemory);
-
-	return game.update();
-}
 
 void setupCommands(BitEngine::CommandSystem* cmdSys) {
 	cmdSys->registerKeyCommandForAllMods(RIGHT, GAMEPLAY, GLFW_KEY_RIGHT);
@@ -107,29 +104,31 @@ void gameExecute(MainMemory& gameMemory) {
     // Game Specific stuff
     BitEngine::CommandSystem commandSystem(&messenger);
 
-    BitEngine::SpriteManager spriteManager;
     BitEngine::GL2ShaderManager shaderManager(&taskManager);
     BitEngine::GL2TextureManager textureManager(&taskManager);
-    gameMemory.spriteManager = &spriteManager;
+    BitEngine::SpriteManager spriteManager;
     gameMemory.shaderManager = &shaderManager;
     gameMemory.textureManager = &textureManager;
+    gameMemory.spriteManager = &spriteManager;
 
     // Setup game state
     gameMemory.messenger = &messenger;
     gameMemory.engineConfig = &engineConfig;
     gameMemory.taskManager = &taskManager;
+    
+    setupCommands(&commandSystem);
+
+    MyGame game(&gameMemory);
 
     // TODO: Load game code
     gameMemory.gameUpdate = &gameUpdateTest;
-
-    setupCommands(&commandSystem);
 
     bool32 running = true;
     while (running) {
         glfwPlatform.input.update();
         glfwPlatform.video.update();
 
-        running = gameMemory.gameUpdate(&gameMemory);
+        running = gameMemory.gameUpdate(&game);
 
         messenger.dispatch();
     }

@@ -41,7 +41,7 @@ class EntitySystem : public BaseEntitySystem
 			return initOk;
 		}
 
-		void Shutdown()
+		void shutdown()
 		{
 			for (ComponentProcessor* p : m_processors)
 			{

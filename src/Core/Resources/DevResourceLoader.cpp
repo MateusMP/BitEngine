@@ -78,6 +78,12 @@ void BitEngine::DevResourceLoader::update()
 
 void BitEngine::DevResourceLoader::shutdown()
 {
+    for (ResourceManager* m : managers) {
+        m->shutdown();
+    }
+    managers.clear();
+    managersMap.clear();
+    byName.clear();
 }
 
 void BitEngine::DevResourceLoader::registerResourceManager(const std::string& resourceType, ResourceManager* manager)

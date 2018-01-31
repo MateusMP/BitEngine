@@ -55,9 +55,9 @@ class MyGame : public BitEngine::MessengerEndpoint
 	
 		gameState->resources = permanentArena.push<DevResourceLoader>(gameState->resourceArena, gameMemory->messenger, gameMemory->taskManager);
 		ResourceLoader* loader = gameState->resources;
-		loader->registerResourceManager("SPRITE", gameMemory->spriteManager);
 		loader->registerResourceManager("SHADER", gameMemory->shaderManager);
 		loader->registerResourceManager("TEXTURE", gameMemory->textureManager);
+		loader->registerResourceManager("SPRITE", gameMemory->spriteManager);
 		loader->init();
 		loader->loadIndex("data/main.idx");
 
@@ -68,10 +68,10 @@ class MyGame : public BitEngine::MessengerEndpoint
 		gameState->entitySystem->Init();
 
 		gameState->m_userGUI = permanentArena.push<UserGUI>(gameState->entitySystem);
-		gameState->m_world = permanentArena.push<OverWorld>(gameState->entitySystem);
+		gameState->m_world = permanentArena.push<GameWorld>(gameState->entitySystem);
 
 		gameState->selfPlayer = permanentArena.push<Player>("nick_here", 0);
-		gameState->m_world->AddPlayer(gameState->selfPlayer);
+		gameState->m_world->addPlayer(gameState->selfPlayer);
 		
 		// Tests
 		const RR<Texture> texture = loader->getResource<BitEngine::Texture>("data/sprites/texture.png");
@@ -116,11 +116,16 @@ class MyGame : public BitEngine::MessengerEndpoint
 
 		//check_gl_error();
 
-		gameState->m_world->Start();
+		gameState->m_world->start();
 
         running = true;
-		return true;
+        return true;
 	}
+
+    void shutdown() {
+        gameState->entitySystem->shutdown();
+        gameState->resources->shutdown();
+    }
 
 	bool32 update()
 	{
@@ -137,6 +142,8 @@ class MyGame : public BitEngine::MessengerEndpoint
 		
         if (running) {
             getMessenger()->emit<RenderEvent>(RenderEvent{ gameState });
+        } else {
+            shutdown();
         }
 
         return running;

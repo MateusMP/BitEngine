@@ -86,6 +86,8 @@ namespace BitEngine
 			// Load textures that are ready to be sent to the GPU
 			void update() override;
 
+            void shutdown() override;
+
 			void setResourceLoader(ResourceLoader* loader) override {
 				this->loader = loader;
 			}

@@ -30,6 +30,9 @@ namespace BitEngine {
 			virtual bool init() = 0;
 			virtual void update() = 0;
 
+            // Should release ALL resources
+            virtual void shutdown() = 0;
+
 			virtual void setResourceLoader(ResourceLoader* loader) = 0;
 			virtual BaseResource* loadResource(ResourceMeta* meta) = 0;
 			

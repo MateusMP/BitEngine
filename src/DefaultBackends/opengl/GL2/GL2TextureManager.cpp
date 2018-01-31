@@ -143,6 +143,13 @@ namespace BitEngine {
 		return true;
 	}
 
+    void GL2TextureManager::shutdown()
+    {
+        for (GL2Texture& texture : textures.getResources()) {
+            releaseDriverData(&texture);
+        }
+    }
+
 	void GL2TextureManager::releaseDriverData(GL2Texture* texture)
 	{
 		if (texture->m_loaded ==  GL2Texture::TextureLoadState::LOADED)

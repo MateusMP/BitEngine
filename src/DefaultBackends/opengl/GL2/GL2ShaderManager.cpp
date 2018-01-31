@@ -72,6 +72,12 @@ namespace BitEngine {
 		return true;
 	}
 
+    void GL2ShaderManager::shutdown() {
+        for (GL2Shader& s : shaders.getResources()) {
+            s.releaseShader();
+        }
+    }
+
 	void GL2ShaderManager::update()
 	{
 		GL2Shader* shader;

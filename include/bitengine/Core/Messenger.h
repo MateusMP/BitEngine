@@ -228,7 +228,7 @@ namespace BitEngine {
 				: m_messenger(m)
 			{}
 
-			~MessengerEndpoint() {
+			virtual ~MessengerEndpoint() {
 				unsubscribeAll();
 			}
 

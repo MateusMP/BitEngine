@@ -7,8 +7,9 @@ extern BitEngine::Logger* GameLog();
 
 struct MainMemory;
 struct GameState;
+class MyGame;
 
-#define GAME_UPDATE(name) bool32 name(MainMemory* gameMemory)
+#define GAME_UPDATE(name) bool32 name(MyGame* game)
 typedef GAME_UPDATE(GameUpdate);
 
 class MyGameEntitySystem;
@@ -50,9 +51,9 @@ struct MainMemory {
 
 	GameUpdate* gameUpdate;
 
-	BitEngine::ResourceManager* spriteManager;
 	BitEngine::ResourceManager* shaderManager;
 	BitEngine::ResourceManager* textureManager;
+	BitEngine::ResourceManager* spriteManager;
 	
 	BitEngine::Messenger* messenger;
 	BitEngine::EngineConfiguration *engineConfig;

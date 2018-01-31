@@ -20,6 +20,8 @@ namespace BitEngine {
 
 		void update() override;
 
+        void shutdown() override;
+
 		void setResourceLoader(ResourceLoader* loader) override {
 			this->loader = loader;
 		}
