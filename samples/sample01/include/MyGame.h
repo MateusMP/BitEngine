@@ -134,7 +134,7 @@ class MyGame : public BitEngine::MessengerEndpoint
 			gameState->initialized = true;
 		}
         		
-		gameState->entitySystem->Update();
+		gameState->entitySystem->update();
 
 		gameMemory->taskManager->update();
 

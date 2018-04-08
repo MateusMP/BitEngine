@@ -2,7 +2,7 @@
 #include <string>
 
 #include <bitengine/bitengine.h>
-#include <bitengine/Core/GameEnginePC.h>
+#include <bitengine/Core/GeneralTaskManager.h>
 #include <bitengine/Core/Resources/DevResourceLoader.h>
 #include <bitengine/DefaultBackends/opengl/GL2/GL2Driver.h>
 #include <bitengine/DefaultBackends/glfw/GLFW_Platform.h>
@@ -132,6 +132,8 @@ void gameExecute(MainMemory& gameMemory) {
 
         messenger.dispatch();
     }
+
+    taskManager.shutdown();
 }
 
 int main()

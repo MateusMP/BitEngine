@@ -92,7 +92,7 @@ class EntitySystem : public BaseEntitySystem
 			return true;
 		}
 
-		void Update()
+		void update()
 		{
 			int finish = 0;
 			size_t lasts[4] = { 0,0,0,0 };

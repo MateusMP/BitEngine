@@ -97,7 +97,6 @@ namespace BitEngine{
 	{
 		mainThread = std::this_thread::get_id();
 		LOG(EngineLog, BE_LOG_INFO) << "Main thread: " << mainThread;
-		mainloop = true;
 		requiredTasksFrame = 0;
 		finishedRequiredTasks = 0;
 		init();
@@ -124,22 +123,18 @@ namespace BitEngine{
 
 	void GeneralTaskManager::update()
 	{
-		while (mainloop)
+		getMessenger()->emit(MsgFrameStart());
+
+		while (finishedRequiredTasks != requiredTasksFrame)
 		{
-			getMessenger()->emit(MsgFrameStart());
-
-			while (finishedRequiredTasks != requiredTasksFrame)
-			{
-				executeMain();
-			}
-
-			getMessenger()->emit(MsgFrameEnd());
-
-			prepareNextFrame();
-
-			Time::Tick();
-			mainloop = false; // TODO: remove mainloop
+			executeMain();
 		}
+
+		getMessenger()->emit(MsgFrameEnd());
+
+		prepareNextFrame();
+
+		Time::Tick();
 	}
 
 	void GeneralTaskManager::prepareNextFrame()
@@ -162,6 +157,11 @@ namespace BitEngine{
 
 	void GeneralTaskManager::shutdown()
 	{
+        for (TaskWorker* tw : workers)
+        {
+            tw->stop();
+        }
+
 		for (TaskWorker* tw : workers)
 		{
 			tw->wait();
@@ -169,16 +169,6 @@ namespace BitEngine{
 		}
 
 		workers.clear();
-	}
-
-	void GeneralTaskManager::stop()
-	{
-		mainloop = false;
-
-		for (TaskWorker* tw : workers)
-		{
-			tw->stop();
-		}
 	}
 
 	void GeneralTaskManager::addTask(TaskPtr task)

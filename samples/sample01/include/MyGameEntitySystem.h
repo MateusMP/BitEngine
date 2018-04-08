@@ -4,6 +4,10 @@
 
 #include <bitengine/Core/ResourceSystem.h>
 #include <bitengine/Core/Graphics/Sprite2D.h>
+#include <bitengine/Core/ECS/Camera2DProcessor.h>
+#include <bitengine/Core/ECS/Camera3DProcessor.h>
+#include <bitengine/Core/ECS/RenderableMeshProcessor.h>
+#include <bitengine/Core/ECS/GameLogicProcessor.h>
 
 #include "Graphics/Shader3DProcessor.h"
 

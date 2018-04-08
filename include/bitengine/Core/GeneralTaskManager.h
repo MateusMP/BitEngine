@@ -22,11 +22,12 @@ namespace BitEngine {
 			void stop() {
 				working = false;
 			}
-
-			void wait();
-
+            
 			// Return true if did some work on a task
-			void work();
+            void work();
+
+            // Wait thread to finish
+            void wait();
 
 		private:
 			TaskPtr nextTask();
@@ -50,7 +51,6 @@ namespace BitEngine {
 
 			void init() override;
 			void update() override;
-			void stop() override;
 			void shutdown() override;
 
 
@@ -63,7 +63,6 @@ namespace BitEngine {
 			friend class TaskWorker;
 			TaskWorker* getWorker(u32 index);
 			void prepareNextFrame();
-			bool taskReadyToRun(TaskPtr task);
 
 			void executeMain();
 			void executeWorkersWork(int i);
@@ -83,7 +82,5 @@ namespace BitEngine {
 			std::thread::id mainThread;
 
 			u32 finishedRequiredTasks;
-
-			bool mainloop;
 	};
 }

@@ -127,9 +127,9 @@ GLFWwindow* GLFW_VideoSystem::createGLFWWindow(const WindowConfiguration& wndCon
 	glfwWindowHint(GLFW_DEPTH_BITS, wndConf.m_DepthBits);
 	glfwWindowHint(GLFW_STENCIL_BITS, wndConf.m_StencilBits);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWmonitor* monitor = nullptr;
 	if (wndConf.m_FullScreen) {

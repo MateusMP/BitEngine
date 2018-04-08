@@ -27,7 +27,6 @@ set(HEADERS
 	../../include/bitengine/Core/Math.h         
 	../../include/bitengine/Core/ResourceSystem.h       
 	../../include/bitengine/Core/Window.h
-	../../include/bitengine/Core/GameEnginePC.h         
 	../../include/bitengine/Core/Memory.h       
 	../../include/bitengine/Core/Signal.h
 	../../include/bitengine/Core/GeneralTaskManager.h   
@@ -39,7 +38,6 @@ set(HEADERS
 set(SRCS
 	CommandSystem.cpp
 	EngineConfiguration.cpp
-	GameEnginePC.cpp
 	GeneralTaskManager.cpp
     Input.cpp
 	Logger.cpp

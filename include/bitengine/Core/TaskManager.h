@@ -20,7 +20,6 @@ namespace BitEngine{
 
 			virtual void init() = 0;
 			virtual void update() = 0;
-			virtual void stop() = 0;
 			virtual void shutdown() = 0;
 
 			virtual void addTask(std::shared_ptr<Task> task) = 0;

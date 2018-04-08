@@ -5,6 +5,7 @@
 #include <bitengine/Core/GameEngine.h>
 #include <bitengine/Core/Graphics/Sprite2D.h>
 #include <bitengine/Core/ECS/EntitySystem.h>
+#include <bitengine/Core/ECS/Transform3DProcessor.h>
 
 #include "Graphics/Shader3DSimple.h"
 
