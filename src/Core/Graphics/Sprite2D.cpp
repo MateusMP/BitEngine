@@ -38,9 +38,10 @@ namespace BitEngine {
 		sprite_materials[2].setBlendEquation(BlendEquation::ADD);
 		sprite_materials[2].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
 
-		shader = resourceLoader->getResource<Shader>("data/shaders/sprite2D");
+		const char* SPRITE_2D_SHADER_PATH = "data/shaders/sprite2D";
+		shader = resourceLoader->getResource<Shader>(SPRITE_2D_SHADER_PATH);
 		if (!shader.isValid()) {
-			LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load sprite 2D shader";
+			LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load sprite 2D shader: " << SPRITE_2D_SHADER_PATH;
 			return false;
 		}
 

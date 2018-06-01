@@ -23,6 +23,7 @@ class MockResourceManager : public ResourceManager {
 	public:
 		MOCK_METHOD0(init, bool());
 		MOCK_METHOD0(update, void());
+		MOCK_METHOD0(shutdown, void());
 		MOCK_METHOD1(setResourceLoader, void (ResourceLoader* loader));
 		MOCK_METHOD1(loadResource, BaseResource*(ResourceMeta* meta));
 		MOCK_METHOD1(resourceNotInUse,  void(ResourceMeta* meta));
@@ -40,9 +41,14 @@ class MockResourceType1 : public BitEngine::BaseResource {
 
 TEST(ResourceLoader, LoadMultipleResources)
 {
+	u8 memory[1024*32];
 	MockGameEngine mockGE;
 	MockResourceManager manager1, manager2;
-	DevResourceLoader devResourceLoader(mockGE.getMessenger(), mockGE.getTaskManager());
+	MemoryArena memoryArena;
+
+	memoryArena.init(memory, sizeof(memory));
+
+	DevResourceLoader devResourceLoader(memoryArena, mockGE.getMessenger(), mockGE.getTaskManager());
 	ResourceLoader* resourceLoader = &devResourceLoader;;
 
 	EXPECT_CALL(manager1, setResourceLoader(&devResourceLoader));
