@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include "bitengine/DefaultBackends/opengl/ShaderProgram.h"
+#include "bitengine/Platform/opengl/ShaderProgram.h"
 
 #include "bitengine/Core/Logger.h"
 

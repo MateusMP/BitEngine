@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bitengine/DefaultBackends/glfw/GLFW_InputSystem.h"
-#include "bitengine/DefaultBackends/glfw/GLFW_VideoSystem.h"
+#include "bitengine/Platform/glfw/GLFW_InputSystem.h"
+#include "bitengine/Platform/glfw/GLFW_VideoSystem.h"
 
 class GLFW_Platform : public BitEngine::MessengerEndpoint {
 public:

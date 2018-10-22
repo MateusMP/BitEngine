@@ -3,10 +3,10 @@
 #include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/Graphics/VideoDriver.h"
 
-#include "bitengine/DefaultBackends/opengl/GL2/OpenGL2.h"
-#include "bitengine/DefaultBackends/opengl/GL2/GL2Impl.h"
-#include "bitengine/DefaultBackends/opengl/GL2/GL2ShaderManager.h"
-#include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
+#include "bitengine/Platform/opengl/GL2/OpenGL2.h"
+#include "bitengine/Platform/opengl/GL2/GL2Impl.h"
+#include "bitengine/Platform/opengl/GL2/GL2ShaderManager.h"
+#include "bitengine/Platform/opengl/GL2/GL2TextureManager.h"
 
 BitEngine::VideoDriver::VideoDriver() {
 }

@@ -1,6 +1,6 @@
 #include <string>
 
-#include "bitengine/DefaultBackends/opengl/OpenGL.h"
+#include "bitengine/Platform/opengl/OpenGL.h"
 
 void _check_gl_error(const char *file, int line)
 {

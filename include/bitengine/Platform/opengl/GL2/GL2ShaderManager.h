@@ -4,8 +4,8 @@
 
 #include "bitengine/Common/ThreadSafeQueue.h"
 
-#include "bitengine/DefaultBackends/opengl/GL2/OpenGL2.h"
-#include "bitengine/DefaultBackends/opengl/GL2/GL2Shader.h"
+#include "bitengine/Platform/opengl/GL2/OpenGL2.h"
+#include "bitengine/Platform/opengl/GL2/GL2Shader.h"
 
 namespace BitEngine {
 

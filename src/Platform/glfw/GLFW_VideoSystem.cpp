@@ -1,5 +1,5 @@
 
-#include "bitengine/DefaultBackends/glfw/GLFW_VideoSystem.h"
+#include "bitengine/Platform/glfw/GLFW_VideoSystem.h"
 
 #include "bitengine/Core/Graphics/Material.h"
 #include "bitengine/Core/Window.h"

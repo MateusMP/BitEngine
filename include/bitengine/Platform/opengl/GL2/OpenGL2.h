@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bitengine/DefaultBackends/opengl/OpenGL_Headers.h"
+#include "bitengine/Platform/opengl/OpenGL_Headers.h"
 
 namespace BitEngine {
 

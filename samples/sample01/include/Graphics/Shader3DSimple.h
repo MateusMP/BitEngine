@@ -11,9 +11,9 @@
 
 #include <bitengine/bitengine.h>
 #include <bitengine/Core/Logger.h>
-#include <bitengine/DefaultBackends/opengl/OpenGL.h>
-#include <bitengine/DefaultBackends/opengl/VertexArrayObject.h>
-#include <bitengine/DefaultBackends/opengl/ShaderProgram.h>
+#include <bitengine/Platform/opengl/OpenGL.h>
+#include <bitengine/Platform/opengl/VertexArrayObject.h>
+#include <bitengine/Platform/opengl/ShaderProgram.h>
 
 
 // GL4/3

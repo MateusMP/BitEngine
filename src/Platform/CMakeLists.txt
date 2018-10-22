@@ -8,10 +8,10 @@ if (BITENGINE_BACKEND_WITH_GLFW)
         glfw/GLFW_VideoSystem.cpp
     )
 	set (HEADERS
-		../../include/bitengine/DefaultBackends/glfw/GLFW_Headers.h
-		../../include/bitengine/DefaultBackends/glfw/GLFW_InputSystem.h
-		../../include/bitengine/DefaultBackends/glfw/GLFW_Platform.h
-		../../include/bitengine/DefaultBackends/glfw/GLFW_VideoSystem.h
+		../../include/bitengine/Platform/glfw/GLFW_Headers.h
+		../../include/bitengine/Platform/glfw/GLFW_InputSystem.h
+		../../include/bitengine/Platform/glfw/GLFW_Platform.h
+		../../include/bitengine/Platform/glfw/GLFW_VideoSystem.h
 	)
 
     add_library(backend-glfw STATIC ${SRCS} ${HEADERS})

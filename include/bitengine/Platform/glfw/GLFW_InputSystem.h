@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bitengine/Core/InputSystem.h"
-#include "bitengine/DefaultBackends/glfw/GLFW_Headers.h"
+#include "bitengine/Platform/glfw/GLFW_Headers.h"
 
 class GLFW_InputSystem : public BitEngine::InputSystem
 {

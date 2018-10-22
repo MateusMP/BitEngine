@@ -1,7 +1,7 @@
 #include <unordered_map>
 
-#include "bitengine/DefaultBackends/glfw/GLFW_InputSystem.h"
-#include "bitengine/DefaultBackends/glfw/GLFW_VideoSystem.h"
+#include "bitengine/Platform/glfw/GLFW_InputSystem.h"
+#include "bitengine/Platform/glfw/GLFW_VideoSystem.h"
 
 void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods);

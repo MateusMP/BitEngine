@@ -4,16 +4,16 @@
 #include <bitengine/bitengine.h>
 #include <bitengine/Core/GeneralTaskManager.h>
 #include <bitengine/Core/Resources/DevResourceLoader.h>
-#include <bitengine/DefaultBackends/opengl/GL2/GL2Driver.h>
-#include <bitengine/DefaultBackends/glfw/GLFW_Platform.h>
+#include <bitengine/Platform/opengl/GL2/GL2Driver.h>
+#include <bitengine/Platform/glfw/GLFW_Platform.h>
 
 #include "Common/GameGlobal.h"
 #include "MyGame.h"
 
 #define GL2_API
 #ifdef GL2_API
-#include "bitengine/DefaultBackends/opengl/GL2/GL2ShaderManager.h"
-#include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
+#include "bitengine/Platform/opengl/GL2/GL2ShaderManager.h"
+#include "bitengine/Platform/opengl/GL2/GL2TextureManager.h"
 #endif
 
 GAME_UPDATE(gameUpdateTest) {
@@ -136,8 +136,9 @@ void gameExecute(MainMemory& gameMemory) {
     taskManager.shutdown();
 }
 
-int main()
+int main(int argc, const char* argv[])
 {
+    BitEngine::LoggerSetup::Setup(argc, argv);
     LOG_FUNCTION_TIME(GameLog());
 
     MainMemory gameMemory = {};

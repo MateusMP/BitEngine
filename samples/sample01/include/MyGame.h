@@ -53,8 +53,8 @@ class MyGame : public BitEngine::MessengerEndpoint
 
 		MemoryArena& permanentArena = gameState->permanentArena;
 	
-		gameState->resources = permanentArena.push<DevResourceLoader>(gameState->resourceArena, gameMemory->messenger, gameMemory->taskManager);
-		ResourceLoader* loader = gameState->resources;
+        ResourceLoader* loader = permanentArena.push<DevResourceLoader>(gameState->resourceArena, gameMemory->messenger, gameMemory->taskManager);
+		gameState->resources = loader;
 		loader->registerResourceManager("SHADER", gameMemory->shaderManager);
 		loader->registerResourceManager("TEXTURE", gameMemory->textureManager);
 		loader->registerResourceManager("SPRITE", gameMemory->spriteManager);
@@ -108,7 +108,7 @@ class MyGame : public BitEngine::MessengerEndpoint
 			ADD_COMPONENT_ERROR(spriteComp = es->AddComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, BitEngine::Sprite2DRenderer::EFFECT_SPRITE));
 			ADD_COMPONENT_ERROR(sceneComp = es->AddComponent<BitEngine::SceneTransform2DComponent>(h));
 			ADD_COMPONENT_ERROR(logicComp = es->AddComponent<BitEngine::GameLogicComponent>(h));
-			logicComp->addLogicPiece(new Spinner(getMessenger()));
+            ADD_COMPONENT_ERROR(es->AddComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
 
 			transformComp->setLocalPosition(i * 128 + 125, 500);
 			spriteComp->alpha = 1.0;

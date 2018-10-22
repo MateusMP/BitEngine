@@ -18,6 +18,46 @@
 			LOG(GameLog(), BE_LOG_ERROR) << "ADD COMPONENT FAILED FOR: " #x;	\
 		abort();}
 
+class SpinnerComponent : public BitEngine::Component<SpinnerComponent>
+{
+    public:
+    SpinnerComponent() {
+
+    }
+    SpinnerComponent(float _speed) : speed(_speed) {
+
+    }
+
+    float speed;
+};
+
+class SpinnerSystem : public BitEngine::ComponentProcessor
+{
+    public:
+    SpinnerSystem(BitEngine::Messenger* m) : BitEngine::ComponentProcessor(m){
+
+    }
+    ~SpinnerSystem(){}
+
+    /// Processor
+    bool Init() override {
+        return true;
+    }
+    void Stop() override {
+
+    }
+
+    void FrameMiddle()
+    {
+        using namespace BitEngine;
+        getES()->forEach<Transform2DComponent, SpinnerComponent>(
+            [=](ComponentRef<Transform2DComponent>& transform, const ComponentRef<SpinnerComponent>& spinner)
+        {
+            transform->setLocalRotation(transform->getLocalRotation() + spinner->speed);
+        });
+    }
+};
+
 class MyGameEntitySystem : public BitEngine::EntitySystem
 {
 public:
@@ -26,7 +66,8 @@ public:
 		t2p(messenger), t3p(messenger), 
 		cam2Dprocessor(&t2p), cam3Dprocessor(&t3p),
 		rmp(messenger),
-		glp(messenger), spr2D(messenger, loader)
+		glp(messenger), spr2D(messenger, loader),
+        spinnerSys(messenger)
 		//sh3D(&t3p)
 	{
 		using namespace BitEngine;
@@ -40,11 +81,14 @@ public:
 		RegisterComponent<RenderableMeshComponent>();
 		RegisterComponent<Sprite2DComponent>();
 		RegisterComponent<SceneTransform2DComponent>();
+        RegisterComponent<SpinnerComponent>();
 
 		/// Pipeline 0
 		RegisterComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameStart);
 
 		RegisterComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameMiddle);
+
+        RegisterComponentProcessor(0, &spinnerSys, (ComponentProcessor::processFunc)&SpinnerSystem::FrameMiddle);
 
 		RegisterComponentProcessor(0, &t2p, (ComponentProcessor::processFunc)&Transform2DProcessor::Process);
 		RegisterComponentProcessor(0, &t3p, (ComponentProcessor::processFunc)&Transform3DProcessor::Process);
@@ -63,6 +107,7 @@ public:
 	BitEngine::RenderableMeshProcessor rmp;
 	BitEngine::GameLogicProcessor glp;
 	BitEngine::Sprite2DRenderer spr2D;
+    SpinnerSystem spinnerSys;
 
 	//Shader3DProcessor sh3D;
 };

@@ -10,9 +10,9 @@
 #endif
 
 #ifdef _BITENGINE_USE_GLEW_
-	#include "bitengine/DefaultBackends/opengl/OpenGL.h"
+	#include "bitengine/Platform/opengl/OpenGL.h"
 #endif
 
 #ifdef _BITENGINE_USE_GL4_
-	#include "bitengine/DefaultBackends/opengl/OpenGL.h"
+	#include "bitengine/Platform/opengl/OpenGL.h"
 #endif

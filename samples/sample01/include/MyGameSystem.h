@@ -15,46 +15,6 @@
 #include "Graphics/Shader3DSimple.h"
 #include "Graphics/Shader3DProcessor.h"
 
-class Spinner : public BitEngine::GameLogic
-{
-public:
-	Spinner(BitEngine::Messenger* m)
-		: GameLogic(m)
-	{}
-
-	RunEvents getRunEvents() override {
-		return RunEvents::EALL;
-	}
-
-	bool init() override {
-		transform = getComponent<BitEngine::Transform2DComponent>();
-		if (!transform.isValid()){
-			return false;
-		}
-
-		k = (rand() % 10) / 100.0f + 0.02f;
-
-		return true;
-	}
-
-	void frameStart() override {
-
-	};
-	void frameMiddle() override {
-		transform->setLocalRotation(transform->getLocalRotation() + k);
-	};
-	void frameEnd() override {
-
-	};
-
-	void end() override {
-	}
-
-private:
-	BitEngine::ComponentRef<BitEngine::Transform2DComponent> transform;
-	float k;
-};
-
 class UserGUI
 {
 public:

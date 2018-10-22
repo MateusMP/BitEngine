@@ -2,8 +2,8 @@
 
 #include "bitengine/Core/Sprite2DShader.h"
 
-#include "DefaultBackends/opengl/ShaderProgram.h"
-#include "DefaultBackends/opengl/VertexArrayObject.h"
+#include "Platform/opengl/ShaderProgram.h"
+#include "Platform/opengl/VertexArrayObject.h"
 
 // Shader Implementation for Sprite2D supporting GL3 and GL4
 

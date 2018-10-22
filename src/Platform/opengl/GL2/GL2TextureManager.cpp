@@ -9,7 +9,7 @@
 #include "bitengine/Core/TaskManager.h"
 #include "bitengine/Core/Assert.h"
 
-#include "bitengine/DefaultBackends/opengl/GL2/GL2TextureManager.h"
+#include "bitengine/Platform/opengl/GL2/GL2TextureManager.h"
 
 namespace BitEngine {
 
