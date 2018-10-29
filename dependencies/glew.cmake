@@ -29,6 +29,7 @@ if (NEED_GLEW)
 				-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 				-DBUILD_UTILS=OFF
 				-DBUILD_SHARED_LIBS=OFF
+				-DGLEW_NO_GLU
 		)
 		message(STATUS "GLEW needs to be built")
 	endif()

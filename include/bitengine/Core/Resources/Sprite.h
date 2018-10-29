@@ -2,9 +2,8 @@
 
 #include <algorithm>
 
-#include <glm/common.hpp>
-
 #include "bitengine/Common/TypeDefinition.h"
+#include "bitengine/Core/Math.h"
 #include "bitengine/Core/Resources/ResourceManager.h"
 #include "bitengine/Core/Graphics/Texture.h"
 

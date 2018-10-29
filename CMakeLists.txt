@@ -16,7 +16,8 @@ set(NEED_GLM 1)
 set(NEED_STB 1)
 
 if (BITENGINE_BACKEND_WITH_GL2)
-    set(NEED_GLEW 1)
+	set(NEED_GLEW 1)
+	add_definitions(-DGLEW_NO_GLU)
 endif()
 
 if (BITENGINE_BUILD_SAMPLES)
