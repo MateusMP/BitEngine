@@ -34,8 +34,7 @@ class EntitySystem : public BaseEntitySystem
 
 			for (ComponentProcessor* p : m_processors)
 			{
-				p->m_es = this;
-				initOk &= p->Init();
+				initOk &= InitComponentProcessor(p);
 			}
 
 			return initOk;
@@ -53,10 +52,10 @@ class EntitySystem : public BaseEntitySystem
 
 		// Register
 
-		void InitComponentProcessor(ComponentProcessor* cp)
+		bool InitComponentProcessor(ComponentProcessor* cp)
 		{
 			cp->m_es = this;
-			cp->Init();
+			return cp->Init();
 		}
 
 		// Register a component processor
@@ -74,20 +73,17 @@ class EntitySystem : public BaseEntitySystem
 			process_order[pipeline].emplace_back(cp, func);
 
 			// Verify if it was already added
-			bool inside = false;
-			for (ComponentProcessor* p : m_processors)
-			{
-				if (p == cp)
-				{
-					inside = true;
-					break;
-				}
-			}
+			bool inside = std::find(m_processors.begin(), m_processors.end(), cp) != m_processors.end();
 
 			if (!inside)
 			{
 				m_processors.emplace_back(cp);
 			}
+			else
+			{
+				LOG(EngineLog, BE_LOG_WARNING) << "Trying to register same component processor more than once!";
+			}
+			
 
 			return true;
 		}

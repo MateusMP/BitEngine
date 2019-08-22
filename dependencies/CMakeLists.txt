@@ -1,3 +1,7 @@
+# Force build libraries in release mode
+set( CMAKE_BUILD_TYPE_COPY "${CMAKE_BUILD_TYPE}" )
+set( CMAKE_BUILD_TYPE "Release" )
+
 
 add_subdirectory(glm)
 
@@ -21,3 +25,6 @@ add_subdirectory(assimp)
 #option(GTEST_LINKED_AS_SHARED_LIBRARY "" OFF)
 #option(BUILD_SHARED_LIBS OFF)
 #add_subdirectory(googletest)
+
+# Go back to normal build type
+set( CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_COPY} )

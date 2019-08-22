@@ -51,7 +51,7 @@ class SpinnerSystem : public BitEngine::ComponentProcessor
     {
         using namespace BitEngine;
         getES()->forEach<Transform2DComponent, SpinnerComponent>(
-            [=](ComponentRef<Transform2DComponent>& transform, const ComponentRef<SpinnerComponent>& spinner)
+            [=](ComponentRef<Transform2DComponent> transform, const ComponentRef<SpinnerComponent> spinner)
         {
             transform->setLocalRotation(transform->getLocalRotation() + spinner->speed);
         });
