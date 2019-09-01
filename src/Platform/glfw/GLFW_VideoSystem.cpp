@@ -4,29 +4,43 @@
 #include "bitengine/Core/Graphics/Material.h"
 #include "bitengine/Core/Window.h"
 
-using namespace BitEngine;
+namespace BitEngine
+{
 
-std::map<GLFWwindow*, GLFW_VideoSystem*> resizeCallbackReceivers;
-std::set<GLFWwindow*> windowsOpen;
+GLFW_Window::~GLFW_Window()
+{
+}
+
+void GLFW_Window::drawBegin()
+{
+	glfwMakeContextCurrent(window);
+}
+
+void GLFW_Window::drawEnd()
+{
+	glfwSwapBuffers(window);
+}
 
 bool GLFW_VideoSystem::init()
 {
 	LOGCLASS(BE_LOG_VERBOSE) << "Video: Init video...";
-	if (!(driver.getVideoAdapter() & VideoAdapterType::GL_ANY))
+	if (!(m_driver.getVideoAdapter() & VideoAdapterType::GL_ANY))
 	{
 		LOGCLASS(BE_LOG_ERROR) << "GLFW Video System only supports OpenGL drivers.";
 		return false;
 	}
 
 	glewExperimental = GL_TRUE;
-	if (!glfwInit()) {
+	if (!glfwInit())
+	{
 		LOGCLASS(BE_LOG_ERROR) << "Video: Failed to initialize glfw!";
 		return false;
 	}
 
 	glfwSetErrorCallback(GLFW_ErrorCallback);
 
-	if (!driver.init()) {
+	if (!m_driver.init())
+	{
 		LOGCLASS(BE_LOG_ERROR) << "Video: Failed to initialize driver!";
 		return false;
 	}
@@ -38,51 +52,40 @@ bool GLFW_VideoSystem::init()
 
 void GLFW_VideoSystem::update()
 {
-    std::set<GLFWwindow*> tmp = windowsOpen;
-	for (GLFWwindow *w : tmp)
-	{
-		if (checkWindowClosed(w)) {
-
-			getMessenger()->emit(GLFWWindowClosedMsg{ w });
-
-			windowsOpen.erase(w);
-			resizeCallbackReceivers.erase(w);
-		}
-	}
+	
 }
 
 void GLFW_VideoSystem::shutdown()
 {
-	driver.shutdown();
+	m_driver.shutdown();
 
-	auto copy = windowsOpen;
-	for (GLFWwindow *w : copy) {
-		closeWindow(w);
+	for (GLFW_Window *window : m_windows)
+	{
+		glfwDestroyWindow(window->window);
+		delete window;
 	}
+	m_windows.clear();
 
 	glfwTerminate();
 }
 
-void GLFW_VideoSystem::closeWindow(GLFWwindow* window)
+void GLFW_VideoSystem::closeWindow(Window *window)
 {
-	// Destroy
-	glfwDestroyWindow(window);
-
-	// Remove from maps
-	windowsOpen.erase(window);
-	resizeCallbackReceivers.erase(window);
+	glfwDestroyWindow(static_cast<GLFW_Window *>(window)->window);
 }
 
-GLFWwindow* GLFW_VideoSystem::createWindow(const WindowConfiguration& wc)
+Window *GLFW_VideoSystem::createWindow(const WindowConfiguration &wc)
 {
-	GLFWwindow* window = createGLFWWindow(wc);
+	GLFW_Window *window = createGLFWWindow(wc);
+
 	BE_ASSERT(window != nullptr);
 
 	if (!glewStarted)
 	{
 		glewStarted = true;
 		glewExperimental = GL_TRUE;
-		if (glewInit() != GLEW_OK) {
+		if (glewInit() != GLEW_OK)
+		{
 			LOGCLASS(BE_LOG_ERROR) << "Video: Failed to initialize opengl!";
 			glfwTerminate();
 			return nullptr;
@@ -97,17 +100,7 @@ GLFWwindow* GLFW_VideoSystem::createWindow(const WindowConfiguration& wc)
 	return window;
 }
 
-void GLFW_VideoSystem::updateWindow(GLFWwindow* window)
-{
-	glfwSwapBuffers(window);
-}
-
-bool GLFW_VideoSystem::checkWindowClosed(GLFWwindow* window)
-{
-	return glfwWindowShouldClose(window);
-}
-
-GLFWwindow* GLFW_VideoSystem::createGLFWWindow(const WindowConfiguration& wndConf)
+GLFW_Window *GLFW_VideoSystem::createGLFWWindow(const WindowConfiguration &wndConf)
 {
 	// TODO: Use configs
 
@@ -127,54 +120,49 @@ GLFWwindow* GLFW_VideoSystem::createGLFWWindow(const WindowConfiguration& wndCon
 	glfwWindowHint(GLFW_DEPTH_BITS, wndConf.m_DepthBits);
 	glfwWindowHint(GLFW_STENCIL_BITS, wndConf.m_StencilBits);
 
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWmonitor* monitor = nullptr;
-	if (wndConf.m_FullScreen) {
+	GLFWmonitor *monitor = nullptr;
+	if (wndConf.m_FullScreen)
+	{
 		monitor = glfwGetPrimaryMonitor();
 	}
 
-	GLFWwindow* window = glfwCreateWindow(wndConf.m_Width, wndConf.m_Height, wndConf.m_Title.c_str(), monitor, NULL);
-	if (!window)
+	GLFWwindow *newWindow = glfwCreateWindow(wndConf.m_Width, wndConf.m_Height, wndConf.m_Title.c_str(), monitor, NULL);
+	if (!newWindow)
 	{
 		LOGCLASS(BE_LOG_ERROR) << "Failed to create window!";
 		return nullptr;
 	}
 
-	glfwSetFramebufferSizeCallback(window, GlfwFrameResizeCallback);
+	GLFW_Window *window = new GLFW_Window(getMessenger(), newWindow);
+	m_windows.push_back(window);
 
-	glfwMakeContextCurrent(window);
+	glfwSetWindowUserPointer(newWindow, &window);
+
+	glfwSetFramebufferSizeCallback(newWindow, [](GLFWwindow *window, int width, int height) {
+		GLFW_Window *glfwWindow = (GLFW_Window *)glfwGetWindowUserPointer(window);
+		glfwWindow->getMessenger()->emit<WindowResizedEvent>(WindowResizedEvent{glfwWindow, width, height});
+	});
+
+	glfwSetWindowCloseCallback(newWindow, [](GLFWwindow *window) {
+		GLFW_Window *glfwWindow = (GLFW_Window *)glfwGetWindowUserPointer(window);
+		glfwWindow->getMessenger()->emit(WindowClosedEvent{glfwWindow});
+	});
+
+	glfwMakeContextCurrent(newWindow);
 
 	glfwSwapInterval(1);
-	glfwShowWindow(window);
-
-	windowsOpen.insert(window);
-	resizeCallbackReceivers.emplace(window, this);
+	glfwShowWindow(newWindow);
 
 	return window;
 }
 
-
-void GLFW_VideoSystem::GLFW_ErrorCallback(int error, const char* description)
+void GLFW_VideoSystem::GLFW_ErrorCallback(int error, const char *description)
 {
 	LOGCLASS(BE_LOG_ERROR) << "GLFW Error: " << error << ": " << description;
 }
 
-void GLFW_VideoSystem::GlfwFrameResizeCallback(GLFWwindow* window, int width, int height)
-{
-	if (window == nullptr)
-	{
-		LOGCLASS(BE_LOG_WARNING) << "Unhandled window resize event!";
-		return;
-	}
-
-	auto it = resizeCallbackReceivers.find(window);
-	if (it != resizeCallbackReceivers.end()) {
-		it->second->getMessenger()->emit<WindowResized>(WindowResized{ window, width, height });
-	}
-	else {
-		LOGCLASS(BE_LOG_WARNING) << "No handler registered for window resize event!";
-	}
-}
+} // namespace BitEngine

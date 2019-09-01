@@ -3,6 +3,8 @@
 #include "bitengine/Platform/glfw/GLFW_InputSystem.h"
 #include "bitengine/Platform/glfw/GLFW_VideoSystem.h"
 
+namespace BitEngine {
+
 void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
 void GlfwMousePosCallback(GLFWwindow* window, double x, double y);
@@ -65,8 +67,9 @@ double GLFW_InputSystem::getMouseY() const
 	return w->second.getMouseY();
 }
 
-void GLFW_InputSystem::registerWindow(GLFWwindow* glfwWindow)
+void GLFW_InputSystem::registerWindow(Window* window)
 {
+	GLFWwindow *glfwWindow = ((GLFW_Window*)window)->window;
 	// Creates instance for this window
 	inputReceivers.emplace(glfwWindow, getMessenger());
 
@@ -76,8 +79,9 @@ void GLFW_InputSystem::registerWindow(GLFWwindow* glfwWindow)
 	glfwSetCursorPosCallback(glfwWindow, GlfwMousePosCallback);
 }
 
-void GLFW_InputSystem::unregisterWindow(GLFWwindow* glfwWindow)
+void GLFW_InputSystem::unregisterWindow(Window* window)
 {
+	GLFWwindow *glfwWindow = ((GLFW_Window*)window)->window;
 	inputReceivers.erase(glfwWindow);
 }
 
@@ -154,4 +158,6 @@ void GlfwMousePosCallback(GLFWwindow* window, double x, double y)
 	} else {
 		LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Invalid window input!";
 	}
+}
+
 }

@@ -30,9 +30,9 @@ class MyGame : public BitEngine::MessengerEndpoint
 	MyGame(MainMemory* gameMemory)
 		: MessengerEndpoint(gameMemory->messenger), gameMemory(gameMemory), running(false)
 	{
-		subscribe<BitEngine::Input::MsgKeyboardInput>(&MyGame::onMessage, this);
 		subscribe<BitEngine::CommandSystem::MsgCommandInput>(&MyGame::onMessage, this);
-        subscribe<UserRequestQuitGame>(&MyGame::onMessage, this);
+		subscribe<RenderEvent>(&MyGame::onMessage, this);
+        subscribe<BitEngine::WindowClosedEvent>(&MyGame::onMessage, this);
        		
 		gameState = (GameState*)gameMemory->memory;
 
@@ -62,7 +62,7 @@ class MyGame : public BitEngine::MessengerEndpoint
 		loader->loadIndex("data/main.idx");
 
 		gameMemory->taskManager->addTask(std::make_shared<UpdateTask>([loader] {loader->update(); }));
-				
+
 		// Init game state stuff
 		gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, gameMemory->messenger, &gameState->entityArena);
 		gameState->entitySystem->Init();
@@ -149,23 +149,16 @@ class MyGame : public BitEngine::MessengerEndpoint
         return running;
 	}
 
-    void onMessage(const UserRequestQuitGame& msg) {
+    void onMessage(const BitEngine::WindowClosedEvent& msg) {
         running = false;
     }
-
-	void onMessage(const BitEngine::Input::MsgKeyboardInput& msg)
-	{
-		if (msg.key == GLFW_KEY_R && msg.keyAction == BitEngine::Input::KeyAction::PRESS && msg.keyMod == BitEngine::Input::KeyMod::CTRL_SHIFT)
-		{
-			LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Reloading index";
-			gameState->resources->loadIndex("data/main.idx");
-		}
-	}
 
 	void onMessage(const BitEngine::CommandSystem::MsgCommandInput& msg)
 	{
 		LOG(GameLog(), BE_LOG_VERBOSE) << "Command: " << msg.commandID;
 		if (msg.commandID == RELOAD_SHADERS) {
+			LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Reloading index";
+			gameState->resources->loadIndex("data/main.idx");
 
 			BitEngine::RR<BitEngine::Texture> texture = gameState->resources->getResource<BitEngine::Texture>("data/sprites/texture.png");
 			gameState->resources->reloadResource(texture);
@@ -177,6 +170,24 @@ class MyGame : public BitEngine::MessengerEndpoint
 	void onMessage(const BitEngine::MsgFrameStart& msg)
 	{
 		//LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Frame Start";
+	}
+
+	void onMessage(const RenderEvent& ev)
+	{
+		BitEngine::VideoDriver* driver = gameMemory->videoSystem->getDriver();
+		driver->clearBufferColor(nullptr, BitEngine::ColorRGBA( (float)((1 + rand()) % 255), 0.f, 0.f, 0.f));
+		driver->clearBuffer(nullptr, BitEngine::BufferClearBitMask::COLOR_DEPTH);
+		
+		//ev.state->entitySystem->sh3D.setActiveCamera(ev.state->m_world->getActiveCamera());
+		//ev.state->entitySystem->sh3D.Render();
+	
+		ev.state->entitySystem->spr2D.setActiveCamera(ev.state->m_userGUI->getCamera());
+		ev.state->entitySystem->spr2D.Render(driver);
+	}
+
+	void onMessage(const BitEngine::WindowResizedEvent& ev)
+	{
+		gameMemory->videoSystem->getDriver()->setViewPort(0, 0, ev.width, ev.height);
 	}
 
 	private:

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bitengine/Core/VideoSystem.h>
 #include <bitengine/Core/Logger.h>
 #include <bitengine/Core/Memory.h>
 
@@ -55,6 +56,7 @@ struct MainMemory {
 	BitEngine::ResourceManager* textureManager;
 	BitEngine::ResourceManager* spriteManager;
 	
+	BitEngine::VideoSystem* videoSystem;
 	BitEngine::Messenger* messenger;
 	BitEngine::EngineConfiguration *engineConfig;
 	BitEngine::TaskManager* taskManager;

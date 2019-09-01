@@ -5,6 +5,25 @@
 #include <bitengine/Common/TypeDefinition.h>
 
 namespace BitEngine{
+	
+	class Window {
+	public:
+		virtual ~Window(){}
+
+		virtual void drawBegin() = 0;
+		virtual void drawEnd() = 0;
+	};
+	
+	struct WindowClosedEvent {
+		Window* window;
+	};
+	
+	struct WindowResizedEvent {
+		Window* window;
+		int width;
+		int height;
+	};
+
 
 	class WindowConfiguration
 	{

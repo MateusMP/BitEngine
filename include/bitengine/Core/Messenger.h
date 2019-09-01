@@ -9,7 +9,6 @@
 #include <cstring>
 
 #include "bitengine/Common/TypeDefinition.h"
-#include "bitengine/Core/GameEngine.h"
 
 namespace BitEngine {
 	

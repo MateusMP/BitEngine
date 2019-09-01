@@ -3,6 +3,8 @@
 #include "bitengine/Core/InputSystem.h"
 #include "bitengine/Platform/glfw/GLFW_Headers.h"
 
+namespace BitEngine {
+
 class GLFW_InputSystem : public BitEngine::InputSystem
 {
 public:
@@ -19,6 +21,8 @@ public:
 	double getMouseX() const override;
 	double getMouseY() const override;
 
-	void registerWindow(GLFWwindow* glfwWindow);
-	void unregisterWindow(GLFWwindow* glfwWindow);
+	void registerWindow(Window* glfwWindow);
+	void unregisterWindow(Window* glfwWindow);
 };
+
+}

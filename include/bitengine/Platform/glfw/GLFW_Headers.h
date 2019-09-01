@@ -5,7 +5,3 @@
 #include "bitengine/Core/Messenger.h"
 
 #include <GLFW/glfw3.h>
-
-struct GLFWWindowClosedMsg {
-	GLFWwindow* window;
-};

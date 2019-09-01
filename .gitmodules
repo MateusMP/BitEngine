@@ -23,3 +23,6 @@
 [submodule "dependencies/Wink-Signals"]
 	path = dependencies/Wink-Signals
 	url = https://github.com/miguelmartin75/Wink-Signals.git
+[submodule "dependencies/imgui"]
+	path = dependencies/imgui
+	url = https://github.com/ocornut/imgui.git

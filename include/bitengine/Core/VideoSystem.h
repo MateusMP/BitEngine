@@ -32,10 +32,15 @@ namespace BitEngine {
 			virtual ~VideoSystem() {}
 						
 			virtual bool init() = 0;
+			virtual void update() = 0;
 			virtual void shutdown() = 0;
 			
 			virtual u32 getVideoAdapter() = 0;
 			virtual VideoDriver* getDriver() = 0;
+
+			virtual Window* createWindow(const BitEngine::WindowConfiguration& wc) = 0;
+
+			virtual void closeWindow(Window* window) = 0;
 			
 	};
 
