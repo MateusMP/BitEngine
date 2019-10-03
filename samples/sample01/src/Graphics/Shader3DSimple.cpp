@@ -1,3 +1,4 @@
+#if 0
 #include "Graphics/Shader3DSimple.h"
 
 #include <bitengine/Core/Resources/ResourceManager.h>
@@ -281,3 +282,4 @@ void Shader3DSimple::Shader3DSimpleGL2::OnBind() {
 }
 
 ////
+#endif

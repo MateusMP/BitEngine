@@ -1,3 +1,4 @@
+#if 0
 #include "Graphics/Shader3DSimple.h"
 
 // ******************* BatchRendererGL4 *******************
@@ -236,3 +237,4 @@ void Shader3DSimple::Shader3DSimpleGL2::BatchRendererGL2::createBatches()
 		}
 	}
 }
+#endif

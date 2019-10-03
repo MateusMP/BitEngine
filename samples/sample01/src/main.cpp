@@ -5,19 +5,20 @@
 #include <bitengine/Core/Messenger.h>
 #include <bitengine/Core/GeneralTaskManager.h>
 #include <bitengine/Core/Resources/DevResourceLoader.h>
-#include <bitengine/Platform/opengl/GL2/GL2Driver.h>
+#include <Platform/opengl/GL2/GL2Driver.h>
 
 #include "Common/GameGlobal.h"
 #include "MyGame.h"
 
 #define GL2_API
 #ifdef GL2_API
-#include "bitengine/Platform/opengl/GL2/GL2ShaderManager.h"
-#include "bitengine/Platform/opengl/GL2/GL2TextureManager.h"
+#include "Platform/opengl/GL2/GL2ShaderManager.h"
+#include "Platform/opengl/GL2/GL2TextureManager.h"
 #endif
 
-#include "bitengine/Platform/GLFW/GLFW_VideoSystem.h"
-#include "bitengine/Platform/GLFW/GLFW_InputSystem.h"
+#include "Platform/GLFW/GLFW_VideoSystem.h"
+#include "Platform/GLFW/GLFW_InputSystem.h"
+#include "Platform/GLFW/GLFW_ImGuiSystem.h"
 
 GAME_UPDATE(gameUpdateTest) {
     return game->update();
@@ -25,26 +26,26 @@ GAME_UPDATE(gameUpdateTest) {
 
 BitEngine::Logger* GameLog()
 {
-	static BitEngine::Logger log("GameLog", BitEngine::EngineLog);
-	return &log;
+    static BitEngine::Logger log("GameLog", BitEngine::EngineLog);
+    return &log;
 }
 
 
 void setupCommands(BitEngine::CommandSystem* cmdSys) {
-	cmdSys->registerKeyCommandForAllMods(RIGHT, GAMEPLAY, BE_KEY_RIGHT);
-	cmdSys->registerKeyCommandForAllMods(LEFT, GAMEPLAY, BE_KEY_LEFT);
-	cmdSys->registerKeyCommandForAllMods(UP, GAMEPLAY, BE_KEY_UP);
-	cmdSys->registerKeyCommandForAllMods(DOWN, GAMEPLAY, BE_KEY_DOWN);
-	cmdSys->RegisterMouseCommand(CLICK, GAMEPLAY, BE_MOUSE_BUTTON_LEFT, BitEngine::Input::MouseAction::PRESS);
+    cmdSys->registerKeyCommandForAllMods(RIGHT, GAMEPLAY, BE_KEY_RIGHT);
+    cmdSys->registerKeyCommandForAllMods(LEFT, GAMEPLAY, BE_KEY_LEFT);
+    cmdSys->registerKeyCommandForAllMods(UP, GAMEPLAY, BE_KEY_UP);
+    cmdSys->registerKeyCommandForAllMods(DOWN, GAMEPLAY, BE_KEY_DOWN);
+    cmdSys->RegisterMouseCommand(CLICK, GAMEPLAY, BE_MOUSE_BUTTON_LEFT, BitEngine::Input::MouseAction::PRESS);
 #ifdef _DEBUG
-	cmdSys->registerKeyboardCommand(RELOAD_SHADERS, -1, BE_KEY_R, BitEngine::Input::KeyAction::PRESS, BitEngine::Input::KeyMod::CTRL);
+    cmdSys->registerKeyboardCommand(RELOAD_SHADERS, -1, BE_KEY_R, BitEngine::Input::KeyAction::PRESS, BitEngine::Input::KeyMod::CTRL);
 #endif
-	cmdSys->setCommandState(GAMEPLAY);
+    cmdSys->setCommandState(GAMEPLAY);
 }
 
 
 void gameExecute(MainMemory& gameMemory) {
-    
+
     // Basic infrastructure
     BitEngine::Messenger messenger;
     BitEngine::EngineConfigurationFileLoader configurations("config.ini");
@@ -54,9 +55,10 @@ void gameExecute(MainMemory& gameMemory) {
     configurations.loadConfigurations(engineConfig);
 
     BitEngine::GLFW_VideoSystem video(&messenger);
+    BitEngine::GLFW_ImGuiSystem imgui(&messenger);
     video.init();
-    
-	BitEngine::Window *main_window;
+
+    BitEngine::Window *main_window;
 
     BitEngine::WindowConfiguration windowConfig;
     windowConfig.m_Title = "WINDOW";
@@ -73,6 +75,7 @@ void gameExecute(MainMemory& gameMemory) {
     windowConfig.m_DepthBits = 8;
     windowConfig.m_StencilBits = 8;
     main_window = video.createWindow(windowConfig);
+    imgui.setup(main_window);
 
     BitEngine::GLFW_InputSystem input(&messenger);
     input.registerWindow(main_window);
@@ -92,7 +95,7 @@ void gameExecute(MainMemory& gameMemory) {
     gameMemory.messenger = &messenger;
     gameMemory.engineConfig = &engineConfig;
     gameMemory.taskManager = &taskManager;
-    
+
     setupCommands(&commandSystem);
 
     MyGame game(&gameMemory);
@@ -105,8 +108,10 @@ void gameExecute(MainMemory& gameMemory) {
         input.update();
 
         main_window->drawBegin();
-        
+
         running = gameMemory.gameUpdate(&game);
+        imgui.update();
+
         main_window->drawEnd();
 
         messenger.dispatch();
@@ -127,10 +132,10 @@ int main(int argc, const char* argv[])
     gameMemory.memorySize = MEGABYTES(512);
     gameMemory.memory = malloc(gameMemory.memorySize);
     memset(gameMemory.memory, 0, gameMemory.memorySize);
-    
+
     gameExecute(gameMemory);
 
-	free(gameMemory.memory);
+    free(gameMemory.memory);
 
     return 0;
 }
