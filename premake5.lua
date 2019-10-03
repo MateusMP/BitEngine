@@ -145,6 +145,7 @@ project "Sample01"
 	{
 		"BitEngine",
 	}
+	debugdir "samples/sample01"
 
 	filter "system:windows"
 		systemversion "latest"
@@ -158,6 +159,7 @@ project "Sample01"
 		defines "BE_DEBUG"
 		runtime "Debug"
 		symbols "on"
+		debugargs { "--debug" }
 
 	filter "configurations:Release"
 		defines "BE_RELEASE"

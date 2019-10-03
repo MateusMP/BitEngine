@@ -19,6 +19,10 @@ Debug/vc120.idb
 # glew
 glew.pc
 
+.vs/
+/bin/
+bin-int/
+*.vc*
 
 # Cmake
 CMakeCache.txt
