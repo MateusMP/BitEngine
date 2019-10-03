@@ -1,3 +1,9 @@
+
+os.execute("cp BitEngine/dependencies/glfw.lua BitEngine/dependencies/glfw/premake5.lua")
+os.execute("cp BitEngine/dependencies/json.lua BitEngine/dependencies/json/premake5.lua")
+os.execute("cp BitEngine/dependencies/assimp.lua BitEngine/dependencies/assimp/premake5.lua")
+os.execute("cp BitEngine/dependencies/imgui.lua BitEngine/dependencies/imgui/premake5.lua")
+
 workspace "BitEngine"
 	architecture "x64"
 	startproject "Sample01"
@@ -27,11 +33,14 @@ IncludeDir["stb"] = "BitEngine/dependencies/stb"
 IncludeDir["winksignals"] = "BitEngine/dependencies/Wink-Signals"
 IncludeDir["assimp"] = "BitEngine/dependencies/assimp/include"
 
+configuration "not windows"
+   prebuildcommands { "cp default.config bin/project.config" }
+
 group "Dependencies"
-	include "BitEngine/dependencies/glfw"
-	include "BitEngine/dependencies/imgui"
-	include "BitEngine/dependencies/json"
-	include "BitEngine/dependencies/assimp"
+	include "BitEngine/dependencies/glfw/"
+	include "BitEngine/dependencies/imgui/"
+	include "BitEngine/dependencies/json/"
+	include "BitEngine/dependencies/assimp/"
 
 group ""
 
