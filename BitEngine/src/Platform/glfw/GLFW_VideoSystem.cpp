@@ -140,7 +140,7 @@ GLFW_Window *GLFW_VideoSystem::createGLFWWindow(const WindowConfiguration &wndCo
 	GLFW_Window *window = new GLFW_Window(getMessenger(), newWindow);
 	m_windows.push_back(window);
 
-	glfwSetWindowUserPointer(newWindow, &window);
+	glfwSetWindowUserPointer(newWindow, window);
 
 	glfwSetFramebufferSizeCallback(newWindow, [](GLFWwindow *window, int width, int height) {
 		GLFW_Window *glfwWindow = (GLFW_Window *)glfwGetWindowUserPointer(window);
