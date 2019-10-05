@@ -50,6 +50,7 @@ namespace BitEngine {
 			void makeFullLoad(ResourceMeta* meta, GL2Shader* shader);
 
 		private:
+            friend class ShaderSourceLoader;
 			ResourceLoader* loader;
 			ResourceIndexer<GL2Shader, 32> shaders;
 			BitEngine::ThreadSafeQueue<GL2Shader*> resourceLoaded;

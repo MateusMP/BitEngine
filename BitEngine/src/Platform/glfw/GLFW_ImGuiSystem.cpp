@@ -12,7 +12,7 @@ bool GLFW_ImGuiSystem::setup(BitEngine::Window* _window)
 {
     GLFW_Window* glfwWindow = static_cast<GLFW_Window*>(_window);
     GLFWwindow* window = glfwWindow->window;
-    
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

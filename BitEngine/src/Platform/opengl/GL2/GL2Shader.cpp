@@ -79,7 +79,7 @@ namespace BitEngine
 	}
 
 	GL2Shader::GL2Shader(ResourceMeta* meta)
-		: Shader(meta), m_programID(0), expectedSources(0)
+		: Shader(meta), m_programID(0), expectedSourcesCount(0)
 	{
 
 	}
@@ -563,6 +563,6 @@ namespace BitEngine
 
 	bool GL2Shader::gotAllShaderPiecesLoaded()
 	{
-		return sources.size() == expectedSources;
+		return sources.size() == expectedSourcesCount;
 	}
 }

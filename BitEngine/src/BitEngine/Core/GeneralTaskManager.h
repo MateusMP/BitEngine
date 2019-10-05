@@ -58,6 +58,8 @@ namespace BitEngine {
 			void scheduleToNextFrame(TaskPtr task) override;
 			void waitTask(TaskPtr& task) override;
 
+            const std::vector<TaskPtr>& getTasks() const override { return scheduledTasks; }
+
 
 		private:
 			friend class TaskWorker;

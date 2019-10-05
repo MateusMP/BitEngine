@@ -27,6 +27,8 @@ namespace BitEngine{
 
 			virtual void waitTask(std::shared_ptr<Task>& task) = 0;
 
+            virtual const std::vector<TaskPtr>& getTasks() const = 0;
+
 		private:
 	};
 

@@ -4,6 +4,9 @@
 
 #include "MyGameSystem.h"
 
+#include "Platform/GLFW/GLFW_ImGuiSystem.h"
+#include "imgui.h"
+
 class UpdateTask : public BitEngine::Task
 {
 	public:
@@ -24,6 +27,22 @@ class UpdateTask : public BitEngine::Task
 	std::function<void()> f;
 };
 
+
+void resourceManagerMenu(const char* name, BitEngine::ResourceManager *resMng) {
+    constexpr float TO_MB = 1.0 / (1024 * 1024);
+    if (ImGui::TreeNode(name)) {
+        ImGui::TextColored(ImVec4(1, 1, 0, 1), "RAM: %.2f GPU: %.2f", resMng->getCurrentRamUsage()* TO_MB, resMng->getCurrentGPUMemoryUsage()*TO_MB);
+        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Resources pending load: %d", resMng->getPendingToLoad().size());
+        for (auto p : resMng->getPendingToLoad()) {
+            if (ImGui::TreeNode(p.first->getNameId().c_str())) {
+                ImGui::TextColored(ImVec4(1, 1, 0, 1), "Task waiting for %d dependencies", p.second->getDependencies().size());
+                ImGui::TreePop();
+            }
+        }
+        ImGui::TreePop();
+    }
+}
+
 class MyGame : public BitEngine::MessengerEndpoint
 {
 	public:
@@ -33,6 +52,7 @@ class MyGame : public BitEngine::MessengerEndpoint
 		subscribe<BitEngine::CommandSystem::MsgCommandInput>(&MyGame::onMessage, this);
 		subscribe<RenderEvent>(&MyGame::onMessage, this);
         subscribe<BitEngine::WindowClosedEvent>(&MyGame::onMessage, this);
+        subscribe<BitEngine::ImGuiRenderEvent>(&MyGame::onMessage, this);
        		
 		gameState = (GameState*)gameMemory->memory;
 
@@ -42,6 +62,34 @@ class MyGame : public BitEngine::MessengerEndpoint
 		gameState->entityArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(64)), MEGABYTES(64));
 		gameState->resourceArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(256)), MEGABYTES(256));
 	}
+
+
+    void onMessage(const BitEngine::ImGuiRenderEvent& ev)
+    {
+        static bool active = true;
+        ImGui::Begin("Overview", &active, ImGuiWindowFlags_MenuBar);
+
+        if (ImGui::CollapsingHeader("Tasks"))
+        {
+            auto taskManager = gameMemory->taskManager;
+            // Display contents in a scrolling region
+            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Tasks: %d", taskManager->getTasks().size());
+            ImGui::BeginChild("Scrolling");
+            for (const BitEngine::TaskPtr& ptr : taskManager->getTasks()) {
+                ImGui::Text("Task, deps: %04d", ptr->getDependencies().size());
+            }
+            ImGui::EndChild();
+        }
+
+        if (ImGui::CollapsingHeader("Resources"))
+        {
+            resourceManagerMenu("Sprite Manager", gameMemory->spriteManager);
+            resourceManagerMenu("Texture Manager", gameMemory->textureManager);
+            resourceManagerMenu("Shader Manager", gameMemory->shaderManager);
+        }
+
+        ImGui::End();
+    }
 
 	~MyGame()
 	{
@@ -175,7 +223,7 @@ class MyGame : public BitEngine::MessengerEndpoint
 	void onMessage(const RenderEvent& ev)
 	{
 		BitEngine::VideoDriver* driver = gameMemory->videoSystem->getDriver();
-		driver->clearBufferColor(nullptr, BitEngine::ColorRGBA( (float)((1 + rand()) % 255), 0.f, 0.f, 0.f));
+		driver->clearBufferColor(nullptr, BitEngine::ColorRGBA( 0.5f, 0.2f, 0.3f, 0.f));
 		driver->clearBuffer(nullptr, BitEngine::BufferClearBitMask::COLOR_DEPTH);
 		
 		//ev.state->entitySystem->sh3D.setActiveCamera(ev.state->m_world->getActiveCamera());

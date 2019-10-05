@@ -20,6 +20,8 @@
 #include "Platform/GLFW/GLFW_InputSystem.h"
 #include "Platform/GLFW/GLFW_ImGuiSystem.h"
 
+#include "imgui.h"
+
 GAME_UPDATE(gameUpdateTest) {
     return game->update();
 }
@@ -104,12 +106,14 @@ void gameExecute(MainMemory& gameMemory) {
     gameMemory.gameUpdate = &gameUpdateTest;
 
     bool32 running = true;
+
     while (running) {
         input.update();
 
         main_window->drawBegin();
 
         running = gameMemory.gameUpdate(&game);
+
         imgui.update();
 
         main_window->drawEnd();
