@@ -60,6 +60,9 @@ namespace BitEngine {
 
             const std::vector<TaskPtr>& getTasks() const override { return scheduledTasks; }
 
+            const void verifyMainThread() const override {
+                BE_ASSERT(std::this_thread::get_id() == mainThread);
+            }
 
 		private:
 			friend class TaskWorker;
@@ -81,7 +84,7 @@ namespace BitEngine {
 			std::mutex nextFrameTasksMutex;
 			std::vector<TaskPtr> scheduledTasks;
 
-			std::thread::id mainThread;
+			const std::thread::id mainThread;
 
 			u32 finishedRequiredTasks;
 	};

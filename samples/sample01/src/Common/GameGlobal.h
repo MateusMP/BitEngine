@@ -10,9 +10,6 @@ struct MainMemory;
 struct GameState;
 class MyGame;
 
-#define GAME_UPDATE(name) bool32 name(MyGame* game)
-typedef GAME_UPDATE(GameUpdate);
-
 class MyGameEntitySystem;
 class Player;
 class PlayerController;
@@ -49,8 +46,6 @@ struct MainMemory {
 	
 	void* memory;
 	ptrsize memorySize;
-
-	GameUpdate* gameUpdate;
 
 	BitEngine::ResourceManager* shaderManager;
 	BitEngine::ResourceManager* textureManager;

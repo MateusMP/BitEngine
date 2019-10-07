@@ -37,7 +37,6 @@ namespace BitEngine {
                     LOG(EngineLog, BE_LOG_VERBOSE) << "Loading geometry piece " << dr.meta->resourceName;
                     shader->includeSource(GL_GEOMETRY_SHADER, dr.data);
                 }
-                manager->finishedLoading(dr.meta);
             }
             manager->sendToGPU(shader);
         }
@@ -125,7 +124,7 @@ namespace BitEngine {
         if (shaderSourceMeta != nullptr)
         {
             sourceShaderRelation.emplace(shaderSourceMeta, shader);
-            return loadRawData(loader, shaderSourceMeta);
+            return loader->loadRawData(shaderSourceMeta);
         }
         else
         {

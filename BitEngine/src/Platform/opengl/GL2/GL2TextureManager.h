@@ -19,7 +19,7 @@ namespace BitEngine
     public:
         struct StbiImageData {
             StbiImageData()
-                : pixelData(nullptr)
+                : pixelData(nullptr), width(0), height(0), color(0)
             {}
             int width;
             int height;
@@ -57,7 +57,7 @@ namespace BitEngine
             return imgData.width*imgData.height * imgData.color;
         }
 
-        void releaseMemoryData();
+        size_t releaseMemoryData();
 
     protected:
         GLuint m_textureID;
@@ -114,8 +114,10 @@ namespace BitEngine
         void resourceRelease(ResourceMeta* base) override;
 
         void loadTexture2D(const GL2Texture::StbiImageData& data, GL2Texture& texture);
-        void releaseStbiRawData(GL2Texture::StbiImageData& data);
-        void makeLoadFullResource(ResourceMeta* meta, GL2Texture* texture);
+        void releaseStbiRawData(GL2Texture* texture);
+        void scheduleLoadingTasks(ResourceMeta* meta, GL2Texture* texture);
+
+        void resourceRelease(GL2Texture* texture);
 
         // Members
         TaskManager* taskManager;

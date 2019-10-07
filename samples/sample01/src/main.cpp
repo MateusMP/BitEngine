@@ -20,12 +20,6 @@
 #include "Platform/GLFW/GLFW_InputSystem.h"
 #include "Platform/GLFW/GLFW_ImGuiSystem.h"
 
-#include "imgui.h"
-
-GAME_UPDATE(gameUpdateTest) {
-    return game->update();
-}
-
 BitEngine::Logger* GameLog()
 {
     static BitEngine::Logger log("GameLog", BitEngine::EngineLog);
@@ -102,9 +96,6 @@ void gameExecute(MainMemory& gameMemory) {
 
     MyGame game(&gameMemory);
 
-    // TODO: Load game code
-    gameMemory.gameUpdate = &gameUpdateTest;
-
     bool32 running = true;
 
     while (running) {
@@ -112,7 +103,7 @@ void gameExecute(MainMemory& gameMemory) {
 
         main_window->drawBegin();
 
-        running = gameMemory.gameUpdate(&game);
+        running = game.update();
 
         imgui.update();
 

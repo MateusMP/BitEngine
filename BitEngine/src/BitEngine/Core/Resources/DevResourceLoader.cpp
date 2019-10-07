@@ -6,61 +6,64 @@
 #include "bitengine/Core/Task.h"
 #include "bitengine/Core/TaskManager.h"
 
+namespace BitEngine {
 
 // Load task
-class DevLoaderTask : public BitEngine::ResourceLoader::RawResourceLoaderTask
+class DevLoaderTask : public ResourceLoader::RawResourceLoaderTask
 {
 public:
-    DevLoaderTask(BitEngine::ResourceMeta* meta)
-        : RawResourceLoaderTask(meta)
+    DevLoaderTask(DevResourceLoader* loader, ResourceMeta* meta)
+        : RawResourceLoaderTask(meta), loader(loader)
     {}
 
-    // Inherited via RawResourceLoaderTask
-    void run() override;
+    void DevLoaderTask::run() override
+    {
+        using namespace BitEngine;
 
+        dr.loadState = ResourceLoader::DataRequest::LoadState::LOADING;
+        DevResourceMeta* drm = static_cast<DevResourceMeta*>(dr.meta);
+        const std::string& path = drm->filePath;
+
+        LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
+
+        if (path.empty()) {
+            throw "EMPTY PATH FOR RESOURCE";
+        }
+
+        if (DevResourceLoader::loadFileToMemory(path, dr.data))
+        {
+            dr.loadState = ResourceLoader::DataRequest::LoadState::LOADED;
+            loader->finishedLoading(dr.meta);
+        }
+        else
+        {
+            LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
+            dr.loadState = ResourceLoader::DataRequest::LoadState::ERROR;
+        }
+    }
+
+private:
+    DevResourceLoader* loader;
 };
 
-void DevLoaderTask::run()
-{
-    using namespace BitEngine;
-
-    dr.loadState = ResourceLoader::DataRequest::LoadState::LOADING;
-    DevResourceMeta* drm = static_cast<DevResourceMeta*>(dr.meta);
-    const std::string& path = drm->filePath;
-
-    LOG(EngineLog, BE_LOG_VERBOSE) << "Data Loader: " << path;
-
-    if (path.empty()) {
-        throw "EMPTY PATH FOR RESOURCE";
-    }
-
-    if (DevResourceLoader::loadFileToMemory(path, dr.data))
-    {
-        dr.loadState = ResourceLoader::DataRequest::LoadState::LOADED;
-    }
-    else
-    {
-        LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
-        dr.loadState = ResourceLoader::DataRequest::LoadState::ERROR;
-    }
-}
 
 //
 
-BitEngine::DevResourceLoader::DevResourceLoader(MemoryArena& memory, Messenger* msg, TaskManager* tm)
+DevResourceLoader::DevResourceLoader(MemoryArena& memory, Messenger* msg, TaskManager* tm)
     : memoryArena(memory), ResourceLoader(msg), taskManager(tm)
 {
     resourceMeta.reserve(4096);
     resourceMetaIndexes.reserve(8);
 }
 
-BitEngine::DevResourceLoader::~DevResourceLoader()
+DevResourceLoader::~DevResourceLoader()
 {
 
 }
 
-bool BitEngine::DevResourceLoader::init()
+bool DevResourceLoader::init()
 {
+    taskManager->verifyMainThread();
     for (ResourceManager* it : managers)
     {
         it->init();
@@ -68,16 +71,18 @@ bool BitEngine::DevResourceLoader::init()
     return true;
 }
 
-void BitEngine::DevResourceLoader::update()
+void DevResourceLoader::update()
 {
+    taskManager->verifyMainThread();
     for (ResourceManager* it : managers)
     {
         it->update();
     }
 }
 
-void BitEngine::DevResourceLoader::shutdown()
+void DevResourceLoader::shutdown()
 {
+    taskManager->verifyMainThread();
     for (ResourceManager* m : managers) {
         m->shutdown();
     }
@@ -86,19 +91,20 @@ void BitEngine::DevResourceLoader::shutdown()
     byName.clear();
 }
 
-void BitEngine::DevResourceLoader::registerResourceManager(const std::string& resourceType, ResourceManager* manager)
+void DevResourceLoader::registerResourceManager(const std::string& resourceType, ResourceManager* manager)
 {
+    taskManager->verifyMainThread();
     BE_ASSERT(manager != nullptr);
     manager->setResourceLoader(this);
     managers.emplace_back(manager);
     managersMap[resourceType] = manager;
 }
 
-bool BitEngine::DevResourceLoader::hasManagerForType(const std::string& resourceType) {
+bool DevResourceLoader::hasManagerForType(const std::string& resourceType) {
     return managersMap.find(resourceType) != managersMap.end();
 }
 
-BitEngine::ResourceMeta* BitEngine::DevResourceLoader::includeMeta(const std::string& package, const std::string& resourceName,
+ResourceMeta* DevResourceLoader::includeMeta(const std::string& package, const std::string& resourceName,
     const std::string& type, ResourcePropertyContainer properties)
 {
     DevResourceMeta meta(package);
@@ -109,7 +115,7 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::includeMeta(const std::st
     return addResourceMeta(meta, false);
 }
 
-BitEngine::DevResourceLoader::LoadedIndex* BitEngine::DevResourceLoader::findIndexByName(const std::string& string)
+DevResourceLoader::LoadedIndex* DevResourceLoader::findIndexByName(const std::string& string)
 {
     for (u32 i = 0; i < resourceMetaIndexes.size(); ++i)
     {
@@ -121,7 +127,7 @@ BitEngine::DevResourceLoader::LoadedIndex* BitEngine::DevResourceLoader::findInd
     return nullptr;
 }
 
-bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
+bool DevResourceLoader::loadIndex(const std::string& indexFilename)
 {
     LoadedIndex* index = findIndexByName(indexFilename);
 
@@ -184,7 +190,7 @@ bool BitEngine::DevResourceLoader::loadIndex(const std::string& indexFilename)
     return true;
 }
 
-BitEngine::ResourceMeta* BitEngine::DevResourceLoader::findMeta(const std::string& name)
+ResourceMeta* DevResourceLoader::findMeta(const std::string& name)
 {
     const auto& it = byName.find(name);
     if (it == byName.end())
@@ -197,7 +203,7 @@ BitEngine::ResourceMeta* BitEngine::DevResourceLoader::findMeta(const std::strin
     }
 }
 
-void BitEngine::DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
+void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
 {
     if (index->data["data"].empty())
     {
@@ -256,7 +262,7 @@ void BitEngine::DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOv
     }
 }
 
-BitEngine::BaseResource* BitEngine::DevResourceLoader::loadResource(const std::string& name)
+BaseResource* DevResourceLoader::loadResource(const std::string& name)
 {
     ResourceMeta* meta = findMeta(name);
     if (meta == nullptr)
@@ -270,31 +276,32 @@ BitEngine::BaseResource* BitEngine::DevResourceLoader::loadResource(const std::s
     }
 }
 
-void BitEngine::DevResourceLoader::reloadResource(BaseResource* resource)
+void DevResourceLoader::reloadResource(BaseResource* resource)
 {
     ResourceMeta* meta = resource->getMeta();
     managersMap[meta->type]->reloadResource(resource);
 }
 
-void BitEngine::DevResourceLoader::releaseAll()
+void DevResourceLoader::releaseAll()
 {
 }
 
-void BitEngine::DevResourceLoader::resourceNotInUse(ResourceMeta* meta)
+void DevResourceLoader::resourceNotInUse(ResourceMeta* meta)
 {
     managersMap[meta->type]->resourceNotInUse(meta);
 }
 
-void BitEngine::DevResourceLoader::waitForAll()
+void DevResourceLoader::waitForAll()
 {
 }
 
-void BitEngine::DevResourceLoader::waitForResource(BaseResource* resource)
+void DevResourceLoader::waitForResource(BaseResource* resource)
 {
 }
 
-BitEngine::DevResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const DevResourceMeta &meta, bool allowOverride)
+DevResourceMeta* DevResourceLoader::addResourceMeta(const DevResourceMeta &meta, bool allowOverride)
 {
+    taskManager->verifyMainThread();
     const std::string fullPath = getPackagePath(&meta);
     auto it = byName.find(fullPath);
     if (it == byName.end())
@@ -321,37 +328,36 @@ BitEngine::DevResourceMeta* BitEngine::DevResourceLoader::addResourceMeta(const 
     }
 }
 
-BitEngine::ResourceLoader::RawResourceTask BitEngine::DevResourceLoader::requestResourceData(ResourceMeta* meta)
+ResourceLoader::RawResourceTask DevResourceLoader::requestResourceData(ResourceMeta* meta)
 {
-    RawResourceTask task = std::make_shared<DevLoaderTask>(meta);
+    RawResourceTask task = std::make_shared<DevLoaderTask>(this, meta);
     taskManager->addTask(task);
     return task;
 }
 
-bool BitEngine::DevResourceLoader::isManagerForTypeAvailable(const std::string& type)
+bool DevResourceLoader::isManagerForTypeAvailable(const std::string& type)
 {
     return managersMap.find(type) != managersMap.end();
 }
 
-BitEngine::BaseResource* BitEngine::DevResourceLoader::getResourceFromManager(ResourceMeta* meta)
+BaseResource* DevResourceLoader::getResourceFromManager(ResourceMeta* meta)
 {
     return managersMap[meta->type]->loadResource(meta);
 }
 
 // Static
 
-std::string BitEngine::DevResourceLoader::getPackagePath(const ResourceMeta* meta)
+std::string DevResourceLoader::getPackagePath(const ResourceMeta* meta)
 {
     return "data/" + meta->package + "/" + meta->resourceName;
 }
 
-bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, std::vector<char>& out)
+bool DevResourceLoader::loadFileToMemory(const std::string& fname, std::vector<char>& out)
 {
     LOG(EngineLog, BE_LOG_VERBOSE) << "Loading resource index " << fname;
     std::ifstream file(fname, std::ios::in | std::ios::binary | std::ios::ate);
     if (!file.is_open())
     {
-        LOG(EngineLog, BE_LOG_ERROR) << "Failed to open index file '" << fname << "'";
         return false;
     }
     std::streamsize size = file.tellg();
@@ -362,4 +368,6 @@ bool BitEngine::DevResourceLoader::loadFileToMemory(const std::string& fname, st
 
     file.read(out.data(), size);
     return file.gcount() == size;
+}
+
 }

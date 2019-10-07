@@ -54,25 +54,6 @@ public:
     virtual u32 getCurrentRamUsage() const = 0;
     virtual u32 getCurrentGPUMemoryUsage() const = 0;
 
-    const std::map<ResourceMeta*, ResourceLoader::RawResourceTask>& getPendingToLoad() const {
-        return waitingData;
-    }
-
-protected:
-    ResourceLoader::RawResourceTask loadRawData(ResourceLoader* loader, ResourceMeta* meta) {
-        auto it = waitingData.emplace(meta, nullptr);
-        if (it.second) {
-            it.first->second = loader->requestResourceData(meta);
-        }
-        return it.first->second;
-    }
-
-    void finishedLoading(ResourceMeta* meta) {
-        waitingData.erase(meta);
-    }
-
-private:
-    std::map<ResourceMeta*, ResourceLoader::RawResourceTask> waitingData; // the resources that are waiting the raw data to be loaded
 };
 
 }
