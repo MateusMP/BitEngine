@@ -7,7 +7,7 @@ project "JSON"
 
 	files
 	{
-		"src/json.hpp",
+		"single_include/nlohmann/json.hpp",
 	}
 		
 	systemversion "latest"

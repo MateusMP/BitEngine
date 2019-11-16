@@ -28,7 +28,7 @@ IncludeDir["GLFW"] = "BitEngine/dependencies/glfw/include"
 IncludeDir["GLEW"] = "BitEngine/dependencies/glew-2.1.0/include"
 IncludeDir["ImGui"] = "BitEngine/dependencies/imgui"
 IncludeDir["glm"] = "BitEngine/dependencies/glm"
-IncludeDir["json"] = "BitEngine/dependencies/json/src"
+IncludeDir["json"] = "BitEngine/dependencies/json/include"
 IncludeDir["stb"] = "BitEngine/dependencies/stb"
 IncludeDir["winksignals"] = "BitEngine/dependencies/Wink-Signals"
 IncludeDir["assimp"] = "BitEngine/dependencies/assimp/include"
@@ -54,8 +54,8 @@ project "BitEngine"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-	-- pchheader "hzpch.h"
-	-- pchsource "BitEngine/src/hzpch.cpp"
+	-- pchheader "bepch.h"
+	-- pchsource "BitEngine/src/bepch.cpp"
 
 	files
 	{
@@ -63,7 +63,6 @@ project "BitEngine"
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/BitEngine/dependencies/glm/glm/**.hpp",
         "%{prj.name}/BitEngine/dependencies/glm/glm/**.inl",
-        "%{prj.name}/BitEngine/dependencies/json/src/json.hpp",
 		"%{prj.name}/BitEngine/dependencies/stb/src/stb_image.h",
 	}
 
@@ -136,7 +135,6 @@ project "Sample01"
 	includedirs
 	{
 		"BitEngine/src",
-		"BitEngine/dependencies/json/src",
 		"dependencies",
 		"%{IncludeDir.glm}",
 		"%{prj.name}/src",
@@ -146,7 +144,7 @@ project "Sample01"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb}",
 		"%{IncludeDir.winksignals}",
-		"%{IncludeDir.json}/src/",
+		"%{IncludeDir.json}",
 		"%{IncludeDir.assimp}",
 	}
 
@@ -162,6 +160,147 @@ project "Sample01"
 		defines
 		{
 			"BE_PLATFORM_WINDOWS"
+		}
+
+	filter "configurations:Debug"
+		defines "BE_DEBUG"
+		runtime "Debug"
+		symbols "on"
+		debugargs { "--debug" }
+
+	filter "configurations:Release"
+		defines "BE_RELEASE"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Dist"
+		defines "BE_DIST"
+		runtime "Release"
+		optimize "on"
+
+
+
+project "Sample02"
+	location "samples"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"samples/sample02/src/**.h",
+		"samples/sample02/src/main.cpp",
+	}
+	
+	dependson
+	{
+		"Sample02DLL"
+	}
+
+	includedirs
+	{
+		"BitEngine/src",
+		"BitEngine/dependencies/json/src",
+		"dependencies",
+		"%{IncludeDir.glm}",
+		"%{prj.name}/src",
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.GLEW}",
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb}",
+		"%{IncludeDir.winksignals}",
+		"%{IncludeDir.json}",
+		"%{IncludeDir.assimp}",
+	}
+
+	links
+	{
+		"BitEngine",
+	}
+	debugdir "samples/sample02"
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"BE_PLATFORM_WINDOWS"
+		}
+
+	filter "configurations:Debug"
+		defines "BE_DEBUG"
+		runtime "Debug"
+		symbols "on"
+		debugargs { "--debug" }
+
+	filter "configurations:Release"
+		defines "BE_RELEASE"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Dist"
+		defines "BE_DIST"
+		runtime "Release"
+		optimize "on"
+
+project "Sample02DLL"
+	location "samples"
+	kind "SharedLib"
+	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
+
+	targetdir ("bin/" .. outputdir .. "/Sample02")
+	objdir ("bin-int/" .. outputdir .. "/Sample02")
+
+	files
+	{
+		"samples/sample02/src/**.h",
+		"samples/sample02/src/**.cpp",
+	}
+	excludes { "**/main.cpp" }
+
+	includedirs
+	{
+		"BitEngine/src",
+		"dependencies",
+		"%{IncludeDir.glm}",
+		"%{prj.name}/src",
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.GLEW}",
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb}",
+		"%{IncludeDir.winksignals}",
+		"%{IncludeDir.json}",
+		"%{IncludeDir.assimp}",
+	}
+	
+	defines
+	{
+		BE_LIBRARY_EXPORTS
+	}
+
+	links
+	{
+		"BitEngine"
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"BE_PLATFORM_WINDOWS",
+		}
+		
+		postbuildcommands { 
+			"xcopy bin\\" .. outputdir .. "\\%{prj.name}\\*.DLL samples\\sample02\\%{prj.name}.DLL"
 		}
 
 	filter "configurations:Debug"
