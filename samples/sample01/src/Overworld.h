@@ -1,7 +1,5 @@
 #pragma once
 
-#include <bitengine/Core/GameEngine.h>
-
 #include "MyGameEntitySystem.h"
 
 class PlayerController;

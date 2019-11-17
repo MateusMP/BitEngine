@@ -93,7 +93,7 @@ void GLFW_InputSystem::unregisterWindow(Window* window)
 void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_UNKNOWN) {
-		LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods;
+		LOG(EngineLog, BE_LOG_WARNING) << "Unknown key: scancode: " << scancode << " Action: " << action << " Mods: " << mods;
 	}
 
 	// LOGCLASS(VERBOSE) << "Key Input on window " << window << " key: " << key << " scancode: " << scancode << " Action: " << action << " Mods: " << mods;

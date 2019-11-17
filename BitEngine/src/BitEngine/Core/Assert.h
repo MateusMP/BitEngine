@@ -2,6 +2,7 @@
 
 #include <exception>
 
+#include "BitEngine/Core/api.h"
 #include "bitengine/Core/Logger.h"
 
 #define BE_ASSERT_THROW_ON_FAIL true

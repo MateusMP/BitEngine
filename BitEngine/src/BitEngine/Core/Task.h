@@ -5,7 +5,7 @@
 
 #include "bitengine/Core/Assert.h"
 
-namespace BitEngine{
+namespace BitEngine {
 
 class Task;
 

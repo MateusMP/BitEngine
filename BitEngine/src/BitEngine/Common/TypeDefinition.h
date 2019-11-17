@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include "BitEngine/Core/api.h"
 
 // unsigned
 typedef uint8_t u8;
@@ -21,3 +22,21 @@ typedef size_t ptrsize;
 
 #define KILOBYTES(x) (x * 1024)
 #define MEGABYTES(x) (KILOBYTES(x) * 1024)
+
+class NonCopyable
+{
+protected:
+    NonCopyable() {}
+    ~NonCopyable() {}
+private:
+    NonCopyable(const NonCopyable&){}
+};
+
+class  NonAssignable
+{
+protected:
+    NonAssignable() {}
+    ~NonAssignable() {}
+private:
+    const NonAssignable& operator=(const NonAssignable&){}
+};

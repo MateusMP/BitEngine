@@ -1,6 +1,5 @@
 
 #include "bitengine/Core/Memory.h"
-#include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/Graphics/VideoDriver.h"
 
 #include "Platform/opengl/GL2/OpenGL2.h"

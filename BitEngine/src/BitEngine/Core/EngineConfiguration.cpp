@@ -2,7 +2,6 @@
 
 #include <string.h>
 
-#include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/Logger.h"
 
 

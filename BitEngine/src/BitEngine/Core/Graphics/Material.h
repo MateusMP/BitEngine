@@ -7,7 +7,7 @@
 
 namespace BitEngine {
 
-	class Material {
+	class BE_API Material {
 		public:
 		Material()
 			: blendEquation(BlendEquation::ADD)

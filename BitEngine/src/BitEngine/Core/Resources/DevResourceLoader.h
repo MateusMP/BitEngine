@@ -2,16 +2,16 @@
 
 // Read json index file
 
-#include "bitengine/Core/Resources/ResourceManager.h"
-#include "bitengine/Core/Task.h"
-#include "bitengine/Core/Memory.h"
+#include <nlohmann/json.hpp>
 
-#include "json.hpp"
+#include "bitengine/Core/TaskManager.h"
+#include "bitengine/Core/Memory.h"
+#include "bitengine/Core/Resources/ResourceManager.h"
 
 
 namespace BitEngine
 {
-struct DevResourceMeta : public ResourceMeta {
+struct BE_API DevResourceMeta : public ResourceMeta {
     std::string filePath; // In case the resource is associated with a file
 
     DevResourceMeta(const std::string& pack)
@@ -19,7 +19,7 @@ struct DevResourceMeta : public ResourceMeta {
     {}
 };
 
-struct DevResourcePropertyRef : public ResourceProperty
+struct BE_API DevResourcePropertyRef : public ResourceProperty
 {
     DevResourcePropertyRef(nlohmann::json& json)
         : properties(json)
@@ -70,7 +70,7 @@ private:
  * This loader loads files from the standard file system.
  * All resources are indexed in a json file.
  */
-class DevResourceLoader : public ResourceLoader
+class BE_API DevResourceLoader : public ResourceLoader
 {
 public:
     // Returns the full directory where the file for this meta is.

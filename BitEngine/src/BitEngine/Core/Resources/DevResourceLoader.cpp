@@ -20,7 +20,7 @@ public:
     {
         using namespace BitEngine;
 
-        dr.loadState = ResourceLoader::DataRequest::LoadState::LOADING;
+        dr.loadState = ResourceLoader::DataRequest::LoadState::LS_LOADING;
         DevResourceMeta* drm = static_cast<DevResourceMeta*>(dr.meta);
         const std::string& path = drm->filePath;
 
@@ -32,13 +32,13 @@ public:
 
         if (DevResourceLoader::loadFileToMemory(path, dr.data))
         {
-            dr.loadState = ResourceLoader::DataRequest::LoadState::LOADED;
+            dr.loadState = ResourceLoader::DataRequest::LoadState::LS_LOADED;
             loader->finishedLoading(dr.meta);
         }
         else
         {
             LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
-            dr.loadState = ResourceLoader::DataRequest::LoadState::ERROR;
+            dr.loadState = ResourceLoader::DataRequest::LoadState::LS_ERROR;
         }
     }
 

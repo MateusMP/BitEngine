@@ -1,12 +1,11 @@
 #include <string>
 #include <vector>
 
-#include "bitengine/Core/GameEngine.h"
-#include "bitengine/Core/Task.h"
-#include "bitengine/Core/Messenger.h"
+#include "Bitengine/Core/Task.h"
+#include "Bitengine/Core/Messenger.h"
 
-#include "bitengine/Core/Resources/ResourceIndexer.h"
-#include "bitengine/Core/Resources/ResourceProperties.h"
+#include "Bitengine/Core/Resources/ResourceIndexer.h"
+#include "Bitengine/Core/Resources/ResourceProperties.h"
 
 namespace BitEngine {
 
@@ -16,7 +15,7 @@ class RR;
 /***
  * Stores resource meta data.
  */
-struct ResourceMeta
+struct BE_API ResourceMeta
 {
     ResourceMeta(const std::string& pack)
         : id(~0), package(pack), references(0)
@@ -46,7 +45,7 @@ private:
 /**
  * All resources types should come from this
  */
-class BaseResource
+class BE_API BaseResource
 {
 public:
     // Base resource
@@ -71,7 +70,7 @@ protected:
  * Resource Loader interface
  * Used by the application to retrieve the final resource.
  */
-class ResourceLoader : public MessengerEndpoint
+class BE_API ResourceLoader
 {
 public:
 
@@ -79,9 +78,9 @@ public:
     {
         enum LoadState {
             NOT_LOADED,
-            LOADING,
-            LOADED,
-            ERROR,
+            LS_LOADING,
+            LS_LOADED,
+            LS_ERROR,
         };
         DataRequest(DataRequest&& dr) noexcept
             : meta(dr.meta), loadState(dr.loadState), data(std::move(dr.data))
@@ -98,7 +97,7 @@ public:
         }
 
         bool isLoaded() {
-            return loadState == LOADED;
+            return loadState == LS_LOADED;
         }
 
         /*DataRequest& operator=(const DataRequest& other) {
@@ -290,7 +289,7 @@ protected:
  * This is a Reference Counted reference to a given resource.
  */
 template<typename T>
-class RR
+class BE_API RR
 {
     static_assert(std::is_base_of<BaseResource, T>::value, "Not a resource class");
 

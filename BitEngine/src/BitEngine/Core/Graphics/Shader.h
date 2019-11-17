@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bitengine/Core/Graphics/VideoRenderer.h"
-#include "bitengine/Core/Resources/ResourceManager.h"
 
 namespace BitEngine {
     

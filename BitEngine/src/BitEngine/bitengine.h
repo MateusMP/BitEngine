@@ -6,9 +6,8 @@
 #include "bitengine/Core/Window.h"
 #include "bitengine/Core/Reflection.h"
 #include "bitengine/Core/Messenger.h"
-#include "bitengine/Core/ResourceSystem.h"
 
-#include "bitengine/Core/Resources/Sprite.h"
+#include "bitengine/Core/Graphics/Sprite.h"
 #include "bitengine/Core/Logger.h"
 #include "bitengine/Core/CommandSystem.h"
 #include "bitengine/Core/KeyCodes.h"
@@ -18,4 +17,3 @@
 
 #include "bitengine/Core/Mesh.h"
 #include "bitengine/Core/Graphics/Texture.h"
-#include "bitengine/Core/GameEngine.h"

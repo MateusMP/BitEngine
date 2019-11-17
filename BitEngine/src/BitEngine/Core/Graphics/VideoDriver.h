@@ -2,7 +2,6 @@
 
 #include <memory>
 
-#include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/EngineConfiguration.h"
 #include "bitengine/Core/Graphics/VideoRenderer.h"
 

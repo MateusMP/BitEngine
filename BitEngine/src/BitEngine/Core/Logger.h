@@ -9,6 +9,7 @@
 #include <initializer_list>
 #include <vector>
 
+#include "BitEngine/Core/api.h"
 #include "bitengine/Core/Timer.h"
 #include "bitengine/Common/MacroHelpers.h"
 
@@ -138,7 +139,7 @@
 namespace BitEngine {
 	class Logger;
 	class LogLine;
-	extern Logger* EngineLog;
+	BE_API extern Logger* EngineLog;
 
 	class LoggerSetup {
 		static LoggerSetup loggerSetup;

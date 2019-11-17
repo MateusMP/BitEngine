@@ -4,7 +4,8 @@
 #include "examples/imgui_impl_glfw.h"
 #include "examples/imgui_impl_opengl3.h"
 
-#include "BitEngine/Core/VideoSystem.h"
+#include "Platform/glfw/GLFW_VideoSystem.h"
+
 
 namespace BitEngine {
 

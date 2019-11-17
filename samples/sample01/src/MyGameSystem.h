@@ -1,8 +1,6 @@
 #pragma once
 
-#include <bitengine/Core/System.h>
 #include <bitengine/Core/VideoSystem.h>
-#include <bitengine/Core/GameEngine.h>
 #include <bitengine/Core/Graphics/Sprite2D.h>
 #include <bitengine/Core/ECS/EntitySystem.h>
 

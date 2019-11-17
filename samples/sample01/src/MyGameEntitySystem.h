@@ -1,9 +1,7 @@
 #pragma once
 
-#include <bitengine/Core/GameEngine.h>
-
-#include <bitengine/Core/ResourceSystem.h>
 #include <bitengine/Core/Graphics/Sprite2D.h>
+#include <bitengine/Core/Graphics/Sprite2DRenderer.h>
 #include <bitengine/Core/ECS/Camera2DProcessor.h>
 #include <bitengine/Core/ECS/Camera3DProcessor.h>
 #include <bitengine/Core/ECS/RenderableMeshProcessor.h>

@@ -8,7 +8,6 @@
 #include "bitengine/Common/TypeDefinition.h"
 #include "bitengine/Common/ThreadSafeQueue.h"
 #include "bitengine/Core/Logger.h"
-#include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/Task.h"
 #include "bitengine/Core/Resources/ResourceLoader.h"
 
@@ -22,7 +21,7 @@ namespace BitEngine {
  * It's possible that a ResourceManager will ask for resources from different managers.
  * e.g: The ModelManager asks for Textures which the TextureManager loaded.
  */
-class ResourceManager
+class BE_API ResourceManager
 {
 public:
     virtual ~ResourceManager() {}

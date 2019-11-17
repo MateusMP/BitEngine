@@ -4,7 +4,7 @@
 #include <map>
 
 #include "bitengine/Core/Resources/ResourceManager.h"
-#include "bitengine/Core/Resources/Sprite.h"
+#include "bitengine/Core/Graphics/Sprite.h"
 
 namespace BitEngine{
 	

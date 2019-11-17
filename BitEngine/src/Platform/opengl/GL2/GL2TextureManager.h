@@ -4,6 +4,7 @@
 #include <array>
 #include <unordered_map>
 
+#include "bitengine/Core/TaskManager.h"
 #include "bitengine/Core/Resources/ResourceManager.h"
 #include "bitengine/Common/ThreadSafeQueue.h"
 

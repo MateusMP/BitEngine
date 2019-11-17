@@ -3,7 +3,6 @@
 #include <fstream>
 
 #include "bitengine/Common/ErrorCodes.h"
-#include "bitengine/Core/GameEngine.h"
 #include "bitengine/Core/SystemConfiguration.h"
 
 // Param will cause log to be sent to the console and the default file

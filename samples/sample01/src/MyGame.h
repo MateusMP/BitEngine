@@ -170,8 +170,6 @@ public:
             spriteComp->alpha = 1.0;
         }
 
-        //check_gl_error();
-
         gameState->m_world->start();
 
         running = true;

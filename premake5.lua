@@ -52,7 +52,7 @@ project "BitEngine"
 	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-tmp/" .. outputdir .. "/%{prj.name}")
 
 	-- pchheader "bepch.h"
 	-- pchsource "BitEngine/src/bepch.cpp"
@@ -124,7 +124,7 @@ project "Sample01"
 	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-tmp/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
@@ -167,6 +167,7 @@ project "Sample01"
 		runtime "Debug"
 		symbols "on"
 		debugargs { "--debug" }
+		editandcontinue "On"
 
 	filter "configurations:Release"
 		defines "BE_RELEASE"
@@ -188,11 +189,11 @@ project "Sample02"
 	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-tmp/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
-		"samples/sample02/src/**.h",
+		"samples/sample02/src/common/MainMemory.h",
 		"samples/sample02/src/main.cpp",
 	}
 	
@@ -256,7 +257,7 @@ project "Sample02DLL"
 	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/Sample02")
-	objdir ("bin-int/" .. outputdir .. "/Sample02")
+	objdir ("bin-tmp/" .. outputdir .. "/Sample02")
 
 	files
 	{
@@ -308,6 +309,7 @@ project "Sample02DLL"
 		runtime "Debug"
 		symbols "on"
 		debugargs { "--debug" }
+		editandcontinue "On"
 
 	filter "configurations:Release"
 		defines "BE_RELEASE"

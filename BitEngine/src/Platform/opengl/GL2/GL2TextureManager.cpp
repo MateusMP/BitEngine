@@ -238,7 +238,7 @@ BaseResource* GL2TextureManager::loadResource(ResourceMeta* meta)
             {
                 // Build fake data request result with the data we already have
                 ResourceLoader::DataRequest data(meta);
-                data.loadState = ResourceLoader::DataRequest::LOADED;
+                data.loadState = ResourceLoader::DataRequest::LS_LOADED;
                 data.data.swap(texture->imgData.fileData);
                 texture->m_loaded = GL2Texture::TextureLoadState::LOADING;
 
