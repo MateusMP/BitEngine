@@ -11,10 +11,10 @@
 
 namespace BitEngine{
 
-	class Camera3DProcessor : public ComponentProcessor
+	class BE_API Camera3DProcessor : public ComponentProcessor
 	{
 	public:
-		Camera3DProcessor(Transform3DProcessor* t3dp);
+		Camera3DProcessor(EntitySystem* es, Transform3DProcessor* t3dp);
 
 		/// Processor
 		bool Init() override;

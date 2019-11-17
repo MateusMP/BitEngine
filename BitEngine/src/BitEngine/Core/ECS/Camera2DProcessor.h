@@ -8,35 +8,35 @@
 
 #include "bitengine/Common/VectorBool.h"
 
-namespace BitEngine{
+namespace BitEngine {
 
-class Camera2DProcessor : public ComponentProcessor
+class BE_API Camera2DProcessor : public ComponentProcessor
 {
-	public: // Methods
-		Camera2DProcessor(Transform2DProcessor* t2dp);
+public: // Methods
+    Camera2DProcessor(EntitySystem* es, Transform2DProcessor* t2dp);
 
-		/// Processor
-		bool Init() override;
-		void Stop() override;
-		void Process();
+    /// Processor
+    bool Init() override;
+    void Stop() override;
+    void Process();
 
-	private: // Methods
+private: // Methods
 
-		/// Processor
-		static void recalculateMatrix(Camera2DComponent& c);
-		
-	private: // Member variables
+    /// Processor
+    static void recalculateMatrix(Camera2DComponent& c);
 
-		/// Component processor
+private: // Member variables
 
-		// Hold the ComponentType for all components this processor cares
-		ComponentType Transform2DType;
-		ComponentType Camera2DType;
+    /// Component processor
 
-		// Hold the ComponentHolders for all ComponentTypes cared by this processor
-		ComponentHolder<Camera2DComponent>* holderCamera;
-		ComponentHolder<Transform2DComponent>* holderTransform;
-		Transform2DProcessor* transform2DProcessor;
+    // Hold the ComponentType for all components this processor cares
+    ComponentType Transform2DType;
+    ComponentType Camera2DType;
+
+    // Hold the ComponentHolders for all ComponentTypes cared by this processor
+    ComponentHolder<Camera2DComponent>* holderCamera;
+    ComponentHolder<Transform2DComponent>* holderTransform;
+    Transform2DProcessor* transform2DProcessor;
 };
 
 }

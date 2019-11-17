@@ -13,10 +13,12 @@ namespace BitEngine{
 	 * Uses Transform2DComponents
 	 * Can create hierarchies and generate local and global transform matrices
 	 **/
-	class Transform2DProcessor : public ComponentProcessor
+	class BE_API Transform2DProcessor : public ComponentProcessor,
+        public Messenger< MsgComponentCreated<Transform2DComponent>>::ScopedSubscription,
+        public Messenger< MsgComponentDestroyed<Transform2DComponent>>::ScopedSubscription
 	{
 		public:
-			Transform2DProcessor(Messenger* m);
+			Transform2DProcessor(EntitySystem* es);
 			~Transform2DProcessor();
 
 			/// Processor

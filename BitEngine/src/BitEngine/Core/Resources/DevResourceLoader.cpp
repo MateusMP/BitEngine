@@ -49,8 +49,8 @@ private:
 
 //
 
-DevResourceLoader::DevResourceLoader(MemoryArena& memory, Messenger* msg, TaskManager* tm)
-    : memoryArena(memory), ResourceLoader(msg), taskManager(tm)
+DevResourceLoader::DevResourceLoader(MemoryArena& memory, TaskManager* tm)
+    : memoryArena(memory), taskManager(tm)
 {
     resourceMeta.reserve(4096);
     resourceMetaIndexes.reserve(8);

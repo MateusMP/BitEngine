@@ -4,8 +4,10 @@
 
 namespace BitEngine{
 
-	Transform3DProcessor::Transform3DProcessor(Messenger* m)
-		: ComponentProcessor(m)
+	Transform3DProcessor::Transform3DProcessor(EntitySystem* m)
+		: ComponentProcessor(m), 
+        Messenger< MsgComponentCreated<Transform3DComponent>>::ScopedSubscription(m->getHolder<Transform3DComponent>()->componentCreatedSignal, &Transform3DProcessor::onMessage, this),
+        Messenger< MsgComponentDestroyed<Transform3DComponent>>::ScopedSubscription(m->getHolder<Transform3DComponent>()->componentDestroyedSignal, &Transform3DProcessor::onMessage, this)
 	{
 	}
 
@@ -15,8 +17,6 @@ namespace BitEngine{
 
 	bool Transform3DProcessor::Init()
 	{
-		subscribe<MsgComponentCreated<Transform3DComponent> >(&Transform3DProcessor::onMessage, this);
-		subscribe<MsgComponentDestroyed<Transform3DComponent> >(&Transform3DProcessor::onMessage, this);
 		return true;
 	}
 

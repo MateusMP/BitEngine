@@ -9,10 +9,9 @@ void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int 
 void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods);
 void GlfwMousePosCallback(GLFWwindow* window, double x, double y);
 
-std::unordered_map<GLFWwindow*, BitEngine::Input::InputReceiver> inputReceivers;
+std::unordered_map<GLFWwindow*, Input::InputReceiver> inputReceivers;
 
-GLFW_InputSystem::GLFW_InputSystem(BitEngine::Messenger* m)
-	: InputSystem(m)
+GLFW_InputSystem::GLFW_InputSystem()
 {
 
 }
@@ -31,20 +30,20 @@ void GLFW_InputSystem::update()
 	glfwPollEvents();
 }
 
-BitEngine::Input::KeyMod GLFW_InputSystem::isKeyPressed(int key)
+KeyMod GLFW_InputSystem::isKeyPressed(int key)
 {
 	auto w = inputReceivers.begin();
 	if (w == inputReceivers.end())
-		return BitEngine::Input::KeyMod::KFALSE;
+		return KeyMod::KFALSE;
 
 	return w->second.isKeyPressed(key);
 }
 
-BitEngine::Input::KeyMod GLFW_InputSystem::keyReleased(int key)
+KeyMod GLFW_InputSystem::keyReleased(int key)
 {
 	auto w = inputReceivers.begin();
 	if (w == inputReceivers.end())
-		return BitEngine::Input::KeyMod::KFALSE;
+		return KeyMod::KFALSE;
 
 	return w->second.keyReleased(key);
 }
@@ -69,9 +68,10 @@ double GLFW_InputSystem::getMouseY() const
 
 void GLFW_InputSystem::registerWindow(Window* window)
 {
-	GLFWwindow *glfwWindow = ((GLFW_Window*)window)->window;
+    GLFW_Window* be_window = ((GLFW_Window*)window);
+	GLFWwindow *glfwWindow = be_window->window;
 	// Creates instance for this window
-	inputReceivers.emplace(glfwWindow, getMessenger());
+	inputReceivers.emplace(glfwWindow, window);
 
 	// Define callback for functions
 	glfwSetKeyCallback(glfwWindow, GlfwKeyCallback);
@@ -101,26 +101,26 @@ void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int 
 	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()) 
 	{
-		BitEngine::Input::KeyAction act = BitEngine::Input::KeyAction::NONE;
+		KeyAction act = KeyAction::NONE;
 		switch (action) 
 		{
 			case GLFW_REPEAT:
-				act = BitEngine::Input::KeyAction::REPEAT;
+				act = KeyAction::REPEAT;
 				break;
 			case GLFW_PRESS:
-				act = BitEngine::Input::KeyAction::PRESS;
+				act = KeyAction::PRESS;
 				break;
 			case GLFW_RELEASE:
-				act = BitEngine::Input::KeyAction::RELEASE;
+				act = KeyAction::RELEASE;
 				break;
 			default:
-				LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Invalid key action: " << action;
+				LOG(EngineLog, BE_LOG_WARNING) << "Invalid key action: " << action;
 				return;
 		}
 		it->second.keyboardInput(key, scancode, act, mods);
 	}
 	else {
-		LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Invalid window input!";
+		LOG(EngineLog, BE_LOG_WARNING) << "Invalid window input!";
 	}
 }
 
@@ -129,24 +129,24 @@ void GlfwMouseCallback(GLFWwindow* window, int button, int action, int mods)
 	auto it = inputReceivers.find(window);
 	if (it != inputReceivers.end()) 
 	{
-		BitEngine::Input::MouseAction act = BitEngine::Input::MouseAction::NONE;
+		MouseAction act = MouseAction::NONE;
 		switch (action)
 		{
 			case GLFW_PRESS:
-				act = BitEngine::Input::MouseAction::PRESS;
+				act = MouseAction::PRESS;
 				break;
 			case GLFW_RELEASE:
-				act = BitEngine::Input::MouseAction::RELEASE;
+				act = MouseAction::RELEASE;
 				break;
 			default:
-				LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Invalid mouse action: " << action;
+				LOG(EngineLog, BE_LOG_WARNING) << "Invalid mouse action: " << action;
 				return;
 		}
 		it->second.mouseInput(button, act, mods);
 	}
 	else 
 	{
-		LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Invalid window input!";
+		LOG(EngineLog, BE_LOG_ERROR) << "Invalid window input!";
 	}
 }
 
@@ -156,7 +156,7 @@ void GlfwMousePosCallback(GLFWwindow* window, double x, double y)
 	if (it != inputReceivers.end()) {
 		it->second.mouseInput(x, y);
 	} else {
-		LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Invalid window input!";
+		LOG(EngineLog, BE_LOG_ERROR) << "Invalid window input!";
 	}
 }
 

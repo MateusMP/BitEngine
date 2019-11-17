@@ -50,11 +50,13 @@ void resourceManagerMenu(const char* name, BitEngine::ResourceManager *resMng) {
     }
 }
 
-class MyGame : public BitEngine::MessengerEndpoint
+class MyGame :
+    BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription
 {
 public:
     MyGame(MainMemory* gameMemory)
-        : MessengerEndpoint(gameMemory->messenger), gameMemory(gameMemory), running(false)
+        : gameMemory(gameMemory), running(false),
+        BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this)
     {
         subscribe<BitEngine::CommandSystem::MsgCommandInput>(&MyGame::onMessage, this);
         subscribe<RenderEvent>(&MyGame::onMessage, this);
@@ -62,12 +64,6 @@ public:
         subscribe<BitEngine::ImGuiRenderEvent>(&MyGame::onMessage, this);
 
         gameState = (GameState*)gameMemory->memory;
-
-        // Create the main arena with all memory!
-        gameState->mainArena.init((u8*)gameMemory->memory + sizeof(GameState), gameMemory->memorySize - sizeof(GameState));
-        gameState->permanentArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(8)), MEGABYTES(8));
-        gameState->entityArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(64)), MEGABYTES(64));
-        gameState->resourceArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(256)), MEGABYTES(256));
     }
 
 
@@ -106,6 +102,13 @@ public:
     bool init()
     {
         using namespace BitEngine;
+        
+        // Create memory arenas
+        gameState->mainArena.init((u8*)gameMemory->memory + sizeof(GameState), gameMemory->memorySize - sizeof(GameState));
+        gameState->permanentArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(8)), MEGABYTES(8));
+        gameState->entityArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(64)), MEGABYTES(64));
+        gameState->resourceArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(256)), MEGABYTES(256));
+        gameState->initialized = true;
 
         MemoryArena& permanentArena = gameState->permanentArena;
 
@@ -161,7 +164,7 @@ public:
             BitEngine::ComponentRef<BitEngine::SceneTransform2DComponent> sceneComp;
             BitEngine::ComponentRef<BitEngine::GameLogicComponent> logicComp;
             ADD_COMPONENT_ERROR(transformComp = es->AddComponent<BitEngine::Transform2DComponent>(h));
-            ADD_COMPONENT_ERROR(spriteComp = es->AddComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, BitEngine::Sprite2DRenderer::EFFECT_SPRITE));
+            ADD_COMPONENT_ERROR(spriteComp = es->AddComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, BitEngine::Sprite2DComponent::EFFECT_SPRITE));
             ADD_COMPONENT_ERROR(sceneComp = es->AddComponent<BitEngine::SceneTransform2DComponent>(h));
             ADD_COMPONENT_ERROR(logicComp = es->AddComponent<BitEngine::GameLogicComponent>(h));
             ADD_COMPONENT_ERROR(es->AddComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
@@ -226,7 +229,7 @@ public:
     void onMessage(const RenderEvent& ev)
     {
         BitEngine::VideoDriver* driver = gameMemory->videoSystem->getDriver();
-        driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.5f, 0.2f, 0.3f, 0.f));
+        driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.5f, 0.3f, 0.3f, 0.f));
         driver->clearBuffer(nullptr, BitEngine::BufferClearBitMask::COLOR_DEPTH);
 
         //ev.state->entitySystem->sh3D.setActiveCamera(ev.state->m_world->getActiveCamera());

@@ -85,7 +85,7 @@ public:
     static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
 
 
-    DevResourceLoader(MemoryArena& memoryArena, Messenger* ge, TaskManager* taskManager);
+    DevResourceLoader(MemoryArena& memoryArena, TaskManager* taskManager);
     ~DevResourceLoader();
 
     bool init() override;

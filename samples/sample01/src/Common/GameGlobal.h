@@ -52,9 +52,9 @@ struct MainMemory {
 	BitEngine::ResourceManager* spriteManager;
 	
 	BitEngine::VideoSystem* videoSystem;
-	BitEngine::Messenger* messenger;
 	BitEngine::EngineConfiguration *engineConfig;
 	BitEngine::TaskManager* taskManager;
+    BitEngine::CommandSystem* commandSystem;
 };
 
 struct GameState {
@@ -77,10 +77,6 @@ struct GameState {
 	UserGUI* m_userGUI;
 	GameWorld* m_world; //!< Current active world
 	
-};
-
-struct RenderEvent {
-	GameState* state;
 };
 
 struct UserRequestQuitGame {

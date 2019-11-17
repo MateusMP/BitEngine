@@ -1,43 +1,44 @@
 #pragma once
 
+#include "bitengine/Core/api.h"
 #include "bitengine/Common/TypeDefinition.h"
 
-namespace BitEngine{
+namespace BitEngine {
 
-	class BaseComponentHolder;
+class BaseComponentHolder;
 
-	typedef u32 EntityHandle;
-	typedef u32 ComponentHandle;
-	typedef u16 ComponentType;
-	typedef u16* GlobalComponentID;
+typedef u32 EntityHandle;
+typedef u32 ComponentHandle;
+typedef u16 ComponentType;
+typedef u16* GlobalComponentID;
 
-	const u32 BE_NO_COMPONENT_HANDLE = 0;
-	const u32 BE_NO_COMPONENT_TYPE = ~0;
+const u32 BE_NO_COMPONENT_HANDLE = 0;
+const u32 BE_NO_COMPONENT_TYPE = ~0;
 
-	class BaseComponent
-	{
-		friend class BaseComponentHolder;
+class BE_API BaseComponent
+{
+    friend class BaseComponentHolder;
 
-		public:
-			virtual ~BaseComponent(){}
+public:
+    virtual ~BaseComponent() {}
 
-		protected:
-			static ComponentType componentTypeCounter;
-	};
+protected:
+    static ComponentType componentTypeCounter;
+};
 
-	template<typename T>
-	class Component : public BaseComponent
-	{
-		public:
-			static GlobalComponentID getGlobalComponentID()
-			{
-				static ComponentType type = componentTypeCounter++;
-				return &type;
-			}
+template<typename T>
+class BE_API Component : public BaseComponent
+{
+public:
+    static GlobalComponentID getGlobalComponentID()
+    {
+        static ComponentType type = componentTypeCounter++;
+        return &type;
+    }
 
-			static ComponentType getComponentType() {
-				return *getGlobalComponentID();
-			}
-	};
+    static ComponentType getComponentType() {
+        return *getGlobalComponentID();
+    }
+};
 
 }

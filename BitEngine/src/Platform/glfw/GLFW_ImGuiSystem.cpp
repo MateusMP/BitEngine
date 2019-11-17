@@ -54,7 +54,7 @@ void GLFW_ImGuiSystem::update()
     io.DisplaySize = ImVec2((float)700, (float)600);
 
     // Test
-    getMessenger()->emit(ImGuiRenderEvent());
+    Messenger<ImGuiRenderEvent>::emit(ImGuiRenderEvent());
 
     static bool show = true;
     ImGui::ShowDemoWindow(&show);

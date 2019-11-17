@@ -8,15 +8,15 @@ namespace BitEngine {
 class GLFW_InputSystem : public BitEngine::InputSystem
 {
 public:
-	GLFW_InputSystem(BitEngine::Messenger* m);
+	GLFW_InputSystem();
 	~GLFW_InputSystem(){}
 
 	bool init() override;
 	void shutdown() override;
 	void update() override;
 	
-	BitEngine::Input::KeyMod isKeyPressed(int key) override;
-	BitEngine::Input::KeyMod keyReleased(int key) override;
+	KeyMod isKeyPressed(int key) override;
+	KeyMod keyReleased(int key) override;
 
 	double getMouseX() const override;
 	double getMouseY() const override;

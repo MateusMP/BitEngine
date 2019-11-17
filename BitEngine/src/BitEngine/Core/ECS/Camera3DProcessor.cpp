@@ -3,8 +3,8 @@
 #include <tuple>
 namespace BitEngine{
 
-	Camera3DProcessor::Camera3DProcessor(Transform3DProcessor* t3dp)
-		: ComponentProcessor(t3dp->getMessenger()), transform3DProcessor(t3dp)
+	Camera3DProcessor::Camera3DProcessor(EntitySystem* es, Transform3DProcessor* t3dp)
+		: ComponentProcessor(es), transform3DProcessor(t3dp)
 	{
 	}
 

@@ -19,11 +19,10 @@ namespace BitEngine {
 	 * Basic video initialization
 	 * Uses just one window
 	 */
-	class VideoSystem : public MessengerEndpoint
+	class VideoSystem
 	{
 		public:
-			VideoSystem(Messenger* m) 
-				: MessengerEndpoint(m)
+			VideoSystem() 
 			{
 				//getConfig("Fullscreen", "false")->setDescription("Use fullscreen mode, true, false ");
 			}

@@ -2,8 +2,8 @@
 
 namespace BitEngine{
 
-	Camera2DProcessor::Camera2DProcessor(Transform2DProcessor* t2dp)
-		: ComponentProcessor(t2dp->getMessenger()), transform2DProcessor(t2dp)
+	Camera2DProcessor::Camera2DProcessor(EntitySystem* es, Transform2DProcessor* t2dp)
+		: ComponentProcessor(es), transform2DProcessor(t2dp)
 	{
 	}
 

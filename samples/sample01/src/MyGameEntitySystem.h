@@ -59,13 +59,12 @@ class SpinnerSystem : public BitEngine::ComponentProcessor
 class MyGameEntitySystem : public BitEngine::EntitySystem
 {
 public:
-	MyGameEntitySystem(BitEngine::ResourceLoader* loader, BitEngine::Messenger* messenger, BitEngine::MemoryArena* entityMemory)
-		: EntitySystem(messenger), 
-		t2p(messenger), t3p(messenger), 
-		cam2Dprocessor(&t2p), cam3Dprocessor(&t3p),
-		rmp(messenger),
-		glp(messenger), spr2D(messenger, loader),
-        spinnerSys(messenger)
+	MyGameEntitySystem(BitEngine::ResourceLoader* loader, BitEngine::MemoryArena* entityMemory)
+		: t2p(this), t3p(this), 
+		cam2Dprocessor(this, &t2p), cam3Dprocessor(this, &t3p),
+		rmp(this),
+		glp(this), spr2D(this, loader),
+        spinnerSys(this)
 		//sh3D(&t3p)
 	{
 		using namespace BitEngine;

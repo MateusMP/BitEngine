@@ -10,8 +10,8 @@
 class Shader3DProcessor : public BitEngine::ComponentProcessor
 {
 	public:
-	Shader3DProcessor(BitEngine::Transform3DProcessor *t3dp_)
-		: ComponentProcessor(t3dp_->getMessenger()), t3dp(t3dp_)
+	Shader3DProcessor(BitEngine::EntitySystem* es, BitEngine::Transform3DProcessor *t3dp_)
+		: ComponentProcessor(es), t3dp(t3dp_)
 	{
 		Init();
 	}

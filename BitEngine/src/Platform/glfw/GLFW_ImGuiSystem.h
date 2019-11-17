@@ -3,18 +3,14 @@
 #include <GLFW/glfw3.h>
 
 #include "bitengine/Core/Messenger.h"
-#include "Platform/glfw/GLFW_VideoSystem.h"
+#include "BitEngine/Core/Window.h"
 
 namespace BitEngine {
 
-struct ImGuiRenderEvent {
-	
-};
-
-class GLFW_ImGuiSystem : public MessengerEndpoint
+class GLFW_ImGuiSystem : public Messenger<ImGuiRenderEvent>
 {
 	public:
-		GLFW_ImGuiSystem(Messenger *m) : MessengerEndpoint(m)
+		GLFW_ImGuiSystem()
 		{
 		}
 		~GLFW_ImGuiSystem() {}

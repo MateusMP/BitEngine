@@ -38,8 +38,7 @@ void TaskWorker::process(TaskPtr task)
                 manager->addTask(task);
             }
         }
-
-        manager->getMessenger()->enqueue(MsgTaskCompleted(task));
+        // Task done
     }
     else
     {
@@ -92,8 +91,8 @@ void TaskWorker::wait()
     }
 }
 
-GeneralTaskManager::GeneralTaskManager(Messenger* m)
-    : TaskManager(m), mainThread(std::this_thread::get_id())
+GeneralTaskManager::GeneralTaskManager()
+    : TaskManager(), mainThread(std::this_thread::get_id())
 {
     LOG(EngineLog, BE_LOG_INFO) << "Main thread: " << mainThread;
     requiredTasksFrame = 0;
@@ -122,18 +121,12 @@ void GeneralTaskManager::init()
 
 void GeneralTaskManager::update()
 {
-    getMessenger()->emit(MsgFrameStart());
-
     while (finishedRequiredTasks != requiredTasksFrame)
     {
         executeMain();
     }
 
-    getMessenger()->emit(MsgFrameEnd());
-
     prepareNextFrame();
-
-    Time::Tick();
 }
 
 void GeneralTaskManager::prepareNextFrame()

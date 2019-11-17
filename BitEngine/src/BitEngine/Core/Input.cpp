@@ -30,7 +30,7 @@ namespace Input {
 				return;
 		}
 
-		getMessenger()->emit(MsgKeyboardInput(key, action, (KeyMod)mods));
+		window->keyboardInputSignal.emit(MsgKeyboardInput(key, action, (KeyMod)mods));
 	}
 
 	void InputReceiver::mouseInput(int button, MouseAction action, int mods)
@@ -52,7 +52,7 @@ namespace Input {
 				return;
 		}
 
-		getMessenger()->emit(MsgMouseInput(button, action, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
+        window->mouseInputSignal.emit(MsgMouseInput(button, action, (KeyMod)mods, cursorInScreenX, cursorInScreenY));
 	}
 
 	void InputReceiver::mouseInput(double x, double y)
@@ -60,10 +60,10 @@ namespace Input {
 		cursorInScreenX = x;
 		cursorInScreenY = y;
 
-		getMessenger()->emit(MsgMouseInput(cursorInScreenX, cursorInScreenY));
+		window->mouseInputSignal.emit(MsgMouseInput(cursorInScreenX, cursorInScreenY));
 	}
 
-	Input::KeyMod InputReceiver::isKeyPressed(int key)
+	KeyMod InputReceiver::isKeyPressed(int key)
 	{
 		auto k = m_keyDown.find(key);
 		if (k != m_keyDown.end())
@@ -72,7 +72,7 @@ namespace Input {
 		return KeyMod::KFALSE;
 	}
 
-	Input::KeyMod InputReceiver::keyReleased(int key)
+	KeyMod InputReceiver::keyReleased(int key)
 	{
 		auto k = m_keyReleased.find(key);
 		if (k != m_keyReleased.end())

@@ -137,19 +137,19 @@ GLFW_Window *GLFW_VideoSystem::createGLFWWindow(const WindowConfiguration &wndCo
 		return nullptr;
 	}
 
-	GLFW_Window *window = new GLFW_Window(getMessenger(), newWindow);
+	GLFW_Window *window = new GLFW_Window(newWindow);
 	m_windows.push_back(window);
 
 	glfwSetWindowUserPointer(newWindow, window);
 
 	glfwSetFramebufferSizeCallback(newWindow, [](GLFWwindow *window, int width, int height) {
 		GLFW_Window *glfwWindow = (GLFW_Window *)glfwGetWindowUserPointer(window);
-		glfwWindow->getMessenger()->emit<WindowResizedEvent>(WindowResizedEvent{glfwWindow, width, height});
+        glfwWindow->windowResizedSignal.emit(WindowResizedEvent{glfwWindow, width, height});
 	});
 
 	glfwSetWindowCloseCallback(newWindow, [](GLFWwindow *window) {
 		GLFW_Window *glfwWindow = (GLFW_Window *)glfwGetWindowUserPointer(window);
-		glfwWindow->getMessenger()->emit(WindowClosedEvent{glfwWindow});
+		glfwWindow->windowClosedSignal.emit(WindowClosedEvent{glfwWindow});
 	});
 
 	glfwMakeContextCurrent(newWindow);

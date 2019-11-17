@@ -5,17 +5,16 @@
 
 #include "bitengine/Core/Task.h"
 #include "bitengine/Core/Messenger.h"
-#include "bitengine/Core/GameEngine.h"
 
 namespace BitEngine{
 
 	struct MsgFrameStart {};
 	struct MsgFrameEnd {};
 
-	class TaskManager : public MessengerEndpoint
+	class TaskManager
 	{
 		public:
-			TaskManager(Messenger* m) : MessengerEndpoint(m){}
+			TaskManager(){}
 			virtual ~TaskManager(){}
 
 			virtual void init() = 0;

@@ -32,9 +32,9 @@ void setupCommands(BitEngine::CommandSystem* cmdSys) {
     cmdSys->registerKeyCommandForAllMods(LEFT, GAMEPLAY, BE_KEY_LEFT);
     cmdSys->registerKeyCommandForAllMods(UP, GAMEPLAY, BE_KEY_UP);
     cmdSys->registerKeyCommandForAllMods(DOWN, GAMEPLAY, BE_KEY_DOWN);
-    cmdSys->RegisterMouseCommand(CLICK, GAMEPLAY, BE_MOUSE_BUTTON_LEFT, BitEngine::Input::MouseAction::PRESS);
+    cmdSys->RegisterMouseCommand(CLICK, GAMEPLAY, BE_MOUSE_BUTTON_LEFT, BitEngine::MouseAction::PRESS);
 #ifdef _DEBUG
-    cmdSys->registerKeyboardCommand(RELOAD_SHADERS, -1, BE_KEY_R, BitEngine::Input::KeyAction::PRESS, BitEngine::Input::KeyMod::CTRL);
+    cmdSys->registerKeyboardCommand(RELOAD_SHADERS, -1, BE_KEY_R, BitEngine::KeyAction::PRESS, BitEngine::KeyMod::CTRL);
 #endif
     cmdSys->setCommandState(GAMEPLAY);
 }
@@ -43,15 +43,14 @@ void setupCommands(BitEngine::CommandSystem* cmdSys) {
 void gameExecute(MainMemory& gameMemory) {
 
     // Basic infrastructure
-    BitEngine::Messenger messenger;
     BitEngine::EngineConfigurationFileLoader configurations("config.ini");
-    BitEngine::GeneralTaskManager taskManager(&messenger);
+    BitEngine::GeneralTaskManager taskManager;
 
     BitEngine::EngineConfiguration engineConfig;
     configurations.loadConfigurations(engineConfig);
 
-    BitEngine::GLFW_VideoSystem video(&messenger);
-    BitEngine::GLFW_ImGuiSystem imgui(&messenger);
+    BitEngine::GLFW_VideoSystem video;
+    BitEngine::GLFW_ImGuiSystem imgui;
     video.init();
 
     BitEngine::Window *main_window;
@@ -73,11 +72,11 @@ void gameExecute(MainMemory& gameMemory) {
     main_window = video.createWindow(windowConfig);
     imgui.setup(main_window);
 
-    BitEngine::GLFW_InputSystem input(&messenger);
+    BitEngine::GLFW_InputSystem input;
     input.registerWindow(main_window);
 
     // Game Specific stuff
-    BitEngine::CommandSystem commandSystem(&messenger);
+    BitEngine::CommandSystem commandSystem(main_window);
 
     BitEngine::GL2ShaderManager shaderManager(&taskManager);
     BitEngine::GL2TextureManager textureManager(&taskManager);
@@ -88,7 +87,6 @@ void gameExecute(MainMemory& gameMemory) {
     gameMemory.videoSystem = &video;
 
     // Setup game state
-    gameMemory.messenger = &messenger;
     gameMemory.engineConfig = &engineConfig;
     gameMemory.taskManager = &taskManager;
 
@@ -108,8 +106,6 @@ void gameExecute(MainMemory& gameMemory) {
         imgui.update();
 
         main_window->drawEnd();
-
-        messenger.dispatch();
     }
 
     taskManager.shutdown();

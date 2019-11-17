@@ -135,7 +135,7 @@ public:
     };
     typedef std::shared_ptr<RawResourceLoaderTask> RawResourceTask;
 public:
-    ResourceLoader(Messenger* msg) : MessengerEndpoint(msg) {}
+    ResourceLoader() {}
     virtual ~ResourceLoader() {}
 
     virtual bool init() = 0;

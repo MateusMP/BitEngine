@@ -46,7 +46,7 @@ namespace BitEngine {
 	class GeneralTaskManager : public TaskManager
 	{
 		public:
-			GeneralTaskManager(Messenger* ge);
+			GeneralTaskManager();
 			~GeneralTaskManager(){}
 
 			void init() override;

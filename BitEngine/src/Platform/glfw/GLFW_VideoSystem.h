@@ -7,11 +7,11 @@
 namespace BitEngine
 {
 
-class GLFW_Window : public MessengerEndpoint, public Window
+class GLFW_Window : public Window
 {
 public:
-	GLFW_Window(Messenger *m, GLFWwindow *w)
-		: MessengerEndpoint(m), window(w)
+	GLFW_Window(GLFWwindow *w)
+		: window(w)
 	{
 	}
 	virtual ~GLFW_Window();
@@ -30,8 +30,8 @@ private:
 class GLFW_VideoSystem : public VideoSystem
 {
 public:
-	GLFW_VideoSystem(Messenger *m)
-		: VideoSystem(m), glewStarted(false)
+	GLFW_VideoSystem()
+		:  glewStarted(false)
 	{
 	}
 	~GLFW_VideoSystem() {}
