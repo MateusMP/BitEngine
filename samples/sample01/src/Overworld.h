@@ -1,5 +1,8 @@
 #pragma once
 
+#include <BitEngine/Core/Input.h>
+#include <BitEngine/Core/CommandSystem.h>
+
 #include "MyGameEntitySystem.h"
 
 class PlayerController;
@@ -7,7 +10,7 @@ class PlayerController;
 
 class PlayerCamera
 {
-    public:
+public:
     bool Create(MyGameEntitySystem* esys)
     {
         entity = esys->createEntity();
@@ -34,7 +37,7 @@ class PlayerCamera
         return transform;
     }
 
-    protected:
+protected:
     BitEngine::EntityHandle entity;
     BitEngine::ComponentRef<BitEngine::Transform3DComponent> transform;
     BitEngine::ComponentRef<BitEngine::Camera3DComponent> camera;
@@ -42,7 +45,7 @@ class PlayerCamera
 
 class Character
 {
-    public:
+public:
     Character(u32 _id)
         : id(_id)
     {}
@@ -70,19 +73,19 @@ class Character
         return transform;
     }
 
-    protected:
+protected:
     BitEngine::EntityHandle entity;
     BitEngine::ComponentRef<BitEngine::Transform3DComponent> transform;
     BitEngine::ComponentRef<BitEngine::RenderableMeshComponent> renderable;
 
-    private:
+private:
     u32 id;
 };
 
 
 class Player
 {
-    public:
+public:
     Player(const std::string& nick, u32 netid)
         : m_nickname(nick), m_netID(netid), m_character(nullptr)
     {
@@ -100,7 +103,7 @@ class Player
         m_character = character;
     }
 
-    private:
+private:
     std::string m_nickname;
     u32 m_netID;
 
@@ -108,12 +111,16 @@ class Player
 
 };
 
-class PlayerController : public BitEngine::GameLogic
+class PlayerController : public BitEngine::GameLogic,
+    BitEngine::Messenger< BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription
 {
-    public:
-    PlayerController(BitEngine::Messenger*m, Player* p, PlayerCamera* cam)
-        : GameLogic(m), player(p), camera(cam)
-    {}
+public:
+    PlayerController(MainMemory* m, Player* p, PlayerCamera* cam)
+        : GameLogic(), player(p), camera(cam),
+        BitEngine::Messenger< BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(m->commandSystem->commandSignal, &PlayerController::onMessage, this)
+    {
+
+    }
 
     RunEvents getRunEvents() override {
         return RunEvents::EALL;
@@ -126,34 +133,32 @@ class PlayerController : public BitEngine::GameLogic
             return false;
         }
 
-        getMessenger()->subscribe<BitEngine::CommandSystem::MsgCommandInput>(&PlayerController::onMessage, this);
-
         return true;
     }
 
     void onMessage(const BitEngine::CommandSystem::MsgCommandInput& msg)
     {
         switch (msg.commandID) {
-            case RIGHT:
-                moveDirection.x = 1.0f;
-                if (msg.action.fromButton == BitEngine::Input::KeyAction::RELEASE)
-                    moveDirection.x = 0.0f;
-                break;
-            case LEFT:
-                moveDirection.x = -1.0f;
-                if (msg.action.fromButton == BitEngine::Input::KeyAction::RELEASE)
-                    moveDirection.x = 0.0f;
-                break;
-            case UP:
-                moveDirection.z = -1.0f;
-                if (msg.action.fromButton == BitEngine::Input::KeyAction::RELEASE)
-                    moveDirection.z = 0.0f;
-                break;
-            case DOWN:
-                moveDirection.z = 1.0f;
-                if (msg.action.fromButton == BitEngine::Input::KeyAction::RELEASE)
-                    moveDirection.z = 0.0f;
-                break;
+        case RIGHT:
+            moveDirection.x = 1.0f;
+            if (msg.action.fromButton == BitEngine::KeyAction::RELEASE)
+                moveDirection.x = 0.0f;
+            break;
+        case LEFT:
+            moveDirection.x = -1.0f;
+            if (msg.action.fromButton == BitEngine::KeyAction::RELEASE)
+                moveDirection.x = 0.0f;
+            break;
+        case UP:
+            moveDirection.z = -1.0f;
+            if (msg.action.fromButton == BitEngine::KeyAction::RELEASE)
+                moveDirection.z = 0.0f;
+            break;
+        case DOWN:
+            moveDirection.z = 1.0f;
+            if (msg.action.fromButton == BitEngine::KeyAction::RELEASE)
+                moveDirection.z = 0.0f;
+            break;
         }
 
         if (glm::length(moveDirection) > 0)
@@ -190,7 +195,7 @@ class PlayerController : public BitEngine::GameLogic
         return playerLookDirection;
     }
 
-    private:
+private:
     Player * player;
     PlayerCamera* camera;
     BitEngine::ComponentRef<BitEngine::Transform3DComponent> transform;
@@ -203,85 +208,45 @@ class PlayerController : public BitEngine::GameLogic
 
 class GameWorld
 {
-	public:
-	GameWorld(MyGameEntitySystem* es)
-		: m_ES(es)
-	{
-	}
-	~GameWorld() {
+public:
+    GameWorld(MainMemory* memory, MyGameEntitySystem* es)
+        : m_ES(es), memory(memory)
+    {
+    }
+    ~GameWorld() {
     };
 
-	// Prepare all resources
+    // Prepare all resources
     virtual bool init() {
         return true;
     }
-	// Releases all resources
+    // Releases all resources
     virtual void shutdown() {
 
     }
 
-	void setActiveCamera(const BitEngine::ComponentRef<BitEngine::Camera3DComponent>& camera)
-	{
-		activeCamera = camera;
-	}
+    void setActiveCamera(const BitEngine::ComponentRef<BitEngine::Camera3DComponent>& camera)
+    {
+        activeCamera = camera;
+    }
 
-	const BitEngine::ComponentRef<BitEngine::Camera3DComponent> getActiveCamera() const
-	{
-		return activeCamera;
-	}
+    const BitEngine::ComponentRef<BitEngine::Camera3DComponent> getActiveCamera() const
+    {
+        return activeCamera;
+    }
 
-    virtual int addPlayer(Player* player) 
+    virtual int addPlayer(Player* player)
     {
         m_players.push_back(player);
-        return true;        
+        return true;
     }
 
-	// Begin world game
-    virtual void start() {
-        createCharacters();
-    }
-
-	protected:
-    void createCharacters()
-    {
-        BitEngine::ComponentRef<BitEngine::GameLogicComponent> plCtrlComp;
-
-        // Create SELF PLAYER
-        Player* player = m_players[0];
-        Character* character = new Character(player->getNetID());
-        character->Create(m_ES);
-
-        PlayerCamera* playerCamera = new PlayerCamera();
-        if (!playerCamera->Create(m_ES)) {
-            LOG(GameLog(), BE_LOG_ERROR) << "FAILED TO CREATE PlayerCamera";
-        }
-
-        m_ES->t3p.setParentOf(playerCamera->getTransform(), character->getTransform());
-
-        PlayerController* playerController = new PlayerController(m_ES->getMessenger(), player, playerCamera);
-
-        plCtrlComp = m_ES->AddComponent<BitEngine::GameLogicComponent>(character->getEntity());
-        plCtrlComp->addLogicPiece(playerController);
-        player->setCharacter(character);
-
-        setActiveCamera(playerCamera->getCamera());
-
-        // Create other players
-        for (u32 i = 1; i < m_players.size(); ++i)
-        {
-            player = m_players[i];
-            character = new Character(player->getNetID());
-            character->Create(m_ES);
-            player->setCharacter(character);
-        }
-    }
-
-    private:
+private:
+    MainMemory *memory;
     std::vector<Player*> m_players;
-    std::vector<Character*> characters;
 
-	MyGameEntitySystem * m_ES;
-	BitEngine::ComponentRef<BitEngine::Camera3DComponent> activeCamera;
+    MyGameEntitySystem * m_ES;
+    BitEngine::ComponentRef<BitEngine::Camera3DComponent> activeCamera;
 
 };
 

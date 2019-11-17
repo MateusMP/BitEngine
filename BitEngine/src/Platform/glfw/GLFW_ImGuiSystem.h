@@ -9,18 +9,24 @@ namespace BitEngine {
 
 class GLFW_ImGuiSystem : public Messenger<ImGuiRenderEvent>
 {
-	public:
-		GLFW_ImGuiSystem()
-		{
-		}
-		~GLFW_ImGuiSystem() {}
+public:
+    GLFW_ImGuiSystem()
+    {
+    }
+    ~GLFW_ImGuiSystem() {}
 
-		/**
-		* Initializes a window and openGL related stuff (Extensions and functions)
-		* Currently using GLFW and GLEW
-		*/
-		bool setup(BitEngine::Window* window);
-		void update();
+    /**
+    * Initializes a window and openGL related stuff (Extensions and functions)
+    * Currently using GLFW and GLEW
+    */
+    bool setup(BitEngine::Window* window);
+    void update();
+
+    void* getContext() {
+        return context;
+    }
+private:
+    void* context;
 };
 
 }

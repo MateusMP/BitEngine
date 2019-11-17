@@ -34,7 +34,9 @@ public:
 		:  glewStarted(false)
 	{
 	}
-	~GLFW_VideoSystem() {}
+	~GLFW_VideoSystem() {
+        shutdown();
+    }
 
 	/**
 		* Initializes a window and openGL related stuff (Extensions and functions)

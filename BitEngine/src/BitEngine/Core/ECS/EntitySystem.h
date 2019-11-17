@@ -142,7 +142,7 @@ public:
     bool RegisterComponent()
     {
         LOG(EngineLog, BE_LOG_WARNING) << "Using generic ComponentHolder for " << typeid(CompClass).name();
-        return RegisterComponent<CompClass>(new ComponentHolder<CompClass>(getMessenger()));
+        return RegisterComponent<CompClass>(new ComponentHolder<CompClass>());
     }
 
     template<typename CompClass>

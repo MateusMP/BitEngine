@@ -85,33 +85,34 @@ void gameExecute(MainMemory& gameMemory) {
     gameMemory.textureManager = &textureManager;
     gameMemory.spriteManager = &spriteManager;
     gameMemory.videoSystem = &video;
-
-    // Setup game state
+    gameMemory.window = main_window;
     gameMemory.engineConfig = &engineConfig;
     gameMemory.taskManager = &taskManager;
+    gameMemory.commandSystem = &commandSystem;
+    gameMemory.imGuiRender = &imgui;
+    gameMemory.logger = GameLog();
 
     setupCommands(&commandSystem);
 
-    MyGame game(&gameMemory);
+    {
+        MyGame* game = new MyGame(&gameMemory);
 
-    bool32 running = true;
+        bool32 running = true;
 
-    while (running) {
-        input.update();
+        while (running) {
+            input.update();
 
-        main_window->drawBegin();
+            main_window->drawBegin();
 
-        running = game.update();
+            running = game->update();
 
-        imgui.update();
+            imgui.update();
 
-        main_window->drawEnd();
+            main_window->drawEnd();
+        }
+        delete game;
     }
-
     taskManager.shutdown();
-
-    input.shutdown();
-    video.shutdown();
 }
 
 int main(int argc, const char* argv[])

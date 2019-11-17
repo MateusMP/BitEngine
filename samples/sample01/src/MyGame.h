@@ -51,18 +51,17 @@ void resourceManagerMenu(const char* name, BitEngine::ResourceManager *resMng) {
 }
 
 class MyGame :
-    BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription
+    BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription,
+    BitEngine::Messenger<BitEngine::WindowClosedEvent>::ScopedSubscription,
+    BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription
 {
 public:
     MyGame(MainMemory* gameMemory)
         : gameMemory(gameMemory), running(false),
-        BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this)
+        BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this),
+        BitEngine::Messenger<BitEngine::WindowClosedEvent>::ScopedSubscription(gameMemory->window->windowClosedSignal, &MyGame::onMessage, this),
+        BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription(*gameMemory->imGuiRender, &MyGame::onMessage, this)
     {
-        subscribe<BitEngine::CommandSystem::MsgCommandInput>(&MyGame::onMessage, this);
-        subscribe<RenderEvent>(&MyGame::onMessage, this);
-        subscribe<BitEngine::WindowClosedEvent>(&MyGame::onMessage, this);
-        subscribe<BitEngine::ImGuiRenderEvent>(&MyGame::onMessage, this);
-
         gameState = (GameState*)gameMemory->memory;
     }
 
@@ -112,7 +111,7 @@ public:
 
         MemoryArena& permanentArena = gameState->permanentArena;
 
-        ResourceLoader* loader = permanentArena.push<DevResourceLoader>(gameState->resourceArena, gameMemory->messenger, gameMemory->taskManager);
+        ResourceLoader* loader = permanentArena.push<DevResourceLoader>(gameState->resourceArena, gameMemory->taskManager);
         gameState->resources = loader;
         loader->registerResourceManager("SHADER", gameMemory->shaderManager);
         loader->registerResourceManager("TEXTURE", gameMemory->textureManager);
@@ -123,11 +122,11 @@ public:
         gameMemory->taskManager->addTask(std::make_shared<UpdateTask>([loader] {loader->update(); }));
 
         // Init game state stuff
-        gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, gameMemory->messenger, &gameState->entityArena);
+        gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, &gameState->entityArena);
         gameState->entitySystem->Init();
 
         gameState->m_userGUI = permanentArena.push<UserGUI>(gameState->entitySystem);
-        gameState->m_world = permanentArena.push<GameWorld>(gameState->entitySystem);
+        gameState->m_world = permanentArena.push<GameWorld>(gameMemory, gameState->entitySystem);
 
         gameState->selfPlayer = permanentArena.push<Player>("nick_here", 0);
         gameState->m_world->addPlayer(gameState->selfPlayer);
@@ -152,7 +151,7 @@ public:
         //BitEngine::SpriteHandle spr3 = sprMng->createSprite(BitEngine::Sprite(texture2, 256, 256, 0.5f, 0.5f, glm::vec4(0, 0, 2.0f, 2.0f), true));
 
         // CREATE PLAYER
-        PlayerControl::CreatePlayerTemplate(loader, gameState->entitySystem);
+        PlayerControl::CreatePlayerTemplate(loader, gameState->entitySystem, gameMemory->commandSystem);
 
         // Sparks
         EntitySystem* es = gameState->entitySystem;
@@ -172,8 +171,6 @@ public:
             transformComp->setLocalPosition(i * 128 + 125, 500);
             spriteComp->alpha = 1.0;
         }
-
-        gameState->m_world->start();
 
         running = true;
         return true;
@@ -198,7 +195,7 @@ public:
         // Render
 
         if (running) {
-            getMessenger()->emit<RenderEvent>(RenderEvent{ gameState });
+            render();
         }
         else {
             shutdown();
@@ -226,17 +223,17 @@ public:
         //LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Frame Start";
     }
 
-    void onMessage(const RenderEvent& ev)
+    void render()
     {
         BitEngine::VideoDriver* driver = gameMemory->videoSystem->getDriver();
         driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.5f, 0.3f, 0.3f, 0.f));
         driver->clearBuffer(nullptr, BitEngine::BufferClearBitMask::COLOR_DEPTH);
 
-        //ev.state->entitySystem->sh3D.setActiveCamera(ev.state->m_world->getActiveCamera());
-        //ev.state->entitySystem->sh3D.Render();
+        //gameState->entitySystem->sh3D.setActiveCamera(gameState->m_world->getActiveCamera());
+        //gameState->entitySystem->sh3D.Render();
 
-        ev.state->entitySystem->spr2D.setActiveCamera(ev.state->m_userGUI->getCamera());
-        ev.state->entitySystem->spr2D.Render(driver);
+        gameState->entitySystem->spr2D->setActiveCamera(gameState->m_userGUI->getCamera());
+        gameState->entitySystem->spr2D->Render(driver);
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)

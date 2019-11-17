@@ -47,14 +47,19 @@ struct MainMemory {
 	void* memory;
 	ptrsize memorySize;
 
-	BitEngine::ResourceManager* shaderManager;
-	BitEngine::ResourceManager* textureManager;
-	BitEngine::ResourceManager* spriteManager;
-	
-	BitEngine::VideoSystem* videoSystem;
-	BitEngine::EngineConfiguration *engineConfig;
-	BitEngine::TaskManager* taskManager;
+    BitEngine::ResourceManager* shaderManager;
+    BitEngine::ResourceManager* textureManager;
+    BitEngine::ResourceManager* spriteManager;
+
+    BitEngine::VideoSystem* videoSystem;
+    BitEngine::EngineConfiguration *engineConfig;
+    BitEngine::TaskManager* taskManager;
     BitEngine::CommandSystem* commandSystem;
+
+    BitEngine::Window* window;
+    BitEngine::Messenger<BitEngine::ImGuiRenderEvent>* imGuiRender;
+
+    BitEngine::Logger* logger;
 };
 
 struct GameState {

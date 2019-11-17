@@ -13,7 +13,7 @@ class BE_API InputReceiver
 {
 public:
     InputReceiver(Window* window)
-        : cursorInScreenX(0.0), cursorInScreenY(0.0)
+        : window(window), cursorInScreenX(0.0), cursorInScreenY(0.0)
     {}
 
     void keyboardInput(int key, int scancode, KeyAction action, int mods);

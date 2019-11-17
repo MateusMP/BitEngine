@@ -23,6 +23,7 @@ bool GLFW_InputSystem::init()
 
 void GLFW_InputSystem::shutdown()
 {
+    inputReceivers.clear();
 }
 
 void GLFW_InputSystem::update()

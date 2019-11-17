@@ -7,8 +7,6 @@
 #include <bitengine/Core/ECS/RenderableMeshProcessor.h>
 #include <bitengine/Core/ECS/GameLogicProcessor.h>
 
-#include "Graphics/Shader3DProcessor.h"
-
 #include "Common/GameGlobal.h"
 
 #define ADD_COMPONENT_ERROR(x) \
@@ -18,7 +16,7 @@
 
 class SpinnerComponent : public BitEngine::Component<SpinnerComponent>
 {
-    public:
+public:
     SpinnerComponent() {
 
     }
@@ -31,11 +29,11 @@ class SpinnerComponent : public BitEngine::Component<SpinnerComponent>
 
 class SpinnerSystem : public BitEngine::ComponentProcessor
 {
-    public:
-    SpinnerSystem(BitEngine::Messenger* m) : BitEngine::ComponentProcessor(m){
+public:
+    SpinnerSystem(BitEngine::EntitySystem* m) : BitEngine::ComponentProcessor(m) {
 
     }
-    ~SpinnerSystem(){}
+    ~SpinnerSystem() {}
 
     /// Processor
     bool Init() override {
@@ -59,52 +57,57 @@ class SpinnerSystem : public BitEngine::ComponentProcessor
 class MyGameEntitySystem : public BitEngine::EntitySystem
 {
 public:
-	MyGameEntitySystem(BitEngine::ResourceLoader* loader, BitEngine::MemoryArena* entityMemory)
-		: t2p(this), t3p(this), 
-		cam2Dprocessor(this, &t2p), cam3Dprocessor(this, &t3p),
-		rmp(this),
-		glp(this), spr2D(this, loader),
-        spinnerSys(this)
-		//sh3D(&t3p)
-	{
-		using namespace BitEngine;
+    MyGameEntitySystem(BitEngine::ResourceLoader* loader, BitEngine::MemoryArena* entityMemory)
+    {
+        using namespace BitEngine;
+        registerComponents();
 
-		// Register components - will automatically register message ids
-		RegisterComponent<GameLogicComponent>();
-		RegisterComponent<Transform2DComponent>();
-		RegisterComponent<Transform3DComponent>();
-		RegisterComponent<Camera2DComponent>();
-		RegisterComponent<Camera3DComponent>();
-		RegisterComponent<RenderableMeshComponent>();
-		RegisterComponent<Sprite2DComponent>();
-		RegisterComponent<SceneTransform2DComponent>();
+        t2p = entityMemory->push<Transform2DProcessor>(this);
+        t3p = entityMemory->push<Transform3DProcessor>(this);
+        cam2Dprocessor = entityMemory->push<Camera2DProcessor>(this, t2p);
+        cam3Dprocessor = entityMemory->push<Camera3DProcessor>(this, t3p);
+        rmp = entityMemory->push<RenderableMeshProcessor>(this);
+
+        glp = entityMemory->push <GameLogicProcessor>(this);
+        spr2D = entityMemory->push < Sprite2DRenderer>(this, loader);
+        spinnerSys = entityMemory->push < SpinnerSystem>(this);
+
+        /// Pipeline 0
+        RegisterComponentProcessor(0, glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameStart);
+
+        RegisterComponentProcessor(0, glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameMiddle);
+
+        RegisterComponentProcessor(0, spinnerSys, (ComponentProcessor::processFunc)&SpinnerSystem::FrameMiddle);
+
+        RegisterComponentProcessor(0, t2p, (ComponentProcessor::processFunc)&Transform2DProcessor::Process);
+        RegisterComponentProcessor(0, t3p, (ComponentProcessor::processFunc)&Transform3DProcessor::Process);
+        RegisterComponentProcessor(0, cam2Dprocessor, (ComponentProcessor::processFunc)&Camera2DProcessor::Process);
+        RegisterComponentProcessor(0, cam3Dprocessor, (ComponentProcessor::processFunc)&Camera3DProcessor::Process);
+        RegisterComponentProcessor(0, glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameEnd);
+
+        InitComponentProcessor(spr2D);
+    }
+
+    void registerComponents() {
+        using namespace BitEngine;
+        RegisterComponent<GameLogicComponent>();
+        RegisterComponent<Transform2DComponent>();
+        RegisterComponent<Transform3DComponent>();
+        RegisterComponent<Camera2DComponent>();
+        RegisterComponent<Camera3DComponent>();
+        RegisterComponent<RenderableMeshComponent>();
+        RegisterComponent<Sprite2DComponent>();
+        RegisterComponent<SceneTransform2DComponent>();
         RegisterComponent<SpinnerComponent>();
+    }
 
-		/// Pipeline 0
-		RegisterComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameStart);
-
-		RegisterComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameMiddle);
-
-        RegisterComponentProcessor(0, &spinnerSys, (ComponentProcessor::processFunc)&SpinnerSystem::FrameMiddle);
-
-		RegisterComponentProcessor(0, &t2p, (ComponentProcessor::processFunc)&Transform2DProcessor::Process);
-		RegisterComponentProcessor(0, &t3p, (ComponentProcessor::processFunc)&Transform3DProcessor::Process);
-		RegisterComponentProcessor(0, &cam2Dprocessor, (ComponentProcessor::processFunc)&Camera2DProcessor::Process);
-		RegisterComponentProcessor(0, &cam3Dprocessor, (ComponentProcessor::processFunc)&Camera3DProcessor::Process);
-		RegisterComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameEnd);
-
-		InitComponentProcessor(&spr2D);
-	}
-
-	// Processors
-	BitEngine::Transform2DProcessor t2p;
-	BitEngine::Transform3DProcessor t3p;
-	BitEngine::Camera2DProcessor cam2Dprocessor;
-	BitEngine::Camera3DProcessor cam3Dprocessor;
-	BitEngine::RenderableMeshProcessor rmp;
-	BitEngine::GameLogicProcessor glp;
-	BitEngine::Sprite2DRenderer spr2D;
-    SpinnerSystem spinnerSys;
-
-	//Shader3DProcessor sh3D;
+    // Processors
+    BitEngine::Transform2DProcessor *t2p;
+    BitEngine::Transform3DProcessor *t3p;
+    BitEngine::Camera2DProcessor *cam2Dprocessor;
+    BitEngine::Camera3DProcessor *cam3Dprocessor;
+    BitEngine::RenderableMeshProcessor *rmp;
+    BitEngine::GameLogicProcessor *glp;
+    BitEngine::Sprite2DRenderer *spr2D;
+    SpinnerSystem *spinnerSys;
 };
