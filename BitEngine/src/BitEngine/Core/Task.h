@@ -3,7 +3,7 @@
 #include <atomic>
 #include <memory>
 
-#include "bitengine/Core/Assert.h"
+#include "BitEngine/Core/Assert.h"
 
 namespace BitEngine {
 

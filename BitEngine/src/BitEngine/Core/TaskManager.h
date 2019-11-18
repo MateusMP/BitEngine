@@ -3,8 +3,8 @@
 #include <thread>
 #include <vector>
 
-#include "bitengine/Core/Task.h"
-#include "bitengine/Core/Messenger.h"
+#include "BitEngine/Core/Task.h"
+#include "BitEngine/Core/Messenger.h"
 
 namespace BitEngine{
 

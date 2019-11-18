@@ -1,19 +1,19 @@
 #pragma once
 
 
-#include "bitengine/Common/TypeDefinition.h"
+#include "BitEngine/Common/TypeDefinition.h"
 
-#include "bitengine/Core/Window.h"
-#include "bitengine/Core/Reflection.h"
-#include "bitengine/Core/Messenger.h"
+#include "BitEngine/Core/Window.h"
+#include "BitEngine/Core/Reflection.h"
+#include "BitEngine/Core/Messenger.h"
 
-#include "bitengine/Core/Graphics/Sprite.h"
-#include "bitengine/Core/Logger.h"
-#include "bitengine/Core/CommandSystem.h"
-#include "bitengine/Core/KeyCodes.h"
-#include "bitengine/Core/InputSystem.h"
-#include "bitengine/Core/ECS/EntitySystem.h"
-#include "bitengine/Core/ECS/Components.h"
+#include "BitEngine/Core/Graphics/Sprite.h"
+#include "BitEngine/Core/Logger.h"
+#include "BitEngine/Core/CommandSystem.h"
+#include "BitEngine/Core/KeyCodes.h"
+#include "BitEngine/Core/InputSystem.h"
+#include "BitEngine/Core/ECS/EntitySystem.h"
+#include "BitEngine/Core/ECS/Components.h"
 
-#include "bitengine/Core/Mesh.h"
-#include "bitengine/Core/Graphics/Texture.h"
+#include "BitEngine/Core/Mesh.h"
+#include "BitEngine/Core/Graphics/Texture.h"

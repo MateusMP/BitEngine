@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bitengine/Core/api.h"
-#include "bitengine/Common/TypeDefinition.h"
+#include "BitEngine/Core/api.h"
+#include "BitEngine/Common/TypeDefinition.h"
 
 namespace BitEngine {
 

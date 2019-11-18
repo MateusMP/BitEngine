@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bitengine/Core/InputSystem.h"
+#include "BitEngine/Core/InputSystem.h"
 #include "Platform/glfw/GLFW_Headers.h"
 
 namespace BitEngine {

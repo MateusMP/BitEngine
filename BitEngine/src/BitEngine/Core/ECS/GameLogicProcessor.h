@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bitengine/Core/ECS/LogicScript.h"
-#include "bitengine/Core/ECS/ComponentProcessor.h"
+#include "BitEngine/Core/ECS/LogicScript.h"
+#include "BitEngine/Core/ECS/ComponentProcessor.h"
 
 namespace BitEngine {
 

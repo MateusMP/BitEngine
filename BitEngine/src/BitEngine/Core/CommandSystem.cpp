@@ -1,5 +1,5 @@
-#include "bitengine/Core/CommandSystem.h"
-#include "bitengine/Core/Logger.h"
+#include "BitEngine/Core/CommandSystem.h"
+#include "BitEngine/Core/Logger.h"
 
 namespace BitEngine
 {

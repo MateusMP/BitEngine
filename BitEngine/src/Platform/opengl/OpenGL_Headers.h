@@ -1,10 +1,10 @@
 #pragma once
 
-#include "bitengine/Core/Graphics/VideoRenderer.h"
-#include "bitengine/Core/Graphics/Texture.h"
-#include "bitengine/Core/Graphics/Shader.h"
-#include "bitengine/Core/Graphics/Material.h"
-#include "bitengine/Common/TypeDefinition.h"
+#include "BitEngine/Core/Graphics/VideoRenderer.h"
+#include "BitEngine/Core/Graphics/Texture.h"
+#include "BitEngine/Core/Graphics/Shader.h"
+#include "BitEngine/Core/Graphics/Material.h"
+#include "BitEngine/Common/TypeDefinition.h"
 
 #include <GL/glew.h>
 

@@ -1,4 +1,4 @@
-#include "bitengine/Core/ECS/GameLogicProcessor.h"
+#include "BitEngine/Core/ECS/GameLogicProcessor.h"
 
 namespace BitEngine {
 

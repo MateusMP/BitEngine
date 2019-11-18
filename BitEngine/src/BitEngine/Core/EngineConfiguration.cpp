@@ -1,8 +1,8 @@
-#include "bitengine/Core/EngineConfiguration.h"
+#include "BitEngine/Core/EngineConfiguration.h"
 
 #include <string.h>
 
-#include "bitengine/Core/Logger.h"
+#include "BitEngine/Core/Logger.h"
 
 
 namespace BitEngine {

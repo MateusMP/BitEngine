@@ -1,4 +1,4 @@
-#include "bitengine/Core/Logger.h"
+#include "BitEngine/Core/Logger.h"
 
 #include <iostream>
 #include <string.h>

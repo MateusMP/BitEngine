@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bitengine/Core/Graphics.h"
-#include "bitengine/Core/Logger.h"
-#include "bitengine/Core/Messenger.h"
+#include "BitEngine/Core/Graphics.h"
+#include "BitEngine/Core/Logger.h"
+#include "BitEngine/Core/Messenger.h"
 
 #include <GLFW/glfw3.h>

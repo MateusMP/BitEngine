@@ -1,12 +1,12 @@
 #pragma once
 
-#include "bitengine/Core/ECS/Camera2DComponent.h"
-#include "bitengine/Core/ECS/ComponentProcessor.h"
+#include "BitEngine/Core/ECS/Camera2DComponent.h"
+#include "BitEngine/Core/ECS/ComponentProcessor.h"
 
-#include "bitengine/Core/ECS/Transform2DProcessor.h"
-#include "bitengine/Core/ECS/EntitySystem.h"
+#include "BitEngine/Core/ECS/Transform2DProcessor.h"
+#include "BitEngine/Core/ECS/EntitySystem.h"
 
-#include "bitengine/Common/VectorBool.h"
+#include "BitEngine/Common/VectorBool.h"
 
 namespace BitEngine {
 

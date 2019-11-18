@@ -2,8 +2,8 @@
 
 #include <fstream>
 
-#include "bitengine/Common/ErrorCodes.h"
-#include "bitengine/Core/SystemConfiguration.h"
+#include "BitEngine/Common/ErrorCodes.h"
+#include "BitEngine/Core/SystemConfiguration.h"
 
 // Param will cause log to be sent to the console and the default file
 #define BE_PARAM_DEBUG "--debug"

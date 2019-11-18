@@ -4,7 +4,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "bitengine/Core/ECS/Component.h"
+#include "BitEngine/Core/ECS/Component.h"
 
 namespace BitEngine{
 

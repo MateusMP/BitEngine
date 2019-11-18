@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "GLFW_Headers.h"
-#include "bitengine/Core/VideoSystem.h"
+#include "BitEngine/Core/VideoSystem.h"
 
 namespace BitEngine
 {

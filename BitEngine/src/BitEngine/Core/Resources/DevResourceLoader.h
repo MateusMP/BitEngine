@@ -4,9 +4,9 @@
 
 #include <nlohmann/json.hpp>
 
-#include "bitengine/Core/TaskManager.h"
-#include "bitengine/Core/Memory.h"
-#include "bitengine/Core/Resources/ResourceManager.h"
+#include "BitEngine/Core/TaskManager.h"
+#include "BitEngine/Core/Memory.h"
+#include "BitEngine/Core/Resources/ResourceManager.h"
 
 
 namespace BitEngine

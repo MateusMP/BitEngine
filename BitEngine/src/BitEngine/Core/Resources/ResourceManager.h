@@ -5,11 +5,11 @@
 #include <map>
 #include <type_traits>
 
-#include "bitengine/Common/TypeDefinition.h"
-#include "bitengine/Common/ThreadSafeQueue.h"
-#include "bitengine/Core/Logger.h"
-#include "bitengine/Core/Task.h"
-#include "bitengine/Core/Resources/ResourceLoader.h"
+#include "BitEngine/Common/TypeDefinition.h"
+#include "BitEngine/Common/ThreadSafeQueue.h"
+#include "BitEngine/Core/Logger.h"
+#include "BitEngine/Core/Task.h"
+#include "BitEngine/Core/Resources/ResourceLoader.h"
 
 namespace BitEngine {
 

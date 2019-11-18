@@ -1,4 +1,4 @@
-#include "bitengine/Core/ECS/Transform3DComponent.h"
+#include "BitEngine/Core/ECS/Transform3DComponent.h"
 
 namespace BitEngine{
 	

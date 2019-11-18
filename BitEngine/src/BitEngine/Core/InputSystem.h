@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "bitengine/Core/Input.h"
+#include "BitEngine/Core/Input.h"
 #include "BitEngine/Core/Window.h"
 
 namespace BitEngine {

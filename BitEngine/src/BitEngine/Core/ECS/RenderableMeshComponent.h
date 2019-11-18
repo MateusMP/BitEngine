@@ -3,9 +3,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "bitengine/Core/ECS/Component.h"
+#include "BitEngine/Core/ECS/Component.h"
 
-#include "bitengine/Core/Mesh.h"
+#include "BitEngine/Core/Mesh.h"
 
 namespace BitEngine{
 

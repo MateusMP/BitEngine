@@ -5,9 +5,9 @@
 
 #include "OpenGL_Headers.h"
 
-#include "bitengine/Common/TypeDefinition.h"
-#include "bitengine/Common/ErrorCodes.h"
-#include "bitengine/Core/Logger.h"
+#include "BitEngine/Common/TypeDefinition.h"
+#include "BitEngine/Common/ErrorCodes.h"
+#include "BitEngine/Core/Logger.h"
 
 
 namespace BitEngine

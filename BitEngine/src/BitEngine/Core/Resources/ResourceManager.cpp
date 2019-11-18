@@ -1,5 +1,5 @@
 
-#include "bitengine/Core/Resources/ResourceManager.h"
+#include "BitEngine/Core/Resources/ResourceManager.h"
 
 // ResourceMeta
 

@@ -3,10 +3,10 @@
 #include <unordered_map>
 #include <algorithm>
 
-#include "bitengine/Common/TypeDefinition.h"
+#include "BitEngine/Common/TypeDefinition.h"
 
-#include "bitengine/Core/Messenger.h"
-#include "bitengine/Core/ECS/Component.h"
+#include "BitEngine/Core/Messenger.h"
+#include "BitEngine/Core/ECS/Component.h"
 
 namespace BitEngine {
 

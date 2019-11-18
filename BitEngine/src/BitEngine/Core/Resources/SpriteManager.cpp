@@ -1,7 +1,7 @@
-#include "bitengine/Core/Resources/SpriteManager.h"
+#include "BitEngine/Core/Resources/SpriteManager.h"
 
-#include "bitengine/Core/Logger.h"
-#include "bitengine/Core/Graphics/Texture.h"
+#include "BitEngine/Core/Logger.h"
+#include "BitEngine/Core/Graphics/Texture.h"
 
 namespace BitEngine{
 

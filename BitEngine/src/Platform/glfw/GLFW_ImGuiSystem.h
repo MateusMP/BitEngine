@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "bitengine/Core/Messenger.h"
+#include "BitEngine/Core/Messenger.h"
 #include "BitEngine/Core/Window.h"
 
 namespace BitEngine {

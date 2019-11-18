@@ -4,10 +4,10 @@
 
 #include "OpenGL_Headers.h"
 
-#include "bitengine/Common/TypeDefinition.h"
-#include "bitengine/Common/MathUtils.h"
+#include "BitEngine/Common/TypeDefinition.h"
+#include "BitEngine/Common/MathUtils.h"
 
-#include "bitengine/Core/Logger.h"
+#include "BitEngine/Core/Logger.h"
 
 namespace BitEngine {
 

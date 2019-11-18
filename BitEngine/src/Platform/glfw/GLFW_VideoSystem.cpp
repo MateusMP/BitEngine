@@ -1,8 +1,8 @@
 
 #include "Platform/glfw/GLFW_VideoSystem.h"
 
-#include "bitengine/Core/Graphics/Material.h"
-#include "bitengine/Core/Window.h"
+#include "BitEngine/Core/Graphics/Material.h"
+#include "BitEngine/Core/Window.h"
 
 namespace BitEngine
 {

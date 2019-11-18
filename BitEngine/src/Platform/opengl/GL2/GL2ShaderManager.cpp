@@ -1,7 +1,7 @@
-#include "bitengine/Common/MathUtils.h"
-#include "bitengine/Core/Logger.h"
+#include "BitEngine/Common/MathUtils.h"
+#include "BitEngine/Core/Logger.h"
 
-#include "bitengine/Core/TaskManager.h"
+#include "BitEngine/Core/TaskManager.h"
 #include "Platform/opengl/GL2/GL2Shader.h"
 #include "Platform/opengl/GL2/GL2ShaderManager.h"
 

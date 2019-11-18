@@ -2,9 +2,9 @@
 
 #include <algorithm>
 
-#include "bitengine/Common/TypeDefinition.h"
-#include "bitengine/Core/Math.h"
-#include "bitengine/Core/Graphics/Texture.h"
+#include "BitEngine/Common/TypeDefinition.h"
+#include "BitEngine/Core/Math.h"
+#include "BitEngine/Core/Graphics/Texture.h"
 
 namespace BitEngine{
 	

@@ -1,5 +1,5 @@
-#include "bitengine/Core/Logger.h"
-#include "bitengine/Core/GeneralTaskManager.h"
+#include "BitEngine/Core/Logger.h"
+#include "BitEngine/Core/GeneralTaskManager.h"
 
 namespace BitEngine {
 

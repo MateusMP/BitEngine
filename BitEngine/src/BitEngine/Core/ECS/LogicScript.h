@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include "bitengine/Common/MathUtils.h"
+#include "BitEngine/Common/MathUtils.h"
 
-#include "bitengine/Core/ECS/Component.h"
-#include "bitengine/Core/ECS/EntitySystem.h"
+#include "BitEngine/Core/ECS/Component.h"
+#include "BitEngine/Core/ECS/EntitySystem.h"
 
 namespace BitEngine {
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "bitengine/Core/ECS/LogicScript.h"
+#include "BitEngine/Core/ECS/LogicScript.h"
 
-#include "bitengine/Core/ECS/Transform2DComponent.h"
-#include "bitengine/Core/ECS/Transform3DComponent.h"
+#include "BitEngine/Core/ECS/Transform2DComponent.h"
+#include "BitEngine/Core/ECS/Transform3DComponent.h"
 
-#include "bitengine/Core/ECS/Camera2DComponent.h"
-#include "bitengine/Core/ECS/Camera3DComponent.h"
+#include "BitEngine/Core/ECS/Camera2DComponent.h"
+#include "BitEngine/Core/ECS/Camera3DComponent.h"
 
-#include "bitengine/Core/ECS/RenderableMeshComponent.h"
+#include "BitEngine/Core/ECS/RenderableMeshComponent.h"

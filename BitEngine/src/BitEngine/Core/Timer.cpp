@@ -1,4 +1,4 @@
-#include "bitengine/Core/Timer.h"
+#include "BitEngine/Core/Timer.h"
 
 #ifdef _MSC_VER
 #include <Windows.h>

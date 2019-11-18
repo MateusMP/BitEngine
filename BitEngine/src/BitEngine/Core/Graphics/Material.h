@@ -2,8 +2,8 @@
 
 #include <cstring>
 
-#include "bitengine/Core/Graphics/VideoRenderer.h"
-#include "bitengine/Common/TypeDefinition.h"
+#include "BitEngine/Core/Graphics/VideoRenderer.h"
+#include "BitEngine/Common/TypeDefinition.h"
 
 namespace BitEngine {
 

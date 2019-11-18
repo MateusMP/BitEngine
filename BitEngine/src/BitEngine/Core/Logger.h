@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "BitEngine/Core/api.h"
-#include "bitengine/Core/Timer.h"
-#include "bitengine/Common/MacroHelpers.h"
+#include "BitEngine/Core/Timer.h"
+#include "BitEngine/Common/MacroHelpers.h"
 
 /**
  *	Available DEFINED functions:

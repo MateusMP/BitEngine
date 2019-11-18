@@ -1,6 +1,6 @@
 
-#include "bitengine/Core/Memory.h"
-#include "bitengine/Core/Graphics/VideoDriver.h"
+#include "BitEngine/Core/Memory.h"
+#include "BitEngine/Core/Graphics/VideoDriver.h"
 
 #include "Platform/opengl/GL2/OpenGL2.h"
 #include "Platform/opengl/GL2/GL2Impl.h"

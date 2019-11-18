@@ -1,9 +1,9 @@
 #pragma once
 
-#include "bitengine/Core/ECS/ComponentProcessor.h"
-#include "bitengine/Core/ECS/Transform2DComponent.h"
+#include "BitEngine/Core/ECS/ComponentProcessor.h"
+#include "BitEngine/Core/ECS/Transform2DComponent.h"
 
-#include "bitengine/Common/MathUtils.h"
+#include "BitEngine/Common/MathUtils.h"
 
 namespace BitEngine{
 

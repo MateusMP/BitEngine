@@ -1,4 +1,4 @@
-#include "bitengine/Core/ECS/Transform2DComponent.h"
+#include "BitEngine/Core/ECS/Transform2DComponent.h"
 
 #include <math.h>
 

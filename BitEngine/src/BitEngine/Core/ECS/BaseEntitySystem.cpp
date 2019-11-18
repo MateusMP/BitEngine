@@ -1,7 +1,7 @@
-#include "bitengine/Core/ECS/BaseEntitySystem.h"
+#include "BitEngine/Core/ECS/BaseEntitySystem.h"
 
-#include "bitengine/Core/ECS/ComponentProcessor.h"
-#include "bitengine/Core/Assert.h"
+#include "BitEngine/Core/ECS/ComponentProcessor.h"
+#include "BitEngine/Core/Assert.h"
 
 namespace BitEngine {
 	ComponentType BaseComponent::componentTypeCounter(0);

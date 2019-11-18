@@ -1,4 +1,4 @@
-#include "bitengine/Core/ModelManager.h"
+#include "BitEngine/Core/ModelManager.h"
 
 namespace BitEngine{
 	

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "bitengine/Common/TypeDefinition.h"
+#include "BitEngine/Common/TypeDefinition.h"
 
 namespace BitEngine {
 	

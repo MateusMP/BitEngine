@@ -2,14 +2,14 @@
 
 #include <glm/common.hpp>
 
-#include "bitengine/Core/Graphics/VideoRenderer.h"
-#include "bitengine/Core/ECS/EntitySystem.h"
-#include "bitengine/Core/Resources/SpriteManager.h"
+#include "BitEngine/Core/Graphics/VideoRenderer.h"
+#include "BitEngine/Core/ECS/EntitySystem.h"
+#include "BitEngine/Core/Resources/SpriteManager.h"
 
-#include "bitengine/Core/Graphics/Shader.h"
-#include "bitengine/Core/Graphics/Material.h"
-#include "bitengine/Core/ECS/Transform2DProcessor.h"
-#include "bitengine/Core/ECS/Camera2DComponent.h"
+#include "BitEngine/Core/Graphics/Shader.h"
+#include "BitEngine/Core/Graphics/Material.h"
+#include "BitEngine/Core/ECS/Transform2DProcessor.h"
+#include "BitEngine/Core/ECS/Camera2DComponent.h"
 
 namespace BitEngine
 {

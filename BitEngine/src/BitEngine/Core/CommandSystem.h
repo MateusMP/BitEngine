@@ -2,8 +2,8 @@
 
 #include <unordered_map>
 
-#include "bitengine/Core/Window.h"
-#include "bitengine/Core/Messenger.h"
+#include "BitEngine/Core/Window.h"
+#include "BitEngine/Core/Messenger.h"
 
 namespace BitEngine {
 

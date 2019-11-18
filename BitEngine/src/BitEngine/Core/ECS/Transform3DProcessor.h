@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bitengine/Core/ECS/ComponentProcessor.h"
-#include "bitengine/Core/ECS/Transform3DComponent.h"
+#include "BitEngine/Core/ECS/ComponentProcessor.h"
+#include "BitEngine/Core/ECS/Transform3DComponent.h"
 
 namespace BitEngine {
 

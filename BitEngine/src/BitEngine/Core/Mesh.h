@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "bitengine/Core/Graphics/Material.h"
+#include "BitEngine/Core/Graphics/Material.h"
 
 namespace BitEngine{
 

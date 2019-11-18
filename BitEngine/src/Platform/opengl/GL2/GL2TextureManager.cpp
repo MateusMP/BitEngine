@@ -4,10 +4,10 @@
 #endif
 #include <stb_image.h>
 
-#include "bitengine/Common/MathUtils.h"
-#include "bitengine/Core/Logger.h"
-#include "bitengine/Core/TaskManager.h"
-#include "bitengine/Core/Assert.h"
+#include "BitEngine/Common/MathUtils.h"
+#include "BitEngine/Core/Logger.h"
+#include "BitEngine/Core/TaskManager.h"
+#include "BitEngine/Core/Assert.h"
 
 #include "Platform/opengl/GL2/GL2TextureManager.h"
 

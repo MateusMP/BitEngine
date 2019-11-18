@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bitengine/Core/Math.h"
-#include "bitengine/Core/ECS/Component.h"
+#include "BitEngine/Core/Math.h"
+#include "BitEngine/Core/ECS/Component.h"
 
 namespace BitEngine {
 

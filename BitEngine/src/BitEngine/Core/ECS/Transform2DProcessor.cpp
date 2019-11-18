@@ -1,5 +1,5 @@
-#include "bitengine/Core/ECS/EntitySystem.h"
-#include "bitengine/Core/ECS/Transform2DProcessor.h"
+#include "BitEngine/Core/ECS/EntitySystem.h"
+#include "BitEngine/Core/ECS/Transform2DProcessor.h"
 
 #include <algorithm>
 

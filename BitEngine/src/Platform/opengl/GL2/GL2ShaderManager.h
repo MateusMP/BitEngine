@@ -3,7 +3,7 @@
 #include <array>
 
 #include "BitEngine/Core/TaskManager.h"
-#include "bitengine/Common/ThreadSafeQueue.h"
+#include "BitEngine/Common/ThreadSafeQueue.h"
 
 #include "Platform/opengl/GL2/OpenGL2.h"
 #include "Platform/opengl/GL2/GL2Shader.h"

@@ -5,9 +5,9 @@
 #include "Platform/opengl/GL2/GL2Impl.h"
 
 
-#include "bitengine/Common/ErrorCodes.h"
+#include "BitEngine/Common/ErrorCodes.h"
 
-#include "bitengine/Core/Assert.h"
+#include "BitEngine/Core/Assert.h"
 
 namespace BitEngine
 {

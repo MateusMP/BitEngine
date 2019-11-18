@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bitengine/Core/Sprite2DShader.h"
+#include "BitEngine/Core/Sprite2DShader.h"
 
 #include "Platform/opengl/ShaderProgram.h"
 #include "Platform/opengl/VertexArrayObject.h"

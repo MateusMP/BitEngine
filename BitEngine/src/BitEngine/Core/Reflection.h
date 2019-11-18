@@ -8,9 +8,9 @@
 #include <string>
 #include <map>
 
-#include "bitengine/Common/TypeDefinition.h"
-#include "bitengine/Common/MacroHelpers.h"
-#include "bitengine/Core/Logger.h"
+#include "BitEngine/Common/TypeDefinition.h"
+#include "BitEngine/Common/MacroHelpers.h"
+#include "BitEngine/Core/Logger.h"
 
 namespace BitEngine {
 namespace Reflection {

@@ -2,7 +2,7 @@
 
 #include "Platform/opengl/ShaderProgram.h"
 
-#include "bitengine/Core/Logger.h"
+#include "BitEngine/Core/Logger.h"
 
 namespace BitEngine{
 

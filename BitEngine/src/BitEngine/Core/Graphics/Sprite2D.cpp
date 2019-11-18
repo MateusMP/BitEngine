@@ -1,6 +1,6 @@
-#include "bitengine/Core/Graphics/Sprite2D.h"
+#include "BitEngine/Core/Graphics/Sprite2D.h"
 
-#include "bitengine/Core/VideoSystem.h"
+#include "BitEngine/Core/VideoSystem.h"
 
 namespace BitEngine {
 

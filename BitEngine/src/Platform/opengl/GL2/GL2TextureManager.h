@@ -4,9 +4,9 @@
 #include <array>
 #include <unordered_map>
 
-#include "bitengine/Core/TaskManager.h"
-#include "bitengine/Core/Resources/ResourceManager.h"
-#include "bitengine/Common/ThreadSafeQueue.h"
+#include "BitEngine/Core/TaskManager.h"
+#include "BitEngine/Core/Resources/ResourceManager.h"
+#include "BitEngine/Common/ThreadSafeQueue.h"
 
 #include "Platform/opengl/GL2/OpenGL2.h"
 

@@ -1,10 +1,10 @@
 #include <fstream>
 
-#include "bitengine/Core/Resources/DevResourceLoader.h"
+#include "BitEngine/Core/Resources/DevResourceLoader.h"
 
-#include "bitengine/Core/Logger.h"
-#include "bitengine/Core/Task.h"
-#include "bitengine/Core/TaskManager.h"
+#include "BitEngine/Core/Logger.h"
+#include "BitEngine/Core/Task.h"
+#include "BitEngine/Core/TaskManager.h"
 
 namespace BitEngine {
 
