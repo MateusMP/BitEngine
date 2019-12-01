@@ -8,61 +8,20 @@
 #include "BitEngine/Core/Memory.h"
 #include "BitEngine/Core/Resources/ResourceManager.h"
 
+#include "BitEngine/Core/Math.h"
+
 
 namespace BitEngine
 {
 struct BE_API DevResourceMeta : public ResourceMeta {
-    std::string filePath; // In case the resource is associated with a file
-
     DevResourceMeta(const std::string& pack)
-        : ResourceMeta(pack)
+        : package(pack)
     {}
-};
 
-struct BE_API DevResourcePropertyRef : public ResourceProperty
-{
-    DevResourcePropertyRef(nlohmann::json& json)
-        : properties(json)
-    {
-    }
-    ~DevResourcePropertyRef() {
-        //LOG(EngineLog, BE_LOG_VERBOSE) << this << " was reference removed!";
-    }
-
-    ResourcePropertyContainer getProperty(const std::string& str) override
-    {
-        auto it = properties.find(str);
-        if (it == properties.end())
-        {
-            return ResourcePropertyContainer(nullptr);
-        }
-        else
-        {
-            return ResourcePropertyContainer(new DevResourcePropertyRef(*it));
-        }
-    }
-
-    virtual ResourcePropertyContainer getProperty(int index) override {
-        return ResourcePropertyContainer(new DevResourcePropertyRef(properties[index]));
-    }
-
-    virtual const std::string& getValueString() const override {
-        return properties.get_ref<std::string&>();
-    }
-    virtual double getValueDouble() const override {
-        return properties.get<double>();
-    }
-    int getValueInt() const override {
-        return properties.get<int>();
-    }
-    virtual int getNumberOfProperties() const override {
-        return properties.size();
-    }
-
-    virtual ResourcePropertyContainer operator[](const std::string& str) override { return this->getProperty(str); }
-
-private:
-    nlohmann::json& properties;
+    std::string package;
+    std::string resourceName;
+    std::string type;
+    std::string filePath; // In case the resource is associated with a file
 };
 
 /**
@@ -70,9 +29,45 @@ private:
  * This loader loads files from the standard file system.
  * All resources are indexed in a json file.
  */
-class BE_API DevResourceLoader : public ResourceLoader
+class DevResourceLoader : public ResourceLoader
 {
 public:
+
+
+    struct Serializer {
+        template<typename T>
+        void write(const char* name, const T value) {}
+    };
+
+    struct Deserializer {
+        template<typename T>
+        void read(const char* name, T* value) {
+            *value = properties[name].get<T>();
+        }
+
+        template<typename T>
+        void read(const char* name, RR<T>* value) {
+            const std::string& ref = properties[name].get_ref<const std::string&>();
+            *value = loader->getResource<T>(ref);
+        }
+
+        template<u32 K, typename P, glm::qualifier X>
+        void read(const char* name, glm::vec<K, P, X>* value) {
+            const std::vector<P>& values = properties[name];
+            for (u32 i = 0; i < K; ++i) {
+                (*value)[i] = values[i];
+            }
+        }
+
+        DevResourceLoader* loader;
+        const nlohmann::json& properties;
+    };
+
+    using SerializerCall = void(*)(Serializer*, const BaseResource*);
+    using DeserializerCall = void(*)(Deserializer*, BaseResource*);
+    using PropertyHandler = void(*)(DevResourceLoader* , nlohmann::json& props, ResourceManager*, BaseResource*);
+    using PropertyToProdConverter = void(*)(Serializer*, ResourceManager*, nlohmann::json& props, BaseResource*);
+
     // Returns the full directory where the file for this meta is.
     static std::string getPackagePath(const ResourceMeta* meta);
 
@@ -85,7 +80,7 @@ public:
     static bool loadFileToMemory(const std::string& fname, std::vector<char>& out);
 
 
-    DevResourceLoader(MemoryArena& memoryArena, TaskManager* taskManager);
+    DevResourceLoader(TaskManager* taskManager);
     ~DevResourceLoader();
 
     bool init() override;
@@ -93,14 +88,29 @@ public:
 
     // Inherited via ResourceLoader
     virtual void shutdown() override;
-    virtual void registerResourceManager(const std::string& resourceType, ResourceManager* manager) override;
+
+    template<typename T, typename Manager>
+    void registerResourceManager(const std::string& resourceType, Manager* manager) {
+        taskManager->verifyMainThread();
+        BE_ASSERT(manager != nullptr);
+        manager->setResourceLoader(this);
+        managers.emplace_back(manager);
+        managersMap[resourceType] = ManagerInfo{ manager, 
+            T::serialize,
+            T::deserialize,
+            Manager::readJsonProperties,
+            Manager::jsonPropertiesToProd,
+        };
+    }
 
     virtual bool loadIndex(const std::string& indexFilename) override;
 
-    virtual ResourceMeta* findMeta(const std::string& name) override;
+    void convertIndexesToProd();
 
-    BitEngine::ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
-        const std::string& type, ResourcePropertyContainer properties) override;
+    DevResourceMeta* findMeta(const std::string& name);
+
+    ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
+        const std::string& type);
 
     virtual bool hasManagerForType(const std::string& resourceType) override;
 
@@ -111,9 +121,20 @@ public:
         return copy;
     }
 
+    ResourceLoader::RawResourceTask loadRawData(ResourceMeta* meta) override {
+        std::lock_guard<std::mutex> lock(waitingTasksMutex);
+        auto it = waitingData.emplace(meta, nullptr);
+        if (it.second) {
+            it.first->second = requestResourceData(meta);
+        }
+        return it.first->second;
+    }
+
 protected:
     // Retrieve 
     virtual BaseResource* loadResource(const std::string& name) override;
+    virtual BaseResource* loadResource(const u32 rid) override;
+    virtual BaseResource* loadResource(ResourceMeta* meta) override;
     virtual void reloadResource(BaseResource* resource) override;
 
     virtual void releaseAll() override;
@@ -125,14 +146,6 @@ protected:
     // Returns nullptr if meta conflicts and allowOverride == false
     DevResourceMeta* addResourceMeta(const DevResourceMeta& meta, bool allowOverride);
 
-    ResourceLoader::RawResourceTask loadRawData(ResourceMeta* meta) override {
-        std::lock_guard<std::mutex> lock(waitingTasksMutex);
-        auto it = waitingData.emplace(meta, nullptr);
-        if (it.second) {
-            it.first->second = requestResourceData(meta);
-        }
-        return it.first->second;
-    }
     
     friend class DevLoaderTask;
     void finishedLoading(ResourceMeta* meta) {
@@ -149,7 +162,6 @@ private:
     RawResourceTask requestResourceData(ResourceMeta* meta) override;
 
     bool isManagerForTypeAvailable(const std::string& type);
-    BitEngine::BaseResource* getResourceFromManager(ResourceMeta* meta);
 
     void loadPackages(LoadedIndex* index, bool allowOverride);
     LoadedIndex* findIndexByName(const std::string& string);
@@ -157,7 +169,15 @@ private:
     // Holds the managers
     std::mutex waitingTasksMutex;
     std::vector<ResourceManager*> managers;
-    std::unordered_map<std::string, ResourceManager*> managersMap;
+
+    struct ManagerInfo {
+        ResourceManager* mngr;
+        SerializerCall serializer;
+        DeserializerCall deserializer;
+        PropertyHandler propHandler;
+        PropertyToProdConverter propToProd;
+    };
+    std::unordered_map<std::string, ManagerInfo> managersMap;
 
     std::vector<DevResourceMeta> resourceMeta;
     std::vector<LoadedIndex> resourceMetaIndexes;
@@ -165,8 +185,6 @@ private:
     std::map<ResourceMeta*, ResourceLoader::RawResourceTask> waitingData; // the resources that are waiting the raw data to be loaded
 
     TaskManager* taskManager;
-
-    MemoryArena& memoryArena;
 };
 
 }

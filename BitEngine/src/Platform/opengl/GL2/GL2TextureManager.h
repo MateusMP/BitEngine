@@ -12,6 +12,8 @@
 
 namespace BitEngine
 {
+    class DevResourceLoader;
+
     class GL2Texture : public BitEngine::Texture
     {
         friend class GL2TextureManager;
@@ -104,6 +106,15 @@ namespace BitEngine
         }
 
         void uploadToGPU(GL2Texture* texture);
+
+        static void readJsonProperties(DevResourceLoader* devloader, nlohmann::json& props, ResourceManager* manager, BaseResource* resource) {
+
+        }
+
+        template<typename Serializer>
+        static void jsonPropertiesToProd(Serializer*, ResourceManager*, nlohmann::json& props, BaseResource*) {
+
+        }
 
     private:
         static GLuint GenerateErrorTexture();

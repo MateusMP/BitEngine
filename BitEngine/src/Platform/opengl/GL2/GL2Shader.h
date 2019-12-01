@@ -48,8 +48,6 @@ public:
 
     void setExpectedShaderSourcesCount(int amount) { expectedSourcesCount = amount; }
 
-    bool gotAllShaderPiecesLoaded();
-
 protected:
     struct ShaderSource {
         ShaderSource(GLint t, std::vector<char>& d)
@@ -144,6 +142,8 @@ private:
     UniformHolder uniformHolder;
 
     std::vector<GL2Batch*> batches;
+
+    std::function<void()> reload;
 };
 
 }

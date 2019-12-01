@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 #include "Bitengine/Core/Task.h"
 #include "Bitengine/Core/Messenger.h"
 
@@ -17,24 +19,23 @@ class RR;
  */
 struct BE_API ResourceMeta
 {
-    ResourceMeta(const std::string& pack)
-        : id(~0), package(pack), references(0)
+    ResourceMeta()
+        : id(~0), references(0)
     {}
 
-    const std::string toString() const;
+    const std::string toString() const {
+        return "Resource: " + id;
+    }
 
     u32 id; /// unique resource id
-    std::string package;
-    std::string resourceName;
-    std::string type;
-    ResourcePropertyContainer properties;
+    nlohmann::json properties;
 
     u32 getReferences() const {
         return references;
     }
 
     std::string getNameId() const {
-        return "[" + type + "]" + package + "/" + resourceName;
+        return id + "";
     }
 
 private:
@@ -73,7 +74,6 @@ protected:
 class BE_API ResourceLoader
 {
 public:
-
     struct DataRequest
     {
         enum LoadState {
@@ -143,13 +143,6 @@ public:
     virtual void shutdown() = 0;
 
     /**
-     * Register a resource manage to take case of a given resource type.
-     * @param resourceType the resource type.
-     * @param manager the manager
-     */
-    virtual void registerResourceManager(const std::string& resourceType, ResourceManager* manager) = 0;
-
-    /**
      * TODO: This should not exist here. Loading from a file is not in this scope.
      * Blocking call
      * Read a file and map all indices
@@ -159,24 +152,6 @@ public:
      * @return true if succeeded
      */
     virtual bool loadIndex(const std::string& index) = 0;
-
-    /**
-     * Include a meta in the internal index.
-     * @param package
-     * @param resourceName
-     * @param type
-     * @param properties
-     * @return
-     */
-    virtual BitEngine::ResourceMeta* includeMeta(const std::string& package, const std::string& resourceName,
-        const std::string& type, ResourcePropertyContainer properties = ResourcePropertyContainer()) = 0;
-
-    /**
-     * Find a resource meta for a given name.
-     * @param name the name to search for.
-     * @return the resource meta
-     */
-    virtual ResourceMeta* findMeta(const std::string& name) = 0;
 
     /**
      * Retrieve resource by name.
@@ -189,10 +164,22 @@ public:
         return RR<T>(resource, this);
     }
 
+    template<typename T>
+    RR<T> getResource(const u32& rid) {
+        T* resource = static_cast<T*>(loadResource(rid));
+        return RR<T>(resource, this);
+    }
+
+    template<typename T>
+    RR<T> getResource(ResourceMeta* meta) {
+        T* resource = static_cast<T*>(loadResource(meta));
+        return RR<T>(resource, this);
+    }
+
     /**
      * Force a resource to be reloaded.
      * @param resource the resource reference
-     * @param wait if waiting the resource to be fully loaded is required, pass true here.
+     * @param wait if waiting the resource to be fully loaded is required (blocking call).
      */
     template<typename T>
     void reloadResource(RR<T>& resource, bool wait = false) {
@@ -271,6 +258,10 @@ protected:
      * @return
      */
     virtual BaseResource* loadResource(const std::string& name) = 0;
+
+    virtual BaseResource* loadResource(const u32 rid) = 0;
+
+    virtual BaseResource* loadResource(ResourceMeta* meta) = 0;
 
     // Will force a resource to be reloaded.
     virtual void reloadResource(BaseResource* resource) = 0;

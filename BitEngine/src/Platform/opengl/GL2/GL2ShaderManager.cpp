@@ -5,6 +5,8 @@
 #include "Platform/opengl/GL2/GL2Shader.h"
 #include "Platform/opengl/GL2/GL2ShaderManager.h"
 
+#include "BitEngine/Core/Resources/DevResourceLoader.h"
+
 namespace BitEngine {
 
     class ShaderSourceLoader : public Task {
@@ -20,21 +22,21 @@ namespace BitEngine {
             {
                 ResourceLoader::RawResourceLoaderTask* rawTask = static_cast<ResourceLoader::RawResourceLoaderTask*>(task.get());
                 auto& dr = rawTask->getData();
-                std::string sourceType = dr.meta->properties["source_type"].getValueString();
+                const std::string& sourceType = dr.meta->properties["source_type"].get_ref<std::string&>();
 
                 if (sourceType.compare("VERTEX") == 0)
                 {
-                    LOG(EngineLog, BE_LOG_VERBOSE) << "Loading vertex piece " << dr.meta->resourceName;
+                    LOG(EngineLog, BE_LOG_VERBOSE) << "Loading vertex piece for " << dr.meta->getNameId();
                     shader->includeSource(GL_VERTEX_SHADER, dr.data);
                 }
                 else if (sourceType.compare("FRAGMENT") == 0)
                 {
-                    LOG(EngineLog, BE_LOG_VERBOSE) << "Loading fragment piece " << dr.meta->resourceName;
+                    LOG(EngineLog, BE_LOG_VERBOSE) << "Loading fragment piece " << dr.meta->getNameId();
                     shader->includeSource(GL_FRAGMENT_SHADER, dr.data);
                 }
                 else if (sourceType.compare("GEOMETRY") == 0)
                 {
-                    LOG(EngineLog, BE_LOG_VERBOSE) << "Loading geometry piece " << dr.meta->resourceName;
+                    LOG(EngineLog, BE_LOG_VERBOSE) << "Loading geometry piece " << dr.meta->getNameId();
                     shader->includeSource(GL_GEOMETRY_SHADER, dr.data);
                 }
             }
@@ -46,8 +48,73 @@ namespace BitEngine {
         GL2Shader* shader;
     };
 
-
     //
+
+    ResourceLoader::RawResourceTask GL2ShaderManager::loadShaderSource(DevResourceLoader* loader, const std::string& file, GL2Shader* shader)
+    {
+        ResourceMeta* shaderSourceMeta = loader->findMeta(file);
+        if (shaderSourceMeta != nullptr)
+        {
+            sourceShaderRelation.emplace(shaderSourceMeta, shader);
+            return loader->loadRawData(shaderSourceMeta);
+        }
+        else
+        {
+            LOG(EngineLog, BE_LOG_ERROR) << "Couldn't load shader source: " << file;
+        }
+        return nullptr;
+    }
+
+    void GL2ShaderManager::readJsonProperties(DevResourceLoader* devloader, nlohmann::json& props, ResourceManager* manager, BaseResource* resource) {
+        GL2ShaderManager* mng = (GL2ShaderManager*)manager;
+        GL2Shader* shader = (GL2Shader*)resource;
+        // Init definition
+        const nlohmann::json& gl2props = props["gl2"];
+        const nlohmann::json& definition = gl2props["definition"];
+
+        size_t nDefs = definition.size();
+        for (int i = 0; i < nDefs; ++i)
+        {
+            const nlohmann::json& container = definition[i];
+            BitEngine::DataUseMode useMode = useModeFromString(container["mode"].get<std::string>());
+            int instanced = container["instanced"].get<int>();
+            ShaderDataDefinition::DefinitionContainer& dataDefContainer = shader->getDefinition().addContainer(useMode, instanced);
+
+            const nlohmann::json& dataDefResource = container["defs"];
+            size_t nDataDef = dataDefResource.size();
+
+            for (int j = 0; j < nDataDef; ++j)
+            {
+                const nlohmann::json& dataDef = dataDefResource[j];
+                dataDefContainer.addDataDef(
+                    dataDef["name"].get<std::string>(),
+                    dataTypeFromString(dataDef["data"].get<std::string>()),
+                    dataDef["size"].get<int>());
+            }
+        }
+
+
+        // Load source files
+        int expectedTypes = 0;
+        auto vertexProp = gl2props.find("vertex");
+        auto fragmentProp = gl2props.find("fragment");
+        auto geometryProp = gl2props.find("geometry");
+
+        shader->reload = std::function([=]() {
+            std::shared_ptr<ShaderSourceLoader> loadTask = std::make_shared<ShaderSourceLoader>(mng, shader);
+
+            if (vertexProp != gl2props.end() && (*vertexProp).size() > 0) {
+                loadTask->addDependency(mng->loadShaderSource(devloader, (*vertexProp).get_ref<const std::string&>(), shader));
+            }
+            if (fragmentProp != gl2props.end() && (*fragmentProp).size() > 0) {
+                loadTask->addDependency(mng->loadShaderSource(devloader, (*fragmentProp).get_ref<const std::string&>(), shader));
+            }
+            if (geometryProp != gl2props.end() && (*geometryProp).size() > 0) {
+                loadTask->addDependency(mng->loadShaderSource(devloader, (*geometryProp).get_ref<const std::string&>(), shader));
+            }
+            mng->taskManager->addTask(loadTask);
+        });
+    }
 
     GL2ShaderManager::GL2ShaderManager(TaskManager* tm)
         : taskManager(tm), loader(nullptr)
@@ -83,89 +150,17 @@ namespace BitEngine {
         GL2Shader* shader;
         while (resourceLoaded.tryPop(shader))
         {
-            if (shader->gotAllShaderPiecesLoaded())
-            {
-                shader->init();
-            }
+            shader->init();
         }
-    }
-
-    void initShadeDefinition(ShaderDataDefinition& def, ResourceMeta* meta)
-    {
-        ResourcePropertyContainer definition = meta->properties["gl2"]["definition"];
-
-        int nDefs = definition.getNumberOfProperties();
-        for (int i = 0; i < nDefs; ++i)
-        {
-            ResourcePropertyContainer container = definition[i];
-            BitEngine::DataUseMode useMode = useModeFromString(container["mode"].getValueString());
-            int instanced = container["instanced"].getValueInt();
-            ShaderDataDefinition::DefinitionContainer& dataDefContainer = def.addContainer(useMode, instanced);
-
-            ResourcePropertyContainer dataDefResource = container["defs"];
-            int nDataDef = dataDefResource.getNumberOfProperties();
-
-            for (int j = 0; j < nDataDef; ++j)
-            {
-                ResourcePropertyContainer dataDef = dataDefResource[j];
-                dataDefContainer.addDataDef(
-                    dataDef["name"].getValueString(),
-                    dataTypeFromString(dataDef["data"].getValueString()),
-                    dataDef["size"].getValueInt());
-            }
-        }
-
-    }
-
-    ResourceLoader::RawResourceTask GL2ShaderManager::loadShaderSource(ResourcePropertyContainer& rpc, GL2Shader* shader)
-    {
-        const std::string file = rpc.getValueString();
-        ResourceMeta* shaderSourceMeta = loader->findMeta(file);
-        if (shaderSourceMeta != nullptr)
-        {
-            sourceShaderRelation.emplace(shaderSourceMeta, shader);
-            return loader->loadRawData(shaderSourceMeta);
-        }
-        else
-        {
-            LOG(EngineLog, BE_LOG_ERROR) << "Couldn't load shader source: " << file;
-        }
-        return nullptr;
     }
 
     void GL2ShaderManager::makeFullLoad(ResourceMeta* meta, GL2Shader* shader)
     {
-        initShadeDefinition(shader->getDefinition(), meta);
-        // Load source files
-        int expectedTypes = 0;
-        auto gl2Props = meta->properties["gl2"];
-        auto vertexProp = gl2Props["vertex"];
-        auto fragmentProp = gl2Props["fragment"];
-        auto geometryProp = gl2Props["geometry"];
-        if (vertexProp.isValid() && !vertexProp.getValueString().empty()) {
-            expectedTypes++;
-        }
-        if (fragmentProp.isValid() && !fragmentProp.getValueString().empty()) {
-            expectedTypes++;
-        }
-        if (geometryProp.isValid() && !geometryProp.getValueString().empty()) {
-            expectedTypes++;
-        }
-        shader->setExpectedShaderSourcesCount(expectedTypes);
-        std::shared_ptr<ShaderSourceLoader> shaderSourceLoader = std::make_shared<ShaderSourceLoader>(this, shader);
-        if (vertexProp.isValid()) {
-            shaderSourceLoader->addDependency(loadShaderSource(vertexProp, shader));
-        }
-        if (fragmentProp.isValid()) {
-            shaderSourceLoader->addDependency(loadShaderSource(fragmentProp, shader));
-        }
-        if (geometryProp.isValid()) {
-            shaderSourceLoader->addDependency(loadShaderSource(geometryProp, shader));
-        }
-        taskManager->addTask(shaderSourceLoader);
+        if (shader->reload)
+            shader->reload();
     }
 
-    BaseResource* GL2ShaderManager::loadResource(ResourceMeta* meta)
+    Shader* GL2ShaderManager::loadResource(ResourceMeta* meta)
     {
         GL2Shader* shader = shaders.findResource(meta);
 

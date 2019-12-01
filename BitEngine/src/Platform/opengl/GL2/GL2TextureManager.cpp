@@ -117,11 +117,13 @@ GL2TextureManager::~GL2TextureManager()
     }
 }
 
+static ResourceMeta errorTextureMeta;
+
 bool GL2TextureManager::init()
 {
     stbi_set_flip_vertically_on_load(true);
 
-    ResourceMeta* meta = loader->includeMeta("default", "texture", "TEXTURE");
+    ResourceMeta* meta = &errorTextureMeta;
 
     // Init error texture
     u16 id = textures.addResource(meta);

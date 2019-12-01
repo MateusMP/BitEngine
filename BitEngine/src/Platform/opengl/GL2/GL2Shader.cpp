@@ -561,8 +561,4 @@ namespace BitEngine
 		}
 	}
 
-	bool GL2Shader::gotAllShaderPiecesLoaded()
-	{
-		return sources.size() == expectedSourcesCount;
-	}
 }

@@ -301,7 +301,7 @@ project "Sample02DLL"
 		}
 		
 		postbuildcommands { 
-			"xcopy bin\\" .. outputdir .. "\\%{prj.name}\\*.DLL samples\\sample02\\%{prj.name}.DLL"
+			--"xcopy bin\\" .. outputdir .. "\\%{prj.name}\\*.DLL samples\\sample02\\%{prj.name}.DLL"
 		}
 
 	filter "configurations:Debug"

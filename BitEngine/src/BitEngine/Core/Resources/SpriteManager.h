@@ -6,50 +6,63 @@
 #include "BitEngine/Core/Resources/ResourceManager.h"
 #include "BitEngine/Core/Graphics/Sprite.h"
 
-namespace BitEngine{
-	
-	class SpriteManager : public  ResourceManager
-	{
-	public:
-		SpriteManager();
 
-		/**
-		 * Insert a new sprite
-		 * The name is used for name look-up, but all sprites can be found
-		 * using the returned SpriteHandle.
-		 * \param Name used for indexing
-		 * \param Sprite data to be used
-		 * \param return SpriteHandle for direct acess to given sprite
-		 */
-		Sprite* createSprite(const std::string& name, const Sprite& spr);
+namespace BitEngine {
 
-	private:
-		void loadSpriteData(ResourceMeta* meta, Sprite* sprite);
-		
-		// Inherited via ResourceManager
-		virtual bool init() override;
+class DevResourceLoader;
 
-		virtual void update() override;
+class SpriteManager : public  ResourceManager
+{
+public:
+    SpriteManager();
 
-        virtual void shutdown() override;
+    /**
+     * Insert a new sprite
+     * The name is used for name look-up, but all sprites can be found
+     * using the returned SpriteHandle.
+     * \param Name used for indexing
+     * \param Sprite data to be used
+     * \param return SpriteHandle for direct acess to given sprite
+     */
+    Sprite* createSprite(const std::string& name, const Sprite& spr);
 
-		void setResourceLoader(ResourceLoader* loader) override {
-			resourceLoader = loader;
-		}
+    static void readJsonProperties(DevResourceLoader* devloader, nlohmann::json& props, ResourceManager* manager, BaseResource* resource);
 
-		virtual BaseResource * loadResource(ResourceMeta* meta) override;
-		void resourceNotInUse(ResourceMeta* meta) override {}
-		void reloadResource(BaseResource* resource) override;
-		void resourceRelease(ResourceMeta* meta) override {}
+    template<typename Serializer>
+    static void jsonPropertiesToProd(Serializer*, ResourceManager*, nlohmann::json& props, BaseResource*) {
 
-		virtual u32 getCurrentRamUsage() const override;
+    }
 
-		virtual u32 getCurrentGPUMemoryUsage() const override;
+private:
+    friend class DevResourceLoader;
+
+    void loadSpriteData(ResourceMeta* meta, Sprite* sprite);
+
+    // Inherited via ResourceManager
+    virtual bool init() override;
+
+    virtual void update() override;
+
+    virtual void shutdown() override;
+
+    void setResourceLoader(ResourceLoader* loader) override {
+        resourceLoader = loader;
+    }
+
+    virtual BaseResource * loadResource(ResourceMeta* meta) override;
+    void resourceNotInUse(ResourceMeta* meta) override {}
+    void reloadResource(BaseResource* resource) override;
+    void resourceRelease(ResourceMeta* meta) override {}
+
+    virtual u32 getCurrentRamUsage() const override;
+
+    virtual u32 getCurrentGPUMemoryUsage() const override;
 
 
-		ResourceLoader* resourceLoader;
-		ResourceIndexer<Sprite, 2048> sprites;
-	};
+    ResourceLoader* resourceLoader;
+    ResourceIndexer<Sprite, 2048> sprites;
+    std::vector<ResourceMeta> dynamicSprites;
+};
 
 
 }

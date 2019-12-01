@@ -5,6 +5,7 @@
 #include "BitEngine/Core/Logger.h"
 #include "BitEngine/Core/Task.h"
 #include "BitEngine/Core/TaskManager.h"
+#include "BitEngine/Core/Graphics/Sprite.h"
 
 namespace BitEngine {
 
@@ -49,8 +50,8 @@ private:
 
 //
 
-DevResourceLoader::DevResourceLoader(MemoryArena& memory, TaskManager* tm)
-    : memoryArena(memory), taskManager(tm)
+DevResourceLoader::DevResourceLoader(TaskManager* tm)
+    : taskManager(tm)
 {
     resourceMeta.reserve(4096);
     resourceMetaIndexes.reserve(8);
@@ -58,7 +59,7 @@ DevResourceLoader::DevResourceLoader(MemoryArena& memory, TaskManager* tm)
 
 DevResourceLoader::~DevResourceLoader()
 {
-
+    shutdown();
 }
 
 bool DevResourceLoader::init()
@@ -91,26 +92,17 @@ void DevResourceLoader::shutdown()
     byName.clear();
 }
 
-void DevResourceLoader::registerResourceManager(const std::string& resourceType, ResourceManager* manager)
-{
-    taskManager->verifyMainThread();
-    BE_ASSERT(manager != nullptr);
-    manager->setResourceLoader(this);
-    managers.emplace_back(manager);
-    managersMap[resourceType] = manager;
-}
 
 bool DevResourceLoader::hasManagerForType(const std::string& resourceType) {
     return managersMap.find(resourceType) != managersMap.end();
 }
 
 ResourceMeta* DevResourceLoader::includeMeta(const std::string& package, const std::string& resourceName,
-    const std::string& type, ResourcePropertyContainer properties)
+    const std::string& type)
 {
     DevResourceMeta meta(package);
     meta.resourceName = resourceName;
     meta.type = type;
-    meta.properties = properties;
     meta.filePath = "<in-memory>";
     return addResourceMeta(meta, false);
 }
@@ -151,6 +143,7 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
         index->data = nlohmann::json::parse(file);
         loadPackages(index, allowOverride);
 
+        Deserializer deserialize { this, index->data };
         if (allowOverride)
         {
             // Reload all resources in order of manager
@@ -158,14 +151,17 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
             {
                 for (DevResourceMeta* meta : index->metas)
                 {
-                    if (m == managersMap[meta->type])
+                    const ManagerInfo& info = managersMap[meta->type];
+                    if (m == info.mngr)
                     {
+                        new (&deserialize) Deserializer{ this, meta->properties };
                         // Check if the resource is loaded
                         // and the ask to realod it
                         if (meta->getReferences() > 0)
                         {
                             // If the resource have references, this means someone already requested it to be loaded.
                             BaseResource* r = m->loadResource(meta); // just get a reference
+                            info.deserializer(&deserialize, r);
                             m->reloadResource(r);
                         }
                     }
@@ -190,7 +186,61 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
     return true;
 }
 
-ResourceMeta* DevResourceLoader::findMeta(const std::string& name)
+
+
+
+struct ByteSerializer {
+    std::ofstream& ptr;
+
+    template<typename T>
+    void write(const char* name, T data) {
+        ptr.write((const char*)&data, sizeof(T));
+    }
+
+    template<typename T>
+    void write(const char* name, RR<T> data) {
+        u32 id = data->getResourceId();
+        this->write(name, id);
+    }
+
+};
+
+struct SerializerTypeSize {
+    template<typename T>
+    void write(const char* name, T data) {
+        size += sizeof(T);
+    }
+
+    u32 size = 0;
+};
+
+void DevResourceLoader::convertIndexesToProd() {
+    using namespace BitEngine;
+
+    std::vector<DevResourceMeta*> sprites;
+    for (LoadedIndex& index : resourceMetaIndexes) {
+        for (DevResourceMeta* meta : index.metas) {
+            if (meta->type == "SPRITE") {
+                sprites.emplace_back(meta);
+            }
+        }
+    }
+
+    SerializerTypeSize spriteSerializerInfo;
+    Sprite tmp;
+    Sprite::serialize(&spriteSerializerInfo, &tmp);
+    
+    std::ofstream out("prod-index.data", std::ios::binary | std::ios::out);
+    
+    ByteSerializer byteSerializer { out };
+    for (DevResourceMeta* meta : sprites) {
+        RR<Sprite> sprite = getResource<Sprite>(meta->id);
+        Sprite::serialize(&byteSerializer, sprite.get());
+    }
+    out.close();
+}
+
+DevResourceMeta* DevResourceLoader::findMeta(const std::string& name)
 {
     const auto& it = byName.find(name);
     if (it == byName.end())
@@ -244,8 +294,7 @@ void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
                 }
                 else
                 {
-                    DevResourcePropertyRef* ref = memoryArena.push<DevResourcePropertyRef>(resource);
-                    tmpResMeta.properties = ResourcePropertyContainer(ref);
+                    tmpResMeta.properties[property.first] = property.second;
                 }
             }
 
@@ -262,9 +311,23 @@ void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
     }
 }
 
+BaseResource* DevResourceLoader::loadResource(ResourceMeta* meta)
+{
+    DevResourceMeta* dmeta = static_cast<DevResourceMeta*>(meta);
+
+    const ManagerInfo& info = managersMap[dmeta->type];
+    Deserializer deserializer{ this, dmeta->properties };
+    
+    BaseResource* resource = info.mngr->loadResource(dmeta);
+    info.deserializer(&deserializer, resource);
+    info.propHandler(this, dmeta->properties, info.mngr, resource);
+    
+    return resource;
+}
+
 BaseResource* DevResourceLoader::loadResource(const std::string& name)
 {
-    ResourceMeta* meta = findMeta(name);
+    DevResourceMeta* meta = findMeta(name);
     if (meta == nullptr)
     {
         LOG(EngineLog, BE_LOG_ERROR) << "Couldn't find resource: '" << name << "'";
@@ -272,14 +335,36 @@ BaseResource* DevResourceLoader::loadResource(const std::string& name)
     }
     else
     {
-        return getResourceFromManager(meta);
+        return loadResource(meta);
     }
 }
 
+BaseResource* DevResourceLoader::loadResource(const u32 name)
+{
+    DevResourceMeta* meta = &resourceMeta[name];
+    if (meta == nullptr)
+    {
+        LOG(EngineLog, BE_LOG_ERROR) << "Couldn't find resource: '" << name << "'";
+        return nullptr;
+    }
+    else
+    {
+        return loadResource(meta);
+    }
+}
+
+
 void DevResourceLoader::reloadResource(BaseResource* resource)
 {
-    ResourceMeta* meta = resource->getMeta();
-    managersMap[meta->type]->reloadResource(resource);
+    // TODO: Force reload properties from file
+    DevResourceMeta* meta = static_cast<DevResourceMeta*>(resource->getMeta());
+    
+    Deserializer deserializer{ this, meta->properties };
+    const ManagerInfo& info = managersMap[meta->type];
+    info.deserializer(&deserializer, resource);
+    info.propHandler(this, meta->properties, info.mngr, resource);
+
+    info.mngr->reloadResource(resource);
 }
 
 void DevResourceLoader::releaseAll()
@@ -288,7 +373,8 @@ void DevResourceLoader::releaseAll()
 
 void DevResourceLoader::resourceNotInUse(ResourceMeta* meta)
 {
-    managersMap[meta->type]->resourceNotInUse(meta);
+    DevResourceMeta* dmeta = static_cast<DevResourceMeta*>(meta);
+    managersMap[dmeta->type].mngr->resourceNotInUse(meta);
 }
 
 void DevResourceLoader::waitForAll()
@@ -340,16 +426,12 @@ bool DevResourceLoader::isManagerForTypeAvailable(const std::string& type)
     return managersMap.find(type) != managersMap.end();
 }
 
-BaseResource* DevResourceLoader::getResourceFromManager(ResourceMeta* meta)
-{
-    return managersMap[meta->type]->loadResource(meta);
-}
-
 // Static
 
 std::string DevResourceLoader::getPackagePath(const ResourceMeta* meta)
 {
-    return "data/" + meta->package + "/" + meta->resourceName;
+    const DevResourceMeta* dmeta = static_cast<const DevResourceMeta*>(meta);
+    return "data/" + dmeta->package + "/" + dmeta->resourceName;
 }
 
 bool DevResourceLoader::loadFileToMemory(const std::string& fname, std::vector<char>& out)

@@ -47,9 +47,7 @@ struct MainMemory {
 	void* memory;
 	ptrsize memorySize;
 
-    BitEngine::ResourceManager* shaderManager;
-    BitEngine::ResourceManager* textureManager;
-    BitEngine::ResourceManager* spriteManager;
+    BitEngine::ResourceLoader* loader;
 
     BitEngine::VideoSystem* videoSystem;
     BitEngine::EngineConfiguration *engineConfig;

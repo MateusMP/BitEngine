@@ -39,6 +39,13 @@ void setupCommands(BitEngine::CommandSystem* cmdSys) {
     cmdSys->setCommandState(GAMEPLAY);
 }
 
+void resourceManagerMenu(const char* name, BitEngine::ResourceManager *resMng) {
+    constexpr float TO_MB = 1.0 / (1024 * 1024);
+    if (ImGui::TreeNode(name)) {
+        ImGui::TextColored(ImVec4(1, 1, 0, 1), "RAM: %.2f GPU: %.2f", resMng->getCurrentRamUsage()* TO_MB, resMng->getCurrentGPUMemoryUsage()*TO_MB);
+        ImGui::TreePop();
+    }
+}
 
 void gameExecute(MainMemory& gameMemory) {
 
@@ -75,15 +82,21 @@ void gameExecute(MainMemory& gameMemory) {
     BitEngine::GLFW_InputSystem input;
     input.registerWindow(main_window);
 
+
     // Game Specific stuff
     BitEngine::CommandSystem commandSystem(main_window);
 
     BitEngine::GL2ShaderManager shaderManager(&taskManager);
     BitEngine::GL2TextureManager textureManager(&taskManager);
     BitEngine::SpriteManager spriteManager;
-    gameMemory.shaderManager = &shaderManager;
-    gameMemory.textureManager = &textureManager;
-    gameMemory.spriteManager = &spriteManager;
+
+    BitEngine::DevResourceLoader loader(&taskManager);
+    loader.registerResourceManager<BitEngine::Shader>("SHADER", &shaderManager);
+    loader.registerResourceManager<BitEngine::Texture>("TEXTURE", &textureManager);
+    loader.registerResourceManager<BitEngine::Sprite>("SPRITE", &spriteManager);
+    loader.init();
+
+    gameMemory.loader = &loader;
     gameMemory.videoSystem = &video;
     gameMemory.window = main_window;
     gameMemory.engineConfig = &engineConfig;
@@ -91,6 +104,13 @@ void gameExecute(MainMemory& gameMemory) {
     gameMemory.commandSystem = &commandSystem;
     gameMemory.imGuiRender = &imgui;
     gameMemory.logger = GameLog();
+
+    auto imguiMenu = [&](const BitEngine::ImGuiRenderEvent& event) {
+        resourceManagerMenu("Sprite Manager", &spriteManager);
+        resourceManagerMenu("Texture Manager", &textureManager);
+        resourceManagerMenu("Shader Manager", &shaderManager);
+    };
+    imgui.subscribe(imguiMenu);
 
     setupCommands(&commandSystem);
 

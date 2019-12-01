@@ -42,14 +42,6 @@ void resourceLoaderMenu(const char* name, BitEngine::ResourceLoader* loader) {
     }
 }
 
-void resourceManagerMenu(const char* name, BitEngine::ResourceManager *resMng) {
-    constexpr float TO_MB = 1.0 / (1024 * 1024);
-    if (ImGui::TreeNode(name)) {
-        ImGui::TextColored(ImVec4(1, 1, 0, 1), "RAM: %.2f GPU: %.2f", resMng->getCurrentRamUsage()* TO_MB, resMng->getCurrentGPUMemoryUsage()*TO_MB);
-        ImGui::TreePop();
-    }
-}
-
 class MyGame :
     BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription,
     BitEngine::Messenger<BitEngine::WindowClosedEvent>::ScopedSubscription,
@@ -85,10 +77,7 @@ public:
 
         if (ImGui::CollapsingHeader("Resources"))
         {
-            resourceLoaderMenu("Loader", gameState->resources);
-            resourceManagerMenu("Sprite Manager", gameMemory->spriteManager);
-            resourceManagerMenu("Texture Manager", gameMemory->textureManager);
-            resourceManagerMenu("Shader Manager", gameMemory->shaderManager);
+            resourceLoaderMenu("Loader", gameMemory->loader);
         }
 
         ImGui::End();
@@ -111,12 +100,7 @@ public:
 
         MemoryArena& permanentArena = gameState->permanentArena;
 
-        ResourceLoader* loader = permanentArena.push<DevResourceLoader>(gameState->resourceArena, gameMemory->taskManager);
-        gameState->resources = loader;
-        loader->registerResourceManager("SHADER", gameMemory->shaderManager);
-        loader->registerResourceManager("TEXTURE", gameMemory->textureManager);
-        loader->registerResourceManager("SPRITE", gameMemory->spriteManager);
-        loader->init();
+        auto loader = gameMemory->loader;
         loader->loadIndex("data/main.idx");
 
         gameMemory->taskManager->addTask(std::make_shared<UpdateTask>([loader] {loader->update(); }));
@@ -178,7 +162,6 @@ public:
 
     void shutdown() {
         gameState->entitySystem->shutdown();
-        gameState->resources->shutdown();
     }
 
     bool32 update()
