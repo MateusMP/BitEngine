@@ -1,71 +1,24 @@
+#pragma once
+
 #include <string>
-#include <vector>
+#include <type_traits>
 
 #include <nlohmann/json.hpp>
 
 #include "Bitengine/Core/Task.h"
 #include "Bitengine/Core/Messenger.h"
+#include "BitEngine/Core/Memory.h"
 
 #include "Bitengine/Core/Resources/ResourceIndexer.h"
-#include "Bitengine/Core/Resources/ResourceProperties.h"
+#include "BitEngine/Core/Resources/PropertyHolder.h"
 
 namespace BitEngine {
+class ResourceLoader;
+class BaseResource;
 
 template<typename T>
 class RR;
 
-/***
- * Stores resource meta data.
- */
-struct BE_API ResourceMeta
-{
-    ResourceMeta()
-        : id(~0), references(0)
-    {}
-
-    const std::string toString() const {
-        return "Resource: " + id;
-    }
-
-    u32 id; /// unique resource id
-    nlohmann::json properties;
-
-    u32 getReferences() const {
-        return references;
-    }
-
-    std::string getNameId() const {
-        return id + "";
-    }
-
-private:
-    friend class ResourceLoader;
-    u32 references;
-};
-
-/**
- * All resources types should come from this
- */
-class BE_API BaseResource
-{
-public:
-    // Base resource
-    // d Owns the data from this vector
-    BaseResource(ResourceMeta* _meta)
-        : meta(_meta)
-    {}
-
-    u32 getResourceId() const {
-        return meta->id;
-    }
-
-    ResourceMeta* getMeta() {
-        return meta;
-    }
-
-protected:
-    ResourceMeta* meta;
-};
 
 /**
  * Resource Loader interface
@@ -77,22 +30,21 @@ public:
     struct DataRequest
     {
         enum LoadState {
-            NOT_LOADED,
             LS_LOADING,
             LS_LOADED,
             LS_ERROR,
         };
         DataRequest(DataRequest&& dr) noexcept
-            : meta(dr.meta), loadState(dr.loadState), data(std::move(dr.data))
+            : loadState(dr.loadState), data(std::move(dr.data)), arena(dr.arena)
         {}
 
-        DataRequest(ResourceMeta* _meta)
-            : meta(_meta), loadState(NOT_LOADED)
+        DataRequest(MemoryArena* _arena)
+            : arena(_arena), loadState(LS_LOADING)
         {}
         DataRequest& operator=(DataRequest&& other) {
-            meta = other.meta;
             loadState = other.loadState;
             data = std::move(other.data);
+            arena = other.arena;
             return *this;
         }
 
@@ -107,9 +59,10 @@ public:
         return *this;
         }*/
 
-        ResourceMeta* meta;
         LoadState loadState;
-        std::vector<char> data;
+        MemoryArena* arena;
+        void* data;
+        u32 size;
     };
 
     /**
@@ -119,8 +72,8 @@ public:
     class RawResourceLoaderTask : public Task
     {
     public:
-        RawResourceLoaderTask(ResourceMeta* d)
-            : Task(TaskMode::NONE, Affinity::BACKGROUND), dr(d)
+        RawResourceLoaderTask(MemoryArena* arena, TaskMode _flags = TaskMode::NONE, Affinity _affinity=Affinity::BACKGROUND)
+            : Task(_flags, _affinity), dr(arena)
         {}
 
         // Inherited via Task
@@ -153,17 +106,6 @@ public:
      */
     virtual bool loadIndex(const std::string& index) = 0;
 
-    /**
-     * Retrieve resource by name.
-     * @param name the resource name.
-     * @return a reference to the resource. It might not be fully loaded yet!
-     */
-    template<typename T>
-    RR<T> getResource(const std::string& name) {
-        T* resource = static_cast<T*>(loadResource(name));
-        return RR<T>(resource, this);
-    }
-
     template<typename T>
     RR<T> getResource(const u32& rid) {
         T* resource = static_cast<T*>(loadResource(rid));
@@ -173,6 +115,12 @@ public:
     template<typename T>
     RR<T> getResource(ResourceMeta* meta) {
         T* resource = static_cast<T*>(loadResource(meta));
+        return RR<T>(resource, this);
+    }
+
+    template<typename T>
+    RR<T> getResource(const std::string& name) {
+        T* resource = static_cast<T*>(loadResource(name));
         return RR<T>(resource, this);
     }
 
@@ -222,8 +170,12 @@ public:
      */
     virtual const std::map<ResourceMeta*, RawResourceTask> getPendingToLoad() = 0;
 
-    virtual RawResourceTask loadRawData(ResourceMeta* meta) = 0;
-
+    // Used internally by resource managers, to retrieve raw resource data
+    // Like, texture image data, sound data, and others.
+    // This will create a background task to load the resource.
+    // The task shall be sent to the TaskManager before this function returns.
+    virtual RawResourceTask requestResourceData(ResourceMeta* meta) = 0;
+    
 protected:
     friend class ResourceManager;
     template<typename T> friend class RR;
@@ -248,7 +200,7 @@ protected:
     virtual void resourceNotInUse(ResourceMeta* meta) = 0;
 
     /** Non blocking call
-     * Retrieve the required resource by name
+     * Retrieve the required resource
      * The resource is loaded on the first request
      * and stay loaded until not required anymore by any instance****
      * A temporary resource may be loaded, like a temporary texture or null sound.
@@ -257,20 +209,13 @@ protected:
      * @param name
      * @return
      */
-    virtual BaseResource* loadResource(const std::string& name) = 0;
-
     virtual BaseResource* loadResource(const u32 rid) = 0;
-
     virtual BaseResource* loadResource(ResourceMeta* meta) = 0;
+    virtual BaseResource* loadResource(const std::string& meta) = 0;
 
     // Will force a resource to be reloaded.
     virtual void reloadResource(BaseResource* resource) = 0;
 
-    // Used internally by resource managers, to retrieve raw resource data
-    // Like, texture image data, sound data, and others.
-    // This will create a background task to load the resource.
-    // The task shall be sent to the TaskManager before this function returns.
-    virtual RawResourceTask requestResourceData(ResourceMeta* meta) = 0;
 };
 
 
@@ -332,6 +277,11 @@ public:
     bool operator !=(const RR& r) const
     {
         return resource == r.resource && loader == r.loader;
+    }
+
+    operator bool() const
+    {
+        return isValid();
     }
 
     bool isValid() const {

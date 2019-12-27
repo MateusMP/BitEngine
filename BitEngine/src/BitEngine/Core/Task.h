@@ -96,6 +96,10 @@ public:
         return waitingTasks;
     }
 
+    void stopRepeating() {
+        flags = TaskMode(enum_value(flags) & !enum_value(TaskMode::REPEATING));
+    }
+
 private:
     virtual void run() = 0;
 

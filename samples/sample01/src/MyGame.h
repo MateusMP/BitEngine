@@ -87,6 +87,19 @@ public:
     {
     }
 
+    void setupCommands(BitEngine::CommandSystem* cmdSys) {
+        cmdSys->registerKeyCommandForAllMods(RIGHT, GAMEPLAY, BE_KEY_RIGHT);
+        cmdSys->registerKeyCommandForAllMods(LEFT, GAMEPLAY, BE_KEY_LEFT);
+        cmdSys->registerKeyCommandForAllMods(UP, GAMEPLAY, BE_KEY_UP);
+        cmdSys->registerKeyCommandForAllMods(DOWN, GAMEPLAY, BE_KEY_DOWN);
+        cmdSys->RegisterMouseCommand(CLICK, GAMEPLAY, BE_MOUSE_BUTTON_LEFT, BitEngine::MouseAction::PRESS);
+#ifdef _DEBUG
+        cmdSys->registerKeyboardCommand(RELOAD_SHADERS, -1, BE_KEY_R, BitEngine::KeyAction::PRESS, BitEngine::KeyMod::CTRL);
+#endif
+        cmdSys->setCommandState(GAMEPLAY);
+    }
+
+
     bool init()
     {
         using namespace BitEngine;
@@ -97,6 +110,8 @@ public:
         gameState->entityArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(64)), MEGABYTES(64));
         gameState->resourceArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(256)), MEGABYTES(256));
         gameState->initialized = true;
+
+        setupCommands(gameMemory->commandSystem);
 
         MemoryArena& permanentArena = gameState->permanentArena;
 
@@ -215,8 +230,9 @@ public:
         //gameState->entitySystem->sh3D.setActiveCamera(gameState->m_world->getActiveCamera());
         //gameState->entitySystem->sh3D.Render();
 
-        gameState->entitySystem->spr2D->setActiveCamera(gameState->m_userGUI->getCamera());
-        gameState->entitySystem->spr2D->Render(driver);
+        gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
+        // gameState->entitySystem->spr2D.Render(driver);
+        gameMemory->renderQueue->pushCommand(&gameState->entitySystem->spr2D);
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)

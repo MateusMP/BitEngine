@@ -44,7 +44,7 @@ public:
         ADD_COMPONENT_ERROR(pcT = es->AddComponent<Transform2DComponent>(playerConnected));
         ADD_COMPONENT_ERROR(pcST = es->AddComponent<SceneTransform2DComponent>(playerConnected));
         ADD_COMPONENT_ERROR(pcS = es->AddComponent<Sprite2DComponent>(playerConnected));
-        es->t2p->setParentOf(pcT, playerT2D);
+        es->t2p.setParentOf(pcT, playerT2D);
         pcT->setLocalPosition(128, 128);
         pcT->setLocalRotation(45 * 3.1415f / 180.0f);
         pcS->layer = 6;

@@ -2,6 +2,7 @@
 
 #include <string>
 #include "BitEngine/Common/TypeDefinition.h"
+#include "BitEngine/Core/Resources/PropertyHolder.h"
 
 namespace BitEngine {
 	
@@ -19,34 +20,64 @@ namespace BitEngine {
 		VULKAN_ANY = VULKAN_1,
 	};
 
-	enum DataType
+
+	struct DataType : public EnumStruct
 	{
-		INVALID_DATA_TYPE,
-		TEXTURE_1D,
-		TEXTURE_2D,
-		TEXTURE_3D,
-		TEXTURE_CUBE,
+        enum Types : u32 {
+            INVALID_DATA_TYPE,
+            TEXTURE_1D,
+            TEXTURE_2D,
+            TEXTURE_3D,
+            TEXTURE_CUBE,
 
-		LONG,
-		FLOAT,
+            LONG,
+            FLOAT,
 
-		// Vertex only
-		VEC2,
-		VEC3,
-		VEC4,
+            // Vertex only
+            VEC2,
+            VEC3,
+            VEC4,
 
-		MAT2,
-		MAT3,
-		MAT4,
+            MAT2,
+            MAT3,
+            MAT4,
 
-		TOTAL_DATA_TYPES
+            TOTAL_DATA_TYPES
+        };
+
+        DataType(Types x = Types::INVALID_DATA_TYPE) {
+            value = x;
+        }
+
+        static void read(const char* name, PropertyHolder* prop, DataType* into) {
+            std::string str;
+            prop->read(name, &str);
+            into->value = fromString(str);
+        }
+
+        static DataType fromString(const std::string& str);
 	};
 
-	enum DataUseMode : u32 {
-		Vertex,
-		Uniform,
 
-		TotalModes
+	struct DataUseMode : public EnumStruct {
+        enum Types : u32 {
+            Vertex,
+            Uniform,
+
+            TotalModes
+        };
+
+        DataUseMode(Types x = Types::Vertex) {
+            value = x;
+        }
+
+        static void read(const char* name, PropertyHolder* prop, DataUseMode* into) {
+            std::string str;
+            prop->read(name, &str);
+            into->value = fromString(str);
+        }
+
+        static DataUseMode fromString(const std::string& str);
 	};
 
 	enum BufferClearBitMask
@@ -172,8 +203,4 @@ namespace BitEngine {
 		virtual void bindRead() = 0;
 		virtual bool ready() = 0;
 	};
-
-
-	DataUseMode useModeFromString(const std::string& str);
-	DataType dataTypeFromString(const std::string& str);
 }

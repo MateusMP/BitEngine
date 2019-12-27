@@ -5,41 +5,12 @@
 namespace BitEngine {
 
 
-// Doesn't use instanced rendering
-struct Sprite2D_DD_legacy
-{
-    struct VertexContainer {
-        glm::vec2 position;
-        glm::vec2 textureUV;
-    };
-
-    struct CamMatricesContainer {
-        glm::mat4 view;
-    };
-
-    struct TextureContainer {
-        const Texture* diffuse;
-    };
-
-    void init(Shader* shader)
-    {
-        m_vertexContainer = shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 0);
-
-        u_viewMatrixContainer = shader->getDefinition().getReferenceToContainer(DataUseMode::Uniform, 0);
-        m_textureContainer = shader->getDefinition().getReferenceToContainer(DataUseMode::Uniform, 1);
-    }
-
-    ShaderDataReference m_vertexContainer;
-    ShaderDataReference u_viewMatrixContainer;
-    ShaderDataReference m_textureContainer;
-};
-
 // Instanced rendering
 struct Sprite2D_DD_new
 {
     struct PTNContainer {
         glm::vec2 position;
-        glm::vec4 textureUV;
+        glm::vec2 textureUV;
     };
 
     struct ModelMatrixContainer {
@@ -69,19 +40,8 @@ struct Sprite2D_DD_new
     ShaderDataReference m_textureContainer;
 };
 
-
-class BE_API Sprite2DRenderer : public ComponentProcessor
+class Sprite2DBatch
 {
-public:
-    Sprite2DRenderer(EntitySystem* es, ResourceLoader* resourceLoader);
-
-    bool Init() override;
-    void Stop() override;
-
-    void setActiveCamera(ComponentRef<Camera2DComponent>& handle);
-    void Render(VideoDriver* driver);
-
-private:
     struct SpriteBatchInstance {
         SpriteBatchInstance(const SceneTransform2DComponent& t, const Sprite2DComponent& s)
             : transform(t), sprite(s)
@@ -109,6 +69,32 @@ private:
         const Texture* texture;
     };
 
+
+    friend class Sprite2DRenderer;
+public:
+    Sprite2DBatch(const BatchIdentifier& bi)
+        : bid(bi)
+    {}
+
+    BatchIdentifier bid;
+    std::vector<SpriteBatchInstance> batchInstances;
+};
+
+
+class BE_API Sprite2DRenderer : public ComponentProcessor
+{
+public:
+    Sprite2DRenderer(EntitySystem* es, ResourceLoader* resourceLoader);
+
+    bool Init() override;
+    void Stop() override;
+
+    void setActiveCamera(ComponentRef<Camera2DComponent>& handle);
+    const std::vector<Sprite2DBatch>& GenerateRenderData();
+    void Render();
+
+private:
+    
     static bool insideScreen(const glm::vec4& screen, const glm::mat3& matrix, float radius)
     {
         const float kX = matrix[2][0] + radius;
@@ -136,32 +122,16 @@ private:
         return true;
     }
 
-    class Sprite2DBatch
-    {
-        friend class Sprite2DRenderer;
-    public:
-        Sprite2DBatch(const BatchIdentifier& bi)
-            : bid(bi)
-        {}
-
-        BatchIdentifier bid;
-        std::vector<SpriteBatchInstance> batchInstances;
-    };
-
-    void prepare_legacy(Sprite2DBatch& batch);
-    void buildLegacySpriteVertices(std::vector<SpriteBatchInstance>& batchInstances, Sprite2D_DD_legacy::VertexContainer* vertexContainer, const u32 vtxIdx, const u32 idx);
-
     void prepare_new(Sprite2DBatch& batch);
 
     void buildBatchInstances();
 
-    std::map<BatchIdentifier, u32> batchesMap;
+    std::map<Sprite2DBatch::BatchIdentifier, u32> batchesMap;
     std::vector<Sprite2DBatch> batches;
     ComponentRef<Camera2DComponent> activeCamera;
     ResourceLoader* resourceLoader;
     IGraphicBatch* m_batch;
     RR<Shader> shader;
-    Sprite2D_DD_legacy legacyRefs;
     Sprite2D_DD_new newRefs;
 };
 

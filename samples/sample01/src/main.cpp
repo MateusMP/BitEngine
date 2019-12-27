@@ -7,6 +7,7 @@
 #include <bitengine/Core/Resources/DevResourceLoader.h>
 #include <Platform/opengl/GL2/GL2Driver.h>
 
+#include "Common/MainMemory.h"
 #include "Common/GameGlobal.h"
 #include "MyGame.h"
 
@@ -26,26 +27,7 @@ BitEngine::Logger* GameLog()
     return &log;
 }
 
-
-void setupCommands(BitEngine::CommandSystem* cmdSys) {
-    cmdSys->registerKeyCommandForAllMods(RIGHT, GAMEPLAY, BE_KEY_RIGHT);
-    cmdSys->registerKeyCommandForAllMods(LEFT, GAMEPLAY, BE_KEY_LEFT);
-    cmdSys->registerKeyCommandForAllMods(UP, GAMEPLAY, BE_KEY_UP);
-    cmdSys->registerKeyCommandForAllMods(DOWN, GAMEPLAY, BE_KEY_DOWN);
-    cmdSys->RegisterMouseCommand(CLICK, GAMEPLAY, BE_MOUSE_BUTTON_LEFT, BitEngine::MouseAction::PRESS);
-#ifdef _DEBUG
-    cmdSys->registerKeyboardCommand(RELOAD_SHADERS, -1, BE_KEY_R, BitEngine::KeyAction::PRESS, BitEngine::KeyMod::CTRL);
-#endif
-    cmdSys->setCommandState(GAMEPLAY);
-}
-
-void resourceManagerMenu(const char* name, BitEngine::ResourceManager *resMng) {
-    constexpr float TO_MB = 1.0 / (1024 * 1024);
-    if (ImGui::TreeNode(name)) {
-        ImGui::TextColored(ImVec4(1, 1, 0, 1), "RAM: %.2f GPU: %.2f", resMng->getCurrentRamUsage()* TO_MB, resMng->getCurrentGPUMemoryUsage()*TO_MB);
-        ImGui::TreePop();
-    }
-}
+#include "Common/CommonMain.h"
 
 void gameExecute(MainMemory& gameMemory) {
 
@@ -90,11 +72,24 @@ void gameExecute(MainMemory& gameMemory) {
     BitEngine::GL2TextureManager textureManager(&taskManager);
     BitEngine::SpriteManager spriteManager;
 
-    BitEngine::DevResourceLoader loader(&taskManager);
-    loader.registerResourceManager<BitEngine::Shader>("SHADER", &shaderManager);
-    loader.registerResourceManager<BitEngine::Texture>("TEXTURE", &textureManager);
-    loader.registerResourceManager<BitEngine::Sprite>("SPRITE", &spriteManager);
+    // Setup resource loader
+    const u32 resMemSize = MEGABYTES(64);
+    void* resMem = malloc(resMemSize);
+    BitEngine::MemoryArena resourceArena;
+    memset(resMem, 0, resMemSize);
+    resourceArena.init((u8*)resMem, resMemSize);
+
+    BitEngine::DevResourceLoader loader(&taskManager, resourceArena);
+    loader.registerResourceManager("SHADER", &shaderManager);
+    loader.registerResourceManager("TEXTURE", &textureManager);
+    loader.registerResourceManager("SPRITE", &spriteManager);
     loader.init();
+
+    const u32 renderMemSize = MEGABYTES(8);
+    BitEngine::MemoryArena renderArena;
+    renderArena.init((u8*)malloc(renderMemSize), renderMemSize);
+    memset(renderArena.base, 0, renderArena.size);
+    RenderQueue renderQueue(renderArena);
 
     gameMemory.loader = &loader;
     gameMemory.videoSystem = &video;
@@ -104,6 +99,7 @@ void gameExecute(MainMemory& gameMemory) {
     gameMemory.commandSystem = &commandSystem;
     gameMemory.imGuiRender = &imgui;
     gameMemory.logger = GameLog();
+    gameMemory.renderQueue = &renderQueue;
 
     auto imguiMenu = [&](const BitEngine::ImGuiRenderEvent& event) {
         resourceManagerMenu("Sprite Manager", &spriteManager);
@@ -111,20 +107,23 @@ void gameExecute(MainMemory& gameMemory) {
         resourceManagerMenu("Shader Manager", &shaderManager);
     };
     imgui.subscribe(imguiMenu);
-
-    setupCommands(&commandSystem);
-
+    
     {
         MyGame* game = new MyGame(&gameMemory);
 
         bool32 running = true;
 
         while (running) {
+            LOG_SCOPE_TIME(BitEngine::EngineLog, "main loop");
+
             input.update();
 
             main_window->drawBegin();
 
             running = game->update();
+            
+            render(gameMemory.renderQueue);
+            renderQueue.clear();
 
             imgui.update();
 

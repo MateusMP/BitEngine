@@ -28,7 +28,6 @@ namespace BitEngine
             int height;
             int color;
             void* pixelData;
-            std::vector<char> fileData;
         };
 
         GL2Texture()
@@ -49,18 +48,16 @@ namespace BitEngine
         u32 getUsingRamMemory()
         {
             if (imgData.pixelData) {
-                return getUsingGPUMemory() + imgData.fileData.size();
+                return getUsingGPUMemory();
             }
 
-            return imgData.fileData.size();
+            return 0;
         }
 
         // Aproximate memory use in gpu in bytes
         u32 getUsingGPUMemory() {
             return imgData.width*imgData.height * imgData.color;
         }
-
-        size_t releaseMemoryData();
 
     protected:
         GLuint m_textureID;
@@ -95,9 +92,9 @@ namespace BitEngine
             this->loader = loader;
         }
 
-        BaseResource* loadResource(ResourceMeta* base);
+        BaseResource* loadResource(ResourceMeta* base, PropertyHolder* props) override;
 
-        u32 getCurrentRamUsage() const override {
+        ptrsize getCurrentRamUsage() const override {
             return ramInUse;
         }
 
@@ -106,15 +103,6 @@ namespace BitEngine
         }
 
         void uploadToGPU(GL2Texture* texture);
-
-        static void readJsonProperties(DevResourceLoader* devloader, nlohmann::json& props, ResourceManager* manager, BaseResource* resource) {
-
-        }
-
-        template<typename Serializer>
-        static void jsonPropertiesToProd(Serializer*, ResourceManager*, nlohmann::json& props, BaseResource*) {
-
-        }
 
     private:
         static GLuint GenerateErrorTexture();
@@ -129,7 +117,7 @@ namespace BitEngine
         void releaseStbiRawData(GL2Texture* texture);
         void scheduleLoadingTasks(ResourceMeta* meta, GL2Texture* texture);
 
-        void resourceRelease(GL2Texture* texture);
+        void releaseTexture(GL2Texture* texture);
 
         // Members
         TaskManager* taskManager;
@@ -138,7 +126,7 @@ namespace BitEngine
         ThreadSafeQueue<GL2Texture*> rawData; // raw data loaded and waiting to be sent to gpu
         GL2Texture* errorTexture;
 
-        u32 ramInUse;
+        ptrsize ramInUse;
         u32 gpuMemInUse;
     };
 

@@ -33,7 +33,9 @@ public:
     virtual void shutdown() = 0;
 
     virtual void setResourceLoader(ResourceLoader* loader) = 0;
-    virtual BaseResource* loadResource(ResourceMeta* meta) = 0;
+
+
+    virtual BaseResource* loadResource(ResourceMeta* meta, PropertyHolder* props) = 0;
 
     // Called when the given Resource Meta is not in use anymore
     // This will only be called after a previous call to loadResource() was made
@@ -50,7 +52,7 @@ public:
     virtual void resourceRelease(ResourceMeta* meta) = 0;
 
     // in bytes
-    virtual u32 getCurrentRamUsage() const = 0;
+    virtual ptrsize getCurrentRamUsage() const = 0;
     virtual u32 getCurrentGPUMemoryUsage() const = 0;
 
 };

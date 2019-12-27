@@ -193,7 +193,7 @@ project "Sample02"
 
 	files
 	{
-		"samples/sample02/src/common/MainMemory.h",
+		"samples/sample01/src/**.h",
 		"samples/sample02/src/main.cpp",
 	}
 	
@@ -206,6 +206,7 @@ project "Sample02"
 	{
 		"BitEngine/src",
 		"BitEngine/dependencies/json/src",
+		"samples/sample01/src",
 		"dependencies",
 		"%{IncludeDir.glm}",
 		"%{prj.name}/src",
@@ -261,14 +262,14 @@ project "Sample02DLL"
 
 	files
 	{
-		"samples/sample02/src/**.h",
-		"samples/sample02/src/**.cpp",
+		"samples/sample01/src/**.h",
+		"samples/sample02/src/game.cpp",
 	}
-	excludes { "**/main.cpp" }
 
 	includedirs
 	{
 		"BitEngine/src",
+		"samples/sample01/src",
 		"dependencies",
 		"%{IncludeDir.glm}",
 		"%{prj.name}/src",

@@ -53,7 +53,7 @@ namespace BitEngine
 	{
 		for (const auto& it : shaderData)
 		{
-			if (it.first.mode == DataUseMode::Vertex)
+			if (it.first.mode.value == DataUseMode::Vertex)
 			{
 				GL2::bindVbo(it.second.definition.vbo->vbo);
 				GL2::loadBufferRange(it.second.data.data(), 0, it.second.data.size(), GL_STREAM_DRAW);
@@ -85,7 +85,7 @@ namespace BitEngine
 
 		for (const auto& it : shaderData)
 		{
-			if (it.first.mode == DataUseMode::Uniform)
+			if (it.first.mode.value == DataUseMode::Uniform)
 			{
 				const char* addr = static_cast<const char*>(it.second.data.data());
 				for (const UniformDefinition* def : it.second.definition.unif->defs)

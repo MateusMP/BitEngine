@@ -13,13 +13,6 @@
 
 namespace BitEngine {
 
-size_t GL2Texture::releaseMemoryData()
-{
-    std::vector<char> tmp;
-    imgData.fileData.swap(tmp);
-    return tmp.size();
-}
-
 struct ERROR_TEXTURE_DATA {
     int 	 width;
     int 	 height;
@@ -52,11 +45,8 @@ GLuint GL2TextureManager::GenerateErrorTexture()
 class RawTextureLoader : public Task
 {
 public:
-    RawTextureLoader(GL2TextureManager* _manager, GL2Texture* _texture, ResourceLoader::DataRequest& data)
-        : Task(Task::TaskMode::NONE, Task::Affinity::BACKGROUND), manager(_manager), texture(_texture), useData(std::move(data))
-    {}
     RawTextureLoader(GL2TextureManager* _manager, GL2Texture* _texture, ResourceLoader::RawResourceTask data)
-        : Task(Task::TaskMode::NONE, Task::Affinity::BACKGROUND), manager(_manager), texture(_texture), textureData(data), useData(nullptr)
+        : Task(Task::TaskMode::NONE, Task::Affinity::BACKGROUND), manager(_manager), texture(_texture), textureData(data)
     {}
 
     // Inherited via Task
@@ -64,39 +54,30 @@ public:
     {
         LOG_SCOPE_TIME(BitEngine::EngineLog, "Texture load");
 
-        ResourceLoader::DataRequest dr(nullptr);
-        if (textureData)
-        {
-            dr = std::move(textureData->getData());
-        }
-        else {
-            dr = std::move(useData);
-        }
+        ResourceLoader::DataRequest& dr = textureData->getData();
 
         if (dr.isLoaded())
         {
-            texture->imgData.fileData.swap(dr.data);
-            texture->imgData.pixelData = stbi_load_from_memory((unsigned char*)texture->imgData.fileData.data(), texture->imgData.fileData.size(), &texture->imgData.width, &texture->imgData.height, &texture->imgData.color, 0);
+            texture->imgData.pixelData = stbi_load_from_memory((unsigned char*)dr.data, dr.size, &texture->imgData.width, &texture->imgData.height, &texture->imgData.color, 0);
 
             if (texture->imgData.pixelData != nullptr) {
-                LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << dr.meta->getNameId() << " w: " << texture->imgData.width << " h: " << texture->imgData.height;
+                LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << texture->getMeta()->getNameId() << " w: " << texture->imgData.width << " h: " << texture->imgData.height;
                 manager->uploadToGPU(texture);
             }
             else
             {
-                LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "stbi failed to load texture: " << dr.meta->getNameId() << " reason: " << stbi_failure_reason();
+                LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "stbi failed to load texture: " << texture->getMeta()->getNameId() << " reason: " << stbi_failure_reason();
             }
         }
         else
         {
-            LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Resource meta " << dr.meta->getNameId() << " on state: " << dr.loadState;
+            LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Resource meta " << texture->getMeta()->getNameId() << " on state: " << dr.loadState;
         }
     }
 
 private:
     GL2TextureManager* manager;
     GL2Texture* texture;
-    ResourceLoader::DataRequest useData;
     ResourceLoader::RawResourceTask textureData;
 };
 
@@ -206,13 +187,13 @@ void GL2TextureManager::update()
 void GL2TextureManager::scheduleLoadingTasks(ResourceMeta* meta, GL2Texture* texture)
 {
     texture->m_loaded = GL2Texture::TextureLoadState::LOADING;
-    ResourceLoader::RawResourceTask rawDataTask = loader->loadRawData(meta);
+    ResourceLoader::RawResourceTask rawDataTask = loader->requestResourceData(meta);
     TaskPtr textureLoader = std::make_shared<RawTextureLoader>(this, texture, rawDataTask);
     textureLoader->addDependency(rawDataTask);
     taskManager->addTask(textureLoader);
 }
 
-BaseResource* GL2TextureManager::loadResource(ResourceMeta* meta)
+BaseResource* GL2TextureManager::loadResource(ResourceMeta* meta, PropertyHolder* props)
 {
     GL2Texture* texture = textures.findResource(meta);
 
@@ -232,22 +213,7 @@ BaseResource* GL2TextureManager::loadResource(ResourceMeta* meta)
     {
         if (texture->m_loaded == GL2Texture::TextureLoadState::NOT_LOADED)
         {
-            if (texture->imgData.fileData.empty())
-            {
-                scheduleLoadingTasks(meta, texture);
-            }
-            else
-            {
-                // Build fake data request result with the data we already have
-                ResourceLoader::DataRequest data(meta);
-                data.loadState = ResourceLoader::DataRequest::LS_LOADED;
-                data.data.swap(texture->imgData.fileData);
-                texture->m_loaded = GL2Texture::TextureLoadState::LOADING;
-
-                // Load from the compacted data
-                TaskPtr textureLoader = std::make_shared<RawTextureLoader>(this, texture, data);
-                taskManager->addTask(textureLoader);
-            }
+            scheduleLoadingTasks(meta, texture);
         }
     }
 
@@ -278,14 +244,13 @@ void GL2TextureManager::resourceRelease(ResourceMeta* meta)
     BE_ASSERT(meta != nullptr);
     GL2Texture* texture = textures.findResource(meta);
     BE_ASSERT(texture != nullptr);
-    resourceRelease(texture);
+    releaseTexture(texture);
 }
 
-void GL2TextureManager::resourceRelease(GL2Texture* texture)
+void GL2TextureManager::releaseTexture(GL2Texture* texture)
 {
     this->gpuMemInUse -= texture->getUsingGPUMemory();
     releaseDriverData(texture);
-    this->ramInUse -= texture->releaseMemoryData();
 }
 
 void GL2TextureManager::uploadToGPU(GL2Texture* texture)

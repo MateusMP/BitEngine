@@ -5,6 +5,7 @@
 #include "BitEngine/Common/TypeDefinition.h"
 #include "BitEngine/Core/Math.h"
 #include "BitEngine/Core/Graphics/Texture.h"
+#include "BitEngine/Core/Resources/PropertyHolder.h"
 
 namespace BitEngine {
 
@@ -82,8 +83,7 @@ public:
         s->write("transparent", (u8)sprite->m_transparent);
     }
 
-    template<typename Deserializer>
-    static void deserialize(Deserializer* s, BaseResource* obj) {
+    static void read(PropertyHolder* s, BaseResource* obj) {
         Sprite* sprite = static_cast<Sprite*>(obj);
         s->read("texture", &sprite->m_textureID);
         s->read("width", &sprite->m_width);
@@ -98,8 +98,8 @@ private:
     void calculateMaxRadius();
 
     RR<Texture> m_textureID;
-    int m_width;
-    int m_height;
+    s32 m_width;
+    s32 m_height;
     float m_offsetX;
     float m_offsetY;
 

@@ -17,23 +17,26 @@
 		if (!(expr) ){	\
 			ASSERT_FAIL("Expression failed to validate: <"#expr">");}}
 
+#define BE_INVALID_PATH(msg)    \
+    throw AssertFail(msg)
+
 namespace BitEngine
 {
-	class AssertFail : std::exception
-	{
-		public:
-			AssertFail(const std::string& msg)
-					: message(msg)
-			{
-                LOG(BitEngine::EngineLog, BE_LOG_ERROR) << msg;
-			}
+class AssertFail : std::exception
+{
+public:
+    AssertFail(const std::string& msg)
+        : message(msg)
+    {
+        LOG(BitEngine::EngineLog, BE_LOG_ERROR) << msg;
+    }
 
-			const char* what() const noexcept override
-			{
-				return message.c_str();
-			}
+    const char* what() const noexcept override
+    {
+        return message.c_str();
+    }
 
-		private:
-			std::string message;
-	};
+private:
+    std::string message;
+};
 }

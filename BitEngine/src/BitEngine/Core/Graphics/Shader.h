@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BitEngine/Core/Resources/ResourceLoader.h"
 #include "BitEngine/Core/Graphics/VideoRenderer.h"
 
 namespace BitEngine {
@@ -12,7 +13,7 @@ struct ShaderDataReference {
             return (*this)(lhs) < (*this)(rhs);
         }
         size_t operator()(const ShaderDataReference& t) const {
-            return t.mode >> 16 | t.container >> 8 | t.index;
+            return t.mode.value >> 16 | t.container >> 8 | t.index;
         }
     };
 
@@ -24,7 +25,7 @@ struct ShaderDataReference {
         : mode(m), container(_container), index(id)
     {}
     bool operator==(const ShaderDataReference& o) const {
-        return mode == o.mode && container == o.container && index == o.index;
+        return mode.value == o.mode.value && container == o.container && index == o.index;
     }
 
     DataUseMode mode;
@@ -38,19 +39,29 @@ public:
     friend class Shader;
 
     struct DefinitionData {
+        DefinitionData() {}
         DefinitionData(const std::string& n, DataType dt, int s)
             : name(n), type(dt), size(s)
         {}
         std::string name;
         DataType type;
-        int size; // number of times the type appears. Ex: vec2[2] -> type VEC2 size=2
+        u32 size; // number of times the type appears. Ex: vec2[2] -> type VEC2 size=2
+
+        static void read(PropertyHolder* prop, DefinitionData* obj) {
+            prop->read("name", &obj->name);
+            prop->readCustom("type", &obj->type);
+            prop->read("size", &obj->size);
+        }
     };
 
     struct DefinitionContainer
     {
         friend class ShaderDataDefinition;
 
-        DefinitionContainer(u32 id, DataUseMode m, int inst)
+        DefinitionContainer() 
+        {}
+
+        DefinitionContainer(u32 id, DataUseMode m, u32 inst)
             : container(id), mode(m), instanced(inst)
         {}
 
@@ -60,24 +71,25 @@ public:
         }
 
         std::vector<DefinitionData> definitionData;
-        u32 container;
         DataUseMode mode;
-        int instanced;
+        u32 instanced;
+        // dynamically set
+        u32 container;
+
+        static void read(PropertyHolder* prop, DefinitionContainer* obj) {
+            prop->readObjectList("definitionData", &obj->definitionData);
+            prop->readCustom("mode", &obj->mode);
+            prop->read("instanced", &obj->instanced);
+        }
     };
 
     const std::vector<DefinitionContainer>& getContainers(DataUseMode mode) const {
         return m_containers[mode];
     }
 
-    DefinitionContainer& addContainer(DataUseMode mode = Vertex, int instanced = 0) {
-        const size_t ct = m_containers[mode].size();
-        m_containers[mode].emplace_back(ct, mode, instanced);
-        return m_containers[mode].back();
-    }
-
     ShaderDataReference findReference(const std::string& name) const
     {
-        for (u32 um = 0; um < TotalModes; ++um)
+        for (u32 um = 0; um < DataUseMode::TotalModes; ++um)
         {
             const std::vector<DefinitionContainer>& v = m_containers[um];
             for (const DefinitionContainer& dc : v)
@@ -88,7 +100,7 @@ public:
                     // compare with offset of 2 characters. We ignore the shader code prefix.
                     if (name.compare(2, std::string::npos, d.name) == 0)
                     {
-                        return ShaderDataReference((DataUseMode)um, dc.container, i);
+                        return ShaderDataReference(DataUseMode::Types(um), dc.container, i);
                     }
                 }
             }
@@ -99,16 +111,16 @@ public:
 
     DefinitionData& getData(const ShaderDataReference& ref)
     {
-        return m_containers[ref.mode][ref.container].definitionData[ref.index];
+        return m_containers[ref.mode.value][ref.container].definitionData[ref.index];
     }
 
     // Returns true if a reference is valid
     bool checkRef(const ShaderDataReference& r) const {
-        if (r.mode < DataUseMode::TotalModes)
+        if (r.mode.value < DataUseMode::TotalModes)
         {
-            if (r.container < m_containers[r.mode].size())
+            if (r.container < m_containers[r.mode.value].size())
             {
-                return r.index < m_containers[r.mode][r.container].definitionData.size();
+                return r.index < m_containers[r.mode.value][r.container].definitionData.size();
             }
         }
         return false;
@@ -116,6 +128,19 @@ public:
 
     ShaderDataReference getReferenceToContainer(DataUseMode mode, u32 container) const {
         return ShaderDataReference(mode, container, 0);
+    }
+
+    static void read(PropertyHolder* prop, ShaderDataDefinition* obj) {
+        prop->readObjectList("vertex", &obj->m_containers[0]);
+        int i = 0;
+        for (auto &e : obj->m_containers[0]) {
+            e.container = i++;
+        }
+        prop->readObjectList("uniform", &obj->m_containers[1]);
+        i = 0;
+        for (auto &e : obj->m_containers[1]) {
+            e.container = i++;
+        }
     }
 
 private:
@@ -173,6 +198,7 @@ class Shader : public BaseResource
 public:
     Shader(ResourceMeta* meta) : BaseResource(meta) {}
     virtual ~Shader() {}
+
     virtual bool isReady() = 0;
 
     /// Binds the shader

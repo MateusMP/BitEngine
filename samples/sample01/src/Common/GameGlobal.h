@@ -41,25 +41,6 @@ enum GameQuitType {
     CLOSE_WINDOW
 };
 
-// The game expect that all of these are initialized before the gameUpdate is called
-struct MainMemory {
-	
-	void* memory;
-	ptrsize memorySize;
-
-    BitEngine::ResourceLoader* loader;
-
-    BitEngine::VideoSystem* videoSystem;
-    BitEngine::EngineConfiguration *engineConfig;
-    BitEngine::TaskManager* taskManager;
-    BitEngine::CommandSystem* commandSystem;
-
-    BitEngine::Window* window;
-    BitEngine::Messenger<BitEngine::ImGuiRenderEvent>* imGuiRender;
-
-    BitEngine::Logger* logger;
-};
-
 struct GameState {
 
 	bool32 initialized;

@@ -13,9 +13,18 @@ public:
         used = 0;
     }
 
+    MemoryArena beginTemporary(u32 size) {
+        return { (u8*)alloc(size), size, 0 };
+    }
+
+    void endTemporary(MemoryArena t) {
+        BE_ASSERT(t.base+t.used <= base+size);
+        used -= t.size;
+    }
+
     template<typename T, typename ... Args>
     T* push(Args &&... args) {
-        static_assert(std::is_pod<T>());
+        //static_assert(std::is_pod<T>());
         T* ptr = (T*)alloc(sizeof(T));
 
         // Initialize type

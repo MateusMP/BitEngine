@@ -49,12 +49,12 @@ private:
         resourceLoader = loader;
     }
 
-    virtual BaseResource * loadResource(ResourceMeta* meta) override;
+    virtual BaseResource * loadResource(ResourceMeta* meta, PropertyHolder* props) override;
     void resourceNotInUse(ResourceMeta* meta) override {}
     void reloadResource(BaseResource* resource) override;
     void resourceRelease(ResourceMeta* meta) override {}
 
-    virtual u32 getCurrentRamUsage() const override;
+    virtual ptrsize getCurrentRamUsage() const override;
 
     virtual u32 getCurrentGPUMemoryUsage() const override;
 

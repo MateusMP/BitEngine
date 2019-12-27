@@ -2,6 +2,7 @@
 
 in vec2 a_position;
 in vec2 a_textureUV;
+in mat4 a_modelMatrix;
 
 out vec2 fragTextureCoord;
 
@@ -9,7 +10,7 @@ uniform mat4 u_viewMatrix;
 
 void main()
 {
-	gl_Position.xy = (u_viewMatrix * vec4(a_position, 0.0f, 1.0f)).xy;
+	gl_Position.xy = (u_viewMatrix  * vec4(a_position, 0.0f, 1.0f)).xy;
 	gl_Position.z = 0.0;
 	gl_Position.w = 1.0;
 	

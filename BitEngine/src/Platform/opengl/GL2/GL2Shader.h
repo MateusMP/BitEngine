@@ -22,7 +22,7 @@ class GL2Shader : public Shader
 {
     friend class GL2ShaderManager;
 public:
-    GL2Shader() : Shader(nullptr), m_programID(0) {}
+    GL2Shader() : Shader(nullptr), m_programID(0), npieces(0){}
     GL2Shader(ResourceMeta* meta);
     virtual ~GL2Shader();
 
@@ -42,25 +42,13 @@ public:
     // Load data into uniform referenced with ref
     void loadConfig(const UniformDefinition* ref, const void* data);
 
-    void includeSource(GLint type, std::vector<char>& data);
+    GLuint attachSource(GLint type, const void* data, GLint size);
 
     ShaderDataDefinition& getDefinition() override { return m_shaderDefinition; }
 
     void setExpectedShaderSourcesCount(int amount) { expectedSourcesCount = amount; }
 
 protected:
-    struct ShaderSource {
-        ShaderSource(GLint t, std::vector<char>& d)
-            : type(t), shader(0)
-        {
-            data.swap(d);
-        }
-
-        GLint type;
-        GLuint shader; // compiled
-        std::vector<char> data;
-    };
-
     void introspect();
     // ATTRIBUTE/UNIFORM FUNCTIONS
 
@@ -99,7 +87,6 @@ protected:
     void connectTexture(int location, int unitID);
 
 private:
-    void compileSources();
     /// VIRTUAL
     // \param outVBO vector to store all VBO's id
     // Returns a VAO with all ShaderConfigurations Set
@@ -110,11 +97,11 @@ private:
     /// \param errorLog If any error is encountered during shader compilation
     /// 	A log will be generated inside errorLog
     ///
-    int compile(GLenum type, const std::vector<char>& data, GLuint &hdl, std::string& errorLog);
+    int compile(GLenum type, const void* data, GLint size, GLuint &hdl, std::string& errorLog);
 
-    int linkShaders(std::vector<GLuint>& shaders);
+    int linkShaders();
 
-    int buildFinalProgram(std::vector<GLuint>& shaders);
+    int buildFinalProgram();
 
     /// Destroy shaders
     void releaseShader();
@@ -132,7 +119,8 @@ private:
     GLuint m_programID; //!< program unique id
     u16 expectedSourcesCount;
 
-    std::vector<ShaderSource> sources;
+    GLuint pieces[5];
+    u32 npieces;
 
     ShaderDataDefinition m_shaderDefinition;
     std::vector<VBOAttrib> m_attributes;

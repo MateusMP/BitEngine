@@ -38,14 +38,13 @@ bool Sprite2DRenderer::Init()
     sprite_materials[2].setBlendEquation(BlendEquation::ADD);
     sprite_materials[2].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
 
-    const char* SPRITE_2D_SHADER_PATH = "data/shaders/sprite2D";
+    const char* SPRITE_2D_SHADER_PATH = "sprite2Dshader";
     shader = resourceLoader->getResource<Shader>(SPRITE_2D_SHADER_PATH);
     if (!shader.isValid()) {
         LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load sprite 2D shader: " << SPRITE_2D_SHADER_PATH;
         return false;
     }
 
-    legacyRefs.init(shader.get());
     newRefs.init(shader.get());
     m_batch = shader->createBatch();
 
@@ -57,8 +56,14 @@ void Sprite2DRenderer::Stop()
     delete m_batch;
 }
 
-void Sprite2DRenderer::Render(VideoDriver* driver)
+const std::vector<Sprite2DBatch>& Sprite2DRenderer::GenerateRenderData()
 {
+    buildBatchInstances();   
+    return batches;
+}
+
+void Sprite2DRenderer::Render() {
+ 
     if (m_batch == nullptr)
     {
         if (!shader->isReady()) {
@@ -72,29 +77,17 @@ void Sprite2DRenderer::Render(VideoDriver* driver)
 
     m_batch->clear();
 
-    buildBatchInstances();
-
-    if (driver->getVideoAdapter() == VideoAdapterType::OPENGL_4)
-    {
-        for (auto& it : batchesMap) {
-            prepare_new(batches[it.second]);
-            m_batch->load();
-            m_batch->render(shader.get());
-        }
-    }
-    else
-    {
-        for (auto& it : batchesMap) {
-            prepare_legacy(batches[it.second]);
-            m_batch->load();
-            driver->configure(batches[it.second].bid.material);
-            m_batch->render(shader.get());
-        }
+    for (auto& it : batches) {
+        prepare_new(it);
+        m_batch->load();
+        m_batch->render(shader.get());
     }
 }
 
 void Sprite2DRenderer::buildBatchInstances()
 {
+    if (!activeCamera) { return; }
+
     for (Sprite2DBatch& it : batches) {
         it.batchInstances.clear();
     }
@@ -107,7 +100,8 @@ void Sprite2DRenderer::buildBatchInstances()
     {
         if (insideScreen(viewScreen, transform->getGlobal(), 64))
         {
-            BatchIdentifier idtf(sprite->layer, sprite->material, sprite->sprite->getTexture().get());
+            const Texture* texture = sprite->sprite->getTexture().get();
+            Sprite2DBatch::BatchIdentifier idtf(sprite->layer, sprite->material, sprite->sprite->getTexture().get());
             const auto& it = batchesMap.find(idtf);
             if (it != batchesMap.end()) {
                 batches[it->second].batchInstances.emplace_back(transform.ref(), sprite.ref());
@@ -123,68 +117,67 @@ void Sprite2DRenderer::buildBatchInstances()
     });
 }
 
-void Sprite2DRenderer::buildLegacySpriteVertices(std::vector<SpriteBatchInstance>& batchInstances, Sprite2D_DD_legacy::VertexContainer* vertexContainer, const u32 vtxOffset, const u32 idx) {
-    const SpriteBatchInstance& inst = batchInstances[idx];
-    const RR<Sprite>& lastSprite = inst.sprite.sprite;
-    const glm::vec4& uvrect = lastSprite->getUV();
-    const glm::vec2 sizes(lastSprite->getWidth(), lastSprite->getHeight());
-    const glm::vec2 offsets(-lastSprite->getOffsetX(), -lastSprite->getOffsetY());
-    const glm::vec2 off_siz = offsets * sizes;
-    const glm::vec2 vertex_pos[4] = {
-        glm::vec2(0.0f, 0.0f),
-        glm::vec2(1.0f, 0.0f),
-        glm::vec2(0.0f, 1.0f),
-        glm::vec2(1.0f, 1.0f)
-    };
-    vertexContainer[vtxOffset + 0].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[0] * sizes + off_siz, 1));
-    vertexContainer[vtxOffset + 1].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[1] * sizes + off_siz, 1));
-    vertexContainer[vtxOffset + 2].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[2] * sizes + off_siz, 1));
-    vertexContainer[vtxOffset + 3].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[2] * sizes + off_siz, 1));
-    vertexContainer[vtxOffset + 4].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[1] * sizes + off_siz, 1));
-    vertexContainer[vtxOffset + 5].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[3] * sizes + off_siz, 1));
-
-    vertexContainer[vtxOffset + 0].textureUV = glm::vec2(uvrect.x, uvrect.y); // BL  xw   zw glm::vec2(0, 1);
-    vertexContainer[vtxOffset + 1].textureUV = glm::vec2(uvrect.z, uvrect.y); // BR  		 glm::vec2(0, 0);
-    vertexContainer[vtxOffset + 2].textureUV = glm::vec2(uvrect.x, uvrect.w); // TL  		 glm::vec2(1, 0);
-    vertexContainer[vtxOffset + 3].textureUV = glm::vec2(uvrect.x, uvrect.w); // TL  		 glm::vec2(0, 1);
-    vertexContainer[vtxOffset + 4].textureUV = glm::vec2(uvrect.z, uvrect.y); // BR  		 glm::vec2(0, 0);
-    vertexContainer[vtxOffset + 5].textureUV = glm::vec2(uvrect.z, uvrect.w); // TR  xy   zy glm::vec2(1, 1);
-}
-
-void Sprite2DRenderer::prepare_legacy(Sprite2DBatch& batch)
+void Sprite2DRenderer::prepare_new(Sprite2DBatch& batch)
 {
-    std::vector<SpriteBatchInstance>& batchInstances = batch.batchInstances;
-    m_batch->clear();
-    Sprite2D_DD_legacy::TextureContainer* texture = m_batch->getShaderDataAs<Sprite2D_DD_legacy::TextureContainer>(legacyRefs.m_textureContainer);
-    texture->diffuse = batch.bid.texture;
+    std::vector<Sprite2DBatch::SpriteBatchInstance>& batchInstances = batch.batchInstances;
 
-    const int N_VERTEX_PER_QUAD = 6;
-    m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLES);
+    Sprite2D_DD_new::CamMatricesContainer* view = m_batch->getShaderDataAs<Sprite2D_DD_new::CamMatricesContainer>(newRefs.u_viewMatrixContainer);
+    if (view) {
+        view->view = activeCamera->getMatrix();
+    }
 
+    m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLE_STRIP);
     // Prepare for all instances
-    size_t nInstances = batchInstances.size();
-    size_t nVertices = nInstances * N_VERTEX_PER_QUAD;
-    m_batch->prepare(nVertices); // quad sprites need 4 vertices for each
+    m_batch->prepare(batchInstances.size() * 6);
 
     // Setup batch data
     if (!batchInstances.empty())
     {
-        Sprite2D_DD_legacy::VertexContainer* vertexContainer = m_batch->getShaderDataAs<Sprite2D_DD_legacy::VertexContainer>(legacyRefs.m_vertexContainer);
+        Sprite2D_DD_new::TextureContainer* texture = m_batch->getShaderDataAs<Sprite2D_DD_new::TextureContainer>(newRefs.m_textureContainer);
+        texture->diffuse = batch.bid.texture;
 
-        for (size_t idx = 0; idx < nInstances; ++idx)
+        Sprite2D_DD_new::ModelMatrixContainer* modelMatrices = m_batch->getShaderDataAs<Sprite2D_DD_new::ModelMatrixContainer>(newRefs.u_modelMatrixContainer);
+        Sprite2D_DD_new::PTNContainer* vertices = m_batch->getShaderDataAs<Sprite2D_DD_new::PTNContainer>(newRefs.m_ptnContainer);
+
+        const glm::vec2 vertex_pos[4] = {
+                glm::vec2(0.0f, 0.0f),
+                glm::vec2(1.0f, 0.0f),
+                glm::vec2(0.0f, 1.0f),
+                glm::vec2(1.0f, 1.0f)
+        };
+        const size_t instanceCount = batchInstances.size();
+        for (size_t i = 0; i < instanceCount; ++i)
         {
-            buildLegacySpriteVertices(batchInstances, vertexContainer, idx * N_VERTEX_PER_QUAD, idx);
+            const Sprite2DBatch::SpriteBatchInstance& inst = batchInstances[i];
+
+            modelMatrices[i].modelMatrix = inst.transform.m_global;
+
+            const glm::vec2 sizes(inst.sprite.sprite->getWidth(), inst.sprite.sprite->getHeight());
+            const glm::vec2 offsets(-inst.sprite.sprite->getOffsetX(), -inst.sprite.sprite->getOffsetY());
+            const glm::vec2 off_siz = offsets * sizes;
+            
+            vertices[i*6 + 0].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[0] * sizes + off_siz, 1));
+            vertices[i*6 + 1].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[1] * sizes + off_siz, 1));
+            vertices[i*6 + 2].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[2] * sizes + off_siz, 1));
+            vertices[i*6 + 3].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[2] * sizes + off_siz, 1));
+            vertices[i*6 + 4].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[1] * sizes + off_siz, 1));
+            vertices[i*6 + 5].position = glm::vec2(inst.transform.m_global * glm::vec3(vertex_pos[3] * sizes + off_siz, 1));
+            
+            const glm::vec4& uvrect = inst.sprite.sprite->getUV();
+            vertices[i*6 + 0].textureUV = glm::vec2(uvrect.x, uvrect.y); // BL  xw   zw glm::vec2(0, 1);
+            vertices[i*6 + 1].textureUV = glm::vec2(uvrect.z, uvrect.y); // BR             glm::vec2(0, 0);
+            vertices[i*6 + 2].textureUV = glm::vec2(uvrect.x, uvrect.w); // TL             glm::vec2(1, 0);
+            vertices[i*6 + 3].textureUV = glm::vec2(uvrect.x, uvrect.w); // TL             glm::vec2(0, 1);
+            vertices[i*6 + 4].textureUV = glm::vec2(uvrect.z, uvrect.y); // BR             glm::vec2(0, 0);
+            vertices[i*6 + 5].textureUV = glm::vec2(uvrect.z, uvrect.w); // TR  xy   zy glm::vec2(1, 1);
         }
-    }
-    Sprite2D_DD_legacy::CamMatricesContainer* view = m_batch->getShaderDataAs<Sprite2D_DD_legacy::CamMatricesContainer>(legacyRefs.u_viewMatrixContainer);
-    if (view) {
-        view->view = activeCamera->getMatrix();
     }
 }
 
-void Sprite2DRenderer::prepare_new(Sprite2DBatch& batch)
+/*
+void Sprite2DRenderer::prepare_instanced(Sprite2DBatch& batch)
 {
-    std::vector<SpriteBatchInstance>& batchInstances = batch.batchInstances;
+    std::vector<Sprite2DBatch::SpriteBatchInstance>& batchInstances = batch.batchInstances;
 
     m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLE_STRIP);
     // Prepare for all instances
@@ -202,13 +195,13 @@ void Sprite2DRenderer::prepare_new(Sprite2DBatch& batch)
         const size_t instanceCount = batchInstances.size();
         for (size_t i = 0; i < instanceCount; ++i)
         {
-            const SpriteBatchInstance& inst = batchInstances[i];
+            const Sprite2DBatch::SpriteBatchInstance& inst = batchInstances[i];
 
             modelMatrices[i].modelMatrix = inst.transform.m_global;
 
-            //vertices[i].position = ? ;
             vertices[i].textureUV = inst.sprite.sprite->getUV();
         }
     }
-}
+}*/
+
 }

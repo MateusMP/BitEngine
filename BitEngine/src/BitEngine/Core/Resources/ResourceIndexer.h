@@ -6,7 +6,7 @@
 
 namespace BitEngine
 {
-	struct ResourceMeta;
+	class ResourceMeta;
 
 	template<typename ResourceType, int Maximum>
 	class ResourceIndexer

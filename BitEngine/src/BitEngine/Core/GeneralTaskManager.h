@@ -11,81 +11,81 @@
 
 namespace BitEngine {
 
-	class GeneralTaskManager;
+class GeneralTaskManager;
 
-	class TaskWorker
-	{
-		friend class GeneralTaskManager;
-		public:
-			TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity);
+class TaskWorker
+{
+    friend class GeneralTaskManager;
+public:
+    TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity);
 
-			void stop() {
-				working = false;
-			}
-            
-			// Return true if did some work on a task
-            void work();
+    void stop() {
+        working = false;
+    }
 
-            // Wait thread to finish
-            void wait();
+    // Return true if did some work on a task
+    void work();
 
-		private:
-			TaskPtr nextTask();
-			void start();
-			void process(TaskPtr task);
+    // Wait thread to finish
+    void wait();
 
-			bool working;
-			int nextThread;
-			Task::Affinity affinity;
-			GeneralTaskManager *manager;
+private:
+    TaskPtr nextTask();
+    void start();
+    void process(TaskPtr task);
 
-			std::thread thread;
-			ThreadSafeQueue< TaskPtr > taskQueue;
-	};
+    bool working;
+    int nextThread;
+    Task::Affinity affinity;
+    GeneralTaskManager *manager;
 
-	class GeneralTaskManager : public TaskManager
-	{
-		public:
-			GeneralTaskManager();
-			~GeneralTaskManager(){}
+    std::thread thread;
+    ThreadSafeQueue< TaskPtr > taskQueue;
+};
 
-			void init() override;
-			void update() override;
-			void shutdown() override;
+class GeneralTaskManager : public TaskManager
+{
+public:
+    GeneralTaskManager();
+    ~GeneralTaskManager() {}
+
+    void init() override;
+    void update() override;
+    void shutdown() override;
 
 
-			void addTask(TaskPtr task) override;
-			void scheduleToNextFrame(TaskPtr task) override;
-			void waitTask(TaskPtr& task) override;
+    void addTask(TaskPtr task) override;
+    void scheduleToNextFrame(TaskPtr task) override;
+    void waitTask(TaskPtr& task) override;
 
-            const std::vector<TaskPtr>& getTasks() const override { return scheduledTasks; }
+    const std::vector<TaskPtr>& getTasks() const override { return scheduledTasks; }
 
-            const void verifyMainThread() const override {
-                BE_ASSERT(std::this_thread::get_id() == mainThread);
-            }
+    const void verifyMainThread() const override {
+        BE_ASSERT(std::this_thread::get_id() == mainThread);
+    }
 
-		private:
-			friend class TaskWorker;
-			TaskWorker* getWorker(u32 index);
-			void prepareNextFrame();
+private:
+    friend class TaskWorker;
+    TaskWorker* getWorker(u32 index);
+    void prepareNextFrame();
 
-			void executeMain();
-			void executeWorkersWork(int i);
+    void executeMain();
+    void executeWorkersWork(int i);
 
-			void incFinishedFrameRequired();
+    void incFinishedFrameRequired();
 
-			u32 clampToWorkers(u32 value);
+    u32 clampToWorkers(u32 value);
 
-			std::vector<TaskWorker*> workers;
+    std::vector<TaskWorker*> workers;
 
-			u32 requiredTasksFrame;
+    u32 requiredTasksFrame;
 
-			std::mutex addTaskMutex;
-			std::mutex nextFrameTasksMutex;
-			std::vector<TaskPtr> scheduledTasks;
+    std::mutex addTaskMutex;
+    std::mutex nextFrameTasksMutex;
+    std::vector<TaskPtr> scheduledTasks;
 
-			const std::thread::id mainThread;
+    const std::thread::id mainThread;
 
-			u32 finishedRequiredTasks;
-	};
+    u32 finishedRequiredTasks;
+};
 }

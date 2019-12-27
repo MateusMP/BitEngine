@@ -79,8 +79,8 @@ namespace BitEngine {
 				GL_FLOAT_MAT3,
 				GL_FLOAT_MAT4,
 			};
-			BE_ASSERT(dt < DataType::TOTAL_DATA_TYPES);
-			return glTypes[dt];
+			BE_ASSERT(dt.value < DataType::TOTAL_DATA_TYPES);
+			return glTypes[dt.value];
 		}
 
 		static GLenum fromGLTypeToGLDataType(GLenum e)

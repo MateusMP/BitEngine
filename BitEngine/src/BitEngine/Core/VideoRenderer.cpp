@@ -3,7 +3,7 @@
 
 namespace BitEngine {
 
-	BitEngine::DataUseMode useModeFromString(const std::string& str)
+	DataUseMode DataUseMode::fromString(const std::string& str)
 	{
 		if (str.compare("VERTEX") == 0) {
 			return DataUseMode::Vertex;
@@ -15,7 +15,7 @@ namespace BitEngine {
 		return DataUseMode::TotalModes;
 	}
 
-	BitEngine::DataType dataTypeFromString(const std::string& str)
+	DataType DataType::fromString(const std::string& str)
 	{
 		if (str.compare("TEXTURE_1D") == 0) {
 			return DataType::TEXTURE_1D;

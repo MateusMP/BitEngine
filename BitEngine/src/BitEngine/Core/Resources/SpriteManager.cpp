@@ -51,7 +51,7 @@ void SpriteManager::update()
 {
 }
 
-BaseResource* SpriteManager::loadResource(ResourceMeta* meta)
+BaseResource* SpriteManager::loadResource(ResourceMeta* meta, PropertyHolder* props)
 {
     Sprite* sprite = sprites.findResource(meta);
     if (sprite == nullptr)
@@ -59,13 +59,14 @@ BaseResource* SpriteManager::loadResource(ResourceMeta* meta)
         u16 id = sprites.addResource(meta);
         sprite = sprites.getResourceAddress(id);
         new (sprite) Sprite(meta);
+
+        props->readObject("sprite", sprite);
     }
     return sprite;
 }
 
 void SpriteManager::readJsonProperties(DevResourceLoader* devloader, nlohmann::json& props, ResourceManager* manager, BaseResource* resource)
 {
-    /*
     Sprite* sprite = static_cast<Sprite*>(resource);
     const std::string& textureRef = props["texture"].get<std::string>();
 
@@ -88,7 +89,6 @@ void SpriteManager::readJsonProperties(DevResourceLoader* devloader, nlohmann::j
     sprite->~Sprite(); // Make sure we release references before creating new ones
 
     new (sprite) Sprite(sprite->getMeta(), texture, w, h, ox, oy, uv, transparent);
-    */
 }
 
 void SpriteManager::reloadResource(BaseResource* resource)
@@ -96,7 +96,7 @@ void SpriteManager::reloadResource(BaseResource* resource)
     // Do nothing
 }
 
-u32 SpriteManager::getCurrentRamUsage() const
+ptrsize SpriteManager::getCurrentRamUsage() const
 {
     return sizeof(sprites);
 }
