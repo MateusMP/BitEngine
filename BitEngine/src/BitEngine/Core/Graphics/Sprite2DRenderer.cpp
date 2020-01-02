@@ -6,20 +6,20 @@ Sprite2DRenderer::Sprite2DRenderer(EntitySystem* es, ResourceLoader* resourceLoa
     : ComponentProcessor(es), m_batch(nullptr), m_resourceLoader(resourceLoader), m_videoDriver(videoDriver)
 {
     // DEFAULT_SPRITE
-    sprite_materials[Sprite2DRenderer::DEFAULT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_NONE);
-    sprite_materials[Sprite2DRenderer::DEFAULT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
-    sprite_materials[Sprite2DRenderer::DEFAULT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
+    m_sprite_materials[Sprite2DRenderer::DEFAULT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_NONE);
+    m_sprite_materials[Sprite2DRenderer::DEFAULT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
+    m_sprite_materials[Sprite2DRenderer::DEFAULT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
     // TRANSPARENT_SPRITE
-    sprite_materials[Sprite2DRenderer::TRANSPARENT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
-    sprite_materials[Sprite2DRenderer::TRANSPARENT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
-    sprite_materials[Sprite2DRenderer::TRANSPARENT_SPRITE].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
-    sprite_materials[Sprite2DRenderer::TRANSPARENT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
+    m_sprite_materials[Sprite2DRenderer::TRANSPARENT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
+    m_sprite_materials[Sprite2DRenderer::TRANSPARENT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
+    m_sprite_materials[Sprite2DRenderer::TRANSPARENT_SPRITE].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
+    m_sprite_materials[Sprite2DRenderer::TRANSPARENT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
     // EFFECT_SPRITE
-    sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
-    sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
-    sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
-    sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setBlendEquation(BlendEquation::ADD);
-    sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
+    m_sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
+    m_sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
+    m_sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
+    m_sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setBlendEquation(BlendEquation::ADD);
+    m_sprite_materials[Sprite2DRenderer::EFFECT_SPRITE].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
 
     const char* SPRITE_2D_SHADER_PATH = "sprite2Dshader";
     m_shader = m_resourceLoader->getResource<Shader>(SPRITE_2D_SHADER_PATH);
@@ -91,7 +91,7 @@ void Sprite2DRenderer::buildBatchInstances()
         if (insideScreen(viewScreen, transform->getGlobal(), 64))
         {
             if (sprite->material == nullptr) {
-                sprite->material = &sprite_materials[0];
+                sprite->material = &m_sprite_materials[0];
             }
 
             const Texture* texture = sprite->sprite->getTexture().get();

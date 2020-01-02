@@ -120,7 +120,7 @@ public:
 
         // Init game state stuff
         gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, &gameState->entityArena, mainMemory->videoSystem->getDriver());
-        gameState->entitySystem->Init();
+        gameState->entitySystem->init();
 
         gameState->m_userGUI = permanentArena.push<UserGUI>(gameState->entitySystem);
         gameState->m_world = permanentArena.push<GameWorld>(mainMemory, gameState->entitySystem);
@@ -160,11 +160,11 @@ public:
             BitEngine::ComponentRef<BitEngine::Sprite2DComponent> spriteComp;
             BitEngine::ComponentRef<BitEngine::SceneTransform2DComponent> sceneComp;
             BitEngine::ComponentRef<BitEngine::GameLogicComponent> logicComp;
-            BE_ADD_COMPONENT_ERROR(transformComp = es->AddComponent<BitEngine::Transform2DComponent>(h));
-            BE_ADD_COMPONENT_ERROR(spriteComp = es->AddComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, es->spr2D.getMaterial(Sprite2DRenderer::EFFECT_SPRITE)));
-            BE_ADD_COMPONENT_ERROR(sceneComp = es->AddComponent<BitEngine::SceneTransform2DComponent>(h));
-            BE_ADD_COMPONENT_ERROR(logicComp = es->AddComponent<BitEngine::GameLogicComponent>(h));
-            BE_ADD_COMPONENT_ERROR(es->AddComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
+            BE_ADD_COMPONENT_ERROR(transformComp = es->addComponent<BitEngine::Transform2DComponent>(h));
+            BE_ADD_COMPONENT_ERROR(spriteComp = es->addComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, es->spr2D.getMaterial(Sprite2DRenderer::EFFECT_SPRITE)));
+            BE_ADD_COMPONENT_ERROR(sceneComp = es->addComponent<BitEngine::SceneTransform2DComponent>(h));
+            BE_ADD_COMPONENT_ERROR(logicComp = es->addComponent<BitEngine::GameLogicComponent>(h));
+            BE_ADD_COMPONENT_ERROR(es->addComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
 
             transformComp->setLocalPosition(i * 128 + 125, 500);
             spriteComp->alpha = 1.0;

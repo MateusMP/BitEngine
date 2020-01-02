@@ -14,8 +14,8 @@
 namespace BitEngine
 {
 struct BE_API ProdResourceMeta : public ResourceMeta {
-    DevResourceMeta(const std::string& pack)
-        : ResourceMeta(pack)
+    ProdResourceMeta()
+        : ResourceMeta()
     {}
 };
 

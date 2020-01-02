@@ -20,15 +20,15 @@ namespace BitEngine
 			{}
 
 			std::array<ResourceType, Maximum>& getResources() {
-				return resources;
+				return m_resources;
 			}
 
 			ResourceType& getResourceAt(u32 index) {
-				return resources[index];
+				return m_resources[index];
 			}
 
 			ResourceType* getResourceAddress(u32 index) {
-				return &resources[index];
+				return &m_resources[index];
 			}
 
 			ResourceType* findResource(const ResourceMeta* meta) {
@@ -37,7 +37,7 @@ namespace BitEngine
 					return nullptr;
 				}
 
-				return &(resources[it->second]);
+				return &(m_resources[it->second]);
 			}
 
 			u16 addResource(const ResourceMeta* meta) {
@@ -65,7 +65,7 @@ namespace BitEngine
 			}
 
 			u16 m_currentIndex;
-			std::array<ResourceType, Maximum> resources;
+			std::array<ResourceType, Maximum> m_resources;
 			std::vector<u16> m_freeIndices;
 			std::unordered_map<const ResourceMeta*, u16> m_byMeta;
 

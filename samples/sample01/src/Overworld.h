@@ -13,8 +13,8 @@ public:
     bool Create(MyGameEntitySystem* esys)
     {
         entity = esys->createEntity();
-        transform = esys->AddComponent<BitEngine::Transform3DComponent>(entity);
-        camera = esys->AddComponent<BitEngine::Camera3DComponent>(entity);
+        transform = esys->addComponent<BitEngine::Transform3DComponent>(entity);
+        camera = esys->addComponent<BitEngine::Camera3DComponent>(entity);
 
         transform->setPosition(0, 0, 250);
 
@@ -52,8 +52,8 @@ public:
     virtual void Create(MyGameEntitySystem* esys)
     {
         entity = esys->createEntity();
-        transform = esys->AddComponent<BitEngine::Transform3DComponent>(entity);
-        renderable = esys->AddComponent<BitEngine::RenderableMeshComponent>(entity);
+        transform = esys->addComponent<BitEngine::Transform3DComponent>(entity);
+        renderable = esys->addComponent<BitEngine::RenderableMeshComponent>(entity);
     }
 
     void setPosition(const glm::vec3& pos) {

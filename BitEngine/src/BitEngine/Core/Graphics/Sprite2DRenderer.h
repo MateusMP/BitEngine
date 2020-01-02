@@ -97,7 +97,7 @@ public:
     constexpr static u32 EFFECT_SPRITE = 2;
 
     const Material* getMaterial(u32 type) {
-        return &sprite_materials[type];
+        return &m_sprite_materials[type];
     }
 
 private:
@@ -141,7 +141,7 @@ private:
     RR<Shader> m_shader;
     Sprite2D_DD_new m_newRefs;
     VideoDriver* m_videoDriver;
-    Material sprite_materials[3];
+    Material m_sprite_materials[3];
 };
 
 }

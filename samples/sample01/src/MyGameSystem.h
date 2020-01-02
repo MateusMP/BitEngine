@@ -18,7 +18,7 @@ public:
 	{
 		gui = es->createEntity();
 
-		camera = es->AddComponent<BitEngine::Camera2DComponent>(gui);
+		camera = es->addComponent<BitEngine::Camera2DComponent>(gui);
 
 		camera->setView(1280, 720);
 		camera->setLookAt(glm::vec3(1280/2, 720/2, 0));

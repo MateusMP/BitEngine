@@ -35,7 +35,7 @@ public:
         BaseEntitySystem::shutdown();
     }
 
-    bool Init()
+    bool init()
     {
         bool initOk = true;
         initOk &= BaseEntitySystem::Init();
@@ -50,7 +50,7 @@ public:
     // cp: The component processor
     // func: The function that should be called on the given processor
     // Return true if the processor was added
-    bool RegisterComponentProcessor(int pipeline, ComponentProcessor* cp, ComponentProcessor::processFunc func)
+    bool registerComponentProcessor(int pipeline, ComponentProcessor* cp, ComponentProcessor::processFunc func)
     {
         if (pipeline >= 4) { // limit pipelines
             return false;
@@ -110,7 +110,7 @@ public:
     }
 
     template<typename CompClass>
-    bool RegisterComponent(ComponentHolder<CompClass>* holder)
+    bool registerComponent(ComponentHolder<CompClass>* holder)
     {
         LOG(EngineLog, BE_LOG_VERBOSE) << "Registering " << typeid(CompClass).name() << " as type " << CompClass::getComponentType();
         static_assert(!std::is_pod<CompClass>::value, "Components should be POD!");
@@ -125,10 +125,10 @@ public:
     }
 
     template<typename CompClass>
-    bool RegisterComponent()
+    bool registerComponent()
     {
         LOG(EngineLog, BE_LOG_WARNING) << "Using generic ComponentHolder for " << typeid(CompClass).name();
-        return RegisterComponent<CompClass>(new ComponentHolder<CompClass>());
+        return registerComponent<CompClass>(new ComponentHolder<CompClass>());
     }
 
     template<typename CompClass>
@@ -145,7 +145,7 @@ public:
 
     // Add component
     template<typename CompClass, typename ... Args>
-    ComponentRef<CompClass> AddComponent(EntityHandle entity, Args... args)
+    ComponentRef<CompClass> addComponent(EntityHandle entity, Args... args)
     {
         CompClass *comp = nullptr;
         ComponentHandle compID = BE_NO_COMPONENT_HANDLE;

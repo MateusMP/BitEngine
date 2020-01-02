@@ -75,16 +75,16 @@ public:
     }
     void registerComponents() {
         using namespace BitEngine;
-        RegisterComponent<PlayerControlComponent>();
-        RegisterComponent<GameLogicComponent>();
-        RegisterComponent<SpinnerComponent>();
-        RegisterComponent<SceneTransform2DComponent>();
-        RegisterComponent<RenderableMeshComponent>();
-        RegisterComponent<Sprite2DComponent>();
-        RegisterComponent<Camera2DComponent>();
-        RegisterComponent<Camera3DComponent>();
-        RegisterComponent<Transform2DComponent>();
-        RegisterComponent<Transform3DComponent>();
+        registerComponent<PlayerControlComponent>();
+        registerComponent<GameLogicComponent>();
+        registerComponent<SpinnerComponent>();
+        registerComponent<SceneTransform2DComponent>();
+        registerComponent<RenderableMeshComponent>();
+        registerComponent<Sprite2DComponent>();
+        registerComponent<Camera2DComponent>();
+        registerComponent<Camera3DComponent>();
+        registerComponent<Transform2DComponent>();
+        registerComponent<Transform3DComponent>();
     }
 };
 
@@ -111,21 +111,21 @@ public:
         //spinnerSys = entityMemory->push < SpinnerSystem>(this);
 
         /// Pipeline 0
-        RegisterComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameStart);
+        registerComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameStart);
 
-        RegisterComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameMiddle);
+        registerComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameMiddle);
 
-        RegisterComponentProcessor(0, &spinnerSys, (ComponentProcessor::processFunc)&SpinnerSystem::FrameMiddle);
+        registerComponentProcessor(0, &spinnerSys, (ComponentProcessor::processFunc)&SpinnerSystem::FrameMiddle);
 
-        RegisterComponentProcessor(0, &t2p, (ComponentProcessor::processFunc)&Transform2DProcessor::Process);
-        RegisterComponentProcessor(0, &t3p, (ComponentProcessor::processFunc)&Transform3DProcessor::Process);
-        RegisterComponentProcessor(0, &cam2Dprocessor, (ComponentProcessor::processFunc)&Camera2DProcessor::Process);
-        RegisterComponentProcessor(0, &cam3Dprocessor, (ComponentProcessor::processFunc)&Camera3DProcessor::Process);
-        RegisterComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameEnd);
+        registerComponentProcessor(0, &t2p, (ComponentProcessor::processFunc)&Transform2DProcessor::Process);
+        registerComponentProcessor(0, &t3p, (ComponentProcessor::processFunc)&Transform3DProcessor::Process);
+        registerComponentProcessor(0, &cam2Dprocessor, (ComponentProcessor::processFunc)&Camera2DProcessor::Process);
+        registerComponentProcessor(0, &cam3Dprocessor, (ComponentProcessor::processFunc)&Camera3DProcessor::Process);
+        registerComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameEnd);
 
-        RegisterComponentProcessor(0, &pcs, (ComponentProcessor::processFunc)&PlayerControlSystem::update);
+        registerComponentProcessor(0, &pcs, (ComponentProcessor::processFunc)&PlayerControlSystem::update);
 
-        RegisterComponentProcessor(0, &spr2D, (ComponentProcessor::processFunc)&Sprite2DRenderer::GenerateRenderData);
+        registerComponentProcessor(0, &spr2D, (ComponentProcessor::processFunc)&Sprite2DRenderer::GenerateRenderData);
         //InitComponentProcessor(spr2D);
     }
 
@@ -160,10 +160,10 @@ BitEngine::EntityHandle PlayerControlSystem::CreatePlayerTemplate(BitEngine::Res
     LOG(GameLog(), BE_LOG_VERBOSE) << "ent_player: " << ent_player;
 
     // 2D
-    BE_ADD_COMPONENT_ERROR(playerT2D = es->AddComponent<Transform2DComponent>(ent_player));
-    BE_ADD_COMPONENT_ERROR(playerST2D = es->AddComponent<SceneTransform2DComponent>(ent_player));
-    BE_ADD_COMPONENT_ERROR(playerSpr2D = es->AddComponent<Sprite2DComponent>(ent_player));
-    BE_ADD_COMPONENT_ERROR(playerControl = es->AddComponent<PlayerControlComponent>(ent_player));
+    BE_ADD_COMPONENT_ERROR(playerT2D = es->addComponent<Transform2DComponent>(ent_player));
+    BE_ADD_COMPONENT_ERROR(playerST2D = es->addComponent<SceneTransform2DComponent>(ent_player));
+    BE_ADD_COMPONENT_ERROR(playerSpr2D = es->addComponent<Sprite2DComponent>(ent_player));
+    BE_ADD_COMPONENT_ERROR(playerControl = es->addComponent<PlayerControlComponent>(ent_player));
 
     playerT2D->setLocalPosition(0, 0);
     playerSpr2D->layer = 5;
@@ -178,9 +178,9 @@ BitEngine::EntityHandle PlayerControlSystem::CreatePlayerTemplate(BitEngine::Res
     ComponentRef<Sprite2DComponent> pcS;
     ComponentRef<SceneTransform2DComponent> pcST;
     EntityHandle playerConnected = es->createEntity();
-    BE_ADD_COMPONENT_ERROR(pcT = es->AddComponent<Transform2DComponent>(playerConnected));
-    BE_ADD_COMPONENT_ERROR(pcST = es->AddComponent<SceneTransform2DComponent>(playerConnected));
-    BE_ADD_COMPONENT_ERROR(pcS = es->AddComponent<Sprite2DComponent>(playerConnected));
+    BE_ADD_COMPONENT_ERROR(pcT = es->addComponent<Transform2DComponent>(playerConnected));
+    BE_ADD_COMPONENT_ERROR(pcST = es->addComponent<SceneTransform2DComponent>(playerConnected));
+    BE_ADD_COMPONENT_ERROR(pcS = es->addComponent<Sprite2DComponent>(playerConnected));
     es->t2p.setParentOf(pcT, playerT2D);
     pcT->setLocalPosition(128, 128);
     pcT->setLocalRotation(45 * 3.1415f / 180.0f);

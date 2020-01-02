@@ -4,14 +4,14 @@
 namespace BitEngine {
 
 TaskWorker::TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity)
-    : working(true), affinity(_affinity), manager(_manager)
+    : m_working(true), m_affinity(_affinity), m_manager(_manager)
 {
-    nextThread = reinterpret_cast<intptr_t>(this) % 17;
+    m_nextThread = reinterpret_cast<intptr_t>(this) % 17;
 }
 
 void TaskWorker::start()
 {
-    thread = std::thread(&TaskWorker::work, this);
+    m_thread = std::thread(&TaskWorker::work, this);
 }
 
 // Return false if dit nothing
@@ -24,25 +24,25 @@ void TaskWorker::process(TaskPtr task)
         task->execute();
 
         if (task->isFrameRequired()) {
-            manager->incFinishedFrameRequired();
+            m_manager->incFinishedFrameRequired();
         }
 
         if (task->isRepeating())
         {
             if (task->isOncePerFrame())
             {
-                manager->scheduleToNextFrame(task);
+                m_manager->scheduleToNextFrame(task);
             }
             else
             {
-                manager->addTask(task);
+                m_manager->addTask(task);
             }
         }
         // Task done
     }
     else
     {
-        manager->addTask(task);
+        m_manager->addTask(task);
     }
 }
 
@@ -59,18 +59,19 @@ void TaskWorker::work()
         {
             process(task);
         }
-    } while (working);
+    } while (m_working);
+    LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Thread ended";
 }
 
 TaskPtr TaskWorker::nextTask()
 {
     TaskPtr newTask;
-    if (!taskQueue.tryPop(newTask))
+    if (!m_taskQueue.tryPop(newTask))
     {
-        int queueIdx = nextThread++;
+        int queueIdx = m_nextThread++;
 
         /// TODO: avoid self target?
-        if (manager->getWorker(queueIdx)->taskQueue.tryPop(newTask))
+        if (m_manager->getWorker(queueIdx)->m_taskQueue.tryPop(newTask))
         {
             //LOG(EngineLog, BE_LOG_VERBOSE) << "poped: " << newTask << " from " << this;
         }
@@ -85,9 +86,9 @@ TaskPtr TaskWorker::nextTask()
 
 void TaskWorker::wait()
 {
-    if (thread.joinable())
+    if (m_thread.joinable())
     {
-        thread.join();
+        m_thread.join();
     }
 }
 
@@ -175,11 +176,11 @@ void GeneralTaskManager::addTask(TaskPtr task)
     } // unlock
 
     if (task->getAffinity() == Task::Affinity::MAIN) {
-        workers[0]->taskQueue.push(task);
+        workers[0]->m_taskQueue.push(task);
     }
     else {
         int at = rand();
-        getWorker(at)->taskQueue.push(task);
+        getWorker(at)->m_taskQueue.push(task);
         //LOG(EngineLog, BE_LOG_VERBOSE) << "pushed: " << task << " to " << getWorker(at);
     }
 }

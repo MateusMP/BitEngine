@@ -20,8 +20,8 @@ public:
     TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity);
 
     void stop() {
-        working = false;
-        taskQueue.clear();
+        m_working = false;
+        m_taskQueue.clear();
     }
 
     // Return true if did some work on a task
@@ -35,13 +35,13 @@ private:
     void start();
     void process(TaskPtr task);
 
-    bool working;
-    int nextThread;
-    Task::Affinity affinity;
-    GeneralTaskManager *manager;
+    bool m_working;
+    int m_nextThread;
+    Task::Affinity m_affinity;
+    GeneralTaskManager *m_manager;
 
-    std::thread thread;
-    ThreadSafeQueue< TaskPtr > taskQueue;
+    std::thread m_thread;
+    ThreadSafeQueue< TaskPtr > m_taskQueue;
 };
 
 class GeneralTaskManager : public TaskManager
