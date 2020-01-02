@@ -18,11 +18,6 @@ public:
         f();
     }
 
-    bool finished()
-    {
-        return false;
-    }
-
 private:
     std::function<void()> f;
 };
@@ -49,14 +44,21 @@ class MyGame :
 {
 public:
     MyGame(MainMemory* gameMemory)
-        : gameMemory(gameMemory), running(false),
+        : mainMemory(gameMemory),
         BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this),
         BitEngine::Messenger<BitEngine::WindowClosedEvent>::ScopedSubscription(gameMemory->window->windowClosedSignal, &MyGame::onMessage, this),
         BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription(*gameMemory->imGuiRender, &MyGame::onMessage, this)
     {
         gameState = (GameState*)gameMemory->memory;
+
+        if (gameState->initialized) {
+            gameState->entitySystem->registerComponents();
+        }
     }
 
+    ~MyGame() {
+        gameState->entitySystem->~MyGameEntitySystem();
+    }
 
     void onMessage(const BitEngine::ImGuiRenderEvent& ev)
     {
@@ -65,7 +67,7 @@ public:
 
         if (ImGui::CollapsingHeader("Tasks"))
         {
-            auto taskManager = gameMemory->taskManager;
+            auto taskManager = mainMemory->taskManager;
             // Display contents in a scrolling region
             ImGui::TextColored(ImVec4(1, 1, 0, 1), "Tasks: %d", taskManager->getTasks().size());
             ImGui::BeginChild("Scrolling");
@@ -77,14 +79,10 @@ public:
 
         if (ImGui::CollapsingHeader("Resources"))
         {
-            resourceLoaderMenu("Loader", gameMemory->loader);
+            resourceLoaderMenu("Loader", mainMemory->loader);
         }
 
         ImGui::End();
-    }
-
-    ~MyGame()
-    {
     }
 
     void setupCommands(BitEngine::CommandSystem* cmdSys) {
@@ -105,34 +103,34 @@ public:
         using namespace BitEngine;
         
         // Create memory arenas
-        gameState->mainArena.init((u8*)gameMemory->memory + sizeof(GameState), gameMemory->memorySize - sizeof(GameState));
+        gameState->mainArena.init((u8*)mainMemory->memory + sizeof(GameState), mainMemory->memorySize - sizeof(GameState));
         gameState->permanentArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(8)), MEGABYTES(8));
         gameState->entityArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(64)), MEGABYTES(64));
         gameState->resourceArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(256)), MEGABYTES(256));
         gameState->initialized = true;
 
-        setupCommands(gameMemory->commandSystem);
+        setupCommands(mainMemory->commandSystem);
 
         MemoryArena& permanentArena = gameState->permanentArena;
 
-        auto loader = gameMemory->loader;
+        auto loader = mainMemory->loader;
         loader->loadIndex("data/main.idx");
 
-        gameMemory->taskManager->addTask(std::make_shared<UpdateTask>([loader] {loader->update(); }));
+        mainMemory->taskManager->addTask(std::make_shared<UpdateTask>([loader] {loader->update(); }));
 
         // Init game state stuff
-        gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, &gameState->entityArena);
+        gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, &gameState->entityArena, mainMemory->videoSystem->getDriver());
         gameState->entitySystem->Init();
 
         gameState->m_userGUI = permanentArena.push<UserGUI>(gameState->entitySystem);
-        gameState->m_world = permanentArena.push<GameWorld>(gameMemory, gameState->entitySystem);
+        gameState->m_world = permanentArena.push<GameWorld>(mainMemory, gameState->entitySystem);
 
-        gameState->selfPlayer = permanentArena.push<Player>("nick_here", 0);
-        gameState->m_world->addPlayer(gameState->selfPlayer);
+        //gameState->selfPlayer = permanentArena.push<Player>("nick_here", 0);
+        //gameState->m_world->addPlayer(gameState->selfPlayer);
 
         // Tests
-        const RR<Texture> texture = loader->getResource<BitEngine::Texture>("data/sprites/texture.png");
-        const RR<Texture> texture2 = loader->getResource<BitEngine::Texture>("data/sprites/sun.png");
+        const RR<Texture> texture = loader->getResource<BitEngine::Texture>("texture.png");
+        const RR<Texture> texture2 = loader->getResource<BitEngine::Texture>("sun.png");
         if (!texture.isValid() || !texture2.isValid()) {
             return false;
         }
@@ -150,7 +148,8 @@ public:
         //BitEngine::SpriteHandle spr3 = sprMng->createSprite(BitEngine::Sprite(texture2, 256, 256, 0.5f, 0.5f, glm::vec4(0, 0, 2.0f, 2.0f), true));
 
         // CREATE PLAYER
-        PlayerControl::CreatePlayerTemplate(loader, gameState->entitySystem, gameMemory->commandSystem);
+        auto playerEntity = PlayerControlSystem::CreatePlayerTemplate(loader, gameState->entitySystem, mainMemory->commandSystem);
+        playerControl = gameState->entitySystem->getComponentRef<PlayerControlComponent>(playerEntity);
 
         // Sparks
         EntitySystem* es = gameState->entitySystem;
@@ -161,22 +160,18 @@ public:
             BitEngine::ComponentRef<BitEngine::Sprite2DComponent> spriteComp;
             BitEngine::ComponentRef<BitEngine::SceneTransform2DComponent> sceneComp;
             BitEngine::ComponentRef<BitEngine::GameLogicComponent> logicComp;
-            ADD_COMPONENT_ERROR(transformComp = es->AddComponent<BitEngine::Transform2DComponent>(h));
-            ADD_COMPONENT_ERROR(spriteComp = es->AddComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, BitEngine::Sprite2DComponent::EFFECT_SPRITE));
-            ADD_COMPONENT_ERROR(sceneComp = es->AddComponent<BitEngine::SceneTransform2DComponent>(h));
-            ADD_COMPONENT_ERROR(logicComp = es->AddComponent<BitEngine::GameLogicComponent>(h));
-            ADD_COMPONENT_ERROR(es->AddComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
+            BE_ADD_COMPONENT_ERROR(transformComp = es->AddComponent<BitEngine::Transform2DComponent>(h));
+            BE_ADD_COMPONENT_ERROR(spriteComp = es->AddComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, BitEngine::Sprite2DComponent::EFFECT_SPRITE));
+            BE_ADD_COMPONENT_ERROR(sceneComp = es->AddComponent<BitEngine::SceneTransform2DComponent>(h));
+            BE_ADD_COMPONENT_ERROR(logicComp = es->AddComponent<BitEngine::GameLogicComponent>(h));
+            BE_ADD_COMPONENT_ERROR(es->AddComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
 
             transformComp->setLocalPosition(i * 128 + 125, 500);
             spriteComp->alpha = 1.0;
         }
 
-        running = true;
+        gameState->running = true;
         return true;
-    }
-
-    void shutdown() {
-        gameState->entitySystem->shutdown();
     }
 
     bool32 update()
@@ -188,31 +183,58 @@ public:
 
         gameState->entitySystem->update();
 
-        gameMemory->taskManager->update();
+        mainMemory->taskManager->update();
 
         // Render
 
-        if (running) {
+        if (gameState->running) {
             render();
         }
-        else {
-            shutdown();
-        }
 
-        return running;
+        return gameState->running;
     }
 
     void onMessage(const BitEngine::WindowClosedEvent& msg) {
-        running = false;
+        gameState->running = false;
     }
 
     void onMessage(const BitEngine::CommandSystem::MsgCommandInput& msg)
     {
         LOG(GameLog(), BE_LOG_VERBOSE) << "Command: " << msg.commandID;
+
         if (msg.commandID == RELOAD_SHADERS) {
             LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Reloading index";
             gameState->resources->loadIndex("data/main.idx");
 
+        }
+
+        BitEngine::ComponentRef<PlayerControlComponent>& comp = playerControl;
+        switch (msg.commandID)
+        {
+        case RIGHT:
+            comp->movH = msg.intensity;
+            if (msg.action.fromButton == BitEngine::KeyAction::RELEASE)
+                comp->movH = 0;
+            break;
+        case LEFT:
+            comp->movH = -msg.intensity;
+            if (msg.action.fromButton == BitEngine::KeyAction::RELEASE)
+                comp->movH = 0;
+            break;
+        case UP:
+            comp->movV = msg.intensity;
+            if (msg.action.fromButton == BitEngine::KeyAction::RELEASE)
+                comp->movV = 0;
+            break;
+        case DOWN:
+            comp->movV = -msg.intensity;
+            if (msg.action.fromButton == BitEngine::KeyAction::RELEASE)
+                comp->movV = 0;
+            break;
+
+        case CLICK:
+            printf("CLICK!!!!\n\n");
+            break;
         }
     }
 
@@ -223,8 +245,9 @@ public:
 
     void render()
     {
-        BitEngine::VideoDriver* driver = gameMemory->videoSystem->getDriver();
-        driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.5f, 0.3f, 0.3f, 0.f));
+        BitEngine::VideoDriver* driver = mainMemory->videoSystem->getDriver();
+        // driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.7f, 0.2f, 0.3f, 0.f));
+        driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.3f, 0.7f, 0.3f, 0.f));
         driver->clearBuffer(nullptr, BitEngine::BufferClearBitMask::COLOR_DEPTH);
 
         //gameState->entitySystem->sh3D.setActiveCamera(gameState->m_world->getActiveCamera());
@@ -232,18 +255,18 @@ public:
 
         gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
         // gameState->entitySystem->spr2D.Render(driver);
-        gameMemory->renderQueue->pushCommand(&gameState->entitySystem->spr2D);
+        mainMemory->renderQueue->pushCommand(&gameState->entitySystem->spr2D);
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)
     {
-        gameMemory->videoSystem->getDriver()->setViewPort(0, 0, ev.width, ev.height);
+        mainMemory->videoSystem->getDriver()->setViewPort(0, 0, ev.width, ev.height);
     }
 
 private:
-    MainMemory* gameMemory;
+    MainMemory* mainMemory;
     GameState* gameState;
-    bool32 running;
+    BitEngine::ComponentRef<PlayerControlComponent> playerControl;
 };
 
 

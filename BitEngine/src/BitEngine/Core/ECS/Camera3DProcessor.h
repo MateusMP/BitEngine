@@ -17,8 +17,6 @@ namespace BitEngine{
 		Camera3DProcessor(EntitySystem* es, Transform3DProcessor* t3dp);
 
 		/// Processor
-		bool Init() override;
-		void Stop() override;
 		void Process();
 
 	private:

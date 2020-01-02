@@ -65,32 +65,6 @@ BaseResource* SpriteManager::loadResource(ResourceMeta* meta, PropertyHolder* pr
     return sprite;
 }
 
-void SpriteManager::readJsonProperties(DevResourceLoader* devloader, nlohmann::json& props, ResourceManager* manager, BaseResource* resource)
-{
-    Sprite* sprite = static_cast<Sprite*>(resource);
-    const std::string& textureRef = props["texture"].get<std::string>();
-
-    u16 w = props["width"].get<u16>();
-    u16 h = props["height"].get<u16>();
-    float ox = props["ox"].get<float>();
-    float oy = props["oy"].get<float>();
-
-    auto& uvContainer = props["uv"];
-    glm::vec4 uv(uvContainer["xi"].get<float>(), uvContainer["yi"].get<float>(),
-        uvContainer["xf"].get<float>(), uvContainer["yf"].get<float>());
-    bool transparent = props["transparent"].get<int>() > 0;
-
-    ResourceMeta* textureMeta = devloader->findMeta(textureRef);
-    RR<Texture> texture = devloader->getResource<Texture>(textureMeta);
-    if (!texture.isValid()) {
-        LOG(EngineLog, BE_LOG_ERROR) << "Coulnd't find texture resource " << textureMeta << " for sprite " << resource->getResourceId();
-    }
-
-    sprite->~Sprite(); // Make sure we release references before creating new ones
-
-    new (sprite) Sprite(sprite->getMeta(), texture, w, h, ox, oy, uv, transparent);
-}
-
 void SpriteManager::reloadResource(BaseResource* resource)
 {
     // Do nothing

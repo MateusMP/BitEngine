@@ -14,15 +14,7 @@ namespace BitEngine{
 	Transform3DProcessor::~Transform3DProcessor()
 	{
 	}
-
-	bool Transform3DProcessor::Init()
-	{
-		return true;
-	}
-
-	void Transform3DProcessor::Stop() {
-	}
-
+    
 	void Transform3DProcessor::CalculateLocalModelMatrix(const Transform3DComponent& comp, glm::mat4& mat)
 	{
 		// T R S

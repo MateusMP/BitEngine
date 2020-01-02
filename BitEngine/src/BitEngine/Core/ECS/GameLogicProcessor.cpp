@@ -6,19 +6,11 @@ GameLogicProcessor::GameLogicProcessor(EntitySystem* m)
     : ComponentProcessor(m),
     Messenger< MsgComponentCreated<GameLogicComponent>>::ScopedSubscription(m->getHolder<GameLogicComponent>()->componentCreatedSignal, &GameLogicProcessor::onMessage, this),
     Messenger< MsgComponentDestroyed<GameLogicComponent>>::ScopedSubscription(m->getHolder<GameLogicComponent>()->componentDestroyedSignal, &GameLogicProcessor::onMessage, this)
-{}
-
-GameLogicProcessor::~GameLogicProcessor()
-{
-}
-
-bool GameLogicProcessor::Init()
 {
     gameLogicHolder = getES()->getHolder<GameLogicComponent>();
-    return true;
 }
 
-void GameLogicProcessor::Stop()
+GameLogicProcessor::~GameLogicProcessor()
 {
     getES()->forAll<GameLogicComponent>(
         [](ComponentHandle handle, GameLogicComponent& l)

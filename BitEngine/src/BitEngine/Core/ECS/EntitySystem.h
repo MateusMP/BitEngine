@@ -15,6 +15,11 @@
 
 namespace BitEngine {
 
+#define BE_ADD_COMPONENT_ERROR(x) \
+		if (!(x).isValid()) {		\
+			LOG(GameLog(), BE_LOG_ERROR) << "ADD COMPONENT FAILED FOR: " #x;	\
+		abort();}
+
 /**
 * Entity Handle and Component Handle are fixed and won't change at anytime after creation.
 * Type safe interface
@@ -26,36 +31,17 @@ public:
     {
     }
 
+    ~EntitySystem() {
+        BaseEntitySystem::shutdown();
+    }
+
     bool Init()
     {
         bool initOk = true;
         initOk &= BaseEntitySystem::Init();
-
-        for (ComponentProcessor* p : m_processors)
-        {
-            initOk &= InitComponentProcessor(p);
-        }
-
         return initOk;
     }
 
-    void shutdown()
-    {
-        for (ComponentProcessor* p : m_processors)
-        {
-            p->Stop();
-        }
-
-        BaseEntitySystem::shutdown();
-    }
-
-    // Register
-
-    bool InitComponentProcessor(ComponentProcessor* cp)
-    {
-        cp->m_es = this;
-        return cp->Init();
-    }
 
     // Register a component processor
     // pipeline: Which pipeline the processor should be inserted into

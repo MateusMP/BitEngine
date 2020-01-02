@@ -13,31 +13,19 @@ class Shader3DProcessor : public BitEngine::ComponentProcessor
 	Shader3DProcessor(BitEngine::EntitySystem* es, BitEngine::Transform3DProcessor *t3dp_)
 		: ComponentProcessor(es), t3dp(t3dp_)
 	{
-		Init();
-	}
-
-	bool Init() override
-	{
 		shader3DSimple = new Shader3DSimple();
 		if (!shader3DSimple->Init())
-			return false;
+			return;
 		shader3DSimpleRenderer = shader3DSimple->CreateRenderer();
 		if (shader3DSimpleRenderer == nullptr) {
 			LOG(GameLog(), BE_LOG_ERROR) << "Could not create Shader3DSimple renderer";
-			return false;
+			return;
 		}
-
-		return true;
 	}
 
 	void setActiveCamera(const BitEngine::ComponentRef<BitEngine::Camera3DComponent>& camera)
 	{
 		activeCamera = camera;
-	}
-
-	void Stop() override
-	{
-
 	}
 
 	void Render()

@@ -11,12 +11,8 @@ class BE_API GameLogicProcessor : public ComponentProcessor,
 {
 public:
     GameLogicProcessor(EntitySystem* m);
-    ~GameLogicProcessor();
-
-    /// Processor
-    bool Init() override;
-    void Stop() override;
-
+    virtual ~GameLogicProcessor();
+    
     void FrameStart();
     void FrameMiddle();
     void FrameEnd();

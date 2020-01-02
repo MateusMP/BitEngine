@@ -12,6 +12,12 @@ BaseComponentHolder::BaseComponentHolder(u32 componentSize, u32 nCompPerPool /*=
     m_freeSorted = true;
 }
 
+BaseComponentHolder::~BaseComponentHolder() {
+    for (auto& pool : m_pools) {
+        delete[] pool;
+    }
+}
+
 // Returns the released component
 void BaseComponentHolder::releaseComponentForEntity(EntityHandle entity)
 {

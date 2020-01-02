@@ -33,13 +33,13 @@ public:
 
     virtual RunEvents getRunEvents() = 0;
 
-    virtual bool init() = 0;
+    virtual bool init() { return true; }
 
-    virtual void frameStart() = 0;
-    virtual void frameMiddle() = 0;
-    virtual void frameEnd() = 0;
+    virtual void frameStart() {}
+    virtual void frameMiddle() {}
+    virtual void frameEnd() {}
 
-    virtual void end() = 0;
+    virtual void end() {}
 
     template<typename CompClass>
     ComponentRef<CompClass> getComponent() {
@@ -58,7 +58,11 @@ public:
     GameLogicComponent()
         : m_entity(0), e_sys(nullptr) {}
     GameLogicComponent(EntityHandle ent)
-        : m_entity(ent), e_sys(nullptr) {}
+        : m_entity(ent), e_sys(nullptr) {
+    }
+
+    ~GameLogicComponent() {
+    }
 
     void addLogicPiece(GameLogic* logic) {
         m_gamelogics.emplace_back(logic);

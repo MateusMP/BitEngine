@@ -105,8 +105,7 @@ public:
     }
 
     template<typename T>
-    typename std::enable_if<!std::is_base_of<EnumStruct, T>::value, void>::type
-        read(const char* name, T* type) {
+    void read(const char* name, T* type) {
         _read(name, type);
     }
 

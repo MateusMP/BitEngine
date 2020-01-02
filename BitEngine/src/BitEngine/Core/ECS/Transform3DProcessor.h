@@ -17,8 +17,6 @@ public:
     ~Transform3DProcessor();
 
     // Processor
-    bool Init() override;
-    void Stop() override;
     void Process();
 
     // Processor result outputs

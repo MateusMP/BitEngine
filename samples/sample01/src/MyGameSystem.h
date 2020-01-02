@@ -8,8 +8,6 @@
 #include "MyGameEntitySystem.h"
 #include "Overworld.h"
 
-#include "PlayerControlLogic.h"
-
 #include "Graphics/Shader3DSimple.h"
 #include "Graphics/Shader3DProcessor.h"
 

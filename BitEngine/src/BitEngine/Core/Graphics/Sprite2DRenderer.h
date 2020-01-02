@@ -84,10 +84,8 @@ public:
 class BE_API Sprite2DRenderer : public ComponentProcessor
 {
 public:
-    Sprite2DRenderer(EntitySystem* es, ResourceLoader* resourceLoader);
-
-    bool Init() override;
-    void Stop() override;
+    Sprite2DRenderer(EntitySystem* es, ResourceLoader* resourceLoader, VideoDriver* videoDriver);
+    ~Sprite2DRenderer();
 
     void setActiveCamera(ComponentRef<Camera2DComponent>& handle);
     const std::vector<Sprite2DBatch>& GenerateRenderData();
@@ -126,13 +124,14 @@ private:
 
     void buildBatchInstances();
 
-    std::map<Sprite2DBatch::BatchIdentifier, u32> batchesMap;
-    std::vector<Sprite2DBatch> batches;
-    ComponentRef<Camera2DComponent> activeCamera;
-    ResourceLoader* resourceLoader;
+    std::map<Sprite2DBatch::BatchIdentifier, u32> m_batchesMap;
+    std::vector<Sprite2DBatch> m_batches;
+    ComponentRef<Camera2DComponent> m_activeCamera;
+    ResourceLoader* m_resourceLoader;
     IGraphicBatch* m_batch;
-    RR<Shader> shader;
-    Sprite2D_DD_new newRefs;
+    RR<Shader> m_shader;
+    Sprite2D_DD_new m_newRefs;
+    VideoDriver* m_videoDriver;
 };
 
 }

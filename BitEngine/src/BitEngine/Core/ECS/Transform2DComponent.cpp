@@ -14,23 +14,23 @@ Transform2DComponent::~Transform2DComponent()
 {
 }
 
-const glm::vec2& Transform2DComponent::getLocalPosition() const
+const Vec2& Transform2DComponent::getLocalPosition() const
 {
 	return position;
 }
 
-void Transform2DComponent::setLocalPosition(const glm::vec2& p)
+void Transform2DComponent::setLocalPosition(const Vec2& p)
 {
 	position = p;
 	m_dirty = true;
 }
 
-const glm::vec2& Transform2DComponent::getLocalScale() const
+const Vec2& Transform2DComponent::getLocalScale() const
 {
 	return scale;
 }
 
-void Transform2DComponent::setLocalScale(const glm::vec2& s)
+void Transform2DComponent::setLocalScale(const Vec2& s)
 {
 	scale = s;
 	m_dirty = true;

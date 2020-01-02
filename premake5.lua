@@ -105,6 +105,7 @@ project "BitEngine"
 		defines "BE_DEBUG"
 		runtime "Debug"
 		symbols "on"
+		staticruntime "Off"
 
 	filter "configurations:Release"
 		defines "BE_RELEASE"
@@ -168,6 +169,7 @@ project "Sample01"
 		symbols "on"
 		debugargs { "--debug" }
 		editandcontinue "On"
+		staticruntime "Off"
 
 	filter "configurations:Release"
 		defines "BE_RELEASE"
@@ -239,6 +241,7 @@ project "Sample02"
 		runtime "Debug"
 		symbols "on"
 		debugargs { "--debug" }
+		staticruntime "Off"
 
 	filter "configurations:Release"
 		defines "BE_RELEASE"
@@ -301,16 +304,20 @@ project "Sample02DLL"
 			"BE_PLATFORM_WINDOWS",
 		}
 		
-		postbuildcommands { 
-			--"xcopy bin\\" .. outputdir .. "\\%{prj.name}\\*.DLL samples\\sample02\\%{prj.name}.DLL"
+		postbuildcommands {
+			"..\\copyfiles.sh ../bin/" .. outputdir .. "/Sample02/*.dll sample02/"
 		}
+
 
 	filter "configurations:Debug"
 		defines "BE_DEBUG"
 		runtime "Debug"
 		symbols "on"
+		symbolspath "$(OutDir)$(TargetName)%%random%%.pdb"
 		debugargs { "--debug" }
 		editandcontinue "On"
+		staticruntime "Off"
+
 
 	filter "configurations:Release"
 		defines "BE_RELEASE"

@@ -17,16 +17,6 @@ Transform2DProcessor::~Transform2DProcessor()
 {
 }
 
-bool Transform2DProcessor::Init()
-{
-    return true;
-}
-
-void Transform2DProcessor::Stop()
-{
-}
-
-
 void Transform2DProcessor::CalculateLocalModelMatrix(const Transform2DComponent& comp, glm::mat3& mat)
 {
     // T R S

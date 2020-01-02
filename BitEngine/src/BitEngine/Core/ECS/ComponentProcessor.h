@@ -64,9 +64,6 @@ public:
     typedef void (ComponentProcessor::* processFunc)(void);
     virtual ~ComponentProcessor() {}
 
-    virtual bool Init() = 0; // Usually used to register listener to ComponentHolders
-    virtual void Stop() = 0; // Usually used to unregister listeners from ComponentHolders
-
 protected:
     EntitySystem* getES() { return m_es; }
 
@@ -85,7 +82,7 @@ class BE_API BaseComponentHolder
     friend class BaseEntitySystem;
 public:
     BaseComponentHolder(u32 componentSize, u32 nCompPerPool = 128);
-    virtual ~BaseComponentHolder() {}
+    virtual ~BaseComponentHolder();
 
     virtual bool init() = 0;
 

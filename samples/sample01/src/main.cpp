@@ -114,7 +114,7 @@ void gameExecute(MainMemory& gameMemory) {
         bool32 running = true;
 
         while (running) {
-            LOG_SCOPE_TIME(BitEngine::EngineLog, "main loop");
+            //LOG_SCOPE_TIME(BitEngine::EngineLog, "main loop");
 
             input.update();
 

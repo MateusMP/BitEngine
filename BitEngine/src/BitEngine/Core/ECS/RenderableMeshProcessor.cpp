@@ -7,12 +7,4 @@ namespace BitEngine{
 	{
 	}
 	
-	bool RenderableMeshProcessor::Init(){
-		return true;
-	}
-
-	void RenderableMeshProcessor::Stop() {
-
-	}
-
 }

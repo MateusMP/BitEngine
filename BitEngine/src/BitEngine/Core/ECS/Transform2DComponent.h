@@ -13,7 +13,7 @@ public:
     ~Transform2DComponent();
 
     // Position
-    const glm::vec2& getLocalPosition() const; // returns LOCAL position
+    const Vec2& getLocalPosition() const; // returns LOCAL position
     template<typename T>
     void setLocalPosition(T x, T y) // sets LOCAL position
     {
@@ -21,11 +21,11 @@ public:
         position.y = (float)y;
         m_dirty = true;
     }
-    void setLocalPosition(const glm::vec2& p); // sets LOCAL position
+    void setLocalPosition(const Vec2& p); // sets LOCAL position
 
     // Scale
-    const glm::vec2& getLocalScale() const; // get LOCAL scale
-    void setLocalScale(const glm::vec2& s); // sets LOCAL scale
+    const Vec2& getLocalScale() const; // get LOCAL scale
+    void setLocalScale(const Vec2& s); // sets LOCAL scale
 
     // Rotation
     float getLocalRotation() const; // get LOCAL rotation
@@ -41,8 +41,8 @@ public:
     }
     */
 
-    glm::vec2 position;
-    glm::vec2 scale;
+    Vec2 position;
+    Vec2 scale;
     float rotation;
 
     bool m_dirty;

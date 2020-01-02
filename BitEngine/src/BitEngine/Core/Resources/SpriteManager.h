@@ -26,8 +26,6 @@ public:
      */
     Sprite* createSprite(const std::string& name, const Sprite& spr);
 
-    static void readJsonProperties(DevResourceLoader* devloader, nlohmann::json& props, ResourceManager* manager, BaseResource* resource);
-
     template<typename Serializer>
     static void jsonPropertiesToProd(Serializer*, ResourceManager*, nlohmann::json& props, BaseResource*) {
 

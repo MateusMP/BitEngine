@@ -7,7 +7,6 @@
 
 class PlayerController;
 
-
 class PlayerCamera
 {
 public:
@@ -196,7 +195,7 @@ public:
     }
 
 private:
-    Player * player;
+    Player* player;
     PlayerCamera* camera;
     BitEngine::ComponentRef<BitEngine::Transform3DComponent> transform;
 

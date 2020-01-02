@@ -55,9 +55,6 @@ struct GameState {
 
 	MyGameEntitySystem* entitySystem;
 
-	Player *selfPlayer;
-	PlayerController* playerController;
-
 	UserGUI* m_userGUI;
 	GameWorld* m_world; //!< Current active world
 	

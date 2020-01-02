@@ -41,6 +41,13 @@ namespace BitEngine {
 			return a;
 		}
 
+        void clear() {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            std::queue<T> empty;
+            std::swap(m_queue, empty);
+            m_cond.notify_one();
+        }
+
 		void push(T&& value)
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);

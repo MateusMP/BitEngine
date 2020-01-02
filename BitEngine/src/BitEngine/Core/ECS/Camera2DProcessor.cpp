@@ -5,20 +5,10 @@ namespace BitEngine{
 	Camera2DProcessor::Camera2DProcessor(EntitySystem* es, Transform2DProcessor* t2dp)
 		: ComponentProcessor(es), transform2DProcessor(t2dp)
 	{
-	}
-
-	bool Camera2DProcessor::Init()
-	{
 		Camera2DType = Camera2DComponent::getComponentType();		// baseES->getComponentType<Camera2DComponent>();
 
 		holderTransform = getES()->getHolder<Transform2DComponent>();
 		holderCamera = getES()->getHolder<Camera2DComponent>();
-
-		return true;
-	}
-
-	void Camera2DProcessor::Stop()
-	{
 	}
 
 	void Camera2DProcessor::recalculateMatrix(Camera2DComponent& c)

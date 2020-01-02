@@ -16,8 +16,6 @@ public: // Methods
     Camera2DProcessor(EntitySystem* es, Transform2DProcessor* t2dp);
 
     /// Processor
-    bool Init() override;
-    void Stop() override;
     void Process();
 
 private: // Methods

@@ -21,10 +21,6 @@ namespace BitEngine{
 			Transform2DProcessor(EntitySystem* es);
 			~Transform2DProcessor();
 
-			/// Processor
-			bool Init() override;
-			void Stop() override;
-
 			// Recalculate global transforms
 			void Process();
 

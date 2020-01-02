@@ -21,6 +21,7 @@ public:
 
     void stop() {
         working = false;
+        taskQueue.clear();
     }
 
     // Return true if did some work on a task

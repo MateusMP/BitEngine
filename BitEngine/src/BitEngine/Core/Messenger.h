@@ -95,7 +95,6 @@ private:
         return subscribe(f);
     }
 
-
     struct callback_handle {
         callback_handle(call_type c, SubsHandle h) : callback(c), handle(h) {
         }

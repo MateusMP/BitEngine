@@ -9,18 +9,8 @@ const Material* Sprite2DComponent::TRANSPARENT_SPRITE = &sprite_materials[1];
 const Material* Sprite2DComponent::EFFECT_SPRITE = &sprite_materials[2];
 
 
-Sprite2DRenderer::Sprite2DRenderer(EntitySystem* es, ResourceLoader* resourceLoader)
-    : ComponentProcessor(es), m_batch(nullptr), resourceLoader(resourceLoader)
-{
-    Init();
-}
-
-void Sprite2DRenderer::setActiveCamera(ComponentRef<Camera2DComponent>& handle)
-{
-    activeCamera = handle;
-}
-
-bool Sprite2DRenderer::Init()
+Sprite2DRenderer::Sprite2DRenderer(EntitySystem* es, ResourceLoader* resourceLoader, VideoDriver* videoDriver)
+    : ComponentProcessor(es), m_batch(nullptr), m_resourceLoader(resourceLoader), m_videoDriver(videoDriver)
 {
     // DEFAULT_SPRITE
     sprite_materials[0].setState(RenderConfig::BLEND, BlendConfig::BLEND_NONE);
@@ -39,60 +29,67 @@ bool Sprite2DRenderer::Init()
     sprite_materials[2].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
 
     const char* SPRITE_2D_SHADER_PATH = "sprite2Dshader";
-    shader = resourceLoader->getResource<Shader>(SPRITE_2D_SHADER_PATH);
-    if (!shader.isValid()) {
+    m_shader = m_resourceLoader->getResource<Shader>(SPRITE_2D_SHADER_PATH);
+    if (!m_shader.isValid()) {
         LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load sprite 2D shader: " << SPRITE_2D_SHADER_PATH;
-        return false;
+        return;
     }
 
-    newRefs.init(shader.get());
-    m_batch = shader->createBatch();
-
-    return true;
+    m_newRefs.init(m_shader.get());
+    m_batch = m_shader->createBatch();
 }
 
-void Sprite2DRenderer::Stop()
+Sprite2DRenderer::~Sprite2DRenderer()
 {
     delete m_batch;
 }
 
+void Sprite2DRenderer::setActiveCamera(ComponentRef<Camera2DComponent>& handle)
+{
+    m_activeCamera = handle;
+}
+
 const std::vector<Sprite2DBatch>& Sprite2DRenderer::GenerateRenderData()
 {
-    buildBatchInstances();   
-    return batches;
+    buildBatchInstances();
+    return m_batches;
 }
 
 void Sprite2DRenderer::Render() {
  
+    // LOG_FUNCTION_TIME(BitEngine::EngineLog);
+
     if (m_batch == nullptr)
     {
-        if (!shader->isReady()) {
+        if (!m_shader->isReady()) {
             LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Skipping rendering until shader is loaded";
             return;
         }
         else {
-            m_batch = shader->createBatch();
+            m_batch = m_shader->createBatch();
         }
     }
 
     m_batch->clear();
 
-    for (auto& it : batches) {
+    for (auto& it : m_batches) {
         prepare_new(it);
         m_batch->load();
-        m_batch->render(shader.get());
+        m_videoDriver->configure(it.bid.material);
+        m_batch->render(m_shader.get());
     }
 }
 
 void Sprite2DRenderer::buildBatchInstances()
 {
-    if (!activeCamera) { return; }
+    // LOG_FUNCTION_TIME(BitEngine::EngineLog);
+    if (!m_activeCamera) { return; }
 
-    for (Sprite2DBatch& it : batches) {
+    for (Sprite2DBatch& it : m_batches) {
         it.batchInstances.clear();
     }
 
-    const glm::vec4 viewScreen = activeCamera->getWorldViewArea();
+    const glm::vec4 viewScreen = m_activeCamera->getWorldViewArea();
 
     // Build batch
     getES()->forEach<SceneTransform2DComponent, Sprite2DComponent>(
@@ -102,16 +99,16 @@ void Sprite2DRenderer::buildBatchInstances()
         {
             const Texture* texture = sprite->sprite->getTexture().get();
             Sprite2DBatch::BatchIdentifier idtf(sprite->layer, sprite->material, sprite->sprite->getTexture().get());
-            const auto& it = batchesMap.find(idtf);
-            if (it != batchesMap.end()) {
-                batches[it->second].batchInstances.emplace_back(transform.ref(), sprite.ref());
+            const auto& it = m_batchesMap.find(idtf);
+            if (it != m_batchesMap.end()) {
+                m_batches[it->second].batchInstances.emplace_back(transform.ref(), sprite.ref());
             }
             else {
-                batches.emplace_back(idtf);
-                size_t id = batches.size() - 1;
-                batchesMap.emplace(idtf, id);
-                batches[id].bid = idtf;
-                batches[id].batchInstances.emplace_back(transform.ref(), sprite.ref());
+                m_batches.emplace_back(idtf);
+                size_t id = m_batches.size() - 1;
+                m_batchesMap.emplace(idtf, id);
+                m_batches[id].bid = idtf;
+                m_batches[id].batchInstances.emplace_back(transform.ref(), sprite.ref());
             }
         }
     });
@@ -121,23 +118,23 @@ void Sprite2DRenderer::prepare_new(Sprite2DBatch& batch)
 {
     std::vector<Sprite2DBatch::SpriteBatchInstance>& batchInstances = batch.batchInstances;
 
-    Sprite2D_DD_new::CamMatricesContainer* view = m_batch->getShaderDataAs<Sprite2D_DD_new::CamMatricesContainer>(newRefs.u_viewMatrixContainer);
+    Sprite2D_DD_new::CamMatricesContainer* view = m_batch->getShaderDataAs<Sprite2D_DD_new::CamMatricesContainer>(m_newRefs.u_viewMatrixContainer);
     if (view) {
-        view->view = activeCamera->getMatrix();
+        view->view = m_activeCamera->getMatrix();
     }
 
-    m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLE_STRIP);
+    m_batch->setVertexRenderMode(VertexRenderMode::TRIANGLES);
     // Prepare for all instances
     m_batch->prepare(batchInstances.size() * 6);
 
     // Setup batch data
     if (!batchInstances.empty())
     {
-        Sprite2D_DD_new::TextureContainer* texture = m_batch->getShaderDataAs<Sprite2D_DD_new::TextureContainer>(newRefs.m_textureContainer);
+        Sprite2D_DD_new::TextureContainer* texture = m_batch->getShaderDataAs<Sprite2D_DD_new::TextureContainer>(m_newRefs.m_textureContainer);
         texture->diffuse = batch.bid.texture;
 
-        Sprite2D_DD_new::ModelMatrixContainer* modelMatrices = m_batch->getShaderDataAs<Sprite2D_DD_new::ModelMatrixContainer>(newRefs.u_modelMatrixContainer);
-        Sprite2D_DD_new::PTNContainer* vertices = m_batch->getShaderDataAs<Sprite2D_DD_new::PTNContainer>(newRefs.m_ptnContainer);
+        Sprite2D_DD_new::ModelMatrixContainer* modelMatrices = m_batch->getShaderDataAs<Sprite2D_DD_new::ModelMatrixContainer>(m_newRefs.u_modelMatrixContainer);
+        Sprite2D_DD_new::PTNContainer* vertices = m_batch->getShaderDataAs<Sprite2D_DD_new::PTNContainer>(m_newRefs.m_ptnContainer);
 
         const glm::vec2 vertex_pos[4] = {
                 glm::vec2(0.0f, 0.0f),
@@ -175,6 +172,9 @@ void Sprite2DRenderer::prepare_new(Sprite2DBatch& batch)
 }
 
 /*
+Code version that uses instanced rendering.
+The difference is that we dont need to define all vertices,
+Since the sprite is known to be a square, the shader already knows the vertices and just need a transform, texture and uv.
 void Sprite2DRenderer::prepare_instanced(Sprite2DBatch& batch)
 {
     std::vector<Sprite2DBatch::SpriteBatchInstance>& batchInstances = batch.batchInstances;
