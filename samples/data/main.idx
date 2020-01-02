@@ -5,9 +5,9 @@
 			{
 				"name": "sprite2Dshader",
 				"type": "SHADER",
-				"gl5": { 
-					"vertex": "data/shaders/sprite2D/gl2.vtx", 
-					"fragment": "data/shaders/sprite2D/gl2.fgt",
+				"gl4": { 
+					"vertex": "data/shaders/sprite2D/gl2vtx", 
+					"fragment": "data/shaders/sprite2D/gl2fgt",
 					"definition": [
 						{
 							"mode": "VERTEX",
@@ -77,12 +77,12 @@
 			{
 				"name": "sprite2D/gl2vtx",
 				"type": "FILE",
-				"filePath" : "data/shaders/sprite2D/gl2.vtx"
+				"filePath" : "shaders/sprite2D/gl2.vtx"
 			},
 			{
 				"name": "sprite2D/gl2fgt",
 				"type": "FILE",
-				"filePath" : "data/shaders/sprite2D/gl2.fgt"
+				"filePath" : "shaders/sprite2D/gl2.fgt"
 			}
 		],
 		
@@ -90,12 +90,12 @@
 			{
 				"name": "texture.png",
 				"type": "TEXTURE",
-				"filePath" : "data/sprites/texture.png"
+				"filePath" : "sprites/texture.png"
 			},
 			{
 				"name": "sun.png",
 				"type": "TEXTURE",
-				"filePath" : "data/sprites/sun.png"
+				"filePath" : "sprites/sun.png"
 			},
 			{
 				"name": "spr_skybox",

@@ -13,14 +13,6 @@
 class MyGameEntitySystem;
 
 
-struct PlayerControlComponent : public BitEngine::Component<PlayerControlComponent>
-{
-    float movH, movV;
-
-    BitEngine::ComponentRef<BitEngine::Transform2DComponent> transform2d;
-};
-
-
 class PlayerControlSystem : public BitEngine::ComponentProcessor
 {
 public:

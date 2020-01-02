@@ -235,6 +235,10 @@ project "Sample02"
 		{
 			"BE_PLATFORM_WINDOWS"
 		}
+		
+		postbuildcommands {
+			"..\\copyfiles.sh ../bin/" .. outputdir .. "/Sample02/*.exe sample02/"
+		}
 
 	filter "configurations:Debug"
 		defines "BE_DEBUG"
@@ -312,8 +316,9 @@ project "Sample02DLL"
 	filter "configurations:Debug"
 		defines "BE_DEBUG"
 		runtime "Debug"
-		symbols "on"
-		symbolspath "$(OutDir)$(TargetName)%%random%%.pdb"
+		symbols "Full"
+		symbolspath "$(OutDir)$(TargetName)_$([System.DateTime]::Now.ToString(\"yyyy.MM.dd.HH.mm.ss\")).pdb"
+		linkoptions { "/Zi" }
 		debugargs { "--debug" }
 		editandcontinue "On"
 		staticruntime "Off"

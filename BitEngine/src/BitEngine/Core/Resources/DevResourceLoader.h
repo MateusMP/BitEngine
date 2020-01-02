@@ -19,6 +19,7 @@ namespace BitEngine
 class BaseResource;
 class ResourceLoader;
 
+
 struct BE_API DevResourceMeta : public ResourceMeta {
 
     DevResourceMeta(const std::string& pack, const std::string& resName)
@@ -28,10 +29,10 @@ struct BE_API DevResourceMeta : public ResourceMeta {
     std::string package;
     std::string resourceName;
     std::string type;
+    std::string filePath;
 
     nlohmann::json properties;
 };
-
 
 
 class FileLoaderTask : public ResourceLoader::RawResourceLoaderTask
@@ -164,8 +165,7 @@ public:
 
                 new (found) File(meta);
 
-                const std::string& filePath = meta->properties["filePath"].get_ref<const std::string&>();
-                FileLoadTask task = std::make_shared<FileLoaderTask>(found, &arena, filePath);
+                FileLoadTask task = std::make_shared<FileLoaderTask>(found, &arena, meta->filePath);
                 taskManager->addTask(task);
                 it.first->second = task;
 
@@ -291,14 +291,15 @@ protected:
     friend class DevLoaderTask;
 
 private:
-    using ResourceType = std::string;
-
     struct LoadedIndex {
         std::string name;
+        std::string basefilepath;
         nlohmann::json data;
         std::vector<DevResourceMeta> metas;
     };
 
+    using ResourceType = std::string;
+    
     bool isManagerForTypeAvailable(const std::string& type);
 
     void loadPackages(LoadedIndex* index, bool allowOverride);

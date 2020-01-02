@@ -1,4 +1,5 @@
 #include <fstream>
+#include <filesystem>
 
 #include "BitEngine/Core/Resources/DevResourceLoader.h"
 
@@ -96,6 +97,7 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
             index = &resourceMetaIndexes[indexId];
             index->metas.reserve(512);
             index->name = indexFilename;
+            index->basefilepath = std::filesystem::path(indexFilename).parent_path().string();
         }
         else
         {
@@ -256,6 +258,9 @@ void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
                 DevResourceMeta& meta = index->metas.back();
                 meta.type = resourceType;
                 meta.properties = resource;
+                if (resource.contains("filePath")) {
+                    meta.filePath = index->basefilepath + "/" + resource["filePath"].get_ref<const std::string&>();
+                }
                 byName[name] = &meta; // Also index path
                 byName[resourceName] = &meta;
             }

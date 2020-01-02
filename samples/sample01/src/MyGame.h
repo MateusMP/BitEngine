@@ -57,7 +57,7 @@ public:
     }
 
     ~MyGame() {
-        gameState->entitySystem->~MyGameEntitySystem();
+        
     }
 
     void onMessage(const BitEngine::ImGuiRenderEvent& ev)
@@ -114,7 +114,7 @@ public:
         MemoryArena& permanentArena = gameState->permanentArena;
 
         auto loader = mainMemory->loader;
-        loader->loadIndex("data/main.idx");
+        loader->loadIndex("../data/main.idx");
 
         mainMemory->taskManager->addTask(std::make_shared<UpdateTask>([loader] {loader->update(); }));
 
@@ -149,10 +149,10 @@ public:
 
         // CREATE PLAYER
         auto playerEntity = PlayerControlSystem::CreatePlayerTemplate(loader, gameState->entitySystem, mainMemory->commandSystem);
-        playerControl = gameState->entitySystem->getComponentRef<PlayerControlComponent>(playerEntity);
+        gameState->playerControl = gameState->entitySystem->getComponentRef<PlayerControlComponent>(playerEntity);
 
         // Sparks
-        EntitySystem* es = gameState->entitySystem;
+        MyGameEntitySystem* es = gameState->entitySystem;
         for (int i = 0; i < 9; ++i)
         {
             BitEngine::EntityHandle h = gameState->entitySystem->createEntity();
@@ -161,7 +161,7 @@ public:
             BitEngine::ComponentRef<BitEngine::SceneTransform2DComponent> sceneComp;
             BitEngine::ComponentRef<BitEngine::GameLogicComponent> logicComp;
             BE_ADD_COMPONENT_ERROR(transformComp = es->AddComponent<BitEngine::Transform2DComponent>(h));
-            BE_ADD_COMPONENT_ERROR(spriteComp = es->AddComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, BitEngine::Sprite2DComponent::EFFECT_SPRITE));
+            BE_ADD_COMPONENT_ERROR(spriteComp = es->AddComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, es->spr2D.getMaterial(Sprite2DRenderer::EFFECT_SPRITE)));
             BE_ADD_COMPONENT_ERROR(sceneComp = es->AddComponent<BitEngine::SceneTransform2DComponent>(h));
             BE_ADD_COMPONENT_ERROR(logicComp = es->AddComponent<BitEngine::GameLogicComponent>(h));
             BE_ADD_COMPONENT_ERROR(es->AddComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
@@ -189,6 +189,8 @@ public:
 
         if (gameState->running) {
             render();
+        } else {
+            gameState->entitySystem->~MyGameEntitySystem();
         }
 
         return gameState->running;
@@ -208,7 +210,7 @@ public:
 
         }
 
-        BitEngine::ComponentRef<PlayerControlComponent>& comp = playerControl;
+        BitEngine::ComponentRef<PlayerControlComponent>& comp = gameState->playerControl;
         switch (msg.commandID)
         {
         case RIGHT:
@@ -266,7 +268,6 @@ public:
 private:
     MainMemory* mainMemory;
     GameState* gameState;
-    BitEngine::ComponentRef<PlayerControlComponent> playerControl;
 };
 
 

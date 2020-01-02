@@ -91,6 +91,15 @@ public:
     const std::vector<Sprite2DBatch>& GenerateRenderData();
     void Render();
 
+
+    constexpr static u32 DEFAULT_SPRITE = 0;
+    constexpr static u32 TRANSPARENT_SPRITE = 1;
+    constexpr static u32 EFFECT_SPRITE = 2;
+
+    const Material* getMaterial(u32 type) {
+        return &sprite_materials[type];
+    }
+
 private:
     
     static bool insideScreen(const glm::vec4& screen, const glm::mat3& matrix, float radius)
@@ -132,6 +141,7 @@ private:
     RR<Shader> m_shader;
     Sprite2D_DD_new m_newRefs;
     VideoDriver* m_videoDriver;
+    Material sprite_materials[3];
 };
 
 }

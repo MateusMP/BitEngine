@@ -17,10 +17,6 @@ namespace BitEngine
 class Sprite2DComponent : public Component<Sprite2DComponent>
 {
 public:
-    const static Material* DEFAULT_SPRITE;
-    const static Material* TRANSPARENT_SPRITE;
-    const static Material* EFFECT_SPRITE;
-
     Sprite2DComponent(u32 _layer, RR<Sprite> spr, const Material* mat)
         : layer(_layer), alpha(1.0f), sprite(spr), material(mat)
     {
@@ -66,7 +62,7 @@ private:
     }
 
     void initComponent(Sprite2DComponent* outPtr) {
-        new (outPtr) Sprite2DComponent(0, RR<Sprite>::invalid(), Sprite2DComponent::DEFAULT_SPRITE);
+        new (outPtr) Sprite2DComponent(0, RR<Sprite>::invalid(), nullptr);
     }
 };
 

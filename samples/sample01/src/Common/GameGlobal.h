@@ -3,6 +3,7 @@
 #include <bitengine/Core/VideoSystem.h>
 #include <bitengine/Core/Logger.h>
 #include <bitengine/Core/Memory.h>
+#include <bitengine/Core/ECS/EntitySystem.h>
 
 extern BitEngine::Logger* GameLog();
 
@@ -41,6 +42,13 @@ enum GameQuitType {
     CLOSE_WINDOW
 };
 
+struct PlayerControlComponent : public BitEngine::Component<PlayerControlComponent>
+{
+    float movH, movV;
+
+    BitEngine::ComponentRef<BitEngine::Transform2DComponent> transform2d;
+};
+
 struct GameState {
 
 	bool32 initialized;
@@ -57,7 +65,8 @@ struct GameState {
 
 	UserGUI* m_userGUI;
 	GameWorld* m_world; //!< Current active world
-	
+
+    BitEngine::ComponentRef<PlayerControlComponent> playerControl;	
 };
 
 struct UserRequestQuitGame {
