@@ -14,9 +14,6 @@
 [submodule "dependencies/assimp"]
 	path = BitEngine/dependencies/assimp
 	url = https://github.com/assimp/assimp.git
-[submodule "dependencies/Wink-Signals"]
-	path = BitEngine/dependencies/Wink-Signals
-	url = https://github.com/miguelmartin75/Wink-Signals.git
 [submodule "dependencies/imgui"]
 	path = BitEngine/dependencies/imgui
 	url = https://github.com/ocornut/imgui.git
