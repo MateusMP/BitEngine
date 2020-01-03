@@ -17,7 +17,7 @@ class TaskWorker
 {
     friend class GeneralTaskManager;
 public:
-    TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity);
+    TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity, u32 id);
 
     void stop() {
         m_working = false;
@@ -36,7 +36,7 @@ private:
     void process(TaskPtr task);
 
     bool m_working;
-    int m_nextThread;
+    u32 m_threadId;
     Task::Affinity m_affinity;
     GeneralTaskManager *m_manager;
 

@@ -3,10 +3,9 @@
 
 namespace BitEngine {
 
-TaskWorker::TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity)
-    : m_working(true), m_affinity(_affinity), m_manager(_manager)
+TaskWorker::TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity, u32 id)
+    : m_working(true), m_affinity(_affinity), m_manager(_manager), m_threadId(id)
 {
-    m_nextThread = reinterpret_cast<intptr_t>(this) % 17;
 }
 
 void TaskWorker::start()
@@ -68,12 +67,17 @@ TaskPtr TaskWorker::nextTask()
     TaskPtr newTask;
     if (!m_taskQueue.tryPop(newTask))
     {
-        int queueIdx = m_nextThread++;
-
-        /// TODO: avoid self target?
-        if (m_manager->getWorker(queueIdx)->m_taskQueue.tryPop(newTask))
-        {
-            //LOG(EngineLog, BE_LOG_VERBOSE) << "poped: " << newTask << " from " << this;
+        if (m_affinity == Task::Affinity::BACKGROUND) {
+            u32 threadTest = m_threadId++;
+            while (threadTest != m_threadId) {
+                TaskWorker* worker = m_manager->getWorker(threadTest);
+                if (worker->m_affinity == Task::Affinity::BACKGROUND && worker->m_taskQueue.tryPop(newTask)) {
+                    return newTask;
+                }
+                ++threadTest;
+            }
+            std::this_thread::yield();
+            m_taskQueue.pop(newTask);
         }
     }
     else
@@ -108,10 +112,9 @@ void GeneralTaskManager::init()
     workers.resize(nThreads);
     LOG(EngineLog, BE_LOG_INFO) << "Task manager initializing " << nThreads << " threads";
 
-    workers[0] = new TaskWorker(this, Task::Affinity::MAIN);
-    for (int i = 1; i < nThreads; ++i)
+    for (int i = 0; i < nThreads; ++i)
     {
-        workers[i] = new TaskWorker(this, Task::Affinity::BACKGROUND);
+        workers[i] = new TaskWorker(this, Task::Affinity::BACKGROUND, i);
     }
 
     for (int i = 1; i < nThreads; ++i)
@@ -224,11 +227,14 @@ void GeneralTaskManager::executeWorkersWork(int i)
     do {
         task = workers[i]->nextTask();
         if (task != nullptr) { break; }
-        i = clampToWorkers(i);
+        i = clampToWorkers(i++);
     } while (i != startedAt);
 
     if (task == nullptr) {
         std::this_thread::yield();
+    }
+    else {
+        workers[0]->process(task);
     }
 }
 

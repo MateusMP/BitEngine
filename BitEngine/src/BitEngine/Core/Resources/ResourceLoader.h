@@ -62,7 +62,7 @@ public:
         LoadState loadState;
         MemoryArena* arena;
         void* data;
-        u32 size;
+        ptrsize size;
     };
 
     /**

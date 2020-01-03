@@ -30,15 +30,19 @@ namespace BitEngine {
 			return false;
 		}
 
-		T pop()
+		bool pop(T& out)
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
-			m_cond.wait(lock, [this]{ return m_queue.empty(); });
+			m_cond.wait(lock);
 
-			T a = std::move(m_queue.front());
-			m_queue.pop();
-
-			return a;
+            if (!m_queue.empty()) {
+                out = std::move(m_queue.front());
+                m_queue.pop();
+                return true;
+            }
+            else {
+                return false;
+            }
 		}
 
         void clear() {
