@@ -159,7 +159,7 @@ public:
             holder->componentCreatedSignal.emit(MsgComponentCreated<CompClass>{entity, compID});
         }
 
-        return ComponentRef<CompClass>(entity, compID, this, comp);
+        return ComponentRef<CompClass>(entity, compID, comp);
     }
 
     template<typename CompClass>
@@ -183,7 +183,7 @@ public:
         ComponentHandle compID = holder->getComponentForEntity(entity);
         CompClass* comp = static_cast<CompClass*>(holder->getComponent(compID));
 
-        return ComponentRef<CompClass>(entity, compID, this, comp);
+        return ComponentRef<CompClass>(entity, compID, comp);
     }
 
 
@@ -225,7 +225,7 @@ public:
                 if ((m_objBitField->getObj(entity).b64 & componentMask.b64) == componentMask.b64)
                 {
                     Base* comp = holder->getComponent(compID);
-                    f(ComponentRef<Base>(entity, compID, this, comp), getComponentRefE<ContainComps>(entity)...); // TODO: avoid getHolder<>() every time
+                    f(ComponentRef<Base>(entity, compID, comp), getComponentRefE<ContainComps>(entity)...); // TODO: avoid getHolder<>() every time
                 }
             }
             else
@@ -349,7 +349,7 @@ private:
         ComponentHandle compID = holder->getComponentForEntity(entity);
         CompClass* comp = static_cast<CompClass*>(holder->getComponent(compID));
 
-        return ComponentRef<CompClass>(entity, compID, this, comp);
+        return ComponentRef<CompClass>(entity, compID, comp);
     }
 
     struct PipelineProcess

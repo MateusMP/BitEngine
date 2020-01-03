@@ -181,22 +181,21 @@ class BE_API ComponentRef
 
 public:
     ComponentRef()
-        : m_entity(0), m_componentID(0), m_es(nullptr), m_component(nullptr)
+        : m_entity(0), m_componentID(0), m_component(nullptr)
     {}
     ComponentRef(const ComponentRef& h)
-        : m_entity(h.m_entity), m_componentID(h.m_componentID), m_es(h.m_es), m_component(h.m_component)
+        : m_entity(h.m_entity), m_componentID(h.m_componentID), m_component(h.m_component)
     {}
     ComponentRef(ComponentRef&& h) noexcept
-        : m_entity(h.m_entity), m_componentID(h.m_componentID), m_es(h.m_es), m_component(h.m_component)
+        : m_entity(h.m_entity), m_componentID(h.m_componentID), m_component(h.m_component)
     {}
-    ComponentRef(EntityHandle entity, ComponentHandle componentID, EntitySystem* entitySys, CompClass* component) noexcept
-        : m_entity(entity), m_componentID(componentID), m_es(entitySys), m_component(component)
+    ComponentRef(EntityHandle entity, ComponentHandle componentID, CompClass* component) noexcept
+        : m_entity(entity), m_componentID(componentID), m_component(component)
     {}
 
     ComponentRef& operator =(const ComponentRef& h) {
         m_entity = h.m_entity;
         m_componentID = h.m_componentID;
-        m_es = h.m_es;
         m_component = h.m_component;
         return *this;
     }
@@ -214,7 +213,7 @@ public:
     }
 
     bool isValid() const {
-        return m_entity != 0 && m_componentID != 0 && m_es != nullptr && m_component != nullptr;
+        return m_entity != 0 && m_componentID != 0 && m_component != nullptr;
     }
 
     ComponentHandle getComponentID() const {
@@ -232,7 +231,6 @@ public:
 private:
     EntityHandle m_entity;
     ComponentHandle m_componentID;
-    EntitySystem* m_es;
     CompClass* m_component;
 };
 
