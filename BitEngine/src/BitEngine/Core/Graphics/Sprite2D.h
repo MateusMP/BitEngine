@@ -46,7 +46,7 @@ public:
     }
 
     void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override {
-        componentDestroyedSignal.emit(MsgComponentDestroyed<Sprite2DComponent>(entity, Sprite2DComponent::getComponentType(), component));
+        componentDestroyedSignal.emit(MsgComponentDestroyed<Sprite2DComponent>{entity, component});
     }
 
     template<typename ... Args>

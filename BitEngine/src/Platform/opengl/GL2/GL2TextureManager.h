@@ -12,122 +12,103 @@
 
 namespace BitEngine
 {
-    class DevResourceLoader;
+class DevResourceLoader;
 
-    class GL2Texture : public BitEngine::Texture
+class GL2Texture : public BitEngine::Texture
+{
+    friend class GL2TextureManager;
+    friend class RawTextureLoader;
+    friend class UploadToGPU;
+
+public:
+    GL2Texture()
+        : Texture(nullptr), m_loaded(TextureLoadState::NOT_LOADED)
+    {}
+
+    GL2Texture(ResourceMeta* meta)
+        : Texture(meta), m_loaded(TextureLoadState::NOT_LOADED)
     {
-        friend class GL2TextureManager;
-        friend class RawTextureLoader;
+        m_textureID = 0;
+        m_textureType = 0;
+    }
 
-    public:
-        struct StbiImageData {
-            StbiImageData()
-                : pixelData(nullptr), width(0), height(0), color(0)
-            {}
-            int width;
-            int height;
-            int color;
-            void* pixelData;
-        };
+    inline u32 getTextureID() const override { return m_textureID; }
+    inline u32 getTextureType() const override { return m_textureType; }
 
-        GL2Texture()
-            : Texture(nullptr), m_loaded(TextureLoadState::NOT_LOADED)
-        {}
 
-        GL2Texture(ResourceMeta* meta)
-            : Texture(meta), m_loaded(TextureLoadState::NOT_LOADED)
-        {
-            m_textureID = 0;
-            m_textureType = 0;
-        }
+protected:
+    GLuint m_textureID;
+    GLuint m_textureType;
 
-        inline u32 getTextureID() const override { return m_textureID; }
-        inline u32 getTextureType() const override { return m_textureType; }
-
-        // Aproximate memory use in ram in bytes
-        u32 getUsingRamMemory()
-        {
-            if (imgData.pixelData) {
-                return getUsingGPUMemory();
-            }
-
-            return 0;
-        }
-
-        // Aproximate memory use in gpu in bytes
-        u32 getUsingGPUMemory() {
-            return imgData.width*imgData.height * imgData.color;
-        }
-
-    protected:
-        GLuint m_textureID;
-        GLuint m_textureType;
-
-        StbiImageData imgData;
-
-        enum class TextureLoadState {
-            NOT_LOADED,
-            LOADING,
-            LOADED,
-        };
-
-        TextureLoadState m_loaded; // true if the texture is in an usable state (loaded in the gpu)
-
+    enum class TextureLoadState {
+        NOT_LOADED,
+        LOADING,
+        LOADED,
     };
 
-    class GL2TextureManager : public BitEngine::ResourceManager
-    {
-    public:
-        GL2TextureManager(TaskManager* taskManager);
-        ~GL2TextureManager();
+    TextureLoadState m_loaded; // true if the texture is in an usable state (loaded in the gpu)
 
-        bool init() override;
+};
 
-        // Load textures that are ready to be sent to the GPU
-        void update() override;
+class GL2TextureManager : public BitEngine::ResourceManager
+{
+public:
+    GL2TextureManager(TaskManager* taskManager);
+    ~GL2TextureManager();
 
-        void shutdown() override;
+    bool init() override;
 
-        void setResourceLoader(ResourceLoader* loader) override {
-            this->loader = loader;
-        }
+    // Load textures that are ready to be sent to the GPU
+    void update() override;
 
-        BaseResource* loadResource(ResourceMeta* base, PropertyHolder* props) override;
+    void shutdown() override;
 
-        ptrsize getCurrentRamUsage() const override {
-            return ramInUse;
-        }
+    void setResourceLoader(ResourceLoader* loader) override {
+        this->loader = loader;
+    }
 
-        u32 getCurrentGPUMemoryUsage() const override {
-            return gpuMemInUse;
-        }
+    BaseResource* loadResource(ResourceMeta* base, PropertyHolder* props) override;
 
-        void uploadToGPU(GL2Texture* texture);
+    ptrsize getCurrentRamUsage() const override {
+        return ramInUse;
+    }
 
-    private:
-        static GLuint GenerateErrorTexture();
+    u32 getCurrentGPUMemoryUsage() const override {
+        return gpuMemInUse;
+    }
 
-        void releaseDriverData(GL2Texture* texture);
+    TaskManager* getTaskManager() {
+        return taskManager;
+    }
 
-        void resourceNotInUse(ResourceMeta* base) override;
-        void reloadResource(BaseResource* resource) override;
-        void resourceRelease(ResourceMeta* base) override;
+    void addGpuUsage(s32 s) {
+        gpuMemInUse += s;
+    }
+    void addRamUsage(s32 s) {
+        ramInUse += s;
+    }
 
-        void loadTexture2D(const GL2Texture::StbiImageData& data, GL2Texture& texture);
-        void releaseStbiRawData(GL2Texture* texture);
-        void scheduleLoadingTasks(ResourceMeta* meta, GL2Texture* texture);
+private:
+    static GLuint GenerateErrorTexture();
 
-        void releaseTexture(GL2Texture* texture);
+    void releaseDriverData(GL2Texture* texture);
 
-        // Members
-        TaskManager* taskManager;
-        ResourceLoader* loader;
-        ResourceIndexer<GL2Texture, 1024> textures;
-        ThreadSafeQueue<GL2Texture*> rawData; // raw data loaded and waiting to be sent to gpu
-        GL2Texture* errorTexture;
+    void resourceNotInUse(ResourceMeta* base) override;
+    void reloadResource(BaseResource* resource) override;
+    void resourceRelease(ResourceMeta* base) override;
 
-        ptrsize ramInUse;
-        u32 gpuMemInUse;
-    };
+    void scheduleLoadingTasks(ResourceMeta* meta, GL2Texture* texture);
+
+    void releaseTexture(GL2Texture* texture);
+
+    // Members
+    TaskManager* taskManager;
+    ResourceLoader* loader;
+    ResourceIndexer<GL2Texture, 1024> textures;
+    GL2Texture* errorTexture;
+
+    ptrsize ramInUse;
+    u32 gpuMemInUse;
+};
 
 }

@@ -41,7 +41,162 @@ GLuint GL2TextureManager::GenerateErrorTexture()
 }
 
 //
+struct StbiImageData {
+    StbiImageData()
+        : pixelData(nullptr), width(0), height(0), color(0)
+    {}
+    int width;
+    int height;
+    int color;
+    void* pixelData;
+};
 
+void releaseStbiData(StbiImageData& data) {
+    stbi_image_free(data.pixelData);
+    data.pixelData = nullptr;
+}
+
+class UploadToGPU : public Task {
+public:
+    UploadToGPU(GL2TextureManager* tm, GL2Texture* tex, StbiImageData data)
+        : Task(Task::TaskMode::REPEATING, Task::Affinity::MAIN),
+        state(UploadState::CREATE_BUFFERS), textureManager(tm), texture(tex), pbo(0), storage(0), imageData(data)
+    {
+
+    }
+
+    void run() override {
+        const u32 size = imageData.width*imageData.height*imageData.color;
+        switch (state) {
+        case UploadState::CREATE_BUFFERS: // On Main thread
+            if (texture->m_textureID == 0) {
+                glGenTextures(1, &texture->m_textureID);
+                glBindTexture(GL_TEXTURE_2D, texture->m_textureID);
+                GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
+                GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+                GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+                GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+                GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, imageData.width, imageData.height, 0, stbiColorToGLEnum(imageData.color), GL_UNSIGNED_BYTE, NULL);
+                GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+            }
+            glGenBuffers(1, &pbo);
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
+            GL_CHECK(glBufferData(GL_PIXEL_UNPACK_BUFFER, size, NULL, GL_STREAM_DRAW));
+            GL_CHECK(storage = (GLubyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY));
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+            state = UploadState::COPYING_DATA;
+            setAffinity(Task::Affinity::BACKGROUND); // Next time will be executed as a background task
+            textureManager->addRamUsage(size);
+            break;
+
+        case UploadState::COPYING_DATA:
+            // Copy data to buffer in background
+            for (u32 i = 0; i < size; ++i) {
+                storage[i] = ((u8*)imageData.pixelData)[i];
+            }
+            state = UploadState::FINISHING;
+            releaseStbiData(imageData);
+            setAffinity(Task::Affinity::MAIN);
+            break;
+        case UploadState::FINISHING: // ON Main thread
+            textureManager->addRamUsage(-size); // We wait until we're on main thread to avoid concurrency issues
+            bindTextureDataUsingPBO();
+            stopRepeating();
+            textureManager->addGpuUsage(size); // TODO: Reduce gpu usage on unload.
+            break;
+        }
+    }
+
+private:
+    GLenum stbiColorToGLEnum(int color) {
+        switch (color) {
+        case 1:   return GL_RED;
+        case 2:   return GL_RG;
+        case 3:   return GL_RGB;
+        case 4:   return GL_RGBA;
+        }
+    }
+
+    void syncLoadTexture2D(const StbiImageData& data, GL2Texture& texture)
+    {
+        LOG_FUNCTION_TIME(BitEngine::EngineLog);
+
+        GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.m_textureID));
+        if (data.color == 1)
+        {
+            GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RED, GL_UNSIGNED_BYTE, data.pixelData));
+        }
+        else if (data.color == 2)
+        {
+            GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RG, GL_UNSIGNED_BYTE, data.pixelData));
+        }
+        else if (data.color == 3) // RGB
+        {
+            GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.pixelData));
+        }
+        else if (data.color == 4) // RGBA
+        {
+            GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.pixelData));
+        }
+        else {
+            LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "LoadTexture: Unknow color " << data.color;
+        }
+
+        // Setup texture obj
+        texture.m_textureType = GL_TEXTURE_2D;
+        texture.m_loaded = GL2Texture::TextureLoadState::LOADED;
+    }
+
+    void bindTextureDataUsingPBO()
+    {
+        glBindTexture(GL_TEXTURE_2D, texture->m_textureID);
+        GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo));
+        GL_CHECK(glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER));
+
+        if (imageData.color == 1)
+        {
+            GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imageData.width, imageData.height, GL_RED, GL_UNSIGNED_BYTE, NULL));
+        }
+        else if (imageData.color == 2)
+        {
+            GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imageData.width, imageData.height, GL_RG, GL_UNSIGNED_BYTE, NULL));
+        }
+        else if (imageData.color == 3) // RGB
+        {
+            GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imageData.width, imageData.height, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+        }
+        else if (imageData.color == 4) // RGBA
+        {
+            GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imageData.width, imageData.height, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+        }
+        else {
+            LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "LoadTexture: Unknow color " << imageData.color;
+        }
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        texture->m_textureType = GL_TEXTURE_2D;
+        texture->m_loaded = GL2Texture::TextureLoadState::LOADED;
+    }
+
+
+private:
+    enum class UploadState {
+        CREATE_BUFFERS,
+        COPYING_DATA,
+        FINISHING,
+    };
+    UploadState state;
+    GL2TextureManager* textureManager;
+    GL2Texture* texture;
+    GLuint pbo;
+    GLubyte* storage;
+    StbiImageData imageData;
+
+};
+
+// TODO: Possibly merge this with above task as a new state?
 class RawTextureLoader : public Task
 {
 public:
@@ -55,14 +210,14 @@ public:
         LOG_SCOPE_TIME(BitEngine::EngineLog, "Texture load");
 
         ResourceLoader::DataRequest& dr = textureData->getData();
-
         if (dr.isLoaded())
         {
-            texture->imgData.pixelData = stbi_load_from_memory((unsigned char*)dr.data, dr.size, &texture->imgData.width, &texture->imgData.height, &texture->imgData.color, 0);
+            StbiImageData imgData;
+            imgData.pixelData = stbi_load_from_memory((unsigned char*)dr.data, dr.size, &imgData.width, &imgData.height, &imgData.color, 0);
 
-            if (texture->imgData.pixelData != nullptr) {
-                LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << texture->getMeta()->getNameId() << " w: " << texture->imgData.width << " h: " << texture->imgData.height;
-                manager->uploadToGPU(texture);
+            if (imgData.pixelData != nullptr) {
+                LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << texture->getMeta()->getNameId() << " w: " << imgData.width << " h: " << imgData.height;
+                manager->getTaskManager()->addTask(std::make_shared<UploadToGPU>(manager, texture, imgData));
             }
             else
             {
@@ -143,45 +298,12 @@ void GL2TextureManager::releaseDriverData(GL2Texture* texture)
         glDeleteTextures(1, &texture->m_textureID);
         texture->m_textureID = errorTexture->m_textureID;
         texture->m_loaded = GL2Texture::TextureLoadState::NOT_LOADED;
-        texture->imgData.color = 0;
-        texture->imgData.height = 0;
-        texture->imgData.width = 0;
     }
-}
-
-void GL2TextureManager::releaseStbiRawData(GL2Texture* texture)
-{
-    GL2Texture::StbiImageData& data = texture->imgData;
-    ramInUse -= texture->getUsingRamMemory();
-    stbi_image_free(data.pixelData);
-    data.pixelData = nullptr;
 }
 
 void GL2TextureManager::update()
 {
-    taskManager->verifyMainThread();
-    bool loadedSomething = false;
-    GL2Texture* loadTexture;
-    while (rawData.tryPop(loadTexture))
-    {
-        loadTexture2D(loadTexture->imgData, *loadTexture);
-        releaseStbiRawData(loadTexture);
-
-        LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << loadTexture->getResourceId() << "  RAM: " << BitEngine::BytesToMB(loadTexture->getUsingRamMemory()) << " MB - GPU Memory: " << BitEngine::BytesToMB(loadTexture->getUsingGPUMemory()) << " MB";
-
-        loadedSomething = true;
-    }
-
-    if (loadedSomething) {
-        gpuMemInUse = 0;
-        ramInUse = 0;
-        for (auto t : textures.getResources()) {
-            gpuMemInUse += t.getUsingGPUMemory();
-            ramInUse += t.getUsingRamMemory();
-        }
-
-        LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "TextureManager MEMORY: RAM: " << BitEngine::BytesToMB(getCurrentRamUsage()) << " MB - GPU Memory: " << BitEngine::BytesToMB(getCurrentGPUMemoryUsage()) << " MB";
-    }
+    // Do nothing
 }
 
 void GL2TextureManager::scheduleLoadingTasks(ResourceMeta* meta, GL2Texture* texture)
@@ -249,65 +371,8 @@ void GL2TextureManager::resourceRelease(ResourceMeta* meta)
 
 void GL2TextureManager::releaseTexture(GL2Texture* texture)
 {
-    this->gpuMemInUse -= texture->getUsingGPUMemory();
     releaseDriverData(texture);
 }
 
-void GL2TextureManager::uploadToGPU(GL2Texture* texture)
-{
-    rawData.push(texture);
-}
-
-void GL2TextureManager::loadTexture2D(const GL2Texture::StbiImageData& data, GL2Texture& texture)
-{
-    GLuint textureID = 0;
-
-    if (texture.m_loaded == GL2Texture::TextureLoadState::LOADED)
-    {
-        // Use the same GL index
-        textureID = texture.m_textureID;
-    }
-    else
-    {
-        // If the texture is not yet loaded, we need to generate a new gl texture
-        GL_CHECK(glGenTextures(1, &textureID));
-    }
-
-    GL_CHECK(glBindTexture(GL_TEXTURE_2D, textureID));
-    if (data.color == 1)
-    {
-        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RED, GL_UNSIGNED_BYTE, data.pixelData));
-        LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "GRAYSCALE TEXTURE!";
-    }
-    else if (data.color == 2)
-    {
-        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RG, GL_UNSIGNED_BYTE, data.pixelData));
-        LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "GRAYSCALE ALPHA TEXTURE!";
-    }
-    else if (data.color == 3) // RGB
-    {
-        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, data.width, data.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.pixelData));
-    }
-    else if (data.color == 4) // RGBA
-    {
-        GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, data.width, data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.pixelData));
-    }
-    else {
-        LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "LoadTexture: Unknow color " << data.color;
-    }
-
-    // MIPMAPS
-    GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
-    GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-    GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-    GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-    GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
-
-    // Create final texture object
-    texture.m_textureID = textureID;
-    texture.m_textureType = GL_TEXTURE_2D;
-    texture.m_loaded = GL2Texture::TextureLoadState::LOADED;
-}
 
 }

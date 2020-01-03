@@ -100,6 +100,11 @@ public:
         flags = TaskMode(enum_value(flags) & !enum_value(TaskMode::REPEATING));
     }
 
+protected:
+    void setAffinity(Affinity a) {
+        affinity = a;
+    }
+
 private:
     virtual void run() = 0;
 
