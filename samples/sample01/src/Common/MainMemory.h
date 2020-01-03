@@ -62,7 +62,7 @@ public:
     RenderCommand* getCommands() {
         return (RenderCommand*)arena.base;
     }
-    u32 getCommandsCount() {
+    ptrsize getCommandsCount() {
         return arena.used / sizeof(RenderCommand);
     }
 

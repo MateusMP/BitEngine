@@ -70,6 +70,9 @@ TaskPtr TaskWorker::nextTask()
         if (m_affinity == Task::Affinity::BACKGROUND) {
             u32 threadTest = m_threadId++;
             while (threadTest != m_threadId) {
+                if (threadTest == 0) {
+                    ++threadTest;
+                }
                 TaskWorker* worker = m_manager->getWorker(threadTest);
                 if (worker->m_affinity == Task::Affinity::BACKGROUND && worker->m_taskQueue.tryPop(newTask)) {
                     return newTask;
@@ -107,9 +110,10 @@ GeneralTaskManager::GeneralTaskManager()
 
 void GeneralTaskManager::init()
 {
-    const int nThreads = 2;//std::thread::hardware_concurrency() + 1;
+    const int nThreads = 4;//std::thread::hardware_concurrency() + 1;
+    m_totalWorkers = nThreads;
 
-    workers.resize(nThreads);
+    workers.resize(m_totalWorkers);
     LOG(EngineLog, BE_LOG_INFO) << "Task manager initializing " << nThreads << " threads";
 
     for (int i = 0; i < nThreads; ++i)
@@ -117,6 +121,7 @@ void GeneralTaskManager::init()
         workers[i] = new TaskWorker(this, Task::Affinity::BACKGROUND, i);
     }
 
+    // Worker 0 is used for main tasks only
     for (int i = 1; i < nThreads; ++i)
     {
         workers[i]->start();
@@ -182,8 +187,10 @@ void GeneralTaskManager::addTask(TaskPtr task)
         workers[0]->m_taskQueue.push(task);
     }
     else {
-        int at = rand();
-        getWorker(at)->m_taskQueue.push(task);
+        m_pushCycle = ((m_pushCycle + 1) % (m_totalWorkers-1));
+        int at = 1 + m_pushCycle;
+        BE_ASSERT(at > 0 && at < m_totalWorkers);
+        workers[at]->m_taskQueue.push(task);
         //LOG(EngineLog, BE_LOG_VERBOSE) << "pushed: " << task << " to " << getWorker(at);
     }
 }

@@ -48,7 +48,7 @@ class GeneralTaskManager : public TaskManager
 {
 public:
     GeneralTaskManager();
-    ~GeneralTaskManager() {}
+    ~GeneralTaskManager() { shutdown(); }
 
     void init() override;
     void update() override;
@@ -77,9 +77,12 @@ private:
 
     u32 clampToWorkers(u32 value);
 
+
     std::vector<TaskWorker*> workers;
 
     u32 requiredTasksFrame;
+    u32 m_totalWorkers;
+    u32 m_pushCycle;
 
     std::mutex addTaskMutex;
     std::mutex nextFrameTasksMutex;

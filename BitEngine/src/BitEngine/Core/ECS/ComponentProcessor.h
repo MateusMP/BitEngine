@@ -16,42 +16,24 @@ template<typename CompClass> class ComponentRef;
 template<typename CompClass>
 struct BE_API MsgComponentCreated
 {
-public:
-    MsgComponentCreated(EntityHandle entity_, ComponentType componentType_, ComponentHandle component_)
-        : entity(entity_), componentType(componentType_), component(component_) {}
-
     EntityHandle entity;
-    ComponentType componentType;
     ComponentHandle component;
 };
 
 template<typename CompClass>
 struct BE_API MsgComponentDestroyed
 {
-public:
-    MsgComponentDestroyed(EntityHandle entity_, ComponentType componentType_, ComponentHandle component_)
-        : entity(entity_), componentType(componentType_), component(component_) {}
-
     EntityHandle entity;
-    ComponentType componentType;
     ComponentHandle component;
 };
 
 struct BE_API MsgEntityCreated
 {
-public:
-    MsgEntityCreated(EntityHandle entity_)
-        : entity(entity_) {}
-
     EntityHandle entity;
 };
 
 struct BE_API MsgEntityDestroyed
 {
-public:
-    MsgEntityDestroyed(EntityHandle entity_)
-        : entity(entity_) {}
-
     EntityHandle entity;
 };
 
@@ -187,7 +169,7 @@ protected:
     }
 
     void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override {
-        componentDestroyedSignal.emit(MsgComponentDestroyed<CompClass>(entity, CompClass::getComponentType(), component));
+        componentDestroyedSignal.emit(MsgComponentDestroyed<CompClass>{entity, component});
     }
 };
 

@@ -17,7 +17,7 @@ public:
     {}
 
     void* data;
-    u32 size;
+    ptrsize size;
     bool ready;
 };
 

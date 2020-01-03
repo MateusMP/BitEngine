@@ -156,7 +156,7 @@ public:
             ComponentHolder<CompClass>* holder = getHolder<CompClass>();
             compID = holder->createComponent(entity, comp);
             holder->initializeComponent(comp, args...);
-            holder->componentCreatedSignal.emit(MsgComponentCreated<CompClass>(entity, type, compID));
+            holder->componentCreatedSignal.emit(MsgComponentCreated<CompClass>{entity, compID});
         }
 
         return ComponentRef<CompClass>(entity, compID, this, comp);

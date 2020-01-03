@@ -20,13 +20,14 @@ public:
     struct BE_API MsgCommandInput
     {
     public:
+        MsgCommandInput() { action.other = 0; }
         MsgCommandInput(int _id, float _intensity, int _other);
         MsgCommandInput(int _id, float _intensity, KeyAction _other);
         MsgCommandInput(int _id, float _intensity, MouseAction _other, double x, double y);
         MsgCommandInput(int _id, float _intensity);
 
-        const int commandID; // The registered command id
-        const float intensity; // If it was an analogic input
+        int commandID; // The registered command id
+        float intensity; // If it was an analogic input
         double mouse_x; // Invalid unless Mouse input was used
         double mouse_y; // Invalid unless Mouse input was used
 

@@ -8,12 +8,14 @@
 #include <typeindex>
 #include <cstring>
 
+#include "BitEngine/Common/Vector.h"
+
 #include "BitEngine/Core/Assert.h"
 #include "BitEngine/Common/TypeDefinition.h"
 
 namespace BitEngine {
 
-template<typename EventType>
+template<typename EventType, ptrsize MaxSubs = 4, ptrsize MaxQueued = 4>
 class BE_API Messenger : public NonCopyable, NonAssignable
 {
 private:
@@ -29,12 +31,12 @@ private:
 public:
 
     Messenger() : handles(0) {
-        m_subscribers.reserve(32);
     }
 
     template<typename Handler>
     SubsHandle subscribe(member_func_t<Handler> func, Handler* handler) {
-        return _subscribe<Handler>(func, handler);
+        auto f = [handler, func](const EventType& ev) -> void { (handler->*func)(ev); };
+        return subscribe(f);
     }
 
     /**
@@ -43,7 +45,7 @@ public:
     */
     SubsHandle subscribe(call_type callable) {
         SubsHandle handle = ++handles;
-        m_subscribers.emplace_back(CallbackWrapper(callable), handle);
+        m_subscribers.emplace_back(callback_handle{ CallbackWrapper(callable), handle });
         return handle;
     }
 
@@ -68,8 +70,7 @@ public:
     /**
     * Emit a message that is deferred until a dispatch() call.
     */
-    void enqueue(const EventType& event)
-    {
+    void enqueue(const EventType& event) {
         m_enqueuedEventData.emplace_back(event)
     }
 
@@ -77,34 +78,19 @@ public:
     * Dispatch all enqueued messages in the order that they were enqueued.
     */
     void dispatch() {
-        m_enqueuedEventDataBuffer.swap(m_enqueuedEventData);
-
-        for (const EventType& data : m_enqueuedEventDataBuffer) {
-            for (auto& receiver : m_subscribers) {
-                receiver.callback(data);
-            }
+        for (const EventType& data : m_enqueuedEventData) {
+            emit(data);
         }
-        m_enqueuedEventDataBuffer.clear();
     }
 
 private:
-
-    template<typename Handler>
-    SubsHandle _subscribe(member_func_t<Handler> func, Handler* handler) {
-        auto f = [handler, func](const EventType& ev) -> void { (handler->*func)(ev); };
-        return subscribe(f);
-    }
-
     struct callback_handle {
-        callback_handle(call_type c, SubsHandle h) : callback(c), handle(h) {
-        }
         call_type callback;
         SubsHandle handle;
     };
 
-    std::vector< callback_handle > m_subscribers;
-    std::vector<EventType> m_enqueuedEventData;
-    std::vector<EventType> m_enqueuedEventDataBuffer;
+    TightFixedVector<callback_handle, MaxSubs> m_subscribers;
+    TightFixedVector<EventType, MaxQueued> m_enqueuedEventData;
     u32 handles;
 
     struct CallbackWrapper
