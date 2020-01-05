@@ -62,16 +62,16 @@ public:
         : Task(Task::TaskMode::REPEATING, Task::Affinity::MAIN),
         state(UploadState::CREATE_BUFFERS), textureManager(tm), texture(tex), pbo(0), storage(0), imageData(data)
     {
-
+        textureID = tex->m_textureID;
     }
 
     void run() override {
         const u32 size = imageData.width*imageData.height*imageData.color;
         switch (state) {
         case UploadState::CREATE_BUFFERS: // On Main thread
-            if (texture->m_textureID == 0) {
-                glGenTextures(1, &texture->m_textureID);
-                glBindTexture(GL_TEXTURE_2D, texture->m_textureID);
+            if (texture->m_textureID == textureManager->getErrorTexture()->m_textureID) {
+                glGenTextures(1, &textureID);
+                glBindTexture(GL_TEXTURE_2D, textureID);
                 GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
                 GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
                 GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
@@ -151,7 +151,7 @@ private:
 
     void bindTextureDataUsingPBO()
     {
-        glBindTexture(GL_TEXTURE_2D, texture->m_textureID);
+        glBindTexture(GL_TEXTURE_2D, textureID);
         GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo));
         GL_CHECK(glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER));
 
@@ -179,6 +179,7 @@ private:
 
         texture->m_textureType = GL_TEXTURE_2D;
         texture->m_loaded = GL2Texture::TextureLoadState::LOADED;
+        texture->m_textureID = textureID; // We might have created the id or used the same depending on the texture state
     }
 
 
@@ -194,6 +195,7 @@ private:
     GLuint pbo;
     GLubyte* storage;
     StbiImageData imageData;
+    GLuint textureID;
 
 };
 
@@ -328,6 +330,7 @@ BaseResource* GL2TextureManager::loadResource(ResourceMeta* meta, PropertyHolder
 
         // Reconstruct in place, giving it the meta
         new (texture)GL2Texture(meta);
+        texture->m_textureID = errorTexture->m_textureID;
 
         // Make new load request
         scheduleLoadingTasks(meta, texture);

@@ -91,6 +91,8 @@ void gameExecute(MainMemory& gameMemory) {
     memset(renderArena.base, 0, renderArena.size);
     RenderQueue renderQueue(renderArena);
 
+    GLRenderer renderer;
+
     gameMemory.loader = &loader;
     gameMemory.videoSystem = &video;
     gameMemory.window = main_window;
@@ -107,6 +109,8 @@ void gameExecute(MainMemory& gameMemory) {
         resourceManagerMenu("Shader Manager", &shaderManager);
     };
     imgui.subscribe(imguiMenu);
+
+    bool rendererReady = false;
     
     {
         MyGame* game = new MyGame(&gameMemory);
@@ -122,12 +126,20 @@ void gameExecute(MainMemory& gameMemory) {
 
             running = game->update();
             
-            render(gameMemory.renderQueue);
-            renderQueue.clear();
+            if (running) {
+                if (!rendererReady) {
+                    // TODO: Clean this up, maybe have a platform index loaded previously so we can
+                    // TODO: call init right after?
+                    renderer.init(&loader);
+                    rendererReady = true;
+                }
+                renderer.render(gameMemory.renderQueue);
+                renderQueue.clear();
 
-            imgui.update();
+                imgui.update();
 
-            main_window->drawEnd();
+                main_window->drawEnd();
+            }
         }
         delete game;
     }

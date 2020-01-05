@@ -2,6 +2,9 @@
 os.execute("cp BitEngine/dependencies/glfw.lua BitEngine/dependencies/glfw/premake5.lua")
 os.execute("cp BitEngine/dependencies/json.lua BitEngine/dependencies/json/premake5.lua")
 os.execute("cp BitEngine/dependencies/assimp.lua BitEngine/dependencies/assimp/premake5.lua")
+os.execute("cp BitEngine/dependencies/assimp_config.h BitEngine/dependencies/assimp/include/assimp/config.h")
+os.execute("cp BitEngine/dependencies/assimp_revision.h BitEngine/dependencies/assimp/include/revision.h")
+os.execute("cp BitEngine/dependencies/assimp/contrib/zlib/zconf.h.in BitEngine/dependencies/assimp/contrib/zlib/zconf.h")
 os.execute("cp BitEngine/dependencies/imgui.lua BitEngine/dependencies/imgui/premake5.lua")
 
 workspace "BitEngine"

@@ -88,6 +88,10 @@ public:
         ramInUse += s;
     }
 
+    GL2Texture* getErrorTexture() {
+        return errorTexture;
+    }
+
 private:
     static GLuint GenerateErrorTexture();
 
