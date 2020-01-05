@@ -77,7 +77,7 @@ public:
                 GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
                 GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
                 GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, imageData.width, imageData.height, 0, stbiColorToGLEnum(imageData.color), GL_UNSIGNED_BYTE, NULL);
+                GL_CHECK(glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, imageData.width, imageData.height));
                 GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
             }
             glGenBuffers(1, &pbo);
@@ -92,9 +92,7 @@ public:
 
         case UploadState::COPYING_DATA:
             // Copy data to buffer in background
-            for (u32 i = 0; i < size; ++i) {
-                storage[i] = ((u8*)imageData.pixelData)[i];
-            }
+            std::memcpy(storage, imageData.pixelData, size);
             state = UploadState::FINISHING;
             releaseStbiData(imageData);
             setAffinity(Task::Affinity::MAIN);
