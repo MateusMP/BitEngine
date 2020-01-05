@@ -1,0 +1,141 @@
+{
+"availableTypes": ["TEXTURE", "SHADER_SOURCE", "SHADER", "SPRITE"],
+"data": {		
+		"shaders": [
+			{
+				"name": "sprite2Dshader",
+				"type": "SHADER",
+				"gl4": { 
+					"vertex": "data/shaders/sprite2D/gl2vtx", 
+					"fragment": "data/shaders/sprite2D/gl2fgt",
+					"definition": [
+						{
+							"mode": "VERTEX",
+							"instanced": 0,
+							"defs": [
+								{"name": "position", "data": "VEC2", "size": 1},
+								{"name": "textureUV", "data": "VEC4", "size": 1},
+								{"name": "modelMatrix", "data": "MAT4", "size": 1}
+							]
+						},
+						{
+							"mode": "UNIFORM",
+							"instanced": 0,
+							"defs": [
+								{"name": "viewMatrix", "data": "MAT4", "size": 1}
+							]
+						},
+						{
+							"mode": "UNIFORM",
+							"instanced": 1,
+							"defs": [
+								{"name": "texDiffuse", "data": "TEXTURE_2D", "size": 1}
+							]
+						}
+					]
+				},
+				"gl2": { 
+					"vertex": "data/shaders/sprite2D/gl2vtx", 
+					"fragment": "data/shaders/sprite2D/gl2fgt",
+					"definition": {
+						"vertex": [
+							{
+								"mode": "VERTEX",
+								"instanced": 0,
+								"definitionData": [
+									{"name": "position", "type": "VEC2", "size": 1},
+									{"name": "textureUV", "type": "VEC2", "size": 1}
+								]
+							},
+							{
+								"mode": "VERTEX",
+								"instanced": 1,
+								"definitionData": [
+									{"name": "modelMatrix", "type": "MAT4", "size": 1}
+								]
+							}
+						],
+						"uniform": [
+							{
+								"mode": "UNIFORM",
+								"instanced": 0,
+								"definitionData": [
+									{"name": "viewMatrix", "type": "MAT4", "size": 1}
+								]
+							},
+							{
+								"mode": "UNIFORM",
+								"instanced": 0,
+								"definitionData": [
+									{"name": "texDiffuse", "type": "TEXTURE_2D", "size": 1}
+								]
+							}
+						]
+					}
+				}
+			},
+			{
+				"name": "sprite2D/gl2vtx",
+				"type": "FILE",
+				"filePath" : "shaders/sprite2D/gl2.vtx"
+			},
+			{
+				"name": "sprite2D/gl2fgt",
+				"type": "FILE",
+				"filePath" : "shaders/sprite2D/gl2.fgt"
+			}
+		],
+		
+		"sprites": [
+			{
+				"name": "texture.png",
+				"type": "TEXTURE",
+				"filePath" : "sprites/texture.png"
+			},
+			{
+				"name": "sun.png",
+				"type": "TEXTURE",
+				"filePath" : "sprites/sun.png"
+			},
+			{
+				"name": "spr_skybox",
+				"type": "SPRITE",
+				"sprite": {
+					"texture": "data/sprites/texture.png",
+					"width": 128,
+					"height": 128,
+					"offsetX": 0.5,
+					"offsetY": 0.5,
+					"uvrect": [0, 0, 1, 1],
+					"transparent": 0
+				}
+			},
+			{
+				"name": "spr_skybox_orbit",
+				"type": "SPRITE",
+				"sprite": {
+					"texture": "data/sprites/texture.png",
+					"width": 64,
+					"height": 64,
+					"offsetX": 0.5,
+					"offsetY": 0.5,
+					"uvrect": [0, 0, 1, 1],
+					"transparent": 0
+				}
+			},
+			{
+				"name": "spr_skybox_piece",
+				"type": "SPRITE",
+				"sprite": {
+					"texture": "data/sprites/sun.png",
+					"width": 256,
+					"height": 256,
+					"offsetX": 0.5,
+					"offsetY": 0.5,
+					"uvrect": [0, 0, 1, 1],
+					"transparent": 1
+				}
+			}
+		]
+	}
+}

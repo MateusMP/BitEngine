@@ -1,0 +1,27 @@
+#version 150
+
+in vec4 a_textureUV;
+in mat4 a_modelMatrix;
+
+out vec2 fragTextureCoord;
+
+uniform mat4 u_viewMatrix;
+
+const vec3 vertex_pos[4] = {
+    vec3(0.0f, 0.0f, 0.0f),
+    vec3(1.0f, 0.0f, 0.0f),
+    vec3(0.0f, 1.0f, 0.0f),
+    vec3(1.0f, 1.0f, 0.0f)
+};
+
+const int index[6*2] = { 0,1, 2,1, 0,3, 
+				   0,1, 2,1, 0,3 };
+
+void main()
+{
+	gl_Position.xyz = (u_viewMatrix  * a_modelMatrix * vec4(vertex_pos[gl_InstanceID], 1.0f)).xyz;
+	gl_Position.w = 1.0;
+	
+	fragTextureCoord.x = a_textureUV[ index[gl_VertexID*2] ];
+	fragTextureCoord.x = a_textureUV[ index[gl_VertexID*2+1] ];
+}

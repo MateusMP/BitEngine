@@ -1,25 +1,19 @@
 
 [submodule "dependencies/glm"]
-	path = dependencies/glm
+	path = BitEngine/dependencies/glm
 	url = https://github.com/g-truc/glm.git
 [submodule "dependencies/json"]
-	path = dependencies/json
+	path = BitEngine/dependencies/json
 	url = https://github.com/nlohmann/json.git
-[submodule "dependencies/gl3w"]
-	path = dependencies/gl3w
-	url = https://github.com/skaslev/gl3w.git
 [submodule "dependencies/glfw"]
-	path = dependencies/glfw
+	path = BitEngine/dependencies/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "dependencies/googletest"]
-	path = dependencies/googletest
-	url = https://github.com/google/googletest.git
 [submodule "dependencies/stb"]
-	path = dependencies/stb
+	path = BitEngine/dependencies/stb
 	url = https://github.com/nothings/stb.git
 [submodule "dependencies/assimp"]
-	path = dependencies/assimp
+	path = BitEngine/dependencies/assimp
 	url = https://github.com/assimp/assimp.git
-[submodule "dependencies/Wink-Signals"]
-	path = dependencies/Wink-Signals
-	url = https://github.com/miguelmartin75/Wink-Signals.git
+[submodule "dependencies/imgui"]
+	path = BitEngine/dependencies/imgui
+	url = https://github.com/ocornut/imgui.git
