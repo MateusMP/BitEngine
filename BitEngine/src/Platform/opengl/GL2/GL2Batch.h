@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "OpenGL2.h"
+#include "Platform/opengl/GL2/OpenGL2.h"
 
 namespace BitEngine
 {

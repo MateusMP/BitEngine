@@ -25,7 +25,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["GLFW"] = "BitEngine/dependencies/glfw/include"
-IncludeDir["GLEW"] = "BitEngine/dependencies/glew-2.1.0/include"
+IncludeDir["GLAD"] = "BitEngine/dependencies/glad/include"
 IncludeDir["ImGui"] = "BitEngine/dependencies/imgui"
 IncludeDir["glm"] = "BitEngine/dependencies/glm"
 IncludeDir["json"] = "BitEngine/dependencies/json/include"
@@ -59,8 +59,8 @@ project "BitEngine"
 
 	files
 	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/src/BitEngine/**.h",
+		"%{prj.name}/src/BitEngine/**.cpp",
 		"%{prj.name}/BitEngine/dependencies/glm/glm/**.hpp",
         "%{prj.name}/BitEngine/dependencies/glm/glm/**.inl",
 		"%{prj.name}/BitEngine/dependencies/stb/src/stb_image.h",
@@ -75,7 +75,7 @@ project "BitEngine"
 	{
 		"%{prj.name}/src",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.GLEW}",
+		"%{IncludeDir.GLAD}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb}",
@@ -85,7 +85,6 @@ project "BitEngine"
 
 	links 
 	{ 
-		"BitEngine/dependencies/glew-2.1.0/lib/Release/x64/glew32s.lib",
 		"GLFW",
 		"ImGui",
 		"opengl32.lib"
@@ -97,7 +96,6 @@ project "BitEngine"
 		defines
 		{
 			"BE_PLATFORM_WINDOWS",
-			"GLEW_STATIC",
 			"GLFW_INCLUDE_NONE"
 		}
 
@@ -131,6 +129,11 @@ project "Sample01"
 	{
 		"samples/sample01/src/**.h",
 		"samples/sample01/src/**.cpp",
+		"BitEngine/src/Platform/glfw/**.cpp",
+		"BitEngine/src/Platform/glfw/**.h",
+		"BitEngine/src/Platform/opengl/**.cpp",
+		"BitEngine/src/Platform/opengl/**.h",
+		"BitEngine/dependencies/glad/src/glad.c",
 	}
 
 	includedirs
@@ -140,7 +143,7 @@ project "Sample01"
 		"%{IncludeDir.glm}",
 		"%{prj.name}/src",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.GLEW}",
+		"%{IncludeDir.GLAD}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb}",
@@ -197,6 +200,11 @@ project "Sample02"
 	{
 		"samples/sample01/src/**.h",
 		"samples/sample02/src/main.cpp",
+		"BitEngine/src/Platform/glfw/**.cpp",
+		"BitEngine/src/Platform/glfw/**.h",
+		"BitEngine/src/Platform/opengl/**.cpp",
+		"BitEngine/src/Platform/opengl/**.h",
+		"BitEngine/dependencies/glad/src/glad.c",
 	}
 	
 	dependson
@@ -213,7 +221,7 @@ project "Sample02"
 		"%{IncludeDir.glm}",
 		"%{prj.name}/src",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.GLEW}",
+		"%{IncludeDir.GLAD}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb}",
@@ -281,7 +289,7 @@ project "Sample02DLL"
 		"%{IncludeDir.glm}",
 		"%{prj.name}/src",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.GLEW}",
+		"%{IncludeDir.GLAD}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb}",

@@ -4,7 +4,8 @@
 
 #include "BitEngine/Core/Window.h"
 #include "BitEngine/Core/Messenger.h"
-#include "BitEngine/Core/Graphics/VideoDriver.h"
+
+#include "BitEngine/Core/Graphics/VideoRenderer.h"
 
 namespace BitEngine {
 
@@ -32,8 +33,7 @@ public:
     virtual void update() = 0;
     virtual void shutdown() = 0;
 
-    virtual u32 getVideoAdapter() = 0;
-    virtual VideoDriver* getDriver() = 0;
+    virtual VideoAdapterType getVideoAdapter() = 0;
 
     virtual Window* createWindow(const BitEngine::WindowConfiguration& wc) = 0;
 

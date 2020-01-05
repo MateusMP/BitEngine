@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "OpenGL_Headers.h"
+#include "Platform/opengl/OpenGL.h"
 
 #include "BitEngine/Common/TypeDefinition.h"
 #include "BitEngine/Core/Graphics/VideoRenderer.h"

@@ -191,6 +191,7 @@ int main(int argc, const char* argv[])
     };
     imgui.subscribe(imguiMenu);
 
+    GLRenderer renderer;
 
     // Load game code
     const char* gameDll = "Sample02DLL.dll";
@@ -201,6 +202,8 @@ int main(int argc, const char* argv[])
     game.setup(&gameMemory);
 
     int nticks = 200;
+
+    bool rendererReady = false;
 
     bool32 running = true;
     while (running) {
@@ -232,7 +235,14 @@ int main(int argc, const char* argv[])
         running = game.update(&gameMemory);
 
         if (running) {
-            render(gameMemory.renderQueue);
+            if (!rendererReady) {
+                // TODO: Clean this up, maybe have a platform index loaded previously so we can
+                // TODO: call init right after?
+                renderer.init(&loader);
+                rendererReady = true;
+            }
+
+            renderer.render(gameMemory.renderQueue);
             renderQueue.clear();
 
             imgui.update();

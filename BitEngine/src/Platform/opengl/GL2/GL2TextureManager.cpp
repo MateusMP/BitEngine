@@ -100,7 +100,7 @@ public:
             setAffinity(Task::Affinity::MAIN);
             break;
         case UploadState::FINISHING: // ON Main thread
-            textureManager->addRamUsage(-size); // We wait until we're on main thread to avoid concurrency issues
+            textureManager->addRamUsage(-(s32)size); // We wait until we're on main thread to avoid concurrency issues
             bindTextureDataUsingPBO();
             stopRepeating();
             textureManager->addGpuUsage(size); // TODO: Reduce gpu usage on unload.
@@ -116,6 +116,7 @@ private:
         case 3:   return GL_RGB;
         case 4:   return GL_RGBA;
         }
+        BE_INVALID_PATH("Bad color value");
     }
 
     void syncLoadTexture2D(const StbiImageData& data, GL2Texture& texture)

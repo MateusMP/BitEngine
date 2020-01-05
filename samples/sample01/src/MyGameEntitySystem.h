@@ -91,11 +91,11 @@ public:
 class MyGameEntitySystem : public MyComponentsRegistry
 {
 public:
-    MyGameEntitySystem(BitEngine::ResourceLoader* loader, BitEngine::MemoryArena* entityMemory, BitEngine::VideoDriver* videoDriver)
+    MyGameEntitySystem(BitEngine::ResourceLoader* loader, BitEngine::MemoryArena* entityMemory)
         : MyComponentsRegistry(),
         t2p(this), t3p(this),
         cam2Dprocessor(this, &t2p), cam3Dprocessor(this, &t3p),
-        rmp(this), glp(this), spr2D(this, loader, videoDriver), spinnerSys(this),
+        rmp(this), glp(this), spr2D(this, loader), spinnerSys(this),
         pcs(this)
     {
         using namespace BitEngine;
@@ -124,8 +124,6 @@ public:
         registerComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameEnd);
 
         registerComponentProcessor(0, &pcs, (ComponentProcessor::processFunc)&PlayerControlSystem::update);
-
-        registerComponentProcessor(0, &spr2D, (ComponentProcessor::processFunc)&Sprite2DRenderer::GenerateRenderData);
         //InitComponentProcessor(spr2D);
     }
 

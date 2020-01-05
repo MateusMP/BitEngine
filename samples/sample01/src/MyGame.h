@@ -119,7 +119,7 @@ public:
         mainMemory->taskManager->addTask(std::make_shared<UpdateTask>([loader] {loader->update(); }));
 
         // Init game state stuff
-        gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, &gameState->entityArena, mainMemory->videoSystem->getDriver());
+        gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, &gameState->entityArena);
         gameState->entitySystem->init();
 
         gameState->m_userGUI = permanentArena.push<UserGUI>(gameState->entitySystem);
@@ -247,22 +247,14 @@ public:
 
     void render()
     {
-        BitEngine::VideoDriver* driver = mainMemory->videoSystem->getDriver();
-        // driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.7f, 0.2f, 0.3f, 0.f));
-        driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.3f, 0.7f, 0.3f, 0.f));
-        driver->clearBuffer(nullptr, BitEngine::BufferClearBitMask::COLOR_DEPTH);
-
-        //gameState->entitySystem->sh3D.setActiveCamera(gameState->m_world->getActiveCamera());
-        //gameState->entitySystem->sh3D.Render();
-
+        mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0 });
         gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
-        // gameState->entitySystem->spr2D.Render(driver);
-        mainMemory->renderQueue->pushCommand(&gameState->entitySystem->spr2D);
+        mainMemory->renderQueue->pushCommand(gameState->entitySystem->spr2D.GenerateRenderData(), gameState->m_userGUI->getCamera()->getMatrix());
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)
     {
-        mainMemory->videoSystem->getDriver()->setViewPort(0, 0, ev.width, ev.height);
+        //mainMemory->videoSystem->getDriver()->setViewPort(0, 0, ev.width, ev.height);
     }
 
 private:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+#include "Platform/glfw/GLFW_Headers.h"
 
 #include "BitEngine/Core/Messenger.h"
 #include "BitEngine/Core/Window.h"

@@ -5,202 +5,202 @@
 #include "BitEngine/Core/Resources/PropertyHolder.h"
 
 namespace BitEngine {
-	
-	enum VideoAdapterType{
-		NONE,
-		OPENGL_2 = 1 << 1,
-		OPENGL_4 = 1 << 2,
 
-		VULKAN_1 = 1 << 3,
+enum VideoAdapterType {
+    NONE,
+    OPENGL_2 = 1 << 1,
+    OPENGL_4 = 1 << 2,
 
-		GL_ANY = OPENGL_2 | OPENGL_4,
-		GL_2_OR_LOWER = OPENGL_2,
-		GL_2_OR_GREATER = OPENGL_2 | OPENGL_4,
+    VULKAN_1 = 1 << 3,
 
-		VULKAN_ANY = VULKAN_1,
-	};
+    GL_ANY = OPENGL_2 | OPENGL_4,
+    GL_2_OR_LOWER = OPENGL_2,
+    GL_2_OR_GREATER = OPENGL_2 | OPENGL_4,
 
-
-	struct DataType : public EnumStruct
-	{
-        enum Types : u32 {
-            INVALID_DATA_TYPE,
-            TEXTURE_1D,
-            TEXTURE_2D,
-            TEXTURE_3D,
-            TEXTURE_CUBE,
-
-            LONG,
-            FLOAT,
-
-            // Vertex only
-            VEC2,
-            VEC3,
-            VEC4,
-
-            MAT2,
-            MAT3,
-            MAT4,
-
-            TOTAL_DATA_TYPES
-        };
-
-        DataType(Types x = Types::INVALID_DATA_TYPE) {
-            value = x;
-        }
-
-        static void read(const char* name, PropertyHolder* prop, DataType* into) {
-            std::string str;
-            prop->read(name, &str);
-            into->value = fromString(str);
-        }
-
-        static DataType fromString(const std::string& str);
-	};
+    VULKAN_ANY = VULKAN_1,
+};
 
 
-	struct DataUseMode : public EnumStruct {
-        enum Types : u32 {
-            Vertex,
-            Uniform,
+struct DataType : public EnumStruct
+{
+    enum Types : u32 {
+        INVALID_DATA_TYPE,
+        TEXTURE_1D,
+        TEXTURE_2D,
+        TEXTURE_3D,
+        TEXTURE_CUBE,
 
-            TotalModes
-        };
+        LONG,
+        FLOAT,
 
-        DataUseMode(Types x = Types::Vertex) {
-            value = x;
-        }
+        // Vertex only
+        VEC2,
+        VEC3,
+        VEC4,
 
-        static void read(const char* name, PropertyHolder* prop, DataUseMode* into) {
-            std::string str;
-            prop->read(name, &str);
-            into->value = fromString(str);
-        }
+        MAT2,
+        MAT3,
+        MAT4,
 
-        static DataUseMode fromString(const std::string& str);
-	};
+        TOTAL_DATA_TYPES
+    };
 
-	enum BufferClearBitMask
-	{
-		COLOR = 1,
-		DEPTH = 2,
+    DataType(Types x = Types::INVALID_DATA_TYPE) {
+        value = x;
+    }
 
-		COLOR_DEPTH = COLOR | DEPTH
-	};
+    static void read(const char* name, PropertyHolder* prop, DataType* into) {
+        std::string str;
+        prop->read(name, &str);
+        into->value = fromString(str);
+    }
+
+    static DataType fromString(const std::string& str);
+};
 
 
-	enum BlendEquation {
-		ADD,
-		SUBTRACT,
-		SUBTRACT_REVERSE,
+struct DataUseMode : public EnumStruct {
+    enum Types : u32 {
+        Vertex,
+        Uniform,
 
-		TOTAL_BLEND_EQUATIONS,
-	};
+        TotalModes
+    };
 
-	enum class VertexRenderMode {
-		TRIANGLES,
-		TRIANGLE_STRIP,
-	};
+    DataUseMode(Types x = Types::Vertex) {
+        value = x;
+    }
 
-	enum BlendFunc {
-		ZERO,
-		ONE,
-		SOURCE_COLOR,
-		ONE_MINUS_SOURCE_COLOR,
-		DST_COLOR,
-		ONE_MINUS_DST_COLOR,
-		SRC_ALPHA,
-		ONE_MINUS_SRC_ALPHA,
-		DST_ALPHA,
-		ONE_MINUS_DST_ALPHA,
-		CONST_COLOR,
-		ONE_MINUS_CONST_COLOR,
-		CONST_ALPHA,
-		ONE_MINUS_CONST_ALPHA,
-		SRC_ALPHA_SATURATE,
+    static void read(const char* name, PropertyHolder* prop, DataUseMode* into) {
+        std::string str;
+        prop->read(name, &str);
+        into->value = fromString(str);
+    }
 
-		TOTAL_BLEND_MODES,
-	};
+    static DataUseMode fromString(const std::string& str);
+};
 
-	enum class RenderConfig : u8 {
-		BLEND,
-		ALPHA_TEST,
-		CULL_FACE,
-		DEPTH_TEST,
-		
-		MULTISAMPLE,
+enum BufferClearBitMask
+{
+    COLOR = 1,
+    DEPTH = 2,
 
-		TEXTURE_1D,
-		TEXTURE_2D,
-		TEXTURE_3D,
-		TEXTURE_CUBE,
+    COLOR_DEPTH = COLOR | DEPTH
+};
 
-		TOTAL_RENDER_CONFIGS,
-	};
 
-	enum BlendConfig {
-		BLEND_NONE,
-		BLEND_ALL, // color and alpha 
-		BLEND_SEPARATE, // color separated from alpha
-	};
+enum BlendEquation {
+    ADD,
+    SUBTRACT,
+    SUBTRACT_REVERSE,
 
-	enum CullFaceConfig {
-		CULL_FACE_NONE,
-		BACK_FACE,
-		FRONT_FACE,
-		FRONT_AND_BACK,
-	};
+    TOTAL_BLEND_EQUATIONS,
+};
 
-	enum DepthConfig {
-		DEPTH_TEST_DISABLED			= 1 << 0,
-		DEPTH_TEST_ENABLED			= 1 << 1,
-		DEPTH_TEST_WRITE_ENABLED	= 1 << 2,
+enum class VertexRenderMode {
+    TRIANGLES,
+    TRIANGLE_STRIP,
+};
 
-		DEPTH_WITHOUT_WRITE = DEPTH_TEST_ENABLED,
-		DEPTH_WITH_WRITE = DEPTH_TEST_ENABLED & DEPTH_TEST_WRITE_ENABLED,
-	};
-	
-	template<unsigned channels, unsigned R, unsigned G, unsigned B, unsigned A>
-	struct Color
-	{
-		static_assert(R != G && G != B && B != A, "Invalid color index");
+enum BlendFunc {
+    ZERO,
+    ONE,
+    SOURCE_COLOR,
+    ONE_MINUS_SOURCE_COLOR,
+    DST_COLOR,
+    ONE_MINUS_DST_COLOR,
+    SRC_ALPHA,
+    ONE_MINUS_SRC_ALPHA,
+    DST_ALPHA,
+    ONE_MINUS_DST_ALPHA,
+    CONST_COLOR,
+    ONE_MINUS_CONST_COLOR,
+    CONST_ALPHA,
+    ONE_MINUS_CONST_ALPHA,
+    SRC_ALPHA_SATURATE,
 
-		public:
-			Color()
-				: Color(0,0,0,0)
-			{}
-			Color(float r, float g, float b, float a) {
-				this->r(r);
-				this->g(g);
-				this->b(b);
-				this->a(a);
-			}
-			enum Channel { RED = R, GREEN = G, BLUE = B, ALPHA = A, CHANNELS = channels };
-			float& operator [] (Channel x) {
-				return colors[x];
-			}
-			inline float r() const { return colors[R]; }
-			inline float g() const { return colors[G]; }
-			inline float b() const { return colors[B]; }
-			inline float a() const { return colors[A]; }
-			inline float r(float x) { return colors[R] = x; }
-			inline float g(float x) { return colors[G] = x; }
-			inline float b(float x) { return colors[B] = x; }
-			inline float a(float x) { return colors[A] = x; }
+    TOTAL_BLEND_MODES,
+};
 
-		private:
-			float colors[channels];
-	};
-	typedef Color<4, 0, 1, 2, 3> ColorRGBA;
-	typedef Color<3, 0, 1, 2, 3> ColorRGB;
+enum class RenderConfig : u8 {
+    BLEND,
+    CULL_FACE,
+    DEPTH_TEST,
 
-	class RenderBuffer
-	{
-		virtual ~RenderBuffer() {}
-		virtual void unbind() = 0;
-		virtual void bind() = 0;
-		virtual void bindDraw() = 0;
-		virtual void bindRead() = 0;
-		virtual bool ready() = 0;
-	};
+    MULTISAMPLE,
+
+    TEXTURE_1D,
+    TEXTURE_2D,
+    TEXTURE_3D,
+    TEXTURE_CUBE,
+
+    TOTAL_RENDER_CONFIGS,
+};
+
+enum BlendConfig {
+    BLEND_NONE,
+    BLEND_ALL, // color and alpha 
+    BLEND_SEPARATE, // color separated from alpha
+};
+
+enum CullFaceConfig {
+    CULL_FACE_NONE,
+    BACK_FACE,
+    FRONT_FACE,
+    FRONT_AND_BACK,
+};
+
+enum DepthConfig {
+    DEPTH_TEST_DISABLED = 1 << 0,
+    DEPTH_TEST_ENABLED = 1 << 1,
+    DEPTH_TEST_WRITE_ENABLED = 1 << 2,
+
+    DEPTH_WITHOUT_WRITE = DEPTH_TEST_ENABLED,
+    DEPTH_WITH_WRITE = DEPTH_TEST_ENABLED & DEPTH_TEST_WRITE_ENABLED,
+};
+
+template<unsigned channels, unsigned R, unsigned G, unsigned B, unsigned A>
+struct Color
+{
+    static_assert(R != G && G != B && B != A, "Invalid color index");
+
+public:
+    Color()
+        : Color(0, 0, 0, 0)
+    {}
+    Color(float r, float g, float b, float a) {
+        this->r(r);
+        this->g(g);
+        this->b(b);
+        this->a(a);
+    }
+    enum Channel { RED = R, GREEN = G, BLUE = B, ALPHA = A, CHANNELS = channels };
+    float& operator [] (Channel x) {
+        return colors[x];
+    }
+    inline float r() const { return colors[R]; }
+    inline float g() const { return colors[G]; }
+    inline float b() const { return colors[B]; }
+    inline float a() const { return colors[A]; }
+    inline float r(float x) { return colors[R] = x; }
+    inline float g(float x) { return colors[G] = x; }
+    inline float b(float x) { return colors[B] = x; }
+    inline float a(float x) { return colors[A] = x; }
+
+private:
+    float colors[channels];
+};
+typedef Color<4, 0, 1, 2, 3> ColorRGBA;
+typedef Color<3, 0, 1, 2, 3> ColorRGB;
+
+class RenderBuffer
+{
+public:
+    virtual ~RenderBuffer() {}
+    virtual void unbind() = 0;
+    virtual void bind() = 0;
+    virtual void bindDraw() = 0;
+    virtual void bindRead() = 0;
+    virtual bool ready() = 0;
+};
 }

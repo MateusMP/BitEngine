@@ -1,47 +1,12 @@
+#pragma once
 
 #include "BitEngine/Core/Graphics/Sprite2D.h"
-#include "BitEngine/Core/Graphics/VideoDriver.h"
 
 namespace BitEngine {
 
-
-// Instanced rendering
-struct Sprite2D_DD_new
-{
-    struct PTNContainer {
-        glm::vec2 position;
-        glm::vec2 textureUV;
-    };
-
-    struct ModelMatrixContainer {
-        glm::mat3 modelMatrix;
-    };
-
-    struct CamMatricesContainer {
-        glm::mat4 view;
-    };
-
-    struct TextureContainer {
-        const Texture* diffuse;
-    };
-
-    void init(Shader* shader)
-    {
-        m_ptnContainer = shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 0);
-        u_modelMatrixContainer = shader->getDefinition().getReferenceToContainer(DataUseMode::Vertex, 1);
-
-        u_viewMatrixContainer = shader->getDefinition().getReferenceToContainer(DataUseMode::Uniform, 0);
-        m_textureContainer = shader->getDefinition().getReferenceToContainer(DataUseMode::Uniform, 1);
-    }
-
-    ShaderDataReference m_ptnContainer;
-    ShaderDataReference u_modelMatrixContainer;
-    ShaderDataReference u_viewMatrixContainer;
-    ShaderDataReference m_textureContainer;
-};
-
 class Sprite2DBatch
 {
+public:
     struct SpriteBatchInstance {
         SpriteBatchInstance(const SceneTransform2DComponent& t, const Sprite2DComponent& s)
             : transform(t), sprite(s)
@@ -84,13 +49,11 @@ public:
 class BE_API Sprite2DRenderer : public ComponentProcessor
 {
 public:
-    Sprite2DRenderer(EntitySystem* es, ResourceLoader* resourceLoader, VideoDriver* videoDriver);
+    Sprite2DRenderer(EntitySystem* es, ResourceLoader* resourceLoader);
     ~Sprite2DRenderer();
 
     void setActiveCamera(ComponentRef<Camera2DComponent>& handle);
     const std::vector<Sprite2DBatch>& GenerateRenderData();
-    void Render();
-
 
     constexpr static u32 DEFAULT_SPRITE = 0;
     constexpr static u32 TRANSPARENT_SPRITE = 1;
@@ -137,10 +100,6 @@ private:
     std::vector<Sprite2DBatch> m_batches;
     ComponentRef<Camera2DComponent> m_activeCamera;
     ResourceLoader* m_resourceLoader;
-    IGraphicBatch* m_batch;
-    RR<Shader> m_shader;
-    Sprite2D_DD_new m_newRefs;
-    VideoDriver* m_videoDriver;
     Material m_sprite_materials[3];
 };
 

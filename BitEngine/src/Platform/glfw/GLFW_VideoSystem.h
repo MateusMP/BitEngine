@@ -31,7 +31,7 @@ class GLFW_VideoSystem : public VideoSystem
 {
 public:
 	GLFW_VideoSystem()
-		:  glewStarted(false)
+		:  glFuncsLoaded(false)
 	{
 	}
 	~GLFW_VideoSystem() {
@@ -46,13 +46,9 @@ public:
 	void update() override;
 	void shutdown() override;
 
-	virtual u32 getVideoAdapter() override
+	virtual VideoAdapterType getVideoAdapter() override
 	{
-		return m_driver.getVideoAdapter();
-	}
-	virtual VideoDriver *getDriver() override
-	{
-		return &m_driver;
+		return OPENGL_2;
 	}
 
 	virtual Window *createWindow(const WindowConfiguration &wc) override;
@@ -66,8 +62,7 @@ protected:
 	bool checkWindowClosed(GLFWwindow *window);
 
 private:
-	bool glewStarted;
-	VideoDriver m_driver;
+	bool glFuncsLoaded;
 	std::vector<GLFW_Window *> m_windows;
 
 	GLFW_Window *createGLFWWindow(const WindowConfiguration &wndConf);

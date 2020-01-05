@@ -1,17 +1,20 @@
 #include <BitEngine/Core/Memory.h>
 #include <BitEngine/Core/Math.h>
+#include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
 
 namespace BitEngine
 {
-    class VideoSystem;
-    class Sprite2DRenderer;
-    class EngineConfiguration;
+class VideoSystem;
+class Sprite2DRenderer;
+class EngineConfiguration;
 }
 
 enum Command {
     SCENE_BEGIN,
     RENDER_SPRITE,
-    SCENE_2D
+    SCENE_2D,
+    SPRITE_BATCH_2D,
+
 };
 
 struct RenderSpriteCommand {
@@ -23,12 +26,15 @@ struct RenderSpriteCommand {
 struct SceneBeginCommand {
     u32 renderWidth;
     u32 renderHeight;
-    BitEngine::Mat4 proj;
-    BitEngine::Mat4 view;
 };
 
 struct Render2DSceneCommand {
     BitEngine::Sprite2DRenderer* renderer;
+};
+
+struct RenderSpriteBatch2DCommand {
+    const std::vector<BitEngine::Sprite2DBatch>& batch2d;
+    BitEngine::Mat4 viewProj;
 };
 
 union CommandData {
@@ -38,6 +44,9 @@ union CommandData {
     }
     CommandData(Render2DSceneCommand&& s) : render2DScene(s) {
     }
+    CommandData(RenderSpriteBatch2DCommand&& s) : renderSpriteBatch2D(s) {
+    }
+    RenderSpriteBatch2DCommand renderSpriteBatch2D;
     Render2DSceneCommand render2DScene;
     SceneBeginCommand sceneBegin;
     RenderSpriteCommand renderSprite;
@@ -54,11 +63,18 @@ public:
         : arena(memArena) {
 
     }
+    void pushCommand(SceneBeginCommand command) {
+        arena.push<RenderCommand>(RenderCommand{ Command::SCENE_BEGIN, SceneBeginCommand{command} });
+    }
 
     void pushCommand(BitEngine::Sprite2DRenderer* renderer) {
-        arena.push<RenderCommand>(RenderCommand{Command::SCENE_2D, Render2DSceneCommand{ renderer } });
+        arena.push<RenderCommand>(RenderCommand{ Command::SCENE_2D, Render2DSceneCommand{ renderer } });
     }
-    
+
+    void pushCommand(const std::vector<BitEngine::Sprite2DBatch>& batch2d, const BitEngine::Mat4& viewProj) {
+        arena.push<RenderCommand>(RenderCommand{ Command::SPRITE_BATCH_2D, RenderSpriteBatch2DCommand{ batch2d, viewProj } });
+    }
+
     RenderCommand* getCommands() {
         return (RenderCommand*)arena.base;
     }
