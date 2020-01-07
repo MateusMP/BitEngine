@@ -87,7 +87,7 @@ public:
         return m_containers[mode];
     }
 
-    ShaderDataReference findReference(const std::string& name) const
+    ShaderDataReference findReference(const std::string_view& name) const
     {
         for (u32 um = 0; um < DataUseMode::TotalModes; ++um)
         {

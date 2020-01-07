@@ -7,6 +7,7 @@
 #include "BitEngine/Common/ErrorCodes.h"
 #include "BitEngine/Core/Assert.h"
 
+
 namespace BitEngine
 {
 u32 sizeofDataType(DataType dt)
@@ -77,7 +78,7 @@ VBOAttrib* GL2Shader::findAttributeConfigByName(const std::string& str)
 }
 
 GL2Shader::GL2Shader(ResourceMeta* meta)
-    : Shader(meta), m_programID(0), npieces(0), expectedSourcesCount(0)
+    : Shader(meta), m_programID(0), npieces(0)
 {
 
 }
@@ -108,9 +109,32 @@ IGraphicBatch* GL2Shader::createBatch()
     //  |-> VBO 1 { vec4, vec4, vec4, vec4 } at attrId 2 .. 5, divisor = 1
 
     GL2Batch *batch = new GL2Batch(genVAOArrays(baseVaoContainer), uniformHolder);
-    batches.emplace_back(batch);
-
+    
     return batch;
+}
+
+void GL2Shader::setupBatch(Lazy<GL2Batch>& batch) {
+
+    // VAO contains all containers from ShaderDataDefinition
+    // Each VBO is one container.
+    // Each VBO is configured based on the container data.
+    // EX:
+    //  def.addContainer(DataUseMode::Vertex, 0)
+    //  	.addVertexData("position", DataType::VEC3, 1)
+    //  	.addVertexData("textureUV", DataType::VEC4, 1);
+    //  
+    //  def.addContainer(DataUseMode::Vertex, 1)
+    //  	.addVertexData("modelMatrix", DataType::MAT4, 1);
+    // GIVES:
+    // VAO
+    //  |-> VBO 0 { vec3, vec4 }			 at attrId 0 .. 1, divisor = 0
+    //  |-> VBO 1 { vec4, vec4, vec4, vec4 } at attrId 2 .. 5, divisor = 1
+
+    batch.destroy();
+    if (isReady()) {
+        new (&batch) Lazy<GL2Batch>(genVAOArrays(baseVaoContainer), uniformHolder);
+        batch.initialized();
+    }
 }
 
 
@@ -124,12 +148,6 @@ int GL2Shader::init()
     if (error == BE_NO_ERROR)
     {
         LOG(EngineLog, BE_LOG_INFO) << "Shader ready!";
-
-        for (GL2Batch* batch : batches)
-        {
-            batch->~GL2Batch();
-            new(batch) GL2Batch(genVAOArrays(baseVaoContainer), uniformHolder);
-        }
     }
     else
     {
@@ -165,23 +183,22 @@ void GL2Shader::releaseShader()
 
 void GL2Shader::introspect()
 {
-    GLint nameRead;
-    std::string nameBuffer;
+    GLint nameReadSize;
+    GLchar nameBuffer[128] = {};
 
     // Introspect ATTRIBUTES
     GLint nAttrs;
     GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTES, &nAttrs));
-    GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &nameRead));
-    nameBuffer.resize(nameRead);
+    GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &nameReadSize));
+    BE_ASSERT(nameReadSize < sizeof(nameBuffer));
 
     for (int i = 0; i < nAttrs; ++i)
     {
         VBOAttrib attr;
-        std::string tmpName;
 
         // TODO: Handle big attributes like matrices
-        GL_CHECK(glGetActiveAttrib(m_programID, i, 128, &nameRead, &attr.size, &attr.type, &nameBuffer[0]));
-        tmpName.append(&nameBuffer[0], &nameBuffer[0] + nameRead);
+        glGetActiveAttrib(m_programID, i, sizeof(nameBuffer), &nameReadSize, &attr.size, &attr.type, nameBuffer);
+        std::string_view tmpName(nameBuffer, nameReadSize);
         attr.id = glGetAttribLocation(m_programID, tmpName.data());
         attr.name = tmpName;
         attr.dataSize = GL2::fromGLTypeToGLDataTypeSize(attr.type);
@@ -198,7 +215,7 @@ void GL2Shader::introspect()
         }
 
         LOG(EngineLog, BE_LOG_INFO) << "Attr" << i << " at " << attr.id
-            << " '" << tmpName << "' is of type: " << attr.type << " size: " << attr.size;
+            << " '" << nameBuffer << "' is of type: " << attr.type << " size: " << attr.size;
 
         m_attributes.emplace_back(attr);
     }
@@ -208,36 +225,24 @@ void GL2Shader::introspect()
     // Introspect UNIFORMS
     GLint nUnif;
     GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_UNIFORMS, &nUnif));
-    GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameRead));
-    nameBuffer.resize(nameRead);
+    GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameReadSize));
+    BE_ASSERT(nameReadSize < sizeof(nameBuffer));
 
     for (int i = 0; i < nUnif; ++i)
     {
         UniformDefinition unif;
-        std::string tmpName;
 
-        GL_CHECK(glGetActiveUniform(m_programID, i, 128, &nameRead, &unif.size, &unif.type, &nameBuffer[0]));
-        tmpName.append(&nameBuffer[0], &nameBuffer[0] + nameRead);
+        GL_CHECK(glGetActiveUniform(m_programID, i, sizeof(nameBuffer), &nameReadSize, &unif.size, &unif.type, nameBuffer));
+        std::string_view tmpName(nameBuffer, nameReadSize);
 
-        ShaderDataReference ref = m_shaderDefinition.findReference(tmpName);
-        if (m_shaderDefinition.checkRef(ref))
-        {
-            unif.location = glGetUniformLocation(m_programID, tmpName.data()); GL_CHECK(;);
-            unif.ref = ref;
-            unif.name = tmpName;
-            LOG(EngineLog, BE_LOG_INFO) << "Uniform" << i << " at " << unif.location
-                << " '" << tmpName << "' is of type: " << unif.type << " size: " << unif.size;
-            //unif.index = i;
-            m_uniforms.emplace_back(unif);
-        }
-        else
-        {
-            LOG(EngineLog, BE_LOG_ERROR) << "Invalid shader definition and shader uniform mismatch for " << tmpName;
-        }
+        unif.location = glGetUniformLocation(m_programID, tmpName.data()); GL_CHECK(;);
+        unif.name = tmpName;
+        LOG(EngineLog, BE_LOG_INFO) << "Uniform" << i << " at " << unif.location
+            << " '" << nameBuffer << "' is of type: " << unif.type << " size: " << unif.size;
+        m_uniforms.emplace_back(unif);
     }
     genUniformContainer(uniformHolder);
 }
-
 
 void GL2Shader::genVBOAttributes(VAOContainer& vaoContainer)
 {

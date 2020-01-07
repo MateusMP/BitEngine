@@ -38,6 +38,7 @@ public:
     void Unbind() override;
 
     IGraphicBatch* createBatch() override;
+    void setupBatch(Lazy<GL2Batch>& batch);
 
     // Load data into uniform referenced with ref
     void loadConfig(const UniformDefinition* ref, const void* data);
@@ -45,8 +46,6 @@ public:
     GLuint attachSource(GLint type, const void* data, GLint size);
 
     ShaderDataDefinition& getDefinition() override { return m_shaderDefinition; }
-
-    void setExpectedShaderSourcesCount(int amount) { expectedSourcesCount = amount; }
 
 protected:
     void introspect();
@@ -117,7 +116,6 @@ private:
 
     // members
     GLuint m_programID; //!< program unique id
-    u16 expectedSourcesCount;
 
     GLuint pieces[5];
     u32 npieces;
@@ -128,8 +126,6 @@ private:
 
     VAOContainer baseVaoContainer;
     UniformHolder uniformHolder;
-
-    std::vector<GL2Batch*> batches;
 
     std::function<void()> reload;
 };

@@ -2,7 +2,6 @@
 
 in vec2 a_position;
 in vec2 a_textureUV;
-in mat4 a_modelMatrix;
 
 out vec2 fragTextureCoord;
 

@@ -48,12 +48,6 @@ namespace BitEngine
 
 	struct UniformDefinition
 	{
-		struct Comparator {
-			bool operator() (const UniformDefinition& lhs, const UniformDefinition& rhs) const {
-				return ShaderDataReference::Hasher()(lhs.ref, rhs.ref);
-			}
-		};
-		ShaderDataReference ref;
 		GLint location;
 		GLuint byteSize;
 		GLenum type;

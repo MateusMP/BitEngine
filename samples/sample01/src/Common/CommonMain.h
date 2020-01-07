@@ -54,21 +54,20 @@ public:
         }
 
         m_newRefs.init(m_shader.get());
-        m_batch = m_shader->createBatch();
     }
 
     void process(const RenderSpriteBatch2DCommand& command) {
 
         // LOG_FUNCTION_TIME(BitEngine::EngineLog);
 
-        if (m_batch == nullptr)
+        if (!m_batch)
         {
             if (!m_shader->isReady()) {
                 LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Skipping rendering until shader is loaded";
                 return;
             }
             else {
-                m_batch = m_shader->createBatch();
+                ((BitEngine::GL2Shader*)m_shader.get())->setupBatch(m_batch);
             }
         }
 
@@ -140,8 +139,7 @@ private:
         }
     }
 
-
-    BitEngine::IGraphicBatch* m_batch;
+    BitEngine::Lazy<BitEngine::GL2Batch> m_batch;
     BitEngine::RR<BitEngine::Shader> m_shader;
     Sprite2D_DD_new m_newRefs;
 };
