@@ -13,16 +13,19 @@ GLFW_Window::~GLFW_Window()
 
 void GLFW_Window::drawBegin()
 {
+    BE_PROFILE_FUNCTION();
     glfwMakeContextCurrent(window);
 }
 
 void GLFW_Window::drawEnd()
 {
+    BE_PROFILE_FUNCTION();
     glfwSwapBuffers(window);
 }
 
 bool GLFW_VideoSystem::init()
 {
+    BE_PROFILE_FUNCTION();
     LOGCLASS(BE_LOG_VERBOSE) << "Video: Init video...";
 
     if (!glfwInit())
@@ -45,6 +48,7 @@ void GLFW_VideoSystem::update()
 
 void GLFW_VideoSystem::shutdown()
 {
+    BE_PROFILE_FUNCTION();
     for (GLFW_Window *window : m_windows)
     {
         glfwDestroyWindow(window->window);
@@ -62,6 +66,7 @@ void GLFW_VideoSystem::closeWindow(Window *window)
 
 Window *GLFW_VideoSystem::createWindow(const WindowConfiguration &wc)
 {
+    BE_PROFILE_FUNCTION();
     GLFW_Window *window = createGLFWWindow(wc);
 
     BE_ASSERT(window != nullptr);
@@ -87,6 +92,7 @@ Window *GLFW_VideoSystem::createWindow(const WindowConfiguration &wc)
 
 GLFW_Window *GLFW_VideoSystem::createGLFWWindow(const WindowConfiguration &wndConf)
 {
+    BE_PROFILE_FUNCTION();
     // TODO: Use configs
 
     //    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

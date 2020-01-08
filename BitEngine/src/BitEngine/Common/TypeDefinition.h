@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include "BitEngine/Core/api.h"
+#include "BitEngine/Core/Profiler.h"
 
 // unsigned
 typedef uint8_t u8;

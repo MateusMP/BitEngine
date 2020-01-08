@@ -62,14 +62,6 @@
 	#endif
 #endif
 
-#ifndef BE_LOG_ENABLE_PERFORMANCE
-	#ifdef _DEBUG
-		#define BE_LOG_ENABLE_PERFORMANCE 1
-	#else
-		#define BE_LOG_ENABLE_PERFORMANCE 1
-	#endif
-#endif
-
 #ifndef BE_LOG_LOGGING_THRESHOLD
 	#ifdef _DEBUG
 		#define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
@@ -122,16 +114,6 @@
 
 #define LOGCLASS(severity)							\
 		LOG(CL(),severity)
-
-#if BE_LOG_ENABLE_PERFORMANCE == 1
-#define LOG_SCOPE_TIME(logto, description)		\
-		BitEngine::ScopeLogger _log_scope(logto, description)
-#define LOG_FUNCTION_TIME(logto)				\
-		BitEngine::ScopeLogger _log_function(logto, __func__)
-#else
-#define LOG_SCOPE_TIME(logto, description)
-#define LOG_FUNCTION_TIME(logto)
-#endif
 
 #define BE_LOG_SETUP(argc, argv) \
 	BitEngine::LoggerSetup::Setup(argc, argv)

@@ -45,6 +45,7 @@ bool GLFW_ImGuiSystem::setup(BitEngine::Window* _window)
 
 void GLFW_ImGuiSystem::update()
 {
+    BE_PROFILE_FUNCTION();
     // Begin
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();

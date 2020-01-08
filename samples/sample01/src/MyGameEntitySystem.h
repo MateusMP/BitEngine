@@ -22,6 +22,7 @@ public:
 
     void update()
     {
+        BE_PROFILE_FUNCTION();
         getES()->forAll<PlayerControlComponent>([](BitEngine::ComponentHandle id, PlayerControlComponent& comp){
             float vel = 2.0f;
 
@@ -59,6 +60,7 @@ public:
 
     void FrameMiddle()
     {
+        BE_PROFILE_FUNCTION();
         using namespace BitEngine;
         getES()->forEach<Transform2DComponent, SpinnerComponent>(
             [=](ComponentRef<Transform2DComponent> transform, const ComponentRef<SpinnerComponent> spinner)

@@ -75,6 +75,7 @@ public:
 
     void update()
     {
+        BE_PROFILE_FUNCTION();
         int finish = 0;
         size_t lasts[4] = { 0,0,0,0 };
         //std::thread run1(std::bind(&EntitySystem::runUpdate, this, std::placeholders::_1), 0);

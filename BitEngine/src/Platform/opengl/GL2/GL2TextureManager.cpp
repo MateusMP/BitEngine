@@ -56,9 +56,9 @@ void releaseStbiData(StbiImageData& data) {
     data.pixelData = nullptr;
 }
 
-class UploadToGPU : public Task {
+class TextureUploadToGPU : public Task {
 public:
-    UploadToGPU(GL2TextureManager* tm, GL2Texture* tex, StbiImageData data)
+    TextureUploadToGPU(GL2TextureManager* tm, GL2Texture* tex, StbiImageData data)
         : Task(Task::TaskMode::REPEATING, Task::Affinity::MAIN),
         state(UploadState::CREATE_BUFFERS), textureManager(tm), texture(tex), pbo(0), storage(0), imageData(data)
     {
@@ -66,9 +66,12 @@ public:
     }
 
     void run() override {
+        BE_PROFILE_FUNCTION();
         const u32 size = imageData.width*imageData.height*imageData.color;
         switch (state) {
         case UploadState::CREATE_BUFFERS: // On Main thread
+        {
+            BE_PROFILE_SCOPE("UploadState::CREATE_BUFFERS");
             if (texture->m_textureID == textureManager->getErrorTexture()->m_textureID) {
                 glGenTextures(1, &textureID);
                 glBindTexture(GL_TEXTURE_2D, textureID);
@@ -88,20 +91,27 @@ public:
             state = UploadState::COPYING_DATA;
             setAffinity(Task::Affinity::BACKGROUND); // Next time will be executed as a background task
             textureManager->addRamUsage(size);
+        }
             break;
 
-        case UploadState::COPYING_DATA:
+        case UploadState::COPYING_DATA: 
+        {
+            BE_PROFILE_SCOPE("UploadState::COPYING_DATA");
             // Copy data to buffer in background
             std::memcpy(storage, imageData.pixelData, size);
             state = UploadState::FINISHING;
             releaseStbiData(imageData);
             setAffinity(Task::Affinity::MAIN);
+        }
             break;
         case UploadState::FINISHING: // ON Main thread
+        {
+            BE_PROFILE_SCOPE("UploadState::FINISHING");
             textureManager->addRamUsage(-(s32)size); // We wait until we're on main thread to avoid concurrency issues
             bindTextureDataUsingPBO();
             stopRepeating();
             textureManager->addGpuUsage(size); // TODO: Reduce gpu usage on unload.
+        }
             break;
         }
     }
@@ -119,7 +129,7 @@ private:
 
     void syncLoadTexture2D(const StbiImageData& data, GL2Texture& texture)
     {
-        LOG_FUNCTION_TIME(BitEngine::EngineLog);
+        BE_PROFILE_FUNCTION();
 
         GL_CHECK(glBindTexture(GL_TEXTURE_2D, texture.m_textureID));
         if (data.color == 1)
@@ -208,17 +218,19 @@ public:
     // Inherited via Task
     virtual void run() override
     {
-        LOG_SCOPE_TIME(BitEngine::EngineLog, "Texture load");
 
         ResourceLoader::DataRequest& dr = textureData->getData();
         if (dr.isLoaded())
         {
             StbiImageData imgData;
-            imgData.pixelData = stbi_load_from_memory((unsigned char*)dr.data, dr.size, &imgData.width, &imgData.height, &imgData.color, 0);
+            {
+                BE_PROFILE_SCOPE("stbi_load");
+                imgData.pixelData = stbi_load_from_memory((unsigned char*)dr.data, dr.size, &imgData.width, &imgData.height, &imgData.color, 0);
+            }
 
             if (imgData.pixelData != nullptr) {
                 LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "stbi loaded texture: " << texture->getMeta()->getNameId() << " w: " << imgData.width << " h: " << imgData.height;
-                manager->getTaskManager()->addTask(std::make_shared<UploadToGPU>(manager, texture, imgData));
+                manager->getTaskManager()->addTask(std::make_shared<TextureUploadToGPU>(manager, texture, imgData));
             }
             else
             {
@@ -258,6 +270,7 @@ static ResourceMeta errorTextureMeta;
 
 bool GL2TextureManager::init()
 {
+    BE_PROFILE_FUNCTION();
     stbi_set_flip_vertically_on_load(true);
 
     ResourceMeta* meta = &errorTextureMeta;
@@ -309,6 +322,7 @@ void GL2TextureManager::update()
 
 void GL2TextureManager::scheduleLoadingTasks(ResourceMeta* meta, GL2Texture* texture)
 {
+    BE_PROFILE_FUNCTION();
     texture->m_loaded = GL2Texture::TextureLoadState::LOADING;
     ResourceLoader::RawResourceTask rawDataTask = loader->requestResourceData(meta);
     TaskPtr textureLoader = std::make_shared<RawTextureLoader>(this, texture, rawDataTask);
@@ -318,6 +332,7 @@ void GL2TextureManager::scheduleLoadingTasks(ResourceMeta* meta, GL2Texture* tex
 
 BaseResource* GL2TextureManager::loadResource(ResourceMeta* meta, PropertyHolder* props)
 {
+    BE_PROFILE_FUNCTION();
     GL2Texture* texture = textures.findResource(meta);
 
     // Recreate the texture object

@@ -116,7 +116,7 @@ public:
 
     // Load textures that are ready to be sent to the GPU
     void update() override {
-
+        BE_PROFILE_FUNCTION();
         std::pair<File*, FileLoadTask> task;
 
         std::vector< std::pair<File*, FileLoadTask> > retry;

@@ -100,6 +100,7 @@ public:
 
     bool init()
     {
+        BE_PROFILE_FUNCTION();
         using namespace BitEngine;
         
         // Create memory arenas
@@ -202,8 +203,6 @@ public:
 
     void onMessage(const BitEngine::CommandSystem::MsgCommandInput& msg)
     {
-        LOG(GameLog(), BE_LOG_VERBOSE) << "Command: " << msg.commandID;
-
         if (msg.commandID == RELOAD_SHADERS) {
             LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Reloading index";
             gameState->resources->loadIndex("data/main.idx");
@@ -247,6 +246,7 @@ public:
 
     void render()
     {
+        BE_PROFILE_FUNCTION();
         mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0 });
         gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
         mainMemory->renderQueue->pushCommand(gameState->entitySystem->spr2D.GenerateRenderData(), gameState->m_userGUI->getCamera()->getMatrix());

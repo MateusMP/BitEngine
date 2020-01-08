@@ -43,6 +43,7 @@ void GL2Batch::clearVAO()
 // Usefull when rendering multiple times the same batch
 void GL2Batch::prepare(u32 numInstances)
 {
+    BE_PROFILE_FUNCTION();
     totalInstances = numInstances;
     for (VBOContainer& vbc : vaoContainer.vbos) {
         shaderData.at(vbc.ref).data.resize(totalInstances * vbc.stride);
@@ -51,6 +52,7 @@ void GL2Batch::prepare(u32 numInstances)
 
 void GL2Batch::load()
 {
+    BE_PROFILE_FUNCTION();
     for (const auto& it : shaderData)
     {
         if (it.first.mode.value == DataUseMode::Vertex)

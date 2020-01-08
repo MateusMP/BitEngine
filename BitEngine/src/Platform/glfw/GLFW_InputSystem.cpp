@@ -28,6 +28,7 @@ void GLFW_InputSystem::shutdown()
 
 void GLFW_InputSystem::update()
 {
+    BE_PROFILE_FUNCTION();
 	glfwPollEvents();
 }
 

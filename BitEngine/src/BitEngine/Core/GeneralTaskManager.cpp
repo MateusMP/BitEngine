@@ -16,6 +16,7 @@ void TaskWorker::start()
 // Return false if dit nothing
 void TaskWorker::process(TaskPtr task)
 {
+    BE_PROFILE_FUNCTION();
     if (task->isReady())
     {
         //LOG(EngineLog, BE_LOG_VERBOSE) << " processing task " << task;
@@ -49,6 +50,7 @@ void TaskWorker::work()
 {
     do
     {
+        BE_PROFILE_FUNCTION();
         TaskPtr task = nextTask();
         if (task == nullptr)
         {
@@ -64,6 +66,7 @@ void TaskWorker::work()
 
 TaskPtr TaskWorker::nextTask()
 {
+    BE_PROFILE_FUNCTION();
     TaskPtr newTask;
     if (!m_taskQueue.tryPop(newTask))
     {
@@ -130,6 +133,7 @@ void GeneralTaskManager::init()
 
 void GeneralTaskManager::update()
 {
+    BE_PROFILE_FUNCTION();
     while (finishedRequiredTasks != requiredTasksFrame)
     {
         executeMain();

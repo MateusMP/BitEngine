@@ -57,8 +57,7 @@ public:
     }
 
     void process(const RenderSpriteBatch2DCommand& command) {
-
-        // LOG_FUNCTION_TIME(BitEngine::EngineLog);
+        BE_PROFILE_FUNCTION();
 
         if (!m_batch)
         {
@@ -84,6 +83,7 @@ private:
 
     void prepare_new(const BitEngine::Sprite2DBatch& batch, const BitEngine::Mat4& viewProj)
     {
+        BE_PROFILE_FUNCTION();
         const std::vector<BitEngine::Sprite2DBatch::SpriteBatchInstance>& batchInstances = batch.batchInstances;
 
         Sprite2D_DD_new::CamMatricesContainer* view = m_batch->getShaderDataAs<Sprite2D_DD_new::CamMatricesContainer>(m_newRefs.u_viewMatrixContainer);
@@ -160,6 +160,7 @@ public:
             switch (commands[i].command) {
             case Command::SCENE_BEGIN:
             {
+                BE_PROFILE_SCOPE("Render SCENE_BEGIN");
                 SceneBeginCommand& cmd = commands[i].data.sceneBegin;
                 // driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.7f, 0.2f, 0.3f, 0.f));
                 BitEngine::GLVideoDriver::clearBufferColor(nullptr, BitEngine::ColorRGBA(0.3f, 0.7f, 0.3f, 0.f));
@@ -167,15 +168,18 @@ public:
             }
             break;
             case Command::SPRITE_BATCH_2D:
+            {
+                BE_PROFILE_SCOPE("Render SPRITE_BATCH_2D");
                 spriteRenderer.process(commands[i].data.renderSpriteBatch2D);
-                break;
+            }
+            break;
             case SCENE_2D:
                 break;
             }
         }
 
     }
-    
+
 
     GLSprite2DRenderer spriteRenderer;
 };

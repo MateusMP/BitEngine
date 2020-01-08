@@ -18,7 +18,7 @@ class GL2Texture : public BitEngine::Texture
 {
     friend class GL2TextureManager;
     friend class RawTextureLoader;
-    friend class UploadToGPU;
+    friend class TextureUploadToGPU;
 
 public:
     GL2Texture()

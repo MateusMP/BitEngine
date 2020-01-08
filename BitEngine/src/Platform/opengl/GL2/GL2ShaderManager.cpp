@@ -24,9 +24,10 @@ public:
     // Inherited via Task
     virtual void run() override
     {
+        BE_PROFILE_FUNCTION();
         bool readyForGPU = sourceReady(shaderInfo.vertex);
-        readyForGPU |= sourceReady(shaderInfo.fragment);
-        readyForGPU |= sourceReady(shaderInfo.geometry);
+        readyForGPU &= sourceReady(shaderInfo.fragment);
+        readyForGPU &= sourceReady(shaderInfo.geometry);
 
         if (readyForGPU)
         {
@@ -74,6 +75,7 @@ void GL2ShaderManager::shutdown() {
 
 void GL2ShaderManager::update()
 {
+    BE_PROFILE_FUNCTION();
     ToLoad toload;
     while (resourceLoaded.tryPop(toload))
     {

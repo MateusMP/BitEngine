@@ -142,6 +142,7 @@ void GL2Shader::setupBatch(Lazy<GL2Batch>& batch) {
 /// Normally calls BuildProgramFromFile/Memory
 int GL2Shader::init()
 {
+    BE_PROFILE_FUNCTION();
     LOG(EngineLog, BE_LOG_INFO) << "Building shader...";
 
     int error = buildFinalProgram();
@@ -183,6 +184,7 @@ void GL2Shader::releaseShader()
 
 void GL2Shader::introspect()
 {
+    BE_PROFILE_FUNCTION();
     GLint nameReadSize;
     GLchar nameBuffer[128] = {};
 
@@ -246,6 +248,7 @@ void GL2Shader::introspect()
 
 void GL2Shader::genVBOAttributes(VAOContainer& vaoContainer)
 {
+    BE_PROFILE_FUNCTION();
     const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Vertex);
 
     for (const ShaderDataDefinition::DefinitionContainer& dc : containers)
@@ -287,6 +290,7 @@ void GL2Shader::genVBOAttributes(VAOContainer& vaoContainer)
 
 VAOContainer GL2Shader::genVAOArrays(const VAOContainer& base)
 {
+    BE_PROFILE_FUNCTION();
     VAOContainer container;
     GL2::genVao(1, &container.vao);
     GL2::bindVao(container.vao);
@@ -315,6 +319,7 @@ VAOContainer GL2Shader::genVAOArrays(const VAOContainer& base)
 
 void GL2Shader::genUniformContainer(UniformHolder& unifContainer)
 {
+    BE_PROFILE_FUNCTION();
     const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Uniform);
 
     for (const ShaderDataDefinition::DefinitionContainer& def : containers)
@@ -353,6 +358,7 @@ s32 GL2Shader::getUniformLocation(const std::string& name) const
 
 int GL2Shader::buildFinalProgram()
 {
+    BE_PROFILE_FUNCTION();
     m_programID = glCreateProgram();
 
     registerAttributes();
@@ -424,6 +430,7 @@ int GL2Shader::linkShaders()
 // \param hdl Where to save the gl id for the shader
 int GL2Shader::compile(GLenum type, const void* data, GLint size, GLuint &hdl, std::string& errorLog)
 {
+    BE_PROFILE_FUNCTION();
     GLuint shdhdl = glCreateShader(type);
     if (shdhdl == 0) {
         return FAILED_TO_CREATE_SHADER;

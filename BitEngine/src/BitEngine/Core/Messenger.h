@@ -62,6 +62,7 @@ public:
     * Emit a message to all subscribers. Handler are called immediately.
     */
     void emit(const EventType& event) {
+        BE_PROFILE_FUNCTION();
         for (auto& receiver : m_subscribers) {
             receiver.callback(event);
         }

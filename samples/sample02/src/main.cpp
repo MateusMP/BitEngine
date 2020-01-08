@@ -97,12 +97,7 @@ void unloadGameCode(Game& game) {
     game.valid = false;
 }
 
-
-int main(int argc, const char* argv[])
-{
-    BitEngine::LoggerSetup::Setup(argc, argv);
-    LOG_FUNCTION_TIME(GameLog());
-
+void game() {
     // Basic infrastructure
     BitEngine::EngineConfigurationFileLoader configurations("config.ini");
     BitEngine::GeneralTaskManager taskManager;
@@ -133,7 +128,7 @@ int main(int argc, const char* argv[])
     main_window = video.createWindow(windowConfig);
     imgui.setup(main_window);
 
-    
+
     BitEngine::GLFW_InputSystem input;
     input.registerWindow(main_window);
 
@@ -151,7 +146,7 @@ int main(int argc, const char* argv[])
     memset(gameMemory.memory, 0, gameMemory.memorySize);
 
     // Setup Resource loader
-    
+
     const u32 resMemSize = MEGABYTES(64);
     void* resMem = malloc(resMemSize);
     BitEngine::MemoryArena resourceArena;
@@ -184,9 +179,9 @@ int main(int argc, const char* argv[])
     gameMemory.imGuiContext = imgui.getContext();
     gameMemory.renderQueue = &renderQueue;
 
-    auto imguiMenu = [&](const BitEngine::ImGuiRenderEvent& event) {    
+    auto imguiMenu = [&](const BitEngine::ImGuiRenderEvent& event) {
         resourceManagerMenu("Sprite Manager", &spriteManager);
-        resourceManagerMenu("Texture Manager",&textureManager);
+        resourceManagerMenu("Texture Manager", &textureManager);
         resourceManagerMenu("Shader Manager", &shaderManager);
     };
     imgui.subscribe(imguiMenu);
@@ -207,25 +202,28 @@ int main(int argc, const char* argv[])
 
     bool32 running = true;
     while (running) {
-
-        FILETIME NewDLLWriteTime = WindowsFileLastWriteTime(gameDll);
-        if (nticks <= 0 && CompareFileTime(&NewDLLWriteTime, &game.time) != 0) 
+        BE_PROFILE_SCOPE("Game Loop");
         {
-            game.shutdown(&gameMemory);
-            unloadGameCode(game);
-            Sleep(10);
-            Game newGame = loadGameCode(gameDll, game);
-            if (newGame.valid) {
-                printf("Game code reloaded!");
-                game = newGame;
-                newGame.setup(&gameMemory);
+            BE_PROFILE_SCOPE("DLL Reload");
+            FILETIME NewDLLWriteTime = WindowsFileLastWriteTime(gameDll);
+            if (nticks <= 0 && CompareFileTime(&NewDLLWriteTime, &game.time) != 0)
+            {
+                game.shutdown(&gameMemory);
+                unloadGameCode(game);
+                Sleep(10);
+                Game newGame = loadGameCode(gameDll, game);
+                if (newGame.valid) {
+                    printf("Game code reloaded!");
+                    game = newGame;
+                    newGame.setup(&gameMemory);
+                }
+                else {
+                    printf("Failed to reload game code!");
+                }
+                nticks = 200;
             }
-            else {
-                printf("Failed to reload game code!");
-            }
-            nticks = 200;
+            nticks--;
         }
-        nticks--;
 
         // Game loop logic
         input.update();
@@ -254,9 +252,19 @@ int main(int argc, const char* argv[])
     taskManager.shutdown();
 
     unloadGameCode(game);
-    
+
     free(renderArena.base);
     free(gameMemory.memory);
+}
 
+
+int main(int argc, const char* argv[])
+{
+    BitEngine::Profiling::BeginSession("GAME");
+    BitEngine::LoggerSetup::Setup(argc, argv);
+
+    game();
+
+    BitEngine::Profiling::EndSession();
     return 0;
 }

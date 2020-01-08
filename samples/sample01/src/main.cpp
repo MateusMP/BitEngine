@@ -118,7 +118,7 @@ void gameExecute(MainMemory& gameMemory) {
         bool32 running = true;
 
         while (running) {
-            //LOG_SCOPE_TIME(BitEngine::EngineLog, "main loop");
+            BE_PROFILE_SCOPE("Game Loop");
 
             input.update();
 
@@ -127,6 +127,7 @@ void gameExecute(MainMemory& gameMemory) {
             running = game->update();
             
             if (running) {
+                BE_PROFILE_SCOPE("Game Render");
                 if (!rendererReady) {
                     // TODO: Clean this up, maybe have a platform index loaded previously so we can
                     // TODO: call init right after?
@@ -148,17 +149,22 @@ void gameExecute(MainMemory& gameMemory) {
 
 int main(int argc, const char* argv[])
 {
+    BitEngine::Profiling::BeginSession("GAME");
     BitEngine::LoggerSetup::Setup(argc, argv);
-    LOG_FUNCTION_TIME(GameLog());
 
-    MainMemory gameMemory = {};
-    gameMemory.memorySize = MEGABYTES(512);
-    gameMemory.memory = malloc(gameMemory.memorySize);
-    memset(gameMemory.memory, 0, gameMemory.memorySize);
+    {
+        BE_PROFILE_SCOPE("GAME");
 
-    gameExecute(gameMemory);
+        MainMemory gameMemory = {};
+        gameMemory.memorySize = MEGABYTES(512);
+        gameMemory.memory = malloc(gameMemory.memorySize);
+        memset(gameMemory.memory, 0, gameMemory.memorySize);
 
-    free(gameMemory.memory);
+        gameExecute(gameMemory);
 
+        free(gameMemory.memory);
+    }
+
+    BitEngine::Profiling::EndSession();
     return 0;
 }
