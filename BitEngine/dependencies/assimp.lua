@@ -110,11 +110,18 @@ project "assimp"
 		"code/Collada/**",
 		"contrib/irrXML/**",
 		"contrib/zlib/**.c",
-		"contrib/unzip/*",
+		"contrib/unzip/*.c",
 	}
 	
 	filter "system:windows"
 		systemversion "latest"
+	
+	filter "system:linux"
+
+		excludes {
+			"**/testzlib.c",
+			"contrib/zlib/contrib/minizip/iowin32.c"
+		}
 	
 	filter "configurations:Debug"
 		runtime "Debug"

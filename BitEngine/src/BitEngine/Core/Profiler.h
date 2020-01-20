@@ -2,11 +2,19 @@
 
 #define BE_PROFILING_CHROME
 
+
+#if defined(_WIN32) || defined(_MSC_VER)
+#define BE_FUNC_SIG __FUNCSIG__
+#elif defined( __GNUC__ ) || defined( __MINGW__ ) || defined ( __clang__ )
+#define BE_FUNC_SIG __PRETTY_FUNCTION__
+#endif
+
+
 #ifndef BE_LOG_ENABLE_PERFORMANCE
 #define BE_PROFILE_SCOPE(name)		\
 		BitEngine::Profiling::PrecisionTimer _profiling##__LINE__(name)
 #define BE_PROFILE_FUNCTION()				\
-		BE_PROFILE_SCOPE(__FUNCSIG__)
+		BE_PROFILE_SCOPE(BE_FUNC_SIG)
 #else
 #define BE_PROFILE_SCOPE(logto, description)
 #define BE_PROFILE_FUNCTION(logto)

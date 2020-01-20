@@ -307,7 +307,7 @@ BaseResource* DevResourceLoader::loadResource(const u32 idx)
 }
 
 BaseResource* DevResourceLoader::loadResource(const std::string& meta) {
-    auto& found = byName.find(meta);
+    const auto& found = byName.find(meta);
     if (found != byName.end()) {
         DevResourceMeta* meta = found->second;
         return loadResource(meta);

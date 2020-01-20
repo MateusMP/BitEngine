@@ -32,10 +32,10 @@ public:
     }
 
     template<bool enabled = Local>
-    static TightFixedVector<T, MaxSize, Local>&& Create(typename std::enable_if<!enabled, MemoryArena&>::type a)
+    static TightFixedVector<T, MaxSize, Local>&& Create(typename std::enable_if<!enabled, MemoryArena&>::type arena)
     {
         TightFixedVector<T, MaxSize, Local> fv;
-        fv.data = arena.pushArray<T, MaxSize>();
+        fv.data = arena.template pushArray<T, MaxSize>();
         fv.count = 0;
         return std::move(fv);
     }
@@ -55,7 +55,7 @@ public:
     };
 
     T& operator[](ptrsize s) {
-        return data[s];
+        return this->data[s];
     }
 
     void push_back(T&& t) {
@@ -64,34 +64,34 @@ public:
 
     template<class... Args>
     void emplace_back(Args&&... args) {
-        BE_ASSERT(count < MaxSize);
-        data[count] = T(std::forward<Args>(args)...);
-        ++count;
+        BE_ASSERT(this->count < MaxSize);
+        this->data[this->count] = T(std::forward<Args>(args)...);
+        ++this->count;
     }
 
     void clear() {
-        count = 0;
+        this->count = 0;
     }
 
     // When the order doesnt matter
     void remove(ptrsize index) {
-        if (index < count) {
-            --count;
-            data[index] = data[count];
-            data[count].~T();
+        if (index < this->count) {
+            --this->count;
+            this->data[index] = this->data[this->count];
+            this->data[this->count].~T();
         } else {
-            --count;
-            data[index].~T();
+            --this->count;
+            this->data[index].~T();
         }
     }
 
     void erase(iterator it) {
-        const ptrsize index = it.ptr - data;
+        const ptrsize index = it.ptr - this->data;
         remove(index);
     }
 
-    iterator begin() { return iterator(data); }
-    iterator end() { return iterator(data + count); }
+    iterator begin() { return iterator(this->data); }
+    iterator end() { return iterator(this->data + this->count); }
 
 };
 

@@ -340,7 +340,7 @@ public:
 
     template<typename T>
     T valueOrDefault(const char* name, T def) {
-        auto& it = properties.find(name);
+        const auto& it = properties.find(name);
         if (it != properties.end()) {
             return it->get<T>();
         }
@@ -372,7 +372,7 @@ public:
         }
     }
     void _read(const char* name, BaseResource** into) override {
-        auto& it = properties.find(name);
+        const auto& it = properties.find(name);
         if (it != properties.end()) {
             const std::string& res = it->get_ref<const std::string&>();
             DevResourceMeta* meta = loader->findMeta(res);

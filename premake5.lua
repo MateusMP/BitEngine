@@ -36,8 +36,8 @@ IncludeDir["stb"] = "BitEngine/dependencies/stb"
 IncludeDir["winksignals"] = "BitEngine/dependencies/Wink-Signals"
 IncludeDir["assimp"] = "BitEngine/dependencies/assimp/include"
 
-configuration "not windows"
-   prebuildcommands { "cp default.config bin/project.config" }
+--configuration "not windows"
+--   prebuildcommands { "cp default.config bin/project.config" }
 
 group "Dependencies"
 	include "BitEngine/dependencies/glfw/"
@@ -167,6 +167,13 @@ project "Sample01"
 		defines
 		{
 			"BE_PLATFORM_WINDOWS"
+		}
+	
+	filter "system:linux"
+		defines
+		{
+			"unix",
+			"BE_PLATFORM_LINUX"
 		}
 
 	filter "configurations:Debug"
