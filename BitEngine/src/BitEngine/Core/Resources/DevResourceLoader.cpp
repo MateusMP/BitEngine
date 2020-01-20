@@ -252,7 +252,7 @@ void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
             if (found != byName.end()) {
                 found->second->properties = resource;
                 std::string props = package.second.dump();
-                printf(props.c_str());
+                printf("%s", props.c_str());
             } else {
                 index->metas.emplace_back(packageName, resourceName);
                 DevResourceMeta& meta = index->metas.back();

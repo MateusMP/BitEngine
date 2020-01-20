@@ -157,9 +157,15 @@ project "Sample01"
 
 	links
 	{
+		"GLFW",
 		"BitEngine",
+		"ImGui"
 	}
 	debugdir "samples/sample01"
+
+	postbuildcommands {
+		"../copyfiles.sh ../bin/" .. outputdir .. "/Sample01/%{cfg.buildtarget.name} sample01/",
+	}
 
 	filter "system:windows"
 		systemversion "latest"
@@ -174,6 +180,14 @@ project "Sample01"
 		{
 			"unix",
 			"BE_PLATFORM_LINUX"
+		}
+
+		links
+		{
+			"X11",
+			"dl",
+			"pthread",
+			"stdc++fs"
 		}
 
 	filter "configurations:Debug"

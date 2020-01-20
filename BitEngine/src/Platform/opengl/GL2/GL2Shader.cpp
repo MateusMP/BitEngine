@@ -363,15 +363,15 @@ int GL2Shader::buildFinalProgram()
 
     registerAttributes();
 
+    GL_CHECK(;);
     if (linkShaders() == BE_NO_ERROR) {
         registerUniforms();
+        GL_CHECK(;);
         return BE_NO_ERROR;
     }
     else {
         return FAILED_TO_LINK;
     }
-
-    GL_CHECK(;);
 }
 
 int GL2Shader::linkShaders()
