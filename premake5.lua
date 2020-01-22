@@ -159,7 +159,8 @@ project "Sample01"
 	{
 		"GLFW",
 		"BitEngine",
-		"ImGui"
+		"ImGui",
+		"assimp"
 	}
 	debugdir "samples/sample01"
 

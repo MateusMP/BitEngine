@@ -5,21 +5,21 @@
 #include <bitengine/Core/Messenger.h>
 #include <bitengine/Core/GeneralTaskManager.h>
 #include <bitengine/Core/Resources/DevResourceLoader.h>
-#include <Platform/opengl/GL2/GL2Driver.h>
 
-#include "Common/MainMemory.h"
-#include "Common/GameGlobal.h"
-#include "MyGame.h"
+#include "Game/Common/MainMemory.h"
+#include "Game/Common/GameGlobal.h"
+#include "Game/Common/CommonMain.h"
+#include "Game/MyGame.h"
 
-#define GL2_API
-#ifdef GL2_API
-#include "Platform/opengl/GL2/GL2ShaderManager.h"
-#include "Platform/opengl/GL2/GL2TextureManager.h"
-#endif
+// OPEN GL
+#include <Platform/opengl/GL2/GL2ShaderManager.h>
+#include <Platform/opengl/GL2/GL2TextureManager.h>
+#include <Platform/GLFW/GLFW_VideoSystem.h>
+#include <Platform/GLFW/GLFW_InputSystem.h>
+#include <Platform/GLFW/GLFW_ImGuiSystem.h>
 
-#include "Platform/GLFW/GLFW_VideoSystem.h"
-#include "Platform/GLFW/GLFW_InputSystem.h"
-#include "Platform/GLFW/GLFW_ImGuiSystem.h"
+#include "GamePlatform/OpenGL/OpenGLRenderer.h"
+
 
 BitEngine::Logger* GameLog()
 {
@@ -27,7 +27,6 @@ BitEngine::Logger* GameLog()
     return &log;
 }
 
-#include "Common/CommonMain.h"
 
 void gameExecute(MainMemory& gameMemory) {
 

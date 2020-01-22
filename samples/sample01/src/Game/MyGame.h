@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Overworld.h"
+#include <imgui.h>
+#include <Platform/GLFW/GLFW_ImGuiSystem.h>
 
+#include "Overworld.h"
 #include "MyGameSystem.h"
 
-#include "Platform/GLFW/GLFW_ImGuiSystem.h"
-#include "imgui.h"
 
 class UpdateTask : public BitEngine::Task
 {
@@ -250,6 +250,9 @@ public:
         mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0 });
         gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
         mainMemory->renderQueue->pushCommand(gameState->entitySystem->spr2D.GenerateRenderData(), gameState->m_userGUI->getCamera()->getMatrix());
+
+        gameState->entitySystem->mesh3dSys.setActiveCamera(gameState->m_world->getActiveCamera());
+        gameState->entitySystem->mesh3dSys.processEntities();
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)

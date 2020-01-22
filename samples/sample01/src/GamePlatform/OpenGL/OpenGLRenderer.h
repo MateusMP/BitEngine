@@ -1,7 +1,11 @@
 #pragma once
+
 #include <Platform/opengl/GL2/GL2Driver.h>
 
 #include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
+
+#include "Shader3DProcessor.h"
+#include "Shader3DSimple.h"
 
 
 // Sprite 2D batch
@@ -144,11 +148,55 @@ private:
     Sprite2D_DD_new m_newRefs;
 };
 
+class GLModelRenderer {
+public:
+    void init(BitEngine::ResourceLoader* loader) {
+        if (!m_shader.Init()) {
+            LOG(GameLog(), BE_LOG_ERROR) << "Could not create Shader3DSimple";
+        }
+
+        m_meshRenderer = m_shader.CreateRenderer();
+        if (m_meshRenderer == nullptr) {
+            LOG(GameLog(), BE_LOG_ERROR) << "Could not create Shader3DSimple renderer";
+            return;
+        }
+    }
+
+    void process(const Render3DBatchCommand& cmd) {
+
+        // TODO: parallelize this loop?
+        for (u32 i = 0; i < cmd.count; ++i) {
+            Model3D& model = cmd.data[i];
+            m_meshRenderer->addMesh((Shader3DSimple::Mesh*)model.mesh, model.material, &model.transform);
+        }
+
+        m_meshRenderer->End();
+
+        // Set up shader
+        m_shader.LoadProjectionMatrix(cmd.projection);
+        m_shader.LoadViewMatrix(cmd.view);
+        m_shader.Bind();
+
+        // Set up GL states
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+
+        // Render
+        m_meshRenderer->Render();
+    }
+
+private:
+    Shader3DSimple m_shader;
+    Shader3DSimple::BatchRenderer* m_meshRenderer;
+};
+
 class GLRenderer {
 public:
 
     void init(BitEngine::ResourceLoader* loader) {
         spriteRenderer.init(loader);
+        modelsRenderer.init(loader);
     }
 
     void render(RenderQueue* queue) {
@@ -175,20 +223,18 @@ public:
             break;
             case SCENE_2D:
                 break;
+            case Command::SCENE_3D_BATCH:
+                Render3DBatchCommand& cmd = commands[i].data.batch3d;
+                modelsRenderer.process(cmd);
+                break;
             }
+
         }
 
     }
 
 
     GLSprite2DRenderer spriteRenderer;
+    GLModelRenderer modelsRenderer;
 };
 
-
-void resourceManagerMenu(const char* name, BitEngine::ResourceManager *resMng) {
-    constexpr float TO_MB = 1.0 / (1024 * 1024);
-    if (ImGui::TreeNode(name)) {
-        ImGui::TextColored(ImVec4(1, 1, 0, 1), "RAM: %.2f GPU: %.2f", resMng->getCurrentRamUsage()* TO_MB, resMng->getCurrentGPUMemoryUsage()*TO_MB);
-        ImGui::TreePop();
-    }
-}

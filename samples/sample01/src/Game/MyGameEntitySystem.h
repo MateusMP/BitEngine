@@ -1,11 +1,11 @@
 #pragma once
 
-#include <bitengine/Core/Graphics/Sprite2D.h>
-#include <bitengine/Core/Graphics/Sprite2DRenderer.h>
-#include <bitengine/Core/ECS/Camera2DProcessor.h>
-#include <bitengine/Core/ECS/Camera3DProcessor.h>
-#include <bitengine/Core/ECS/RenderableMeshProcessor.h>
-#include <bitengine/Core/ECS/GameLogicProcessor.h>
+#include <BitEngine/Core/Graphics/Sprite2D.h>
+#include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
+#include <BitEngine/Core/ECS/Camera2DProcessor.h>
+#include <BitEngine/Core/ECS/Camera3DProcessor.h>
+#include <BitEngine/Core/ECS/RenderableMeshProcessor.h>
+#include <BitEngine/Core/ECS/GameLogicProcessor.h>
 
 
 #include "Common/GameGlobal.h"
@@ -13,17 +13,65 @@
 class MyGameEntitySystem;
 
 
+struct Mesh3D : BitEngine::Component<Mesh3D> {
+
+};
+
+
+
+class Mesh3DProcessor : public BitEngine::ComponentProcessor
+{
+public:
+    Mesh3DProcessor(BitEngine::EntitySystem* es, BitEngine::Transform3DProcessor *t3dp_)
+        : ComponentProcessor(es), t3dp(t3dp_)
+    {
+    }
+
+    void setActiveCamera(const BitEngine::ComponentRef<BitEngine::Camera3DComponent>& camera)
+    {
+        activeCamera = camera;
+    }
+
+    void processEntities()
+    {
+        using namespace BitEngine;
+
+        // Find out the 2D camera
+
+        // printf("3d To render: %d\n", nObjs);
+        Render3DBatchCommand* batch = queue->initRenderBatch3D();
+        batch->projection = activeCamera->getProjection();
+        batch->view = activeCamera->getView();
+
+        getES()->forEach<RenderableMeshComponent, Transform3DComponent>(
+            [&](ComponentRef<RenderableMeshComponent>& renderable, ComponentRef<Transform3DComponent>&& transform)
+        {
+            Model3D *m = queue->pushModel3D(batch);
+            m->mesh = renderable->getMesh();
+            m->material = renderable->getMaterial();
+            m->transform = t3dp->getGlobalTransformFor(getComponentHandle(transform));
+        });
+    }
+
+private:
+    RenderQueue* queue;
+    BitEngine::Transform3DProcessor *t3dp;
+
+    BitEngine::ComponentRef<BitEngine::Camera3DComponent> activeCamera;
+};
+
+
 class PlayerControlSystem : public BitEngine::ComponentProcessor
 {
 public:
-    PlayerControlSystem(BitEngine::EntitySystem* es) : BitEngine::ComponentProcessor(es){}
+    PlayerControlSystem(BitEngine::EntitySystem* es) : BitEngine::ComponentProcessor(es) {}
 
     static BitEngine::EntityHandle CreatePlayerTemplate(BitEngine::ResourceLoader* loader, MyGameEntitySystem* es, BitEngine::CommandSystem* cmdSys);
 
     void update()
     {
         BE_PROFILE_FUNCTION();
-        getES()->forAll<PlayerControlComponent>([](BitEngine::ComponentHandle id, PlayerControlComponent& comp){
+        getES()->forAll<PlayerControlComponent>([](BitEngine::ComponentHandle id, PlayerControlComponent& comp) {
             float vel = 2.0f;
 
             // camT2D->setPosition(x, y);
@@ -98,7 +146,8 @@ public:
         t2p(this), t3p(this),
         cam2Dprocessor(this, &t2p), cam3Dprocessor(this, &t3p),
         rmp(this), glp(this), spr2D(this, loader), spinnerSys(this),
-        pcs(this)
+        pcs(this),
+        mesh3dSys(this, &t3p)
     {
         using namespace BitEngine;
 
@@ -139,6 +188,7 @@ public:
     BitEngine::Sprite2DRenderer spr2D;
     PlayerControlSystem pcs;
     SpinnerSystem spinnerSys;
+    Mesh3DProcessor mesh3dSys;
 };
 
 

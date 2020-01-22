@@ -112,6 +112,10 @@ project "assimp"
 		"contrib/zlib/**.c",
 		"contrib/unzip/*.c",
 	}
+	excludes {
+		"**/inffas86.c",
+		"contrib/zlib/testzlib"
+	}
 	
 	filter "system:windows"
 		systemversion "latest"
