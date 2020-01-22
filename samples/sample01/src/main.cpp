@@ -1,10 +1,10 @@
 
 #include <string>
 
-#include <bitengine/bitengine.h>
-#include <bitengine/Core/Messenger.h>
-#include <bitengine/Core/GeneralTaskManager.h>
-#include <bitengine/Core/Resources/DevResourceLoader.h>
+#include <BitEngine/bitengine.h>
+#include <BitEngine/Core/Messenger.h>
+#include <BitEngine/Core/GeneralTaskManager.h>
+#include <BitEngine/Core/Resources/DevResourceLoader.h>
 
 #include "Game/Common/MainMemory.h"
 #include "Game/Common/GameGlobal.h"
@@ -14,9 +14,9 @@
 // OPEN GL
 #include <Platform/opengl/GL2/GL2ShaderManager.h>
 #include <Platform/opengl/GL2/GL2TextureManager.h>
-#include <Platform/GLFW/GLFW_VideoSystem.h>
-#include <Platform/GLFW/GLFW_InputSystem.h>
-#include <Platform/GLFW/GLFW_ImGuiSystem.h>
+#include <Platform/glfw/GLFW_VideoSystem.h>
+#include <Platform/glfw/GLFW_InputSystem.h>
+#include <Platform/glfw/GLFW_ImGuiSystem.h>
 
 #include "GamePlatform/OpenGL/OpenGLRenderer.h"
 

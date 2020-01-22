@@ -17,9 +17,9 @@
 #endif
 
 #include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
-#include <Platform/GLFW/GLFW_VideoSystem.h>
-#include <Platform/GLFW/GLFW_InputSystem.h>
-#include <Platform/GLFW/GLFW_ImGuiSystem.h>
+#include <Platform/glfw/GLFW_VideoSystem.h>
+#include <Platform/glfw/GLFW_InputSystem.h>
+#include <Platform/glfw/GLFW_ImGuiSystem.h>
 
 
 #include "Common/MainMemory.h"

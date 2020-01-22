@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bitengine/Core/VideoSystem.h>
-#include <bitengine/Core/Logger.h>
-#include <bitengine/Core/Memory.h>
-#include <bitengine/Core/ECS/EntitySystem.h>
+#include <BitEngine/Core/VideoSystem.h>
+#include <BitEngine/Core/Logger.h>
+#include <BitEngine/Core/Memory.h>
+#include <BitEngine/Core/ECS/EntitySystem.h>
 
 extern BitEngine::Logger* GameLog();
 

@@ -1,7 +1,7 @@
 #include "Shader3DSimple.h"
 
 #include <assimp/material.h>
-#include <bitengine/Core/Resources/ResourceManager.h>
+#include <BitEngine/Core/Resources/ResourceManager.h>
 
 //RendererVersion Shader3DSimple::useRenderer = NOT_DEFINED;
 

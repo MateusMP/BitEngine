@@ -350,8 +350,8 @@ private:
 
 
     public:
-        void* operator new(size_t size) { return _aligned_malloc(size, 16); }
-        void operator delete(void* mem) { return _aligned_free(mem); }
+        // void* operator new(size_t size) { return _aligned_malloc(size, 16); }
+        // void operator delete(void* mem) { return _aligned_free(mem); }
 
     };
 
@@ -429,8 +429,8 @@ private:
 
 
     public:
-        void* operator new(size_t size) { return _aligned_malloc(size, 16); }
-        void operator delete(void* mem) { return _aligned_free(mem); }
+        // void* operator new(size_t size) { return _aligned_malloc(size, 16); }
+        // void operator delete(void* mem) { return _aligned_free(mem); }
 
     };
 

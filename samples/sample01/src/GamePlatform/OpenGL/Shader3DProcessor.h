@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bitengine/Core/VideoSystem.h>
-#include <bitengine/Core/Graphics/Sprite2D.h>
-#include <bitengine/Core/ECS/EntitySystem.h>
-#include <bitengine/Core/ECS/Transform3DProcessor.h>
+#include <BitEngine/Core/VideoSystem.h>
+#include <BitEngine/Core/Graphics/Sprite2D.h>
+#include <BitEngine/Core/ECS/EntitySystem.h>
+#include <BitEngine/Core/ECS/Transform3DProcessor.h>
 
 #include "Shader3DSimple.h"
 

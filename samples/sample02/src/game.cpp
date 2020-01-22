@@ -1,9 +1,9 @@
 
 #include <BitEngine/Core/Logger.h>
 
-#include <bitengine/bitengine.h>
-#include <bitengine/Core/Messenger.h>
-#include <bitengine/Core/GeneralTaskManager.h>
+#include <BitEngine/bitengine.h>
+#include <BitEngine/Core/Messenger.h>
+#include <BitEngine/Core/GeneralTaskManager.h>
 #include <BitEngine/Core/Memory.h>
 
 #include "Common/GameGlobal.h"

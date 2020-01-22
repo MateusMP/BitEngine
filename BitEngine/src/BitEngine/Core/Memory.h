@@ -47,8 +47,8 @@ public:
     template<typename T>
     T* pushArrayDynamic(u32 length) {
         static_assert(std::is_pod<T>());
-        T* ptr = allocArrayDynamic<T>(length)
-        new (ptr) T[length];=
+        T* ptr = allocArrayDynamic<T>(length);
+        new (ptr) T[length];
         return ptr;
     }
 

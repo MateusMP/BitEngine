@@ -1,7 +1,7 @@
 #pragma once
 
 #include <imgui.h>
-#include <Platform/GLFW/GLFW_ImGuiSystem.h>
+#include <Platform/glfw/GLFW_ImGuiSystem.h>
 
 #include "Overworld.h"
 #include "MyGameSystem.h"

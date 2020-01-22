@@ -44,7 +44,7 @@ public:
         batch->view = activeCamera->getView();
 
         getES()->forEach<RenderableMeshComponent, Transform3DComponent>(
-            [&](ComponentRef<RenderableMeshComponent>& renderable, ComponentRef<Transform3DComponent>&& transform)
+            [&](ComponentRef<RenderableMeshComponent>&& renderable, ComponentRef<Transform3DComponent>&& transform)
         {
             Model3D *m = queue->pushModel3D(batch);
             m->mesh = renderable->getMesh();
