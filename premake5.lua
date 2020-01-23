@@ -164,10 +164,6 @@ project "Sample01"
 	}
 	debugdir "samples/sample01"
 
-	postbuildcommands {
-		"../copyfiles.sh ../bin/" .. outputdir .. "/Sample01/%{cfg.buildtarget.name} sample01/",
-	}
-
 	filter "system:windows"
 		systemversion "latest"
 
@@ -189,6 +185,10 @@ project "Sample01"
 			"dl",
 			"pthread",
 			"stdc++fs"
+		}
+		
+		postbuildcommands {
+			"cp ../bin/" .. outputdir .. "/Sample01/%{cfg.buildtarget.name} sample01/",
 		}
 
 	filter "configurations:Debug"

@@ -68,7 +68,7 @@ public:
     }
 
     void* alloc(ptrsize allocSize) {
-        BE_ASSERT(used + allocSize < size);
+        BE_ASSERT(used + allocSize <= size);
 
         void* ptr = base + used;
         used += allocSize;

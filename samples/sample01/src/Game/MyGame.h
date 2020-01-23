@@ -126,8 +126,10 @@ public:
         gameState->m_userGUI = permanentArena.push<UserGUI>(gameState->entitySystem);
         gameState->m_world = permanentArena.push<GameWorld>(mainMemory, gameState->entitySystem);
 
-        //gameState->selfPlayer = permanentArena.push<Player>("nick_here", 0);
-        //gameState->m_world->addPlayer(gameState->selfPlayer);
+        gameState->m_player = permanentArena.push<Player>("nick_here", 0);
+        gameState->m_world->addPlayer(gameState->m_player);
+        gameState->m_camera3d = permanentArena.push<PlayerCamera>(gameState->entitySystem);
+        gameState->m_world->setActiveCamera(gameState->m_camera3d->getCamera());
 
         // Tests
         const RR<Texture> texture = loader->getResource<BitEngine::Texture>("texture.png");
@@ -151,6 +153,8 @@ public:
         // CREATE PLAYER
         auto playerEntity = PlayerControlSystem::CreatePlayerTemplate(loader, gameState->entitySystem, mainMemory->commandSystem);
         gameState->playerControl = gameState->entitySystem->getComponentRef<PlayerControlComponent>(playerEntity);
+
+
 
         // Sparks
         MyGameEntitySystem* es = gameState->entitySystem;
@@ -252,7 +256,7 @@ public:
         mainMemory->renderQueue->pushCommand(gameState->entitySystem->spr2D.GenerateRenderData(), gameState->m_userGUI->getCamera()->getMatrix());
 
         gameState->entitySystem->mesh3dSys.setActiveCamera(gameState->m_world->getActiveCamera());
-        gameState->entitySystem->mesh3dSys.processEntities();
+        gameState->entitySystem->mesh3dSys.processEntities(mainMemory->renderQueue);
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)

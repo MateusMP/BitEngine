@@ -10,18 +10,12 @@ class PlayerController;
 class PlayerCamera
 {
 public:
-    bool Create(MyGameEntitySystem* esys)
-    {
+    PlayerCamera(MyGameEntitySystem* esys) {
         entity = esys->createEntity();
         transform = esys->addComponent<BitEngine::Transform3DComponent>(entity);
         camera = esys->addComponent<BitEngine::Camera3DComponent>(entity);
 
         transform->setPosition(0, 0, 250);
-
-        if (!transform.isValid()) return false;
-        if (!camera.isValid()) return false;
-
-        return true;
     }
 
     void setLookAt(const glm::vec3& pos) {
@@ -214,15 +208,6 @@ public:
     }
     ~GameWorld() {
     };
-
-    // Prepare all resources
-    virtual bool init() {
-        return true;
-    }
-    // Releases all resources
-    virtual void shutdown() {
-
-    }
 
     void setActiveCamera(const BitEngine::ComponentRef<BitEngine::Camera3DComponent>& camera)
     {

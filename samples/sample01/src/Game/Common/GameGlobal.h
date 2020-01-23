@@ -14,10 +14,10 @@ class MyGame;
 class MyGameEntitySystem;
 class Player;
 class PlayerController;
+class PlayerCamera;
 
 class UserGUI;
 class GameWorld;
-
 
 enum GAME_STATES {
 	MENU,
@@ -66,7 +66,10 @@ struct GameState {
 	UserGUI* m_userGUI;
 	GameWorld* m_world; //!< Current active world
 
-    BitEngine::ComponentRef<PlayerControlComponent> playerControl;	
+    BitEngine::ComponentRef<PlayerControlComponent> playerControl;
+
+    Player* m_player;
+    PlayerCamera* m_camera3d;
 };
 
 struct UserRequestQuitGame {

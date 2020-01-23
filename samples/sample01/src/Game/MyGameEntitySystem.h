@@ -32,7 +32,7 @@ public:
         activeCamera = camera;
     }
 
-    void processEntities()
+    void processEntities(RenderQueue* queue)
     {
         using namespace BitEngine;
 
@@ -54,7 +54,6 @@ public:
     }
 
 private:
-    RenderQueue* queue;
     BitEngine::Transform3DProcessor *t3dp;
 
     BitEngine::ComponentRef<BitEngine::Camera3DComponent> activeCamera;

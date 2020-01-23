@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BitEngine/Core/Assert.h>
 #include <Platform/opengl/GL2/GL2Driver.h>
 
 #include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
@@ -151,8 +152,9 @@ private:
 class GLModelRenderer {
 public:
     void init(BitEngine::ResourceLoader* loader) {
-        if (!m_shader.Init()) {
+        if (m_shader.Init() != BE_NO_ERROR) {
             LOG(GameLog(), BE_LOG_ERROR) << "Could not create Shader3DSimple";
+            BE_INVALID_PATH("Shader3D Error");
         }
 
         m_meshRenderer = m_shader.CreateRenderer();
