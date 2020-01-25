@@ -2,10 +2,6 @@
 
 #include <map>
 
-#include <assimp/scene.h>
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-
 #include <glm/common.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -28,7 +24,7 @@ DECLARE_DATA_STRUCTURE()
 ADD_MEMBER(glm::mat4, matrix)
 END_VERTEX_DATA()
 
-class Shader3DSimple
+class Shader3DSimple : public BitEngine::ShaderProgram
 {
 
 public:
@@ -47,37 +43,26 @@ public:
     static const u32 VBO_VERTEXDATA = 1;
     static const u32 VBO_MODELMAT = 2;
 
-    //	static RendererVersion GetRendererVersion(){ return useRenderer; }
-
-        //
-
-    Shader3DSimple();
-    ~Shader3DSimple();
-
     static int GetID() {
         return 1;
     }
 
-    int Init();
+    Shader3DSimple();
+    ~Shader3DSimple();
+
+    int Init() override;
+
+    void BindAttributes() override;
+
+    /// VIRTUAL
+    void RegisterUniforms() override;
+
+    /// Virtual
+    void OnBind() override;
 
     void LoadViewMatrix(const glm::mat4& matrix);
     void LoadProjectionMatrix(const glm::mat4& matrix);
 
-    void Bind();
-
-    BatchRenderer* CreateRenderer();
-
-private:
-    //static RendererVersion useRenderer;
-
-    class IShaderVersion : public BitEngine::ShaderProgram {
-    public:
-        virtual void LoadViewMatrix(const glm::mat4& matrix) = 0;
-        virtual void LoadProjectionMatrix(const glm::mat4& matrix) = 0;
-        virtual BatchRenderer* CreateRenderer() = 0;
-    };
-
-    IShaderVersion* shader;
 
 public:
     // Shader classes
@@ -88,37 +73,24 @@ public:
         BitEngine::RR<BitEngine::Texture> normal;
     };
 
-    class Vertex
+    struct Vertex
     {
-    public:
-        Vertex(const glm::vec3& _pos,
-            const glm::vec2& _uv,
-            const glm::vec3& _normals)
-            : pos(_pos), uv(_uv), normal(_normals) {}
-
         glm::vec3 pos;
         glm::vec2 uv;
         glm::vec3 normal;
     };
 
-    class Mesh : public BitEngine::Mesh
+    struct ShaderMesh
     {
-    public:
-        Mesh(const std::string& name,
-            const std::vector<Vertex>& vertex,
-            const std::vector<GLuint>& indices,
-            Material3D* material)
-            : BitEngine::Mesh(name), m_material(material)
-        {
-            LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Creating VAO and VBOS: v: " << vertex.size() << " idx: " << indices.size();
+        void setup(Vertex* vertices, ptrsize vertexCount, u32* indices, ptrsize indexSize) {
+            
             // Create buffers
             glGenVertexArrays(1, &vao);
             glGenBuffers(NUM_VBOS, vbo);
 
             // Load index buffer
-            numIndices = indices.size();
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[VBO_INDEX]);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
             // Vertex data
             glBindVertexArray(vao);
@@ -136,18 +108,15 @@ public:
             glVertexAttribDivisor(ATTR_VERTEX_NORMAL, 0);
 
             // Load vertex data
-            glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(Vertex), &vertex[0], GL_STATIC_DRAW);
 
-            // Matrix
-            //if (useRenderer != USE_GL2)
-            {
-                // Used only by GL4 renderer version
-                glBindBuffer(GL_ARRAY_BUFFER, vbo[VBO_MODELMAT]);
-                for (int i = 0; i < VERTEX_MATRIX4_ATTIBUTE_SIZE; ++i) {
-                    glEnableVertexAttribArray(ATTR_MODEL_MAT + i);
-                    glVertexAttribPointer(ATTR_MODEL_MAT + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(GLfloat) * 4 * i));
-                    glVertexAttribDivisor(ATTR_MODEL_MAT + i, 1);
-                }
+            glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex), vertices, GL_STATIC_DRAW);
+
+            // Setup VBO for data, but do not bind data yet, since it is dynamic
+            glBindBuffer(GL_ARRAY_BUFFER, vbo[VBO_MODELMAT]);
+            for (int i = 0; i < VERTEX_MATRIX4_ATTIBUTE_SIZE; ++i) {
+                glEnableVertexAttribArray(ATTR_MODEL_MAT + i);
+                glVertexAttribPointer(ATTR_MODEL_MAT + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(GLfloat) * 4 * i));
+                glVertexAttribDivisor(ATTR_MODEL_MAT + i, 1);
             }
 
             glBindVertexArray(0);
@@ -155,283 +124,79 @@ public:
             //check_gl_error();
         }
 
-        ~Mesh() {
+        void destroy() {
             glDeleteBuffers(NUM_VBOS, vbo);
             glDeleteVertexArrays(1, &vao);
         }
 
-        int getType() const override {
-            return GetID();
-        }
-
-        Material3D* getMaterial() const override {
-            return m_material;
-        }
-
-        const GLuint* getVBO() const {
-            return vbo;
-        }
-
-        GLuint getVAO() const {
-            return vao;
-        }
-
-        u32 getNumIndices() const {
-            return numIndices;
-        }
-
-    private:
-        Material3D *m_material;
         GLuint vao;
         GLuint vbo[NUM_VBOS];
-
         u32 numIndices;
-    };
-
-    class Model : public BitEngine::Model
-    {
-    public:
-        Model(const std::string& baseDirectory);
-        ~Model();
-
-        // Virtuals
-        const std::string& getName() const override { return m_baseDir; }
-        const BitEngine::Material* getMaterial(int index) const { return materials[index]; }
-        const BitEngine::Mesh* getMesh(int index) const { return meshes[index]; }
-        //
-
-        void process(BitEngine::ResourceLoader* tMng, const aiScene* scene);
-
-    private:
-        void processNode(aiNode* node, const aiScene* scene);
-        typename Shader3DSimple::Mesh* processMesh(aiMesh* mesh, const aiScene* scene);
-        Material3D* createMaterial(BitEngine::ResourceLoader* tMng, const aiMaterial* material);
-
-
-        std::vector<Mesh*> meshes;
-        std::vector<Material3D*> materials;
-
-        std::string m_baseDir;
     };
 
     class BatchRenderer
     {
     public:
-        virtual ~BatchRenderer() {}
-
-        virtual void addMesh(Mesh* mesh, BitEngine::Material* mat, const glm::mat4* modelMat) = 0;
-
-        virtual void Begin() = 0;
-
-        virtual void End() = 0;
-
-        virtual void Render() = 0;
-
-    protected:
-        struct RenderData
+        static bool CheckFunctions()
         {
-            RenderData(BitEngine::Material* _mat, const glm::mat4* _model)
-                : material(_mat), modelMatrix(_model) {}
+            if (glDrawElementsInstancedBaseInstance == nullptr)
+                return false;
 
-            BitEngine::Material* material;
-            const glm::mat4* modelMatrix;
-        };
-
-        struct Batch {
-            Batch(u32 _offset, int _nI, Mesh* _mesh, BitEngine::Material* _mat, bool tr)
-                : offset(_offset), nItems(_nI), mesh(_mesh), material(_mat), transparent(tr)
-            {}
-
-            u32 offset;
-            int nItems;
-            Mesh* mesh;
-            BitEngine::Material* material;
-            bool transparent;
-        };
-
-        static bool sortRenderData(const RenderData& a, const RenderData& b)
-        {
-            Material3D* aMat = (Material3D*)a.material;
-            Material3D* bMat = (Material3D*)b.material;
-            return (aMat->diffuse < bMat->diffuse && aMat->normal < bMat->normal)
-                || (aMat->diffuse == bMat->diffuse && aMat->normal < bMat->normal);
-        }
-    };
-
-    // Load model
-    static Shader3DSimple::Model* LoadModel(BitEngine::ResourceLoader* tMng, const std::string& filename)
-    {
-        Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate);
-
-        if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-        {
-            LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR::ASSIMP::" << importer.GetErrorString();
-            return nullptr;
+            return true;
         }
 
-        size_t pos = filename.find_last_of("/\\");
-        std::string baseDir = filename.substr(0, pos) + "/";
+        void draw(const ShaderMesh& mesh, const Material3D& material , const glm::mat4* modelMats, ptrsize totalTransforms) {
 
-        Model * m = new Model(baseDir);
-        m->process(tMng, scene);
+            // Load transform matrices
+            glBindVertexArray(mesh.vao);
+            glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo[VBO_MODELMAT]);
+            glBufferData(GL_ARRAY_BUFFER, totalTransforms * sizeof(glm::mat4), modelMats, GL_DYNAMIC_DRAW);
 
-        return m;
-    }
+            /*
+            if (r.transparent) {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            }*/
 
-private:
-    class Shader3DSimpleGL4 : public IShaderVersion
-    {
-    public:
-
-        Shader3DSimple::BatchRenderer* CreateRenderer();
-
-        void BindAttributes() override;
-
-        /// VIRTUAL
-        void RegisterUniforms() override;
-
-        /// Virtual
-        void OnBind() override;
-
-        int Init() override;
-
-        void LoadViewMatrix(const glm::mat4& matrix);
-        void LoadProjectionMatrix(const glm::mat4& matrix);
-
-    public:
-        class BatchRendererGL4 : public Shader3DSimple::BatchRenderer
-        {
-        public:
-            static bool CheckFunctions()
-            {
-                if (glDrawElementsInstancedBaseInstance == nullptr)
-                    return false;
-
-                return true;
+            // Bind DIFFUSE
+            const GLuint diffuse = material.diffuse->getTextureID();
+            if (lastDiffuse != diffuse) {
+                glActiveTexture(GL_TEXTURE0 + DIFFUSE_TEXTURE_SLOT);
+                glBindTexture(GL_TEXTURE_2D, diffuse);
+                lastDiffuse = diffuse;
             }
 
-            BatchRendererGL4();
-            ~BatchRendererGL4();
+            // Bind NORMAL
+            const GLuint normal = material.normal->getTextureID();
+            if (lastNormal != normal) {
+                glActiveTexture(GL_TEXTURE0 + NORMAL_TEXTURE_SLOT);
+                glBindTexture(GL_TEXTURE_2D, normal);
+                lastNormal = normal;
+            }
 
-            void addMesh(Mesh* mesh, BitEngine::Material* mat, const glm::mat4* modelMat) override;
+            // DRAW
+            glDrawElementsInstancedBaseInstance(GL_TRIANGLES, r.mesh->getNumIndices(), GL_UNSIGNED_INT, 0, r.nItems, r.offset);
 
-            void Begin() override;
+            /*
+            if (r.transparent) {
+                glDisable(GL_BLEND);
+            }*/
+        }
 
-            void End() override;
-
-            void Render() override;
-
-        private:
-            //
-            void sort();
-
-            void createBatches();
-
-        private:
-            std::map<Mesh*, std::vector<RenderData>> data;
-
-            std::vector<Batch> batches;
-
-            GLuint modelMatrixVBO;
-        };
-
-
-    protected:
-        // Locations
-        s32 u_projectionMatrixHDL;
-        s32 u_viewMatrixHDL;
-        s32 u_diffuseHDL;
-        s32 u_normalHDL;
-
-        // Data
-        glm::mat4 u_projection;
-        glm::mat4 u_view;
-
-
-    public:
-        // void* operator new(size_t size) { return _aligned_malloc(size, 16); }
-        // void operator delete(void* mem) { return _aligned_free(mem); }
+        GLuint lastDiffuse;
+        GLuint lastNormal;
 
     };
 
-    class Shader3DSimpleGL2 : public IShaderVersion
-    {
-    public:
-        Shader3DSimple::BatchRenderer* CreateRenderer();
 
-        void BindAttributes() override;
+protected:
+    // Locations
+    s32 u_projectionMatrixHDL;
+    s32 u_viewMatrixHDL;
+    s32 u_diffuseHDL;
+    s32 u_normalHDL;
 
-        /// VIRTUAL
-        void RegisterUniforms() override;
-
-        /// Virtual
-        void OnBind() override;
-
-        int Init() override;
-
-        void LoadViewMatrix(const glm::mat4& matrix);
-        void LoadProjectionMatrix(const glm::mat4& matrix);
-
-        void LoadIntanceModelMatrix(const glm::mat4& matrix);
-
-    public:
-        class BatchRendererGL2 : public BatchRenderer
-        {
-        public:
-            static bool CheckFunctions()
-            {
-                if (glBindVertexArray == nullptr)
-                    return false;
-
-                return true;
-            }
-
-            BatchRendererGL2(Shader3DSimpleGL2* shader);
-
-            ~BatchRendererGL2();
-
-            void addMesh(Mesh* mesh, BitEngine::Material* mat, const glm::mat4* modelMat) override;
-
-            void Begin() override;
-
-            void End() override;
-
-            void Render() override;
-
-        private:
-            //
-            void sort();
-
-            void createBatches();
-
-        private:
-            std::map<Mesh*, std::vector<RenderData>> data;
-
-            std::vector<Batch> batches;
-
-            std::vector<glm::mat4> modelMatrices;
-            Shader3DSimpleGL2* m_shader;
-        };
-
-
-    protected:
-        // Locations
-        s32 u_projectionMatrixHDL;
-        s32 u_viewMatrixHDL;
-        s32 u_diffuseHDL;
-        s32 u_normalHDL;
-        s32 u_modelMatrixHDL;
-
-        // Data
-        glm::mat4 u_projection;
-        glm::mat4 u_view;
-
-
-    public:
-        // void* operator new(size_t size) { return _aligned_malloc(size, 16); }
-        // void operator delete(void* mem) { return _aligned_free(mem); }
-
-    };
-
+    // Data
+    glm::mat4 u_projection;
+    glm::mat4 u_view;
 };

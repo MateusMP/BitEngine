@@ -1,0 +1,27 @@
+#version 150
+
+uniform mat4 u_projectionMatrix;
+uniform mat4 u_viewMatrix;
+
+
+in vec3 a_position;
+in vec2 a_textureUV;
+in vec3 a_normal;
+in mat4 a_modelMatrix;
+
+// out vec3 v_position;
+out vec2 v_textureUV;
+out vec3 v_normal;
+
+// gl_Position
+
+void main()
+{
+	vec4 worldPos = a_modelMatrix * vec4(a_position, 1);
+	
+	gl_Position = u_projectionMatrix * u_viewMatrix * worldPos;
+	// v_position = gl_Position.xyz/512;
+	
+	v_textureUV = a_textureUV;
+	v_normal = (transpose(inverse(a_modelMatrix)) * vec4(a_normal, 0.0)).xyz;
+}

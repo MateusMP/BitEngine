@@ -5,7 +5,6 @@
 
 #include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
 
-#include "Shader3DProcessor.h"
 #include "Shader3DSimple.h"
 
 
@@ -156,41 +155,105 @@ public:
             LOG(GameLog(), BE_LOG_ERROR) << "Could not create Shader3DSimple";
             BE_INVALID_PATH("Shader3D Error");
         }
+    }
 
-        m_meshRenderer = m_shader.CreateRenderer();
-        if (m_meshRenderer == nullptr) {
-            LOG(GameLog(), BE_LOG_ERROR) << "Could not create Shader3DSimple renderer";
-            return;
+    void destroy() {
+        for (std::pair<BitEngine::Mesh*, Shader3DSimple::ShaderMesh> element : m_shaderMesh) {
+            element.second.destroy();
         }
     }
 
     void process(const Render3DBatchCommand& cmd) {
-
-        // TODO: parallelize this loop?
-        for (u32 i = 0; i < cmd.count; ++i) {
-            Model3D& model = cmd.data[i];
-            m_meshRenderer->addMesh((Shader3DSimple::Mesh*)model.mesh, model.material, &model.transform);
+        if (cmd.count <= 0) {
+            return;
         }
 
-        m_meshRenderer->End();
+        u8 _matrixBuffer[sizeof(glm::mat4) * 256];
+        BitEngine::MemoryArena matrixBuffer;
+        matrixBuffer.init(_matrixBuffer, sizeof(_matrixBuffer));
+        
+        // Sort for batching
+        std::sort(cmd.data, cmd.data + cmd.count, [](const Model3D& a, const Model3D& b) {
+            if (a.material != b.material) {
+                return a.material < b.material;
+            }
+            return (b.mesh < b.mesh);
+        });
+
+        // Setup matrix array for every batch
+        u32 batchIndices[32] = {};
+        u32 currentIndex = 0;
+        BitEngine::Material* lastMaterial;
+        BitEngine::Mesh* lastMesh = cmd.data[0].mesh;
+        for (u32 i = 0; i < cmd.count; ++i) {
+            const Model3D& model = cmd.data[i];
+            currentIndex += model.mesh != lastMesh || model.material != lastMaterial;
+            batchIndices[currentIndex] = i;
+            matrixBuffer.push<BitEngine::Mat4>(model.transform);
+        }
+
+        // For now, ensure every mesh is already setup for rendering
+        // Probably do this earlier during loading
+        u8 _vertexBuffer[sizeof(Shader3DSimple::Vertex) * 256];
+        BitEngine::MemoryArena vertexBuffer;
+        vertexBuffer.init(_matrixBuffer, sizeof(_matrixBuffer));
+
+        for (int i = 0; i < currentIndex; ++i) {
+            u32 end = batchIndices[i];
+
+            BitEngine::Mesh* mesh = cmd.data[end].mesh;
+            if (m_shaderMesh.find(mesh) == m_shaderMesh.end()) {
+                BitEngine::Mesh::DataArray indices = mesh->getIndicesData(0);
+                BitEngine::Mesh::DataArray verts = mesh->getVertexData(BitEngine::Mesh::VertexDataType::Vertices);
+                BitEngine::Mesh::DataArray texs = mesh->getVertexData(BitEngine::Mesh::VertexDataType::TextureCoord);
+                BitEngine::Mesh::DataArray norms = mesh->getVertexData(BitEngine::Mesh::VertexDataType::Normals);
+                for (int i = 0; i < indices.size; ++i) {
+                    vertexBuffer.push<Shader3DSimple::Vertex>(Shader3DSimple::Vertex{
+                        ((glm::vec3*)verts.data)[i],
+                        ((glm::vec2*)texs.data)[i],
+                        ((glm::vec3*)norms.data)[i] });
+                }
+                Shader3DSimple::ShaderMesh& newNesh = (m_shaderMesh[mesh] = {});
+                newNesh.setup((Shader3DSimple::Vertex*)vertexBuffer.base, indices.size, (u32*)indices.data, indices.size);
+            }
+
+            BitEngine::Material* material = cmd.data[end].material;
+            if (m_shaderMaterials.find(material) == m_shaderMaterials.end()) {
+                Shader3DSimple::Material3D& newMat = (m_shaderMaterials[material] = {});
+                newMat.diffuse = material->getTexture(0);
+                newMat.normal = material->getTexture(1);
+            }
+        }
 
         // Set up shader
         m_shader.LoadProjectionMatrix(cmd.projection);
         m_shader.LoadViewMatrix(cmd.view);
         m_shader.Bind();
 
+        // Draw!
+        u32 otherEnd = 0;
+        Shader3DSimple::BatchRenderer renderer;
+        for (int i = 0; i < currentIndex; ++i) {
+            u32 end = batchIndices[i];
+
+            // Not sure where these will come from yet
+            const Shader3DSimple::ShaderMesh& smesh = m_shaderMesh[cmd.data[end].mesh];
+            const Shader3DSimple::Material3D& smat = m_shaderMaterials[cmd.data[end].material];
+
+            renderer.draw(smesh, smat, (glm::mat4*) &matrixBuffer.base[otherEnd], end-otherEnd);
+            otherEnd = end;
+        }
+
         // Set up GL states
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
-
-        // Render
-        m_meshRenderer->Render();
     }
 
 private:
     Shader3DSimple m_shader;
-    Shader3DSimple::BatchRenderer* m_meshRenderer;
+    std::map<BitEngine::Mesh*, Shader3DSimple::ShaderMesh> m_shaderMesh;
+    std::map<BitEngine::Material*, Shader3DSimple::Material3D> m_shaderMaterials;
 };
 
 class GLRenderer {

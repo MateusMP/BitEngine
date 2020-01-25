@@ -14,15 +14,26 @@ class Skeleton
 public:
 };
 
-class Mesh
+class Mesh : public BaseResource
 {
 public:
-    Mesh(const std::string& name)
-        : m_name(name) {}
+    enum VertexDataType {
+        Vertices = 0,
+        TextureCoord,
+        Normals,
+    };
+    struct DataArray {
+        void* data;
+        ptrsize size;
+    };
+
+    Mesh(ResourceMeta* _meta)
+        : BaseResource(_meta) {}
 
     virtual ~Mesh() {}
 
-    const std::string& getName() const { return m_name; }
+    virtual DataArray getVertexData(VertexDataType type) = 0;
+    virtual DataArray getIndicesData(int index) = 0;
 
     virtual int getType() const = 0;
 
@@ -30,18 +41,6 @@ public:
 
 private:
     friend class MeshManager;
-
-    std::string m_name;
 };
 
-class Model
-{
-public:
-    Model() {}
-    virtual ~Model() {}
-
-    virtual const std::string& getName() const = 0;
-    // virtual const Material* getMaterial(int index) const = 0;
-    // virtual const Mesh* getMesh(int index) const = 0;
-};
 }

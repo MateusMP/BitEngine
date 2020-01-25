@@ -140,7 +140,7 @@ public:
 
         LOG(GameLog(), BE_LOG_VERBOSE) << "Texture loaded: " << texture->getTextureID();
 
-        //Shader3DSimple::Model* model = modelMng->loadModel<Shader3DSimple>("Models/Rocks_03.fbx");
+        RR<Mesh> mesh = loader->getResource<Mesh>("Models/Rocks_03.fbx");
 
         RR<Sprite> spr1 = loader->getResource<BitEngine::Sprite>("data/sprites/spr_skybox");
         RR<Sprite> spr2 = loader->getResource<BitEngine::Sprite>("data/sprites/spr_skybox_orbit");
