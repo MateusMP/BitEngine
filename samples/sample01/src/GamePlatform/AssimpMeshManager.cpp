@@ -6,87 +6,32 @@
 
 using namespace BitEngine;
 
-enum MeshLoadState {
-    UNDEFINED,
-    NOT_LOADED,
-    LOADING,
-    LOADED,
-};
-
-
-struct AssimpMaterial {
-    aiMaterial* material;
-};
-
-
-
-class AssimpModel
-{
-public:
-    // Virtuals
-    const Material* getMaterial(int index) const { return materials[index]; }
-    const Mesh* getMesh(int index) const { return meshes[index]; }
-
-    u32 getMeshCount() { return scene->mNumMeshes; }
-    void* getMeshData(int meshIdx, MeshDataType type, ptrsize* size{
-        switch (type) {
-        case MeshDataType::Vertices:
-            *size = scene->mMeshes[meshIdx]->mNumVertices;
-            return scene->mMeshes[meshIdx]->mVertices;
-        case MeshDataType::TextureCoord:
-            *size = scene->mMeshes[meshIdx]->mNumVertices;
-            return scene->mMeshes[meshIdx]->mTextureCoords[0];
-        case MeshDataType::Normals:
-            *size = scene->mMeshes[meshIdx]->mNumVertices;
-            return scene->mMeshes[meshIdx]->mNormals;
-        }
-        }
-
-private:
-    friend class AssimpMeshLoad;
-    friend class AssimpMeshManager;
-
-    TightFixedVector<AssimpMesh, 32, false>* meshes;
-
-    aiScene* scene;
-    MeshLoadState m_loaded;
-};
-
-
-AssimpMesh::AssimpMesh(const std::string& baseDirectory) {
-    m_baseDir = baseDirectory;
-    LOG(EngineLog, BE_LOG_VERBOSE) << "MODEL CREATED: " << this;
-}
-
-AssimpMesh::~AssimpMesh()
-{
-
-}
-
 ///
 
-class AssimpMeshLoad : public Task {
+Assimp::Importer importer;
+
+class AssimpModelLoader : public Task {
 public:
-    AssimpMeshLoad(AssimpMeshManager* mm, AssimpMesh* mesh, ResourceLoader::RawResourceTask dataTask)
-        : Task(Task::TaskMode::REPEATING, Task::Affinity::MAIN), m_meshManager(mm), m_mesh(mesh), rawDataTask(dataTask)
+    AssimpModelLoader(AssimpMeshManager* mm, DevResourceLoader* loader, AssimpModel* model, ResourceLoader::RawResourceTask dataTask)
+        : Task(Task::TaskMode::NONE, Task::Affinity::MAIN), m_meshManager(mm), m_loader(loader), m_model(model), rawDataTask(dataTask)
     {
 
     }
 
     void run() override {
 
-        ResourceLoader::DataRequest dr = rawDataTask->getData();
+        const ResourceLoader::DataRequest& dr = rawDataTask->getData();
         if (dr.isLoaded()) {
-            aiScene* scene = loadModel(dr.data, dr.size);
+            const aiScene* scene = loadModel(dr.data, dr.size);
+            m_model->scene = scene;
             process(scene);
         }
 
     }
 
     // Load model
-    aiScene* loadModel(void* data, ptrsize size)
+    const aiScene* loadModel(void* data, ptrsize size)
     {
-        Assimp::Importer importer;
         const aiScene* scene = importer.ReadFileFromMemory(data, size, aiProcess_Triangulate);
 
         if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -102,7 +47,9 @@ public:
 
         for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
             const aiMaterial* mat = scene->mMaterials[i];
-            materials.emplace_back(createMaterial(tMng, mat));
+            loadTextures(mat, aiTextureType_DIFFUSE);
+            loadTextures(mat, aiTextureType_NORMALS);
+            loadTextures(mat, aiTextureType_SPECULAR);
         }
 
         processNode(scene->mRootNode, scene);
@@ -117,31 +64,35 @@ public:
         }
     }
 
-    RR<Texture> getTexture(AssimpModel* model, aiTextureType type) {
+    void loadTextures(const aiMaterial* material, aiTextureType type) {
 
-        material = scene->mMaterials[mesh->mMaterialIndex]
-        if (material->GetTextureCount(type) == 1)
+        for (int i = 0; i < material->GetTextureCount(type); ++i)
         {
             aiString path;
-            material->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+            material->GetTexture(type, i, &path);
 
-            mat->diffuse = tMng->getResource<Texture>(m_baseDir + std::string(path.C_Str()));
+            std::string strpath(path.C_Str());
+            DevResourceMeta* meta = m_loader->findMeta(strpath);
+            if (meta == nullptr) {
+                DevResourceMeta* modelMeta = ((DevResourceMeta*)m_model->getMeta());
+                DevResourceMeta* textureMeta = m_loader->createMeta(modelMeta->index, modelMeta->package, strpath, "TEXTURE", strpath, {});
+                m_loader->getResource<Texture>(textureMeta);
+            } else {
+                m_loader->getResource<Texture>(meta);
+            }
         }
-
-        return mat;
     }
 
 
 private:
-    AssimpMesh* m_mesh;
+    AssimpModel* m_model;
     AssimpMeshManager* m_meshManager;
+    DevResourceLoader* m_loader;
     ResourceLoader::RawResourceTask rawDataTask;
-}
+};
 
 
 ///
-
-
 
 bool AssimpMeshManager::init() {
     return true;
@@ -156,37 +107,35 @@ void AssimpMeshManager::shutdown() {
 }
 
 void AssimpMeshManager::setResourceLoader(ResourceLoader* loader) {
-
+    m_loader = (DevResourceLoader*)loader;
 }
 
 BaseResource* AssimpMeshManager::loadResource(ResourceMeta* meta, PropertyHolder* props) {
 
-    Mesh* mesh = m_meshes.findResource(meta);
+    AssimpModel* model = m_models.findResource(meta);
 
-    if (mesh == nullptr)
+    if (model == nullptr)
     {
-        u16 id = m_meshes.addResource(meta);
-        mesh = m_meshes.getResourceAddress(id);
+        u16 id = m_models.addResource(meta);
+        model = m_models.getResourceAddress(id);
 
-        new (mesh) Mesh(meta);
+        new (model) AssimpModel(meta);
         {
-            scheduleLoadingTasks(mesh);
-            std::shared_ptr<AssimpMeshLoader> loadTask = std::make_shared<AssimpMeshLoader>(this, mesh);
-            taskManager->addTask(loadTask);
+            scheduleLoadingTasks(meta, model);
         }
 
     }
 
-    return shader;
+    return model;
 
 }
 
-void AssimpMeshManager::scheduleLoadingTasks(ResourceMeta* meta, AssimpMesh* mesh)
+void AssimpMeshManager::scheduleLoadingTasks(ResourceMeta* meta, AssimpModel* model)
 {
     BE_PROFILE_FUNCTION();
-    mesh->m_loaded = GL2Texture::TextureLoadState::LOADING;
-    ResourceLoader::RawResourceTask rawDataTask = loader->requestResourceData(mesh->getMeta());
-    TaskPtr textureLoader = std::make_shared<AssimpMeshLoad>(this, mesh, rawDataTask);
+    model->m_loaded = LOADING;
+    ResourceLoader::RawResourceTask rawDataTask = m_loader->requestResourceData(model->getMeta());
+    TaskPtr textureLoader = std::make_shared<AssimpModelLoader>(this, m_loader, model, rawDataTask);
     textureLoader->addDependency(rawDataTask);
     taskManager->addTask(textureLoader);
 }
@@ -213,9 +162,9 @@ void AssimpMeshManager::resourceRelease(ResourceMeta* meta) {
 
 // in bytes
 ptrsize AssimpMeshManager::getCurrentRamUsage() const {
-
+    return 0;
 }
 
 u32 AssimpMeshManager::getCurrentGPUMemoryUsage() const {
-
+    return 0;
 }

@@ -48,7 +48,7 @@ public:
             return *this;
         }
 
-        bool isLoaded() {
+        bool isLoaded() const {
             return loadState == LS_LOADED;
         }
 

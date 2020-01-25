@@ -95,6 +95,7 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
             ptrsize indexId = resourceMetaIndexes.size();
             resourceMetaIndexes.push_back(LoadedIndex());
             index = &resourceMetaIndexes[indexId];
+            index->index = indexId;
             index->metas.reserve(512);
             index->name = indexFilename;
             index->basefilepath = std::filesystem::path(indexFilename).parent_path().string();
@@ -257,6 +258,7 @@ void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
                 index->metas.emplace_back(packageName, resourceName);
                 DevResourceMeta& meta = index->metas.back();
                 meta.type = resourceType;
+                meta.index = index->index;
                 meta.properties = resource;
                 if (resource.contains("filePath")) {
                     meta.filePath = index->basefilepath + "/" + resource["filePath"].get_ref<const std::string&>();

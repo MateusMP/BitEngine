@@ -38,7 +38,7 @@ public:
         return states[(u8)config];
     }
 
-    virtual RR<Texture> getTexture(int index) = 0;
+    virtual RR<Texture> getTexture(int index) { return RR<Texture>(); }
 
     u8 states[(u8)RenderConfig::TOTAL_RENDER_CONFIGS];
     BlendFunc srcColorBlendMode;

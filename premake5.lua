@@ -142,6 +142,7 @@ project "Sample01"
 	includedirs
 	{
 		"BitEngine/src",
+		"samples/sample01/src",
 		"dependencies",
 		"%{IncludeDir.glm}",
 		"%{prj.name}/src",

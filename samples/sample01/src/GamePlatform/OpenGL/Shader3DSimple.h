@@ -175,7 +175,7 @@ public:
             }
 
             // DRAW
-            glDrawElementsInstancedBaseInstance(GL_TRIANGLES, r.mesh->getNumIndices(), GL_UNSIGNED_INT, 0, r.nItems, r.offset);
+            glDrawElementsInstancedBaseInstance(GL_TRIANGLES, mesh.numIndices, GL_UNSIGNED_INT, 0, totalTransforms, 0);
 
             /*
             if (r.transparent) {

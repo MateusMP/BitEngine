@@ -32,6 +32,8 @@ struct BE_API DevResourceMeta : public ResourceMeta {
     std::string filePath;
 
     nlohmann::json properties;
+
+    u32 index;
 };
 
 
@@ -258,6 +260,23 @@ public:
     void convertIndexesToProd();
 
     DevResourceMeta* findMeta(const std::string& name);
+
+    DevResourceMeta* createMeta(u32 index, const std::string& package, const std::string& resource, const std::string& type, std::string filePath, nlohmann::json properties) {
+
+        DevResourceMeta meta(package, resource);
+        meta.type = type;
+        meta.filePath = filePath;
+        meta.properties = properties;
+        resourceMetaIndexes[index].data["dynamic_data"][package] = {
+            {"name", filePath},
+            {"type", type},
+            properties
+        };
+        resourceMetaIndexes[index].metas.push_back(meta);
+        DevResourceMeta* devMetaAddr = &resourceMetaIndexes[index].metas.back();
+        this->byName[filePath] = devMetaAddr;
+        return devMetaAddr;
+    }
     
     virtual bool hasManagerForType(const std::string& resourceType) override;
 
@@ -296,6 +315,7 @@ private:
         std::string basefilepath;
         nlohmann::json data;
         std::vector<DevResourceMeta> metas;
+        u32 index;
     };
 
     using ResourceType = std::string;

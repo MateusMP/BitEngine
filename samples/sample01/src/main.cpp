@@ -19,6 +19,7 @@
 #include <Platform/glfw/GLFW_ImGuiSystem.h>
 
 #include "GamePlatform/OpenGL/OpenGLRenderer.h"
+#include "GamePlatform/AssimpMeshManager.h"
 
 
 BitEngine::Logger* GameLog()
@@ -70,6 +71,7 @@ void gameExecute(MainMemory& gameMemory) {
     BitEngine::GL2ShaderManager shaderManager(&taskManager);
     BitEngine::GL2TextureManager textureManager(&taskManager);
     BitEngine::SpriteManager spriteManager;
+    AssimpMeshManager modelManager(&taskManager);
 
     // Setup resource loader
     const u32 resMemSize = MEGABYTES(64);
@@ -82,6 +84,7 @@ void gameExecute(MainMemory& gameMemory) {
     loader.registerResourceManager("SHADER", &shaderManager);
     loader.registerResourceManager("TEXTURE", &textureManager);
     loader.registerResourceManager("SPRITE", &spriteManager);
+    loader.registerResourceManager("MODEL3D", &modelManager);
     loader.init();
 
     const u32 renderMemSize = MEGABYTES(8);

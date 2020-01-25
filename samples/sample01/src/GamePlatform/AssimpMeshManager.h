@@ -1,7 +1,43 @@
 
 #include <BitEngine/Core/TaskManager.h>
 #include <BitEngine/Core/Resources/ResourceManager.h>
+#include <BitEngine/Core/Resources/DevResourceLoader.h>
 #include <BitEngine/Core/Mesh.h>
+
+#include <assimp/scene.h>
+
+using namespace BitEngine;
+
+
+enum MeshLoadState {
+    UNDEFINED,
+    NOT_LOADED,
+    LOADING,
+    LOADED,
+};
+
+
+
+class AssimpModel : public BitEngine::Model
+{
+
+public:
+    AssimpModel():BitEngine::Model(nullptr){}
+    AssimpModel(ResourceMeta* meta) : BitEngine::Model(meta) {}
+
+    const aiMaterial* getMaterial(int index) const { return scene->mMaterials[index]; }
+    const aiMesh* getMesh(int index) const { return scene->mMeshes[index]; }
+
+    u32 getMeshCount() { return scene->mNumMeshes; }
+
+private:
+    friend class AssimpModelLoader;
+    friend class AssimpMeshManager;
+
+    const aiScene* scene;
+    MeshLoadState m_loaded;
+};
+
 
 class AssimpMeshManager : public BitEngine::ResourceManager {
 public:
@@ -37,10 +73,11 @@ public:
     virtual ptrsize getCurrentRamUsage() const override;
     virtual u32 getCurrentGPUMemoryUsage() const override;
 
-
 private:
+    void scheduleLoadingTasks(ResourceMeta* meta, AssimpModel* model);
+
     BitEngine::TaskManager* taskManager;
-    BitEngine::ResourceLoader* loader;
-    BitEngine::ResourceIndexer<BitEngine::Mesh, 1024> m_meshes;
-    BitEngine::ResourceIndexer<AssimpMesh, 1024> m_meshes;
+    BitEngine::DevResourceLoader* m_loader;
+    //BitEngine::ResourceIndexer<AssimpMesh, 1024> m_meshes;
+    BitEngine::ResourceIndexer<AssimpModel, 512> m_models;
 };

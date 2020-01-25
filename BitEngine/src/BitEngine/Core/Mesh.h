@@ -43,4 +43,13 @@ private:
     friend class MeshManager;
 };
 
+class Model : public BaseResource {
+public:
+    Model(ResourceMeta* _meta)
+        : BaseResource(_meta) {}
+
+    virtual u32 getMeshCount() = 0;
+};
+
+
 }
