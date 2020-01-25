@@ -8,6 +8,9 @@
 #include "Shader3DSimple.h"
 
 
+#include "Game/Common/MainMemory.h"
+#include "Game/Common/GameGlobal.h"
+
 //#include <glm/glm.hpp>
 //#include <glm/gtc/matrix_transform.hpp>
 

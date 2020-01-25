@@ -21,9 +21,10 @@
 #include <Platform/glfw/GLFW_InputSystem.h>
 #include <Platform/glfw/GLFW_ImGuiSystem.h>
 
-
-#include "Common/MainMemory.h"
-#include "Common/GameGlobal.h"
+#include "GamePlatform/OpenGL/OpenGLRenderer.h"
+#include "GamePlatform/AssimpMeshManager.h"
+#include "Game/Common/MainMemory.h"
+#include "Game/Common/GameGlobal.h"
 #include "imgui.h"
 
 
@@ -60,7 +61,7 @@ BitEngine::Logger* GameLog()
     return &log;
 }
 
-#include "Common/CommonMain.h"
+#include "Game/Common/CommonMain.h"
 
 Game loadGameCode(const char* path, Game &current) {
     Game game = {};
@@ -138,6 +139,7 @@ void game() {
     BitEngine::GL2ShaderManager shaderManager(&taskManager);
     BitEngine::GL2TextureManager textureManager(&taskManager);
     BitEngine::SpriteManager spriteManager;
+    AssimpMeshManager modelManager(&taskManager);
 
     // Setup game memory
     MainMemory gameMemory = {};
@@ -157,6 +159,7 @@ void game() {
     loader.registerResourceManager("SHADER", &shaderManager);
     loader.registerResourceManager("TEXTURE", &textureManager);
     loader.registerResourceManager("SPRITE", &spriteManager);
+    loader.registerResourceManager("MODEL3D", &modelManager);
     loader.init();
 
     const u32 renderMemSize = MEGABYTES(8);

@@ -5,9 +5,11 @@
 #include <BitEngine/Core/ECS/Camera2DProcessor.h>
 #include <BitEngine/Core/ECS/Camera3DProcessor.h>
 #include <BitEngine/Core/ECS/GameLogicProcessor.h>
+#include <BitEngine/Core/ECS/RenderableMeshComponent.h>
 
 
-#include "Common/GameGlobal.h"
+#include "Game/Common/MainMemory.h"
+#include "Game/Common/GameGlobal.h"
 
 class MyGameEntitySystem;
 

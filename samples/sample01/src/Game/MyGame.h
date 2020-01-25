@@ -3,6 +3,8 @@
 #include <imgui.h>
 #include <Platform/glfw/GLFW_ImGuiSystem.h>
 
+#include "Game/Common/MainMemory.h"
+#include "Game/Common/GameGlobal.h"
 #include "Overworld.h"
 #include "MyGameSystem.h"
 

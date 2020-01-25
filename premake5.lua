@@ -172,6 +172,12 @@ project "Sample01"
 		{
 			"BE_PLATFORM_WINDOWS"
 		}
+		
+		linkoptions { "/VERBOSE:LIB" }
+		
+		postbuildcommands {
+			"..\\copyfiles.sh ../bin/" .. outputdir .. "/Sample01/%{cfg.buildtarget.name} sample01/",
+		}
 	
 	filter "system:linux"
 		defines
@@ -225,6 +231,7 @@ project "Sample02"
 	files
 	{
 		"samples/sample01/src/**.h",
+		"samples/sample01/src/GamePlatform/**.cpp",
 		"samples/sample02/src/main.cpp",
 		"BitEngine/src/Platform/glfw/**.cpp",
 		"BitEngine/src/Platform/glfw/**.h",
@@ -259,6 +266,7 @@ project "Sample02"
 	links
 	{
 		"BitEngine",
+		"assimp"
 	}
 	debugdir "samples/sample02"
 
@@ -303,7 +311,8 @@ project "Sample02DLL"
 
 	files
 	{
-		"samples/sample01/src/**.h",
+		"samples/sample01/src/Game/**.h",
+		"samples/sample01/src/Game/**.",
 		"samples/sample02/src/game.cpp",
 	}
 
@@ -352,7 +361,7 @@ project "Sample02DLL"
 		runtime "Debug"
 		symbols "Full"
 		symbolspath "$(OutDir)$(TargetName)_$([System.DateTime]::Now.ToString(\"yyyy.MM.dd.HH.mm.ss\")).pdb"
-		linkoptions { "/Zi" }
+		linkoptions { }
 		debugargs { "--debug" }
 		editandcontinue "On"
 		staticruntime "Off"

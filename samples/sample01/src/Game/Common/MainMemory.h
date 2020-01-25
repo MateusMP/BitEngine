@@ -1,3 +1,5 @@
+#pragma once
+
 #include <BitEngine/Core/Memory.h>
 #include <BitEngine/Core/Math.h>
 #include <BitEngine/Core/Graphics/Sprite2DRenderer.h>

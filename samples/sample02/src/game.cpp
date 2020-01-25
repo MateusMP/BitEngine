@@ -6,9 +6,9 @@
 #include <BitEngine/Core/GeneralTaskManager.h>
 #include <BitEngine/Core/Memory.h>
 
-#include "Common/GameGlobal.h"
-#include "Common/MainMemory.h"
-#include "MyGame.h"
+#include "Game/Common/GameGlobal.h"
+#include "Game/Common/MainMemory.h"
+#include "Game/MyGame.h"
 
 static MyGame *game;
 static BitEngine::Logger* gameLog;
