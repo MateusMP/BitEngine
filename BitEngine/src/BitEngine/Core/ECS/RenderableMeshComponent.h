@@ -13,22 +13,18 @@ namespace BitEngine{
 	{
         public:
             RenderableMeshComponent()
-                : mesh(nullptr), material(nullptr)
+                : material(nullptr)
             {}
 
-            RenderableMeshComponent(Mesh* _mesh, Material* _material)
-                : mesh(_mesh), material(_material)
+            RenderableMeshComponent(RR<Model> _model, Material* _material=nullptr)
+                : model(_model), material(_material)
             {}
 
-            void setMesh(Mesh* _mesh, Material* _mat = nullptr){
-                if (_mat == nullptr)
-                    _mat = _mesh->getMaterial(); // Set default material
-
-                mesh = _mesh;
-                material = _mat;
+            RR<Model> getModel() const {
+                return model;
             }
 
-            Mesh* getMesh() const {
+            RR<Mesh> getMesh() const {
                 return mesh;
             }
 
@@ -37,9 +33,9 @@ namespace BitEngine{
             }
 
         private:
-
-            Mesh* mesh;
-            Material* material; // Override mesh's default material
+            RR<Model> model;
+            RR<Mesh> mesh;
+            Material* material; // Override model's default material
 
 	};
 

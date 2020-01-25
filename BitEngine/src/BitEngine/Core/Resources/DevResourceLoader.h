@@ -262,11 +262,16 @@ public:
     DevResourceMeta* findMeta(const std::string& name);
 
     DevResourceMeta* createMeta(u32 index, const std::string& package, const std::string& resource, const std::string& type, std::string filePath, nlohmann::json properties) {
+        
+        if (this->byName.find(resource) != this->byName.end()) {
+            BE_ASSERT(false); // Overriding existing resource
+        }
 
         DevResourceMeta meta(package, resource);
         meta.type = type;
         meta.filePath = filePath;
         meta.properties = properties;
+
         resourceMetaIndexes[index].data["dynamic_data"][package] = {
             {"name", filePath},
             {"type", type},
@@ -274,7 +279,7 @@ public:
         };
         resourceMetaIndexes[index].metas.push_back(meta);
         DevResourceMeta* devMetaAddr = &resourceMetaIndexes[index].metas.back();
-        this->byName[filePath] = devMetaAddr;
+        this->byName[resource] = devMetaAddr;
         return devMetaAddr;
     }
     

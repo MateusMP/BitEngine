@@ -66,9 +66,8 @@ public:
 
 public:
     // Shader classes
-    class Material3D : public BitEngine::Material
+    struct Material3D
     {
-    public:
         BitEngine::RR<BitEngine::Texture> diffuse;
         BitEngine::RR<BitEngine::Texture> normal;
     };
@@ -87,13 +86,14 @@ public:
             // Create buffers
             glGenVertexArrays(1, &vao);
             glGenBuffers(NUM_VBOS, vbo);
+            glBindVertexArray(vao);
 
             // Load index buffer
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[VBO_INDEX]);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize * sizeof(GLuint), indices, GL_STATIC_DRAW);
+            numIndices = indexSize;
 
             // Vertex data
-            glBindVertexArray(vao);
             glBindBuffer(GL_ARRAY_BUFFER, vbo[VBO_VERTEXDATA]);
             glEnableVertexAttribArray(ATTR_VERTEX_POS);
             glVertexAttribPointer(ATTR_VERTEX_POS, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)0);

@@ -19,12 +19,14 @@ public:
     }
 
     void run() override {
+        BE_PROFILE_FUNCTION();
 
         const ResourceLoader::DataRequest& dr = rawDataTask->getData();
         if (dr.isLoaded()) {
             const aiScene* scene = loadModel(dr.data, dr.size);
             m_model->scene = scene;
             process(scene);
+            m_model->m_loaded = MeshLoadState::LOADED;
         }
 
     }
@@ -44,6 +46,7 @@ public:
     }
 
     void process(const aiScene* scene) {
+        BE_PROFILE_FUNCTION();
 
         for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
             const aiMaterial* mat = scene->mMaterials[i];
@@ -58,14 +61,23 @@ public:
     void processNode(aiNode* node, const aiScene* scene)
     {
         // Process all the node's meshes (if any)
+        // Only support 8 sub meshes per model
+        BE_ASSERT(scene->mNumMeshes <= 8);
+        
         for (u32 i = 0; i < node->mNumMeshes; i++)
         {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+            AssimpMesh* aMesh = m_meshManager->setupMesh(scene, mesh);
+            m_model->meshes[i] = aMesh;
+        }
+
+        for (int i = 0; i < node->mNumChildren; ++i) {
+            processNode(node->mChildren[i], scene);
         }
     }
 
     void loadTextures(const aiMaterial* material, aiTextureType type) {
-
+        BE_PROFILE_FUNCTION();
         for (int i = 0; i < material->GetTextureCount(type); ++i)
         {
             aiString path;
@@ -75,7 +87,8 @@ public:
             DevResourceMeta* meta = m_loader->findMeta(strpath);
             if (meta == nullptr) {
                 DevResourceMeta* modelMeta = ((DevResourceMeta*)m_model->getMeta());
-                DevResourceMeta* textureMeta = m_loader->createMeta(modelMeta->index, modelMeta->package, strpath, "TEXTURE", strpath, {});
+                std::string filepath = modelMeta->filePath.substr(0, modelMeta->filePath.find_last_of('/')+1) + strpath;
+                DevResourceMeta* textureMeta = m_loader->createMeta(modelMeta->index, modelMeta->package, strpath, "TEXTURE", filepath, {});
                 m_loader->getResource<Texture>(textureMeta);
             } else {
                 m_loader->getResource<Texture>(meta);
@@ -103,7 +116,8 @@ void AssimpMeshManager::update() {
 
 // Should release ALL resources
 void AssimpMeshManager::shutdown() {
-
+    m_meshIndices.clear();
+    m_materials.clear();
 }
 
 void AssimpMeshManager::setResourceLoader(ResourceLoader* loader) {

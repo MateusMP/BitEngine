@@ -4,7 +4,6 @@
 #include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
 #include <BitEngine/Core/ECS/Camera2DProcessor.h>
 #include <BitEngine/Core/ECS/Camera3DProcessor.h>
-#include <BitEngine/Core/ECS/RenderableMeshProcessor.h>
 #include <BitEngine/Core/ECS/GameLogicProcessor.h>
 
 
@@ -46,10 +45,27 @@ public:
         getES()->forEach<RenderableMeshComponent, Transform3DComponent>(
             [&](ComponentRef<RenderableMeshComponent>&& renderable, ComponentRef<Transform3DComponent>&& transform)
         {
-            Model3D *m = queue->pushModel3D(batch);
-            m->mesh = renderable->getMesh();
-            m->material = renderable->getMaterial();
-            m->transform = t3dp->getGlobalTransformFor(getComponentHandle(transform));
+            RR<Model> model = renderable->getModel();
+            if (model->getMeshCount() == 0) {
+                return;
+            }
+            if (renderable->getMesh()) {
+                Model3D *m = queue->pushModel3D(batch);
+                m->mesh = renderable->getMesh().get();
+                m->material = renderable->getMaterial();
+                m->transform = t3dp->getGlobalTransformFor(getComponentHandle(transform));
+            } else {
+                for (int i = 0; i < model->getMeshCount(); ++i) {
+                    Model3D *m = queue->pushModel3D(batch);
+                    m->mesh = model->getMesh(i);
+                    if (renderable->getMaterial() == nullptr) {
+                        m->material = m->mesh->getMaterial();
+                    } else {
+                        m->material = renderable->getMaterial();
+                    }
+                    m->transform = t3dp->getGlobalTransformFor(getComponentHandle(transform));
+                }
+            }
         });
     }
 
@@ -107,7 +123,6 @@ public:
 
     void FrameMiddle()
     {
-        BE_PROFILE_FUNCTION();
         using namespace BitEngine;
         getES()->forEach<Transform2DComponent, SpinnerComponent>(
             [=](ComponentRef<Transform2DComponent> transform, const ComponentRef<SpinnerComponent> spinner)
@@ -144,7 +159,7 @@ public:
         : MyComponentsRegistry(),
         t2p(this), t3p(this),
         cam2Dprocessor(this, &t2p), cam3Dprocessor(this, &t3p),
-        rmp(this), glp(this), spr2D(this, loader), spinnerSys(this),
+        glp(this), spr2D(this, loader), spinnerSys(this),
         pcs(this),
         mesh3dSys(this, &t3p)
     {
@@ -182,7 +197,6 @@ public:
     BitEngine::Transform3DProcessor t3p;
     BitEngine::Camera2DProcessor cam2Dprocessor;
     BitEngine::Camera3DProcessor cam3Dprocessor;
-    BitEngine::RenderableMeshProcessor rmp;
     BitEngine::GameLogicProcessor glp;
     BitEngine::Sprite2DRenderer spr2D;
     PlayerControlSystem pcs;

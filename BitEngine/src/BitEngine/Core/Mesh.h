@@ -49,6 +49,8 @@ public:
         : BaseResource(_meta) {}
 
     virtual u32 getMeshCount() = 0;
+
+    virtual Mesh* getMesh(int index) = 0;
 };
 
 

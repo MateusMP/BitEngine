@@ -118,7 +118,16 @@ project "assimp"
 	}
 	excludes {
 		"**/inffas86.c",
-		"contrib/zlib/testzlib"
+		"contrib/zlib/contrib/blast/blast.c",
+		"contrib/zlib/contrib/iostream/test.cpp",
+		"contrib/zlib/contrib/iostream2/zstream_test.cpp",
+		"contrib/zlib/contrib/iostream3/test.cc",
+		"contrib/zlib/contrib/minizip/miniunz.c",
+		"contrib/zlib/contrib/minizip/minizip.c",
+		"contrib/zlib/contrib/puff/pufftest.c",
+		"contrib/zlib/contrib/testzlib/testzlib.c",
+		"contrib/zlib/contrib/untgz/untgz.c",			
+		"contrib/zlib/contrib/**/*test*",
 	}
 	
 	filter "system:windows"

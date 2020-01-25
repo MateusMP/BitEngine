@@ -130,6 +130,8 @@ public:
         gameState->m_world->addPlayer(gameState->m_player);
         gameState->m_camera3d = permanentArena.push<PlayerCamera>(gameState->entitySystem);
         gameState->m_world->setActiveCamera(gameState->m_camera3d->getCamera());
+        gameState->m_camera3d->setLookAt({ 0,0,0 });
+        gameState->m_camera3d->getTransform()->setPosition({ 50,0,300 });
 
         // Tests
         const RR<Texture> texture = loader->getResource<BitEngine::Texture>("texture.png");
@@ -140,7 +142,13 @@ public:
 
         LOG(GameLog(), BE_LOG_VERBOSE) << "Texture loaded: " << texture->getTextureID();
 
-        RR<Mesh> mesh = loader->getResource<Mesh>("rocks_model");
+        RR<Model> model = loader->getResource<Model>("rocks_model");
+        for (int i = 0; i < 4; ++i) {
+            auto entity = gameState->entitySystem->createEntity();
+            auto transform = gameState->entitySystem->addComponent<Transform3DComponent>(entity);
+            gameState->entitySystem->addComponent<RenderableMeshComponent>(entity, model);
+            transform->setPosition(-300 + i * 180, -20, -200);
+        }
 
         RR<Sprite> spr1 = loader->getResource<BitEngine::Sprite>("data/sprites/spr_skybox");
         RR<Sprite> spr2 = loader->getResource<BitEngine::Sprite>("data/sprites/spr_skybox_orbit");
@@ -252,11 +260,12 @@ public:
     {
         BE_PROFILE_FUNCTION();
         mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0 });
-        gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
-        mainMemory->renderQueue->pushCommand(gameState->entitySystem->spr2D.GenerateRenderData(), gameState->m_userGUI->getCamera()->getMatrix());
 
         gameState->entitySystem->mesh3dSys.setActiveCamera(gameState->m_world->getActiveCamera());
         gameState->entitySystem->mesh3dSys.processEntities(mainMemory->renderQueue);
+
+        gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
+        mainMemory->renderQueue->pushCommand(gameState->entitySystem->spr2D.GenerateRenderData(), gameState->m_userGUI->getCamera()->getMatrix());
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)

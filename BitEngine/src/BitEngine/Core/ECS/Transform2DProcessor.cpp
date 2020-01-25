@@ -65,6 +65,7 @@ void Transform2DProcessor::setParentOf(ComponentHandle a, ComponentHandle parent
 
 void Transform2DProcessor::Process()
 {
+    BE_PROFILE_FUNCTION();
     getES()->forEach<Transform2DComponent, SceneTransform2DComponent>(
         [this](ComponentRef<Transform2DComponent> transform, ComponentRef<SceneTransform2DComponent> scene)
     {

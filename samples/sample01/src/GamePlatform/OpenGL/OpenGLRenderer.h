@@ -8,6 +8,9 @@
 #include "Shader3DSimple.h"
 
 
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+
 // Sprite 2D batch
 
 class GLSprite2DRenderer {
@@ -164,6 +167,7 @@ public:
     }
 
     void process(const Render3DBatchCommand& cmd) {
+        BE_PROFILE_FUNCTION();
         if (cmd.count <= 0) {
             return;
         }
@@ -173,36 +177,48 @@ public:
         matrixBuffer.init(_matrixBuffer, sizeof(_matrixBuffer));
         
         // Sort for batching
-        std::sort(cmd.data, cmd.data + cmd.count, [](const Model3D& a, const Model3D& b) {
-            if (a.material != b.material) {
-                return a.material < b.material;
-            }
-            return (b.mesh < b.mesh);
-        });
+        {
+            BE_PROFILE_SCOPE("Sort models");
+            std::sort(cmd.data, cmd.data + cmd.count, [](const Model3D& a, const Model3D& b) {
+                if (a.material != b.material) {
+                    return a.material < b.material;
+                }
+                return (b.mesh < b.mesh);
+            });
+        }
 
         // Setup matrix array for every batch
         u32 batchIndices[32] = {};
         u32 currentIndex = 0;
-        BitEngine::Material* lastMaterial;
-        BitEngine::Mesh* lastMesh = cmd.data[0].mesh;
-        for (u32 i = 0; i < cmd.count; ++i) {
-            const Model3D& model = cmd.data[i];
-            currentIndex += model.mesh != lastMesh || model.material != lastMaterial;
-            batchIndices[currentIndex] = i;
-            matrixBuffer.push<BitEngine::Mat4>(model.transform);
+        {
+            BE_PROFILE_SCOPE("Preparing model matrices");
+            BitEngine::Material* lastMaterial = cmd.data[0].material;
+            BitEngine::Mesh* lastMesh = cmd.data[0].mesh;
+            for (u32 i = 0; i < cmd.count; ++i) {
+                const Model3D& model = cmd.data[i];
+                currentIndex += model.mesh != lastMesh || model.material != lastMaterial;
+                BE_ASSERT(currentIndex < 32);
+                batchIndices[currentIndex] = i;
+                matrixBuffer.push<BitEngine::Mat4>(model.transform);
+                lastMaterial = model.material;
+                lastMesh = model.mesh;
+            }
+            currentIndex++;
         }
 
         // For now, ensure every mesh is already setup for rendering
         // Probably do this earlier during loading
-        u8 _vertexBuffer[sizeof(Shader3DSimple::Vertex) * 256];
+        // TODO: Move this part to somewhere else
+        u8 _vertexBuffer[sizeof(Shader3DSimple::Vertex) * 4 * 1024];
         BitEngine::MemoryArena vertexBuffer;
-        vertexBuffer.init(_matrixBuffer, sizeof(_matrixBuffer));
 
         for (int i = 0; i < currentIndex; ++i) {
             u32 end = batchIndices[i];
 
             BitEngine::Mesh* mesh = cmd.data[end].mesh;
             if (m_shaderMesh.find(mesh) == m_shaderMesh.end()) {
+                vertexBuffer.init(_vertexBuffer, sizeof(_vertexBuffer));
+
                 BitEngine::Mesh::DataArray indices = mesh->getIndicesData(0);
                 BitEngine::Mesh::DataArray verts = mesh->getVertexData(BitEngine::Mesh::VertexDataType::Vertices);
                 BitEngine::Mesh::DataArray texs = mesh->getVertexData(BitEngine::Mesh::VertexDataType::TextureCoord);
@@ -210,7 +226,7 @@ public:
                 for (int i = 0; i < indices.size; ++i) {
                     vertexBuffer.push<Shader3DSimple::Vertex>(Shader3DSimple::Vertex{
                         ((glm::vec3*)verts.data)[i],
-                        ((glm::vec2*)texs.data)[i],
+                        glm::vec2(((glm::vec3*)texs.data)[i]),
                         ((glm::vec3*)norms.data)[i] });
                 }
                 Shader3DSimple::ShaderMesh& newNesh = (m_shaderMesh[mesh] = {});
@@ -225,29 +241,56 @@ public:
             }
         }
 
-        // Set up shader
-        m_shader.LoadProjectionMatrix(cmd.projection);
-        m_shader.LoadViewMatrix(cmd.view);
-        m_shader.Bind();
+        {
+            BE_PROFILE_SCOPE("Setup render states");
 
-        // Draw!
-        u32 otherEnd = 0;
-        Shader3DSimple::BatchRenderer renderer;
-        for (int i = 0; i < currentIndex; ++i) {
-            u32 end = batchIndices[i];
+            // Set up shader
+            //glm::mat4 CameraMatrix = glm::lookAt(
+            //        glm::vec3{ 50.f,0.f,300.f }, // camera pos
+            //        glm::vec3{ 0.f,0.f,0.f },   // look to point
+            //        glm::vec3{ 0.f,1.f,0.f }    // up vec
+            //);
 
-            // Not sure where these will come from yet
-            const Shader3DSimple::ShaderMesh& smesh = m_shaderMesh[cmd.data[end].mesh];
-            const Shader3DSimple::Material3D& smat = m_shaderMaterials[cmd.data[end].material];
+            //glm::mat4 projectionMatrix = glm::perspective(
+            //    glm::radians(45.0f), // FOV
+            //    16.0f / 9.0f,       // Ratio
+            //    0.1f,              // Near plane
+            //    900.0f            // Far plane
+            //);
 
-            renderer.draw(smesh, smat, (glm::mat4*) &matrixBuffer.base[otherEnd], end-otherEnd);
-            otherEnd = end;
+            m_shader.LoadProjectionMatrix(cmd.projection);
+            m_shader.LoadViewMatrix(cmd.view);
+            m_shader.Bind();
+
+
+            // Set up GL states
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glDisable(GL_BLEND);
+            glCullFace(GL_BACK);
+            glDepthMask(false);
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
 
-        // Set up GL states
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+
+        // Draw!
+        {
+            BE_PROFILE_SCOPE("Render calls");
+            Shader3DSimple::BatchRenderer renderer;
+            u32 otherEnd = 0;
+            for (int i = 0; i < currentIndex; ++i) {
+                u32 end = batchIndices[i];
+
+                // Not sure where these will come from yet
+                const Shader3DSimple::ShaderMesh& smesh = m_shaderMesh[cmd.data[end].mesh];
+                const Shader3DSimple::Material3D& smat = m_shaderMaterials[cmd.data[end].material];
+
+                renderer.draw(smesh, smat, (glm::mat4*) &matrixBuffer.base[otherEnd], end - otherEnd + 1);
+                otherEnd = end;
+            }
+        }
+
     }
 
 private:
@@ -260,11 +303,13 @@ class GLRenderer {
 public:
 
     void init(BitEngine::ResourceLoader* loader) {
+        BE_PROFILE_FUNCTION();
         spriteRenderer.init(loader);
         modelsRenderer.init(loader);
     }
 
     void render(RenderQueue* queue) {
+        BE_PROFILE_FUNCTION();
 
         u32 count = queue->getCommandsCount();
         RenderCommand* commands = queue->getCommands();
@@ -289,6 +334,7 @@ public:
             case SCENE_2D:
                 break;
             case Command::SCENE_3D_BATCH:
+                BE_PROFILE_SCOPE("Render SCENE_3D_BATCH");
                 Render3DBatchCommand& cmd = commands[i].data.batch3d;
                 modelsRenderer.process(cmd);
                 break;

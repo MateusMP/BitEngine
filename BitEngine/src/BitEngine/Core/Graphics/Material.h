@@ -9,6 +9,7 @@
 
 namespace BitEngine {
 
+
 class BE_API Material {
 public:
     Material()

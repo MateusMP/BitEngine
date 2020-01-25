@@ -129,18 +129,19 @@ void gameExecute(MainMemory& gameMemory) {
             running = game->update();
             
             if (running) {
-                BE_PROFILE_SCOPE("Game Render");
-                if (!rendererReady) {
-                    // TODO: Clean this up, maybe have a platform index loaded previously so we can
-                    // TODO: call init right after?
-                    renderer.init(&loader);
-                    rendererReady = true;
+                {
+                    BE_PROFILE_SCOPE("Game Render Queue");
+                    if (!rendererReady) {
+                        // TODO: Clean this up, maybe have a platform index loaded previously so we can
+                        // TODO: call init right after?
+                        renderer.init(&loader);
+                        rendererReady = true;
+                    }
+                    renderer.render(gameMemory.renderQueue);
+                    renderQueue.clear();
                 }
-                renderer.render(gameMemory.renderQueue);
-                renderQueue.clear();
 
                 imgui.update();
-
                 main_window->drawEnd();
             }
         }

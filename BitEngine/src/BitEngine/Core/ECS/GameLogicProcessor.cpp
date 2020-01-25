@@ -12,6 +12,7 @@ GameLogicProcessor::GameLogicProcessor(EntitySystem* m)
 
 GameLogicProcessor::~GameLogicProcessor()
 {
+    BE_PROFILE_FUNCTION();
     getES()->forAll<GameLogicComponent>(
         [](ComponentHandle handle, GameLogicComponent& l)
     {
@@ -25,6 +26,7 @@ GameLogicProcessor::~GameLogicProcessor()
 
 void GameLogicProcessor::FrameStart()
 {
+    BE_PROFILE_FUNCTION();
     // LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameStart\n";
 
     // Initialize all components not yet initialized
@@ -60,6 +62,7 @@ void GameLogicProcessor::FrameStart()
 
 void GameLogicProcessor::FrameMiddle()
 {
+    BE_PROFILE_FUNCTION();
     // LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameMiddle";
 
     for (GameLogic* l : m_onFrameMiddle) {
@@ -69,6 +72,7 @@ void GameLogicProcessor::FrameMiddle()
 
 void GameLogicProcessor::FrameEnd()
 {
+    BE_PROFILE_FUNCTION();
     // LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameEnd";
 
     for (GameLogic* l : m_onFrameEnd) {
@@ -78,6 +82,7 @@ void GameLogicProcessor::FrameEnd()
 
 void GameLogicProcessor::onMessage(const MsgComponentCreated<GameLogicComponent>& msg)
 {
+    BE_PROFILE_FUNCTION();
     GameLogicComponent* glc = gameLogicHolder->getComponent(msg.component);
     glc->e_sys = getES();
     glc->m_entity = msg.entity;
@@ -87,6 +92,7 @@ void GameLogicProcessor::onMessage(const MsgComponentCreated<GameLogicComponent>
 
 void GameLogicProcessor::onMessage(const MsgComponentDestroyed<GameLogicComponent>& msg)
 {
+    BE_PROFILE_FUNCTION();
     GameLogicComponent* comp = gameLogicHolder->getComponent(msg.component);
     auto& pieces = comp->m_gamelogics;
     for (size_t i = 0; i < pieces.size(); ++i)
