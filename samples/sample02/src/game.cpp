@@ -1,4 +1,5 @@
 
+#include <BitEngine/Core/api.h>
 #include <BitEngine/Core/Logger.h>
 
 #include <BitEngine/bitengine.h>
@@ -13,22 +14,23 @@
 static MyGame *game;
 static BitEngine::Logger* gameLog;
 
-static BitEngine::Logger* GameLog() {
+BitEngine::Logger* GameLog() {
     return gameLog;
 }
 
 extern "C" {
-    __declspec(dllexport) bool GAME_SETUP(MainMemory* mainMemory) {
+    BE_API bool GAME_SETUP(MainMemory* mainMemory) {
         gameLog = mainMemory->logger;
         BitEngine::EngineLog = gameLog;
+        BitEngine::Profiling::SetInstance(mainMemory->profiler);
         ImGui::SetCurrentContext((ImGuiContext*)mainMemory->imGuiContext);
         game = new MyGame(mainMemory);
         return game != nullptr;
     }
-    __declspec(dllexport) bool GAME_UPDATE(MainMemory* mainMemory) {
+    BE_API bool GAME_UPDATE(MainMemory* mainMemory) {
         return game->update();
     }
-    __declspec(dllexport) bool GAME_SHUTDOWN(MainMemory* mainMemory) {
+    BE_API bool GAME_SHUTDOWN(MainMemory* mainMemory) {
         delete game;
         return true;
     }

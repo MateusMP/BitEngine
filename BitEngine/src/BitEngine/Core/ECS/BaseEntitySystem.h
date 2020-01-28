@@ -13,12 +13,6 @@ class BE_API BaseEntitySystem :
         public Messenger<MsgEntityCreated>, public Messenger<MsgEntityDestroyed>
 {
 public:
-    template<typename CompClass>
-    inline static GlobalComponentID getGlobalComponentID()
-    {
-        return CompClass::getGlobalComponentID();
-    }
-
     BaseEntitySystem()
     {
         m_initialized = false;

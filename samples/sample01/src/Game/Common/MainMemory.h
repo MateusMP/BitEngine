@@ -147,6 +147,7 @@ struct MainMemory {
     void* imGuiContext;
 
     BitEngine::Logger* logger;
+    BitEngine::Profiling::ChromeProfiler* profiler;
 
     RenderQueue* renderQueue;
 };

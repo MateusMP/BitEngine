@@ -28,10 +28,10 @@ private:
 void resourceLoaderMenu(const char* name, BitEngine::ResourceLoader* loader) {
     constexpr float TO_MB = 1.0 / (1024 * 1024);
     if (ImGui::TreeNode(name)) {
-        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Resources pending load: %d", loader->getPendingToLoad().size());
+        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Resources pending load: %lu", loader->getPendingToLoad().size());
         for (auto p : loader->getPendingToLoad()) {
             if (ImGui::TreeNode(p.first->getNameId().c_str())) {
-                ImGui::TextColored(ImVec4(1, 1, 0, 1), "Task waiting for %d dependencies", p.second->getDependencies().size());
+                ImGui::TextColored(ImVec4(1, 1, 0, 1), "Task waiting for %lu dependencies", p.second->getDependencies().size());
                 ImGui::TreePop();
             }
         }
@@ -71,10 +71,10 @@ public:
         {
             auto taskManager = mainMemory->taskManager;
             // Display contents in a scrolling region
-            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Tasks: %d", taskManager->getTasks().size());
+            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Tasks: %lu", taskManager->getTasks().size());
             ImGui::BeginChild("Scrolling");
             for (const BitEngine::TaskPtr& ptr : taskManager->getTasks()) {
-                ImGui::Text("Task, deps: %04d", ptr->getDependencies().size());
+                ImGui::Text("Task, deps: %04lu", ptr->getDependencies().size());
             }
             ImGui::EndChild();
         }

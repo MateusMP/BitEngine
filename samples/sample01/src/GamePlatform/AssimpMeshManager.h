@@ -140,7 +140,7 @@ public:
 protected:
     friend class AssimpModelLoader;
 
-    Mesh::DataArray AssimpMeshManager::generateIndices(AssimpMesh* assimpMesh) {
+    Mesh::DataArray generateIndices(AssimpMesh* assimpMesh) {
         Mesh::DataArray array = {};
         std::vector<u32> indices;
         for (u32 i = 0; i < assimpMesh->mesh->mNumFaces; i++)

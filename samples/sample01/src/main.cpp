@@ -103,6 +103,7 @@ void gameExecute(MainMemory& gameMemory) {
     gameMemory.commandSystem = &commandSystem;
     gameMemory.imGuiRender = &imgui;
     gameMemory.logger = GameLog();
+    gameMemory.profiler = &BitEngine::Profiling::Get();
     gameMemory.renderQueue = &renderQueue;
 
     auto imguiMenu = [&](const BitEngine::ImGuiRenderEvent& event) {
@@ -152,6 +153,8 @@ void gameExecute(MainMemory& gameMemory) {
 
 int main(int argc, const char* argv[])
 {
+    BitEngine::Profiling::ChromeProfiler chromeProfiler;
+    BitEngine::Profiling::SetInstance(&chromeProfiler);
     BitEngine::Profiling::BeginSession("GAME");
     BitEngine::LoggerSetup::Setup(argc, argv);
 
