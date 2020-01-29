@@ -12,16 +12,14 @@
 #include "Game/MyGame.h"
 
 static MyGame *game;
-static BitEngine::Logger* gameLog;
 
 BitEngine::Logger* GameLog() {
-    return gameLog;
+    return BitEngine::EngineLog;
 }
 
 extern "C" {
     BE_API bool GAME_SETUP(MainMemory* mainMemory) {
-        gameLog = mainMemory->logger;
-        BitEngine::EngineLog = gameLog;
+        BitEngine::EngineLog = mainMemory->logger;
         BitEngine::Profiling::SetInstance(mainMemory->profiler);
         ImGui::SetCurrentContext((ImGuiContext*)mainMemory->imGuiContext);
         game = new MyGame(mainMemory);

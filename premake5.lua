@@ -335,7 +335,7 @@ project "Sample02DLL"
 	
 	defines
 	{
-		BE_LIBRARY_EXPORTS
+		"BE_LIBRARY_EXPORTS"
 	}
 
 	links
