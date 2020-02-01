@@ -44,6 +44,21 @@ public:
         return ptr;
     }
 
+    template<typename T>
+    T* pushArrayDynamic(u32 length) {
+        static_assert(std::is_pod<T>());
+        T* ptr = allocArrayDynamic<T>(length);
+        new (ptr) T[length];
+        return ptr;
+    }
+
+    template<typename T>
+    T* allocArrayDynamic(u32 length) {
+        BE_ASSERT(length > 0);
+        T* ptr = (T*)alloc(sizeof(T) * length);
+        return ptr;
+    }
+
     void clear() {
         used = 0;
     }
@@ -53,11 +68,15 @@ public:
     }
 
     void* alloc(ptrsize allocSize) {
-        BE_ASSERT(used + allocSize < size);
+        BE_ASSERT(used + allocSize <= size);
 
         void* ptr = base + used;
         used += allocSize;
         return ptr;
+    }
+
+    ptrsize remainingSize() {
+        return size - used;
     }
 
 

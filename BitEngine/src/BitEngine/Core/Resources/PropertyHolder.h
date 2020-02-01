@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "BitEngine/Common/TypeDefinition.h"
 #include "BitEngine/Core/Math.h"
 
 namespace BitEngine {
@@ -113,13 +114,6 @@ public:
         _read(name, &type->value);
     }
 
-    template<>
-    void read<u8>(const char* name, u8* type) {
-        u32 x;
-        _read(name, &x);
-        *type = (u8)x;
-    }
-
     template<typename T>
     void read(const char* name, RR<T>* into) {
         BaseResource* res = nullptr;
@@ -150,5 +144,9 @@ protected:
     virtual void _read(const char* name, Vec4* into) = 0;
 
 };
+
+
+template<>
+void PropertyHolder::read<u8>(const char* name, u8* type);
 
 }

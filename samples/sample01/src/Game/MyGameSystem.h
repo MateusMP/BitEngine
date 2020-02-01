@@ -1,15 +1,11 @@
 #pragma once
 
-#include <bitengine/Core/VideoSystem.h>
-#include <bitengine/Core/Graphics/Sprite2D.h>
-#include <bitengine/Core/ECS/EntitySystem.h>
+#include <BitEngine/Core/VideoSystem.h>
+#include <BitEngine/Core/Graphics/Sprite2D.h>
+#include <BitEngine/Core/ECS/EntitySystem.h>
 
-#include "Graphics/Shader3DSimple.h"
 #include "MyGameEntitySystem.h"
 #include "Overworld.h"
-
-#include "Graphics/Shader3DSimple.h"
-#include "Graphics/Shader3DProcessor.h"
 
 class UserGUI
 {

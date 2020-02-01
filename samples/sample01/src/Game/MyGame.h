@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Overworld.h"
+#include <imgui.h>
+#include <Platform/glfw/GLFW_ImGuiSystem.h>
 
+#include "Game/Common/MainMemory.h"
+#include "Game/Common/GameGlobal.h"
+#include "Overworld.h"
 #include "MyGameSystem.h"
 
-#include "Platform/GLFW/GLFW_ImGuiSystem.h"
-#include "imgui.h"
 
 class UpdateTask : public BitEngine::Task
 {
@@ -26,10 +28,10 @@ private:
 void resourceLoaderMenu(const char* name, BitEngine::ResourceLoader* loader) {
     constexpr float TO_MB = 1.0 / (1024 * 1024);
     if (ImGui::TreeNode(name)) {
-        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Resources pending load: %d", loader->getPendingToLoad().size());
+        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Resources pending load: %lu", loader->getPendingToLoad().size());
         for (auto p : loader->getPendingToLoad()) {
             if (ImGui::TreeNode(p.first->getNameId().c_str())) {
-                ImGui::TextColored(ImVec4(1, 1, 0, 1), "Task waiting for %d dependencies", p.second->getDependencies().size());
+                ImGui::TextColored(ImVec4(1, 1, 0, 1), "Task waiting for %lu dependencies", p.second->getDependencies().size());
                 ImGui::TreePop();
             }
         }
@@ -69,10 +71,10 @@ public:
         {
             auto taskManager = mainMemory->taskManager;
             // Display contents in a scrolling region
-            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Tasks: %d", taskManager->getTasks().size());
+            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Tasks: %lu", taskManager->getTasks().size());
             ImGui::BeginChild("Scrolling");
             for (const BitEngine::TaskPtr& ptr : taskManager->getTasks()) {
-                ImGui::Text("Task, deps: %04d", ptr->getDependencies().size());
+                ImGui::Text("Task, deps: %04lu", ptr->getDependencies().size());
             }
             ImGui::EndChild();
         }
@@ -126,8 +128,12 @@ public:
         gameState->m_userGUI = permanentArena.push<UserGUI>(gameState->entitySystem);
         gameState->m_world = permanentArena.push<GameWorld>(mainMemory, gameState->entitySystem);
 
-        //gameState->selfPlayer = permanentArena.push<Player>("nick_here", 0);
-        //gameState->m_world->addPlayer(gameState->selfPlayer);
+        gameState->m_player = permanentArena.push<Player>("nick_here", 0);
+        gameState->m_world->addPlayer(gameState->m_player);
+        gameState->m_camera3d = permanentArena.push<PlayerCamera>(gameState->entitySystem);
+        gameState->m_world->setActiveCamera(gameState->m_camera3d->getCamera());
+        gameState->m_camera3d->setLookAt({ 0,0,0 });
+        gameState->m_camera3d->getTransform()->setPosition({ 50,0,300 });
 
         // Tests
         const RR<Texture> texture = loader->getResource<BitEngine::Texture>("texture.png");
@@ -138,7 +144,13 @@ public:
 
         LOG(GameLog(), BE_LOG_VERBOSE) << "Texture loaded: " << texture->getTextureID();
 
-        //Shader3DSimple::Model* model = modelMng->loadModel<Shader3DSimple>("Models/Rocks_03.fbx");
+        RR<Model> model = loader->getResource<Model>("rocks_model");
+        for (int i = 0; i < 4; ++i) {
+            auto entity = gameState->entitySystem->createEntity();
+            auto transform = gameState->entitySystem->addComponent<Transform3DComponent>(entity);
+            gameState->entitySystem->addComponent<RenderableMeshComponent>(entity, model);
+            transform->setPosition(-300 + i * 180, -20, -200);
+        }
 
         RR<Sprite> spr1 = loader->getResource<BitEngine::Sprite>("data/sprites/spr_skybox");
         RR<Sprite> spr2 = loader->getResource<BitEngine::Sprite>("data/sprites/spr_skybox_orbit");
@@ -151,6 +163,8 @@ public:
         // CREATE PLAYER
         auto playerEntity = PlayerControlSystem::CreatePlayerTemplate(loader, gameState->entitySystem, mainMemory->commandSystem);
         gameState->playerControl = gameState->entitySystem->getComponentRef<PlayerControlComponent>(playerEntity);
+
+
 
         // Sparks
         MyGameEntitySystem* es = gameState->entitySystem;
@@ -248,6 +262,10 @@ public:
     {
         BE_PROFILE_FUNCTION();
         mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0 });
+
+        gameState->entitySystem->mesh3dSys.setActiveCamera(gameState->m_world->getActiveCamera());
+        gameState->entitySystem->mesh3dSys.processEntities(mainMemory->renderQueue);
+
         gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
         mainMemory->renderQueue->pushCommand(gameState->entitySystem->spr2D.GenerateRenderData(), gameState->m_userGUI->getCamera()->getMatrix());
     }

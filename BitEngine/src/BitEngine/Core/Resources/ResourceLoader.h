@@ -5,11 +5,11 @@
 
 #include <nlohmann/json.hpp>
 
-#include "Bitengine/Core/Task.h"
-#include "Bitengine/Core/Messenger.h"
+#include "BitEngine/Core/Task.h"
+#include "BitEngine/Core/Messenger.h"
 #include "BitEngine/Core/Memory.h"
 
-#include "Bitengine/Core/Resources/ResourceIndexer.h"
+#include "BitEngine/Core/Resources/ResourceIndexer.h"
 #include "BitEngine/Core/Resources/PropertyHolder.h"
 
 namespace BitEngine {
@@ -48,7 +48,7 @@ public:
             return *this;
         }
 
-        bool isLoaded() {
+        bool isLoaded() const {
             return loadState == LS_LOADED;
         }
 

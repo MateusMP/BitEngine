@@ -1,25 +1,26 @@
 
 #include <string>
 
-#include <bitengine/bitengine.h>
-#include <bitengine/Core/Messenger.h>
-#include <bitengine/Core/GeneralTaskManager.h>
-#include <bitengine/Core/Resources/DevResourceLoader.h>
-#include <Platform/opengl/GL2/GL2Driver.h>
+#include <BitEngine/bitengine.h>
+#include <BitEngine/Core/Messenger.h>
+#include <BitEngine/Core/GeneralTaskManager.h>
+#include <BitEngine/Core/Resources/DevResourceLoader.h>
 
-#include "Common/MainMemory.h"
-#include "Common/GameGlobal.h"
-#include "MyGame.h"
+#include "Game/Common/MainMemory.h"
+#include "Game/Common/GameGlobal.h"
+#include "Game/Common/CommonMain.h"
+#include "Game/MyGame.h"
 
-#define GL2_API
-#ifdef GL2_API
-#include "Platform/opengl/GL2/GL2ShaderManager.h"
-#include "Platform/opengl/GL2/GL2TextureManager.h"
-#endif
+// OPEN GL
+#include <Platform/opengl/GL2/GL2ShaderManager.h>
+#include <Platform/opengl/GL2/GL2TextureManager.h>
+#include <Platform/glfw/GLFW_VideoSystem.h>
+#include <Platform/glfw/GLFW_InputSystem.h>
+#include <Platform/glfw/GLFW_ImGuiSystem.h>
 
-#include "Platform/GLFW/GLFW_VideoSystem.h"
-#include "Platform/GLFW/GLFW_InputSystem.h"
-#include "Platform/GLFW/GLFW_ImGuiSystem.h"
+#include "GamePlatform/OpenGL/OpenGLRenderer.h"
+#include "GamePlatform/AssimpMeshManager.h"
+
 
 BitEngine::Logger* GameLog()
 {
@@ -27,7 +28,6 @@ BitEngine::Logger* GameLog()
     return &log;
 }
 
-#include "Common/CommonMain.h"
 
 void gameExecute(MainMemory& gameMemory) {
 
@@ -71,6 +71,7 @@ void gameExecute(MainMemory& gameMemory) {
     BitEngine::GL2ShaderManager shaderManager(&taskManager);
     BitEngine::GL2TextureManager textureManager(&taskManager);
     BitEngine::SpriteManager spriteManager;
+    AssimpMeshManager modelManager(&taskManager);
 
     // Setup resource loader
     const u32 resMemSize = MEGABYTES(64);
@@ -83,6 +84,7 @@ void gameExecute(MainMemory& gameMemory) {
     loader.registerResourceManager("SHADER", &shaderManager);
     loader.registerResourceManager("TEXTURE", &textureManager);
     loader.registerResourceManager("SPRITE", &spriteManager);
+    loader.registerResourceManager("MODEL3D", &modelManager);
     loader.init();
 
     const u32 renderMemSize = MEGABYTES(8);
@@ -101,6 +103,7 @@ void gameExecute(MainMemory& gameMemory) {
     gameMemory.commandSystem = &commandSystem;
     gameMemory.imGuiRender = &imgui;
     gameMemory.logger = GameLog();
+    gameMemory.profiler = &BitEngine::Profiling::Get();
     gameMemory.renderQueue = &renderQueue;
 
     auto imguiMenu = [&](const BitEngine::ImGuiRenderEvent& event) {
@@ -127,18 +130,19 @@ void gameExecute(MainMemory& gameMemory) {
             running = game->update();
             
             if (running) {
-                BE_PROFILE_SCOPE("Game Render");
-                if (!rendererReady) {
-                    // TODO: Clean this up, maybe have a platform index loaded previously so we can
-                    // TODO: call init right after?
-                    renderer.init(&loader);
-                    rendererReady = true;
+                {
+                    BE_PROFILE_SCOPE("Game Render Queue");
+                    if (!rendererReady) {
+                        // TODO: Clean this up, maybe have a platform index loaded previously so we can
+                        // TODO: call init right after?
+                        renderer.init(&loader);
+                        rendererReady = true;
+                    }
+                    renderer.render(gameMemory.renderQueue);
+                    renderQueue.clear();
                 }
-                renderer.render(gameMemory.renderQueue);
-                renderQueue.clear();
 
                 imgui.update();
-
                 main_window->drawEnd();
             }
         }
@@ -149,6 +153,8 @@ void gameExecute(MainMemory& gameMemory) {
 
 int main(int argc, const char* argv[])
 {
+    BitEngine::Profiling::ChromeProfiler chromeProfiler;
+    BitEngine::Profiling::SetInstance(&chromeProfiler);
     BitEngine::Profiling::BeginSession("GAME");
     BitEngine::LoggerSetup::Setup(argc, argv);
 

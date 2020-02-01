@@ -32,6 +32,8 @@ struct BE_API DevResourceMeta : public ResourceMeta {
     std::string filePath;
 
     nlohmann::json properties;
+
+    u32 index;
 };
 
 
@@ -258,6 +260,28 @@ public:
     void convertIndexesToProd();
 
     DevResourceMeta* findMeta(const std::string& name);
+
+    DevResourceMeta* createMeta(u32 index, const std::string& package, const std::string& resource, const std::string& type, std::string filePath, nlohmann::json properties) {
+        
+        if (this->byName.find(resource) != this->byName.end()) {
+            BE_ASSERT(false); // Overriding existing resource
+        }
+
+        DevResourceMeta meta(package, resource);
+        meta.type = type;
+        meta.filePath = filePath;
+        meta.properties = properties;
+
+        resourceMetaIndexes[index].data["dynamic_data"][package] = {
+            {"name", filePath},
+            {"type", type},
+            properties
+        };
+        resourceMetaIndexes[index].metas.push_back(meta);
+        DevResourceMeta* devMetaAddr = &resourceMetaIndexes[index].metas.back();
+        this->byName[resource] = devMetaAddr;
+        return devMetaAddr;
+    }
     
     virtual bool hasManagerForType(const std::string& resourceType) override;
 
@@ -296,6 +320,7 @@ private:
         std::string basefilepath;
         nlohmann::json data;
         std::vector<DevResourceMeta> metas;
+        u32 index;
     };
 
     using ResourceType = std::string;
@@ -340,7 +365,7 @@ public:
 
     template<typename T>
     T valueOrDefault(const char* name, T def) {
-        auto& it = properties.find(name);
+        const auto& it = properties.find(name);
         if (it != properties.end()) {
             return it->get<T>();
         }
@@ -372,7 +397,7 @@ public:
         }
     }
     void _read(const char* name, BaseResource** into) override {
-        auto& it = properties.find(name);
+        const auto& it = properties.find(name);
         if (it != properties.end()) {
             const std::string& res = it->get_ref<const std::string&>();
             DevResourceMeta* meta = loader->findMeta(res);

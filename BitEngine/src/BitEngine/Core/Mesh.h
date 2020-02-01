@@ -5,43 +5,53 @@
 
 #include "BitEngine/Core/Graphics/Material.h"
 
-namespace BitEngine{
+namespace BitEngine {
 
-	class ShaderProgram;
+class ShaderProgram;
 
-	class Skeleton
-	{
-	public:
-	};
+class Skeleton
+{
+public:
+};
 
-	class Mesh
-	{
-		public:
-			Mesh(const std::string& name)
-				: m_name(name) {}
+class Mesh : public BaseResource
+{
+public:
+    enum VertexDataType {
+        Vertices = 0,
+        TextureCoord,
+        Normals,
+    };
+    struct DataArray {
+        void* data;
+        ptrsize size;
+    };
 
-			virtual ~Mesh(){}
+    Mesh(ResourceMeta* _meta)
+        : BaseResource(_meta) {}
 
-			const std::string& getName() const { return m_name; }
+    virtual ~Mesh() {}
 
-			virtual int getType() const = 0;
+    virtual DataArray getVertexData(VertexDataType type) = 0;
+    virtual DataArray getIndicesData(int index) = 0;
 
-			virtual Material* getMaterial() const = 0;
+    virtual int getType() const = 0;
 
-		private:
-			friend class MeshManager;
+    virtual Material* getMaterial() const = 0;
 
-			std::string m_name;
-	};
+private:
+    friend class MeshManager;
+};
 
-	class Model
-	{
-	public:
-		Model(){}
-		virtual ~Model(){}
+class Model : public BaseResource {
+public:
+    Model(ResourceMeta* _meta)
+        : BaseResource(_meta) {}
 
-		virtual const std::string& getName() const = 0;
-		// virtual const Material* getMaterial(int index) const = 0;
-		// virtual const Mesh* getMesh(int index) const = 0;
-	};
+    virtual u32 getMeshCount() = 0;
+
+    virtual Mesh* getMesh(int index) = 0;
+};
+
+
 }

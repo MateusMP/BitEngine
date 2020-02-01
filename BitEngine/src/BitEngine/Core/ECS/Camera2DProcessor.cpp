@@ -25,6 +25,7 @@ namespace BitEngine{
 
 	void Camera2DProcessor::Process()
 	{
+        BE_PROFILE_FUNCTION();
 		//ComponentHandle handle, GameLogicComponent& l
 		// ComponentRef<Camera2DComponent>& camera
 		getES()->forAll<Camera2DComponent>(

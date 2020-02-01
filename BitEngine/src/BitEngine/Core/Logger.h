@@ -41,12 +41,6 @@
 #define BE_LOG_DEBUG 9
 #define BE_LOG_ALL 128
 
-#ifdef _DEBUG
-		#define BE_DEBUG 1
-#else
-	#define BE_DEBUG 0
-#endif
-
 // Force to output more information while on development, even for release build
 // TODO: Define this with cmake options
 #ifdef BE_DEBUG

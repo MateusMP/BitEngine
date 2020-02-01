@@ -32,6 +32,7 @@ void GLVideoDriver::setViewPort(int x, int y, int width, int height)
 
 void GLVideoDriver::configure(const Material* material)
 {
+    BE_PROFILE_FUNCTION();
     // BLEND
     if (material->getState(RenderConfig::BLEND) != BlendConfig::BLEND_NONE)
     {

@@ -1,12 +1,22 @@
 #pragma once
 
+#include <BitEngine/Core/api.h>
+
 #define BE_PROFILING_CHROME
+
+
+#if defined(_WIN32) || defined(_MSC_VER)
+#define BE_FUNC_SIG __FUNCSIG__
+#elif defined( __GNUC__ ) || defined( __MINGW__ ) || defined ( __clang__ )
+#define BE_FUNC_SIG __PRETTY_FUNCTION__
+#endif
+
 
 #ifndef BE_LOG_ENABLE_PERFORMANCE
 #define BE_PROFILE_SCOPE(name)		\
 		BitEngine::Profiling::PrecisionTimer _profiling##__LINE__(name)
 #define BE_PROFILE_FUNCTION()				\
-		BE_PROFILE_SCOPE(__FUNCSIG__)
+		BE_PROFILE_SCOPE(BE_FUNC_SIG)
 #else
 #define BE_PROFILE_SCOPE(logto, description)
 #define BE_PROFILE_FUNCTION(logto)
@@ -24,8 +34,6 @@ namespace BitEngine {
 namespace Profiling {
 // Adapted from https://gist.github.com/TheCherno/31f135eea6ee729ab5f26a6908eb3a5e
     
-static bool enable_profiling = true;
-
     struct ProfileResult
     {
         std::string name;
@@ -93,12 +101,7 @@ static bool enable_profiling = true;
             m_outputStream.flush();
         }
 
-        static ChromeProfiler& Get()
-        {
-            static ChromeProfiler instance;
-            return instance;
-        }
-
+        bool enable_profiling = true;
     private:
         struct ProfilingSession
         {
@@ -108,7 +111,21 @@ static bool enable_profiling = true;
         ProfilingSession m_session;
         std::ofstream m_outputStream;
         int m_profileCount;
+
     };
+
+    BE_API extern ChromeProfiler* _instance;
+
+
+    static ChromeProfiler& Get()
+    {
+        return *_instance;
+    }
+
+    static void SetInstance(ChromeProfiler* obj)
+    {
+        _instance = obj;
+    }
 
     static thread_local long long profiling_timer_last_start = 0;
     class PrecisionTimer
@@ -142,8 +159,8 @@ static bool enable_profiling = true;
 
             uint32_t threadID = (uint32_t)std::hash<std::thread::id>{}(std::this_thread::get_id());
 
-            if (Profiling::enable_profiling) {
-                ChromeProfiler::Get().WriteProfile({ m_name, threadID, m_start, end });
+            if (Profiling::Get().enable_profiling) {
+                Profiling::Get().WriteProfile({ m_name, threadID, m_start, end });
             }
 
             m_stopped = true;
@@ -156,19 +173,19 @@ static bool enable_profiling = true;
     };
 
     static void SetProfiling(bool enabled) {
-        enable_profiling = enabled;
+        Profiling::Get().enable_profiling = enabled;
     }
 
     static void BeginSession(const char* name) {
 #ifdef BE_PROFILING_CHROME
-        ChromeProfiler::Get().BeginSession(name);
+        Profiling::Get().BeginSession(name);
 #else
 #endif
     }
 
     static void EndSession() {
 #ifdef BE_PROFILING_CHROME
-        ChromeProfiler::Get().EndSession();
+        Profiling::Get().EndSession();
 #else
 #endif
     }

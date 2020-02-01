@@ -1,9 +1,9 @@
 #pragma once
 
-#include <bitengine/Core/VideoSystem.h>
-#include <bitengine/Core/Logger.h>
-#include <bitengine/Core/Memory.h>
-#include <bitengine/Core/ECS/EntitySystem.h>
+#include <BitEngine/Core/VideoSystem.h>
+#include <BitEngine/Core/Logger.h>
+#include <BitEngine/Core/Memory.h>
+#include <BitEngine/Core/ECS/EntitySystem.h>
 
 extern BitEngine::Logger* GameLog();
 
@@ -14,10 +14,10 @@ class MyGame;
 class MyGameEntitySystem;
 class Player;
 class PlayerController;
+class PlayerCamera;
 
 class UserGUI;
 class GameWorld;
-
 
 enum GAME_STATES {
 	MENU,
@@ -66,7 +66,10 @@ struct GameState {
 	UserGUI* m_userGUI;
 	GameWorld* m_world; //!< Current active world
 
-    BitEngine::ComponentRef<PlayerControlComponent> playerControl;	
+    BitEngine::ComponentRef<PlayerControlComponent> playerControl;
+
+    Player* m_player;
+    PlayerCamera* m_camera3d;
 };
 
 struct UserRequestQuitGame {

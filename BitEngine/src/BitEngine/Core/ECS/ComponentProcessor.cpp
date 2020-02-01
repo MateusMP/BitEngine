@@ -13,6 +13,7 @@ BaseComponentHolder::BaseComponentHolder(u32 componentSize, u32 nCompPerPool /*=
 }
 
 BaseComponentHolder::~BaseComponentHolder() {
+    BE_PROFILE_FUNCTION();
     for (auto& pool : m_pools) {
         delete[] pool;
     }
@@ -56,6 +57,7 @@ const std::vector<ComponentHandle>& BaseComponentHolder::getFreeIDs()
 // resize to be able to contain up to given component id
 void BaseComponentHolder::resize(u32 componentId)
 {
+    BE_PROFILE_FUNCTION();
     while (m_IDcapacity <= componentId)
     {
         m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]);
@@ -67,6 +69,7 @@ void BaseComponentHolder::resize(u32 componentId)
 
 u32 BaseComponentHolder::newComponentID(EntityHandle entity)
 {
+    BE_PROFILE_FUNCTION();
     ComponentHandle id = BE_NO_COMPONENT_HANDLE;
 
     // resize vector

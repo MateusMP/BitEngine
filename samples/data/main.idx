@@ -136,6 +136,20 @@
 					"transparent": 1
 				}
 			}
+		],
+		
+		"models": [
+			{
+				"name": "rocks_model",
+				"type": "MODEL3D",
+				"filePath": "models/Rocks_03.dae"
+			},
+			{
+				"name": "rocks_mesh",
+				"type": "MESH3D",
+				"model": "rocks_model",
+				"index": 0
+			}
 		]
 	}
 }

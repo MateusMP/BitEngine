@@ -57,19 +57,22 @@ void GLFW_ImGuiSystem::update()
     // Test
     Messenger<ImGuiRenderEvent>::emit(ImGuiRenderEvent());
 
-    static bool show = true;
-    ImGui::ShowDemoWindow(&show);
+    //static bool show = true;
+    //ImGui::ShowDemoWindow(&show);
 
     // End rendering
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
-        GLFWwindow* backup_current_context = glfwGetCurrentContext();
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-        glfwMakeContextCurrent(backup_current_context);
+        BE_PROFILE_SCOPE("IMGUI Render");
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+        }
     }
 }
 

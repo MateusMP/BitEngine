@@ -72,7 +72,7 @@ public:
     * Emit a message that is deferred until a dispatch() call.
     */
     void enqueue(const EventType& event) {
-        m_enqueuedEventData.emplace_back(event)
+        m_enqueuedEventData.emplace_back(event);
     }
 
     /**

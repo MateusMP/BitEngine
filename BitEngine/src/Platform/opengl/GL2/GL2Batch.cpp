@@ -82,6 +82,7 @@ void GL2Batch::setVertexRenderMode(VertexRenderMode mode)
 
 void GL2Batch::render(Shader* shader)
 {
+    BE_PROFILE_FUNCTION();
     GL2Shader *glShader = static_cast<GL2Shader*>(shader);
     glShader->bind();
 

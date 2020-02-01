@@ -9,7 +9,7 @@
 
 #define ASSERT_FAIL(msg) \
 	if (BE_ASSERT_THROW_ON_FAIL) { \
-		throw AssertFail(msg);		\
+		throw BitEngine::AssertFail(msg);		\
 	}
 
 #define BE_ASSERT(expr)	\
@@ -18,7 +18,7 @@
 			ASSERT_FAIL("Expression failed to validate: <"#expr">");}}
 
 #define BE_INVALID_PATH(msg)    \
-    throw AssertFail(msg)
+    throw BitEngine::AssertFail(msg)
 
 namespace BitEngine
 {

@@ -29,9 +29,9 @@ project "assimp"
 		"ASSIMP_BUILD_NO_MD3_IMPORTER",
 		"ASSIMP_BUILD_NO_MDL_IMPORTER",
 		"ASSIMP_BUILD_NO_MD2_IMPORTER",
-		-- "ASSIMP_BUILD_NO_PLY_IMPORTER",
+		"ASSIMP_BUILD_NO_PLY_IMPORTER",
 		"ASSIMP_BUILD_NO_ASE_IMPORTER",
-		-- "ASSIMP_BUILD_NO_OBJ_IMPORTER",
+		"ASSIMP_BUILD_NO_OBJ_IMPORTER",
 		"ASSIMP_BUILD_NO_AMF_IMPORTER",
 		"ASSIMP_BUILD_NO_HMP_IMPORTER",
 		"ASSIMP_BUILD_NO_SMD_IMPORTER",
@@ -63,9 +63,9 @@ project "assimp"
 		"ASSIMP_BUILD_NO_NDO_IMPORTER",
 		"ASSIMP_BUILD_NO_IFC_IMPORTER",
 		"ASSIMP_BUILD_NO_XGL_IMPORTER",
-		-- "ASSIMP_BUILD_NO_FBX_IMPORTER",
+		"ASSIMP_BUILD_NO_FBX_IMPORTER",
 		"ASSIMP_BUILD_NO_ASSBIN_IMPORTER",
-		-- "ASSIMP_BUILD_NO_GLTF_IMPORTER",
+		"ASSIMP_BUILD_NO_GLTF_IMPORTER",
 		"ASSIMP_BUILD_NO_C4D_IMPORTER",
 		"ASSIMP_BUILD_NO_3MF_IMPORTER",
 		"ASSIMP_BUILD_NO_X3D_IMPORTER",
@@ -102,19 +102,43 @@ project "assimp"
 		"ASSIMP_BUILD_NO_DEBONE_PROCESS",
 		"ASSIMP_BUILD_NO_EMBEDTEXTURES_PROCESS",
 		"ASSIMP_BUILD_NO_GLOBALSCALE_PROCESS",
+		"ASSIMP_BUILD_NO_STEP_IMPORTER",
 	}
 
 	files {
 		"include/**",
 		"code/Common/**",
+		"code/Material/**",
+		"code/PostProcessing/**",
 		"code/Collada/**",
+		--"code/Importer/**",
 		"contrib/irrXML/**",
 		"contrib/zlib/**.c",
-		"contrib/unzip/*",
+		--"contrib/unzip/*.c",
+	}
+	excludes {
+		"**/inffas86.c",
+		"contrib/zlib/contrib/blast/blast.c",
+		"contrib/zlib/contrib/iostream/test.cpp",
+		"contrib/zlib/contrib/iostream2/zstream_test.cpp",
+		"contrib/zlib/contrib/iostream3/test.cc",
+		"contrib/zlib/contrib/minizip/miniunz.c",
+		"contrib/zlib/contrib/minizip/minizip.c",
+		"contrib/zlib/contrib/puff/pufftest.c",
+		"contrib/zlib/contrib/testzlib/testzlib.c",
+		"contrib/zlib/contrib/untgz/untgz.c",			
+		"contrib/zlib/contrib/**/*test*",
 	}
 	
 	filter "system:windows"
 		systemversion "latest"
+	
+	filter "system:linux"
+
+		excludes {
+			"**/testzlib.c",
+			"contrib/zlib/contrib/minizip/iowin32.c"
+		}
 	
 	filter "configurations:Debug"
 		runtime "Debug"

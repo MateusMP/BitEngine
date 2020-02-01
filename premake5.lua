@@ -36,8 +36,8 @@ IncludeDir["stb"] = "BitEngine/dependencies/stb"
 IncludeDir["winksignals"] = "BitEngine/dependencies/Wink-Signals"
 IncludeDir["assimp"] = "BitEngine/dependencies/assimp/include"
 
-configuration "not windows"
-   prebuildcommands { "cp default.config bin/project.config" }
+--configuration "not windows"
+--   prebuildcommands { "cp default.config bin/project.config" }
 
 group "Dependencies"
 	include "BitEngine/dependencies/glfw/"
@@ -142,6 +142,7 @@ project "Sample01"
 	includedirs
 	{
 		"BitEngine/src",
+		"samples/sample01/src",
 		"dependencies",
 		"%{IncludeDir.glm}",
 		"%{prj.name}/src",
@@ -157,7 +158,10 @@ project "Sample01"
 
 	links
 	{
+		"GLFW",
 		"BitEngine",
+		"ImGui",
+		"assimp"
 	}
 	debugdir "samples/sample01"
 
@@ -167,6 +171,31 @@ project "Sample01"
 		defines
 		{
 			"BE_PLATFORM_WINDOWS"
+		}
+		
+		linkoptions { "/VERBOSE:LIB" }
+		
+		postbuildcommands {
+			"..\\copyfiles.sh ../bin/" .. outputdir .. "/Sample01/%{cfg.buildtarget.name} sample01/",
+		}
+	
+	filter "system:linux"
+		defines
+		{
+			"unix",
+			"BE_PLATFORM_LINUX"
+		}
+
+		links
+		{
+			"X11",
+			"dl",
+			"pthread",
+			"stdc++fs"
+		}
+		
+		postbuildcommands {
+			"cp ../bin/" .. outputdir .. "/Sample01/%{cfg.buildtarget.name} sample01/",
 		}
 
 	filter "configurations:Debug"
@@ -202,6 +231,7 @@ project "Sample02"
 	files
 	{
 		"samples/sample01/src/**.h",
+		"samples/sample01/src/GamePlatform/**.cpp",
 		"samples/sample02/src/main.cpp",
 		"BitEngine/src/Platform/glfw/**.cpp",
 		"BitEngine/src/Platform/glfw/**.h",
@@ -236,6 +266,7 @@ project "Sample02"
 	links
 	{
 		"BitEngine",
+		"assimp"
 	}
 	debugdir "samples/sample02"
 
@@ -280,7 +311,8 @@ project "Sample02DLL"
 
 	files
 	{
-		"samples/sample01/src/**.h",
+		"samples/sample01/src/Game/**.h",
+		"samples/sample01/src/Game/**.",
 		"samples/sample02/src/game.cpp",
 	}
 
@@ -303,7 +335,7 @@ project "Sample02DLL"
 	
 	defines
 	{
-		BE_LIBRARY_EXPORTS
+		"BE_LIBRARY_EXPORTS"
 	}
 
 	links
@@ -329,7 +361,7 @@ project "Sample02DLL"
 		runtime "Debug"
 		symbols "Full"
 		symbolspath "$(OutDir)$(TargetName)_$([System.DateTime]::Now.ToString(\"yyyy.MM.dd.HH.mm.ss\")).pdb"
-		linkoptions { "/Zi" }
+		linkoptions { }
 		debugargs { "--debug" }
 		editandcontinue "On"
 		staticruntime "Off"

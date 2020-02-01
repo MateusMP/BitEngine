@@ -1,0 +1,25 @@
+#version 150
+
+uniform sampler2D u_diffuse;
+uniform sampler2D u_normal;
+
+// in vec3 v_position;
+in vec2 v_textureUV;
+in vec3 v_normal;
+
+out vec4 fragColor;
+
+void main()
+{
+	// Show just diffuse
+	//fragColor = texture(u_diffuse, v_textureUV);
+	
+	// Show just normals
+	//fragColor = texture(u_normal, v_textureUV);
+	
+	// Show texture and normals
+	fragColor = texture(u_diffuse, v_textureUV) * texture(u_normal, v_textureUV);
+	// fragColor = vec4(v_position, 1);
+	
+	// TODO: Actual light and normals
+}

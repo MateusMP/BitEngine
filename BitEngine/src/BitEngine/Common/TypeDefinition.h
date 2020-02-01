@@ -41,7 +41,7 @@ protected:
     NonAssignable() {}
     ~NonAssignable() {}
 private:
-    const NonAssignable& operator=(const NonAssignable&) {}
+    const NonAssignable& operator=(const NonAssignable&) = delete;
 };
 
 

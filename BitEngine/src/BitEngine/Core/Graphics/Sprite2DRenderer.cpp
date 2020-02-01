@@ -53,7 +53,7 @@ void Sprite2DRenderer::buildBatchInstances()
     // Individual entries should be prepared for rendering
     // by the rendering implementation
     getES()->forEach<SceneTransform2DComponent, Sprite2DComponent>(
-        [=](const ComponentRef<SceneTransform2DComponent>& transform, ComponentRef<Sprite2DComponent>& sprite)
+        [=](ComponentRef<SceneTransform2DComponent>&& transform, ComponentRef<Sprite2DComponent>&& sprite)
     {
         if (insideScreen(viewScreen, transform->getGlobal(), 64))
         {
