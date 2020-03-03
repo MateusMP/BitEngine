@@ -3,9 +3,9 @@
 #include <fstream>
 #include <Windows.h>
 
-#include <Bitengine/bitengine.h>
-#include <Bitengine/Core/Messenger.h>
-#include <Bitengine/Core/GeneralTaskManager.h>
+#include <BitEngine/bitengine.h>
+#include <BitEngine/Core/Messenger.h>
+#include <BitEngine/Core/GeneralTaskManager.h>
 #include <BitEngine/Common/TypeDefinition.h>
 #include <BitEngine/Core/Resources/DevResourceLoader.h>
 
@@ -27,6 +27,7 @@
 #include "Game/Common/GameGlobal.h"
 #include "imgui.h"
 
+#include <BitEngine/Global/globals.cpp>
 
 
 inline FILETIME WindowsFileLastWriteTime(const char *FileName) {

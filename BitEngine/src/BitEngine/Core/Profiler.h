@@ -32,8 +32,9 @@
 namespace BitEngine {
 
 namespace Profiling {
-// Adapted from https://gist.github.com/TheCherno/31f135eea6ee729ab5f26a6908eb3a5e
-    
+    class ChromeProfiler;
+
+    // Adapted from https://gist.github.com/TheCherno/31f135eea6ee729ab5f26a6908eb3a5e
     struct ProfileResult
     {
         std::string name;
@@ -114,20 +115,10 @@ namespace Profiling {
 
     };
 
-    BE_API extern ChromeProfiler* _instance;
+    extern ChromeProfiler& Get();
+    extern void SetInstance(ChromeProfiler* obj);
 
-
-    static ChromeProfiler& Get()
-    {
-        return *_instance;
-    }
-
-    static void SetInstance(ChromeProfiler* obj)
-    {
-        _instance = obj;
-    }
-
-    static thread_local long long profiling_timer_last_start = 0;
+    // static thread_local long long profiling_timer_last_start = 0;
     class PrecisionTimer
     {
     public:
@@ -139,10 +130,10 @@ namespace Profiling {
 
             // We need to make sure fast profile calls won't get the same start time,
             // otherwise this can break chrome://tracing view
-            if (m_start == profiling_timer_last_start) {
-                ++m_start;
-            }
-            profiling_timer_last_start = m_start;
+            // if (m_start == profiling_timer_last_start) {
+            //     ++m_start;
+            // }
+            // profiling_timer_last_start = m_start;
         }
 
         ~PrecisionTimer()

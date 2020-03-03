@@ -324,7 +324,7 @@ public:
                 BE_PROFILE_SCOPE("Render SCENE_BEGIN");
                 SceneBeginCommand& cmd = commands[i].data.sceneBegin;
                 // driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.7f, 0.2f, 0.3f, 0.f));
-                BitEngine::GLVideoDriver::clearBufferColor(nullptr, BitEngine::ColorRGBA(0.3f, 0.7f, 0.3f, 0.f));
+                BitEngine::GLVideoDriver::clearBufferColor(nullptr, cmd.color);
                 BitEngine::GLVideoDriver::clearBuffer(nullptr, BitEngine::BufferClearBitMask::COLOR_DEPTH);
             }
             break;

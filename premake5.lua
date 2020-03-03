@@ -49,7 +49,7 @@ group ""
 
 project "BitEngine"
 	location "BitEngine"
-	kind "StaticLib"
+	kind "SharedLib"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
@@ -63,10 +63,14 @@ project "BitEngine"
 	files
 	{
 		"%{prj.name}/src/BitEngine/**.h",
-		"%{prj.name}/src/BitEngine/**.cpp",
+		"%{prj.name}/src/BitEngine/Core/**.cpp",
 		"%{prj.name}/BitEngine/dependencies/glm/glm/**.hpp",
         "%{prj.name}/BitEngine/dependencies/glm/glm/**.inl",
 		"%{prj.name}/BitEngine/dependencies/stb/src/stb_image.h",
+	}
+
+	excludes {
+		"globals/**"
 	}
 
 	defines
@@ -90,14 +94,24 @@ project "BitEngine"
 	{ 
 		"GLFW",
 		"ImGui",
-		"opengl32.lib"
 	}
+
+	filter "system:linux"
+		links 
+		{
+			"GL"
+		}
 
 	filter "system:windows"
 		systemversion "latest"
+		links 
+		{ 
+			"opengl32.lib"
+		}
 
 		defines
 		{
+			"BE_LIBRARY_EXPORTS",
 			"BE_PLATFORM_WINDOWS",
 			"GLFW_INCLUDE_NONE"
 		}
@@ -137,6 +151,7 @@ project "Sample01"
 		"BitEngine/src/Platform/opengl/**.cpp",
 		"BitEngine/src/Platform/opengl/**.h",
 		"BitEngine/dependencies/glad/src/glad.c",
+		"BitEngine/src/BitEngine/Global/globals.cpp",
 	}
 
 	includedirs
@@ -232,16 +247,23 @@ project "Sample02"
 	{
 		"samples/sample01/src/**.h",
 		"samples/sample01/src/GamePlatform/**.cpp",
-		"samples/sample02/src/main.cpp",
 		"BitEngine/src/Platform/glfw/**.cpp",
 		"BitEngine/src/Platform/glfw/**.h",
 		"BitEngine/src/Platform/opengl/**.cpp",
 		"BitEngine/src/Platform/opengl/**.h",
 		"BitEngine/dependencies/glad/src/glad.c",
 	}
+
+	filter "system:Windows"
+		  files { "samples/sample02/src/main_win32.cpp" }
+	
+	filter "system:linux"
+  		files { "samples/sample02/src/main_unix.cpp" }
 	
 	dependson
 	{
+		"GLFW",
+		"ImGui",
 		"Sample02DLL"
 	}
 
@@ -265,10 +287,21 @@ project "Sample02"
 
 	links
 	{
+		"GLFW",
+		"ImGui",
 		"BitEngine",
 		"assimp"
 	}
 	debugdir "samples/sample02"
+
+	filter "system:linux"
+		links
+		{
+			"dl",
+			"X11",
+			"pthread",
+			"stdc++fs"
+		}
 
 	filter "system:windows"
 		systemversion "latest"
@@ -282,14 +315,14 @@ project "Sample02"
 			"..\\copyfiles.sh ../bin/" .. outputdir .. "/Sample02/*.exe sample02/"
 		}
 
-	filter "configurations:Debug"
+	filter "configurations:debug"
 		defines "BE_DEBUG"
 		runtime "Debug"
 		symbols "on"
 		debugargs { "--debug" }
 		staticruntime "Off"
 
-	filter "configurations:Release"
+	filter "configurations:release"
 		defines "BE_RELEASE"
 		runtime "Release"
 		optimize "on"
@@ -304,7 +337,7 @@ project "Sample02DLL"
 	kind "SharedLib"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/Sample02")
 	objdir ("bin-tmp/" .. outputdir .. "/Sample02")
@@ -335,11 +368,12 @@ project "Sample02DLL"
 	
 	defines
 	{
-		"BE_LIBRARY_EXPORTS"
+		"BE_LIBRARY_IMPORTS"
 	}
 
 	links
 	{
+		"ImGui",
 		"BitEngine"
 	}
 

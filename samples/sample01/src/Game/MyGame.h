@@ -1,13 +1,36 @@
 #pragma once
 
 #include <imgui.h>
-#include <Platform/glfw/GLFW_ImGuiSystem.h>
 
+#include <BitEngine/Core/VideoSystem.h>
+#include <BitEngine/Core/Graphics/Sprite2D.h>
+#include <BitEngine/Core/ECS/EntitySystem.h>
 #include "Game/Common/MainMemory.h"
 #include "Game/Common/GameGlobal.h"
 #include "Overworld.h"
-#include "MyGameSystem.h"
 
+class UserGUI
+{
+public:
+	UserGUI(MyGameEntitySystem* es)
+	{
+		gui = es->createEntity();
+
+		camera = es->addComponent<BitEngine::Camera2DComponent>(gui);
+
+		camera->setView(1280, 720);
+		camera->setLookAt(glm::vec3(1280/2, 720/2, 0));
+		camera->setZoom(1.0f);
+	}
+
+	BitEngine::ComponentRef<BitEngine::Camera2DComponent>& getCamera() {
+		return camera;
+	}
+
+private:
+	BitEngine::EntityHandle gui;
+	BitEngine::ComponentRef<BitEngine::Camera2DComponent> camera;
+};
 
 class UpdateTask : public BitEngine::Task
 {
@@ -261,7 +284,7 @@ public:
     void render()
     {
         BE_PROFILE_FUNCTION();
-        mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0 });
+        mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0, BitEngine::ColorRGBA(0.7f, 0.3f, 0.3f, 0.f) });
 
         gameState->entitySystem->mesh3dSys.setActiveCamera(gameState->m_world->getActiveCamera());
         gameState->entitySystem->mesh3dSys.processEntities(mainMemory->renderQueue);

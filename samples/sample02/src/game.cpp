@@ -11,6 +11,8 @@
 #include "Game/Common/MainMemory.h"
 #include "Game/MyGame.h"
 
+#include <BitEngine/Global/globals.cpp>
+
 static MyGame *game;
 
 BitEngine::Logger* GameLog() {

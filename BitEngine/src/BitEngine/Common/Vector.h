@@ -77,11 +77,13 @@ public:
     void remove(ptrsize index) {
         if (index < this->count) {
             --this->count;
-            this->data[index] = this->data[this->count];
-            this->data[this->count].~T();
+            if (index != this->count) {
+                this->data[index] = this->data[this->count];
+            }
+            this->data[this->count] = {};
         } else {
             --this->count;
-            this->data[index].~T();
+            this->data[index] = {};
         }
     }
 

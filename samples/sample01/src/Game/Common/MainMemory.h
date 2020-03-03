@@ -29,6 +29,7 @@ struct RenderSpriteCommand {
 struct SceneBeginCommand {
     u32 renderWidth;
     u32 renderHeight;
+    BitEngine::ColorRGBA color;
 };
 
 struct Render2DSceneCommand {
