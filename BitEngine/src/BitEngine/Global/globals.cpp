@@ -16,12 +16,12 @@ namespace BitEngine {
     {        
         BE_API ChromeProfiler* _instance = nullptr;
 
-        ChromeProfiler& Get()
+        BE_API ChromeProfiler& Get()
         {
             return *_instance;
         }
 
-        void SetInstance(ChromeProfiler* obj)
+        BE_API void SetInstance(ChromeProfiler* obj)
         {
             _instance = obj;
         }

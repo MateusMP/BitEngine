@@ -69,10 +69,10 @@ class MyGame :
 {
 public:
     MyGame(MainMemory* gameMemory)
-        : mainMemory(gameMemory),
-        BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this),
+        : BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this),
         BitEngine::Messenger<BitEngine::WindowClosedEvent>::ScopedSubscription(gameMemory->window->windowClosedSignal, &MyGame::onMessage, this),
-        BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription(*gameMemory->imGuiRender, &MyGame::onMessage, this)
+        BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription(*gameMemory->imGuiRender, &MyGame::onMessage, this),
+        mainMemory(gameMemory)
     {
         gameState = (GameState*)gameMemory->memory;
 
@@ -284,7 +284,7 @@ public:
     void render()
     {
         BE_PROFILE_FUNCTION();
-        mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0, BitEngine::ColorRGBA(0.7f, 0.3f, 0.3f, 0.f) });
+        mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0, BitEngine::ColorRGBA(0.3f, 0.3f, 0.3f, 0.f) });
 
         gameState->entitySystem->mesh3dSys.setActiveCamera(gameState->m_world->getActiveCamera());
         gameState->entitySystem->mesh3dSys.processEntities(mainMemory->renderQueue);
@@ -301,34 +301,3 @@ private:
     MainMemory* mainMemory;
     GameState* gameState;
 };
-
-
-
-static bool insideScreen(const glm::vec4& screen, const glm::mat3& matrix, const BitEngine::Sprite2DComponent* s)
-{
-    const float radius = s->sprite->getMaxRadius();
-
-    const float kX = matrix[2][0] + radius;
-    const float kX_r = matrix[2][0] - radius;
-    const float kY = matrix[2][1] + radius;
-    const float kY_b = matrix[2][1] - radius;
-
-    if (kX < screen.x) {
-        // printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE left %p - %f | %f\n", t, kX, screen.x);
-        return false;
-    }
-    if (kX_r > screen.z) {
-        //printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE right %p - %f | %f\n", t, kX_r, screen.z);
-        return false;
-    }
-    if (kY < screen.y) {
-        //printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE bot %p - %f | %f\n", t, kY, screen.y);
-        return false;
-    }
-    if (kY_b > screen.w) {
-        //printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE top %p - %f | %f\n", t, kY_b, screen.w);
-        return false;
-    }
-
-    return true;
-}

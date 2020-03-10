@@ -15,7 +15,6 @@
     #include <Platform/opengl/GL2/GL2TextureManager.h>
 #endif
 
-#include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
 #include <Platform/glfw/GLFW_VideoSystem.h>
 #include <Platform/glfw/GLFW_InputSystem.h>
 #include <Platform/glfw/GLFW_ImGuiSystem.h>
@@ -55,6 +54,7 @@ struct Game {
     __time_t time;
     bool valid;
     bool change;
+    std::string fname;
 };
 
 
@@ -95,6 +95,10 @@ Game loadGameCode(const char* path, Game &current) {
         game.valid = game.update != nullptr && game.setup != nullptr && game.shutdown != nullptr;
         game.time = WindowsFileLastWriteTime(path);
         game.change = !current.change;
+        game.fname = actualLoad;
+    } else {
+        char* e = dlerror();
+        printf("ERROR: %s\n", e);
     }
     return game;
 }
@@ -102,6 +106,9 @@ Game loadGameCode(const char* path, Game &current) {
 void unloadGameCode(Game& game) {
     dlclose(game.dll);
     game.valid = false;
+    if (0 != remove(game.fname.c_str())) {
+        printf("Failed to delete old dll.\n");
+    }
 }
 
 void game() {
@@ -212,6 +219,7 @@ void game() {
     const char* gameDll = "libSample02DLL.so";
     Game game = loadGameCode(gameDll, game);
     if (!game.valid) {
+        LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Failed to load dll";
         abort();
     }
     game.setup(&gameMemory);

@@ -20,6 +20,12 @@ enum Command {
 
 };
 
+enum SpriteModes {
+    DEFAULT_SPRITE = 0,
+    TRANSPARENT_SPRITE,
+    EFFECT_SPRITE
+};
+
 struct RenderSpriteCommand {
     BitEngine::Material* material;
     BitEngine::Vec4 uvs;

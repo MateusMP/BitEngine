@@ -2,13 +2,13 @@
 
 // Read json index file
 
+#include <memory>
 #include <nlohmann/json.hpp>
 
 #include "BitEngine/Core/TaskManager.h"
 #include "BitEngine/Core/Memory.h"
 #include "BitEngine/Core/Resources/ResourceManager.h"
 
-#include <memory>
 #include "BitEngine/Core/Math.h"
 #include "BitEngine/Core/IO/File.h"
 #include "BitEngine/Common/ThreadSafeQueue.h"

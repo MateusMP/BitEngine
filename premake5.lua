@@ -67,7 +67,6 @@ project "BitEngine"
 		"%{prj.name}/src/BitEngine/dependencies/glm/glm/**.hpp",
         "%{prj.name}/src/BitEngine/dependencies/glm/glm/**.inl",
 		"%{prj.name}/src/BitEngine/dependencies/stb/src/stb_image.h",
-		"%{prj.name}/src/BitEngine/Global/globals.cpp",
 	}
 	
 	defines
@@ -97,6 +96,9 @@ project "BitEngine"
 		links 
 		{
 			"GL"
+		}
+		buildoptions {
+			"-fPIC", "-shared"
 		}
 
 	filter "system:windows"
@@ -246,6 +248,7 @@ project "Sample02"
 	{
 		"samples/sample01/src/**.h",
 		"samples/sample01/src/GamePlatform/**.cpp",
+		"BitEngine/src/Platform/video/**.cpp",
 		"BitEngine/src/Platform/glfw/**.cpp",
 		"BitEngine/src/Platform/glfw/**.h",
 		"BitEngine/src/Platform/opengl/**.cpp",
@@ -297,6 +300,10 @@ project "Sample02"
 			"X11",
 			"pthread",
 			"stdc++fs"
+		}
+
+		postbuildcommands {
+			"cp ../bin/" .. outputdir .. "/Sample02/*Sample02* sample02/"
 		}
 
 	filter "system:windows"
@@ -375,6 +382,16 @@ project "Sample02DLL"
 		"ImGui",
 		"BitEngine"
 	}
+
+	filter "system:linux"
+		buildoptions {
+			"-fPIC", "-shared"
+		}
+
+		postbuildcommands {
+			"cp ../bin/" .. outputdir .. "/Sample02/libSample02* sample02/"
+		}
+
 
 	filter "system:windows"
 		systemversion "latest"

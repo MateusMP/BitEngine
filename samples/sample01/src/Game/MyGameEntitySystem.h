@@ -267,8 +267,10 @@ public:
         : MyComponentsRegistry(),
         t2p(this), t3p(this),
         cam2Dprocessor(this, &t2p), cam3Dprocessor(this, &t3p),
-        glp(this), spr2D(this), spinnerSys(this),
+        glp(this),
         pcs(this),
+        spinnerSys(this),
+        spr2D(this),
         mesh3dSys(this, &t3p)
     {
         using namespace BitEngine;

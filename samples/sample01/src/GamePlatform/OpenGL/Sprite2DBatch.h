@@ -7,7 +7,6 @@
 
 #include <BitEngine/Core/Graphics/Sprite2D.h>
 
-#include "Game/MyGameEntitySystem.h"
 #include "Game/Common/MainMemory.h"
 
 class Sprite2DBatch
@@ -106,20 +105,20 @@ public:
 
         // DEFAULT_SPRITE
         using namespace BitEngine;
-        m_sprite_materials[Sprite2DProcessor::DEFAULT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_NONE);
-        m_sprite_materials[Sprite2DProcessor::DEFAULT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
-        m_sprite_materials[Sprite2DProcessor::DEFAULT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
+        m_sprite_materials[SpriteModes::DEFAULT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_NONE);
+        m_sprite_materials[SpriteModes::DEFAULT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
+        m_sprite_materials[SpriteModes::DEFAULT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
         // TRANSPARENT_SPRITE
-        m_sprite_materials[Sprite2DProcessor::TRANSPARENT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
-        m_sprite_materials[Sprite2DProcessor::TRANSPARENT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
-        m_sprite_materials[Sprite2DProcessor::TRANSPARENT_SPRITE].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
-        m_sprite_materials[Sprite2DProcessor::TRANSPARENT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
+        m_sprite_materials[SpriteModes::TRANSPARENT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
+        m_sprite_materials[SpriteModes::TRANSPARENT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
+        m_sprite_materials[SpriteModes::TRANSPARENT_SPRITE].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
+        m_sprite_materials[SpriteModes::TRANSPARENT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
         // EFFECT_SPRITE
-        m_sprite_materials[Sprite2DProcessor::EFFECT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
-        m_sprite_materials[Sprite2DProcessor::EFFECT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
-        m_sprite_materials[Sprite2DProcessor::EFFECT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
-        m_sprite_materials[Sprite2DProcessor::EFFECT_SPRITE].setBlendEquation(BlendEquation::ADD);
-        m_sprite_materials[Sprite2DProcessor::EFFECT_SPRITE].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
+        m_sprite_materials[SpriteModes::EFFECT_SPRITE].setState(RenderConfig::BLEND, BlendConfig::BLEND_ALL);
+        m_sprite_materials[SpriteModes::EFFECT_SPRITE].setState(RenderConfig::TEXTURE_2D, true);
+        m_sprite_materials[SpriteModes::EFFECT_SPRITE].setState(RenderConfig::DEPTH_TEST, DepthConfig::DEPTH_TEST_DISABLED);
+        m_sprite_materials[SpriteModes::EFFECT_SPRITE].setBlendEquation(BlendEquation::ADD);
+        m_sprite_materials[SpriteModes::EFFECT_SPRITE].setBlendMode(BlendFunc::SRC_ALPHA, BlendFunc::ONE_MINUS_SRC_ALPHA);
     }
 
     BitEngine::BlendMaterial m_sprite_materials[3];
