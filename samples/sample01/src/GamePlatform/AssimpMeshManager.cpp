@@ -71,14 +71,14 @@ public:
             m_model->meshes[i] = aMesh;
         }
 
-        for (int i = 0; i < node->mNumChildren; ++i) {
+        for (u32 i = 0; i < node->mNumChildren; ++i) {
             processNode(node->mChildren[i], scene);
         }
     }
 
     void loadTextures(const aiMaterial* material, aiTextureType type) {
         BE_PROFILE_FUNCTION();
-        for (int i = 0; i < material->GetTextureCount(type); ++i)
+        for (u32 i = 0; i < material->GetTextureCount(type); ++i)
         {
             aiString path;
             material->GetTexture(type, i, &path);

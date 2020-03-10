@@ -192,7 +192,7 @@ void GeneralTaskManager::addTask(TaskPtr task)
     }
     else {
         m_pushCycle = ((m_pushCycle + 1) % (m_totalWorkers-1));
-        int at = 1 + m_pushCycle;
+        u32 at = 1 + m_pushCycle;
         BE_ASSERT(at > 0 && at < m_totalWorkers);
         workers[at]->m_taskQueue.push(task);
         //LOG(EngineLog, BE_LOG_VERBOSE) << "pushed: " << task << " to " << getWorker(at);

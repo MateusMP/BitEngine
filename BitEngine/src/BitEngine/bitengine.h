@@ -13,8 +13,6 @@
 #include "BitEngine/Core/CommandSystem.h"
 #include "BitEngine/Core/KeyCodes.h"
 #include "BitEngine/Core/InputSystem.h"
-#include "BitEngine/Core/ECS/EntitySystem.h"
-#include "BitEngine/Core/ECS/Components.h"
 
 #include "BitEngine/Core/Mesh.h"
 #include "BitEngine/Core/Graphics/Texture.h"

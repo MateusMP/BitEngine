@@ -30,7 +30,7 @@ void GLVideoDriver::setViewPort(int x, int y, int width, int height)
     GL_CHECK(glViewport(x, y, width, height));
 }
 
-void GLVideoDriver::configure(const Material* material)
+void GLVideoDriver::configure(const BlendMaterial* material)
 {
     BE_PROFILE_FUNCTION();
     // BLEND

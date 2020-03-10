@@ -21,6 +21,7 @@
 #include "GamePlatform/OpenGL/OpenGLRenderer.h"
 #include "GamePlatform/AssimpMeshManager.h"
 
+#include <BitEngine/Global/globals.cpp>
 
 BitEngine::Logger* GameLog()
 {

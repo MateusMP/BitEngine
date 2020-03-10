@@ -49,7 +49,7 @@ group ""
 
 project "BitEngine"
 	location "BitEngine"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
@@ -64,15 +64,12 @@ project "BitEngine"
 	{
 		"%{prj.name}/src/BitEngine/**.h",
 		"%{prj.name}/src/BitEngine/Core/**.cpp",
-		"%{prj.name}/BitEngine/dependencies/glm/glm/**.hpp",
-        "%{prj.name}/BitEngine/dependencies/glm/glm/**.inl",
-		"%{prj.name}/BitEngine/dependencies/stb/src/stb_image.h",
+		"%{prj.name}/src/BitEngine/dependencies/glm/glm/**.hpp",
+        "%{prj.name}/src/BitEngine/dependencies/glm/glm/**.inl",
+		"%{prj.name}/src/BitEngine/dependencies/stb/src/stb_image.h",
+		"%{prj.name}/src/BitEngine/Global/globals.cpp",
 	}
-
-	excludes {
-		"globals/**"
-	}
-
+	
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS"
@@ -144,14 +141,16 @@ project "Sample01"
 
 	files
 	{
+		"BitEngine/src/BitEngine/Game/**.cpp",
 		"samples/sample01/src/**.h",
 		"samples/sample01/src/**.cpp",
 		"BitEngine/src/Platform/glfw/**.cpp",
 		"BitEngine/src/Platform/glfw/**.h",
+		"BitEngine/src/Platform/video/**.h",
+		"BitEngine/src/Platform/video/**.cpp",
 		"BitEngine/src/Platform/opengl/**.cpp",
 		"BitEngine/src/Platform/opengl/**.h",
-		"BitEngine/dependencies/glad/src/glad.c",
-		"BitEngine/src/BitEngine/Global/globals.cpp",
+		"BitEngine/dependencies/glad/src/glad.c"
 	}
 
 	includedirs
@@ -254,12 +253,6 @@ project "Sample02"
 		"BitEngine/dependencies/glad/src/glad.c",
 	}
 
-	filter "system:Windows"
-		  files { "samples/sample02/src/main_win32.cpp" }
-	
-	filter "system:linux"
-  		files { "samples/sample02/src/main_unix.cpp" }
-	
 	dependson
 	{
 		"GLFW",
@@ -293,8 +286,11 @@ project "Sample02"
 		"assimp"
 	}
 	debugdir "samples/sample02"
-
+	
 	filter "system:linux"
+	
+  		files { "samples/sample02/src/main_unix.cpp" }
+		
 		links
 		{
 			"dl",
@@ -305,6 +301,8 @@ project "Sample02"
 
 	filter "system:windows"
 		systemversion "latest"
+		
+		files { "samples/sample02/src/main_win32.cpp" }
 
 		defines
 		{
@@ -344,6 +342,7 @@ project "Sample02DLL"
 
 	files
 	{
+		"BitEngine/src/BitEngine/Game/**.cpp",
 		"samples/sample01/src/Game/**.h",
 		"samples/sample01/src/Game/**.",
 		"samples/sample02/src/game.cpp",

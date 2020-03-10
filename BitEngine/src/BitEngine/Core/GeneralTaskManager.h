@@ -44,7 +44,7 @@ private:
     ThreadSafeQueue< TaskPtr > m_taskQueue;
 };
 
-class GeneralTaskManager : public TaskManager
+class BE_API GeneralTaskManager : public TaskManager
 {
 public:
     GeneralTaskManager();

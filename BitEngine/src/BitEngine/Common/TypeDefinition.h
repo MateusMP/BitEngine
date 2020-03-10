@@ -26,7 +26,7 @@ typedef size_t ptrsize;
 
 namespace BitEngine {
 
-class NonCopyable
+class BE_API NonCopyable
 {
 protected:
     NonCopyable() {}
@@ -35,7 +35,7 @@ private:
     NonCopyable(const NonCopyable&) {}
 };
 
-class  NonAssignable
+class BE_API NonAssignable
 {
 protected:
     NonAssignable() {}

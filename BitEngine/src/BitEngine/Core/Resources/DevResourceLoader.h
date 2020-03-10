@@ -234,7 +234,7 @@ private:
  * This loader loads files from the standard file system.
  * All resources are indexed in a json file.
  */
-class DevResourceLoader : public ResourceLoader
+class BE_API DevResourceLoader : public ResourceLoader
 {
     friend class DevPropHolder;
 public:

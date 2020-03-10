@@ -1,11 +1,11 @@
 #pragma once
 
 #include <BitEngine/Core/Graphics/Sprite2D.h>
-#include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
-#include <BitEngine/Core/ECS/Camera2DProcessor.h>
-#include <BitEngine/Core/ECS/Camera3DProcessor.h>
-#include <BitEngine/Core/ECS/GameLogicProcessor.h>
-#include <BitEngine/Core/ECS/RenderableMeshComponent.h>
+#include <BitEngine/Game/ECS/Camera2DProcessor.h>
+#include <BitEngine/Game/ECS/Camera3DProcessor.h>
+#include <BitEngine/Game/ECS/GameLogicProcessor.h>
+#include <BitEngine/Game/ECS/RenderableMeshComponent.h>
+#include <BitEngine/Game/ECS/EntitySystem.h>
 
 
 #include "Game/Common/MainMemory.h"
@@ -14,11 +14,117 @@
 class MyGameEntitySystem;
 
 
+
+struct PlayerControlComponent : public BitEngine::Component<PlayerControlComponent>
+{
+    float movH, movV;
+
+    BitEngine::ComponentRef<BitEngine::Transform2DComponent> transform2d;
+};
+
+struct GameState {
+
+    bool32 initialized;
+    bool32 running;
+
+    BitEngine::ResourceLoader *resources;
+
+    BitEngine::MemoryArena mainArena;
+    BitEngine::MemoryArena resourceArena;
+    BitEngine::MemoryArena permanentArena;
+    BitEngine::MemoryArena entityArena;
+
+    MyGameEntitySystem* entitySystem;
+
+    UserGUI* m_userGUI;
+    GameWorld* m_world; //!< Current active world
+
+    BitEngine::ComponentRef<PlayerControlComponent> playerControl;
+
+    Player* m_player;
+    PlayerCamera* m_camera3d;
+};
+
+struct UserRequestQuitGame {
+    GameQuitType quitType;
+};
+
+
 struct Mesh3D : BitEngine::Component<Mesh3D> {
 
 };
 
 
+class BE_API Sprite2DProcessor : public BitEngine::ComponentProcessor
+{
+public:
+    constexpr static u32 DEFAULT_SPRITE = 0;
+    constexpr static u32 TRANSPARENT_SPRITE = 1;
+    constexpr static u32 EFFECT_SPRITE = 2;
+
+    Sprite2DProcessor(BitEngine::EntitySystem* es)
+        : ComponentProcessor(es) {
+
+    }
+    ~Sprite2DProcessor() {
+
+    }
+
+    void processEntities(BitEngine::ComponentRef<BitEngine::Camera2DComponent>& camera, RenderQueue* queue) {
+        BE_PROFILE_FUNCTION(BitEngine::EngineLog);
+
+        Render2DBatchCommand* batch = queue->initRenderBatch2D();
+
+        const glm::vec4 viewScreen = camera->getWorldViewArea();
+        batch->view = camera->getMatrix();
+
+        // Build batch
+        // TODO: Make loop append entries to render queue
+        // Individual entries should be prepared for rendering
+        // by the rendering implementation
+        getES()->forEach<BitEngine::SceneTransform2DComponent, BitEngine::Sprite2DComponent>(
+            [=](BitEngine::ComponentRef<BitEngine::SceneTransform2DComponent>&& transform, BitEngine::ComponentRef<BitEngine::Sprite2DComponent>&& sprite)
+        {
+            if (insideScreen(viewScreen, transform->getGlobal(), 64))
+            {
+                queue->pushSprite2D(batch, sprite->sprite.get(), sprite->alpha, sprite->layer, sprite->material, transform->getGlobal());
+            }
+        });
+
+
+    }
+
+private:
+
+    static bool insideScreen(const glm::vec4& screen, const glm::mat3& matrix, float radius)
+    {
+        const float kX = matrix[2][0] + radius;
+        const float kX_r = matrix[2][0] - radius;
+        const float kY = matrix[2][1] + radius;
+        const float kY_b = matrix[2][1] - radius;
+
+        if (kX < screen.x) {
+            // printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE left %p - %f | %f\n", t, kX, screen.x);
+            return false;
+        }
+        if (kX_r > screen.z) {
+            //printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE right %p - %f | %f\n", t, kX_r, screen.z);
+            return false;
+        }
+        if (kY < screen.y) {
+            //printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE bot %p - %f | %f\n", t, kY, screen.y);
+            return false;
+        }
+        if (kY_b > screen.w) {
+            //printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE top %p - %f | %f\n", t, kY_b, screen.w);
+            return false;
+        }
+
+        return true;
+    }
+
+    BitEngine::ResourceLoader* m_resourceLoader;
+};
 
 class Mesh3DProcessor : public BitEngine::ComponentProcessor
 {
@@ -57,7 +163,7 @@ public:
                 m->material = renderable->getMaterial();
                 m->transform = t3dp->getGlobalTransformFor(getComponentHandle(transform));
             } else {
-                for (int i = 0; i < model->getMeshCount(); ++i) {
+                for (u32 i = 0; i < model->getMeshCount(); ++i) {
                     Model3D *m = queue->pushModel3D(batch);
                     m->mesh = model->getMesh(i);
                     if (renderable->getMaterial() == nullptr) {
@@ -161,7 +267,7 @@ public:
         : MyComponentsRegistry(),
         t2p(this), t3p(this),
         cam2Dprocessor(this, &t2p), cam3Dprocessor(this, &t3p),
-        glp(this), spr2D(this, loader), spinnerSys(this),
+        glp(this), spr2D(this), spinnerSys(this),
         pcs(this),
         mesh3dSys(this, &t3p)
     {
@@ -200,9 +306,9 @@ public:
     BitEngine::Camera2DProcessor cam2Dprocessor;
     BitEngine::Camera3DProcessor cam3Dprocessor;
     BitEngine::GameLogicProcessor glp;
-    BitEngine::Sprite2DRenderer spr2D;
     PlayerControlSystem pcs;
     SpinnerSystem spinnerSys;
+    Sprite2DProcessor spr2D;
     Mesh3DProcessor mesh3dSys;
 };
 

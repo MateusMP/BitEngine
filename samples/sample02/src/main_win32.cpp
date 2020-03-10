@@ -16,7 +16,6 @@
     #include <Platform/opengl/GL2/GL2TextureManager.h>
 #endif
 
-#include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
 #include <Platform/glfw/GLFW_VideoSystem.h>
 #include <Platform/glfw/GLFW_InputSystem.h>
 #include <Platform/glfw/GLFW_ImGuiSystem.h>

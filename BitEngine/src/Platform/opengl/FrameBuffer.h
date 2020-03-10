@@ -5,7 +5,7 @@
 #include "Platform/opengl/OpenGL.h"
 
 #include "BitEngine/Common/TypeDefinition.h"
-#include "BitEngine/Core/Graphics/VideoRenderer.h"
+#include "Platform/video/VideoRenderer.h"
 
 class FrameBuffer : public BitEngine::RenderBuffer
 {

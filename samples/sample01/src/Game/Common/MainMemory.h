@@ -1,13 +1,13 @@
 #pragma once
 
 #include <BitEngine/Core/Memory.h>
+#include <BitEngine/Core/TaskManager.h>
 #include <BitEngine/Core/Math.h>
-#include <BitEngine/Core/Graphics/Sprite2DRenderer.h>
+#include <BitEngine/Core/Graphics/Color.h>
 
 namespace BitEngine
 {
 class VideoSystem;
-class Sprite2DRenderer;
 class EngineConfiguration;
 }
 
@@ -32,24 +32,28 @@ struct SceneBeginCommand {
     BitEngine::ColorRGBA color;
 };
 
-struct Render2DSceneCommand {
-    BitEngine::Sprite2DRenderer* renderer;
-};
-
-struct RenderSpriteBatch2DCommand {
-    const std::vector<BitEngine::Sprite2DBatch>& batch2d;
-    BitEngine::Mat4 viewProj;
-};
-
 struct Model3D {
     BitEngine::Mesh *mesh;
     BitEngine::Material* material;
     BitEngine::Mat4 transform;
 };
+struct Sprite2D {
+    const BitEngine::Sprite* sprite;
+    int layer;
+    float alpha;
+    const BitEngine::Material* material;
+    BitEngine::Mat3 transform;
+};
+
 struct Render3DBatchCommand {
     BitEngine::Mat4 projection;
     BitEngine::Mat4 view;
     Model3D* data;
+    u32 count;
+};
+struct Render2DBatchCommand {
+    BitEngine::Mat4 view;
+    Sprite2D* data;
     u32 count;
 };
 
@@ -58,17 +62,14 @@ union CommandData {
     }
     CommandData(RenderSpriteCommand&& s) : renderSprite(s) {
     }
-    CommandData(Render2DSceneCommand&& s) : render2DScene(s) {
-    }
-    CommandData(RenderSpriteBatch2DCommand&& s) : renderSpriteBatch2D(s) {
+    CommandData(Render2DBatchCommand&& s) : batch2d(s) {
     }
     CommandData(Render3DBatchCommand&& s) : batch3d(s) {
     }
-    RenderSpriteBatch2DCommand renderSpriteBatch2D;
-    Render2DSceneCommand render2DScene;
     SceneBeginCommand sceneBegin;
     RenderSpriteCommand renderSprite;
     Render3DBatchCommand batch3d;
+    Render2DBatchCommand batch2d;
 };
 
 struct RenderCommand {
@@ -96,17 +97,30 @@ public:
         return batch;
     }
 
+    Render2DBatchCommand* initRenderBatch2D() {
+        RenderCommand* cmd = commandArena.push<RenderCommand>(RenderCommand{ Command::SPRITE_BATCH_2D, Render2DBatchCommand{ } });
+        Render2DBatchCommand *batch = &cmd->data.batch2d;
+        batch->data = dataArena.push<Sprite2D>(); // Can't have an address without allocation a position
+        batch->count = 0;
+        return batch;
+    }
+
+    Sprite2D* pushSprite2D(Render2DBatchCommand* command, 
+                            const BitEngine::Sprite* sprite, float alpha, int layer, const BitEngine::Material* material,
+                            const BitEngine::Mat4& transform) {
+        command->count += 1;
+        Sprite2D* spr2d = dataArena.push<Sprite2D>() - 1;
+        spr2d->sprite = sprite;
+        spr2d->alpha = alpha;
+        spr2d->layer = layer;
+        spr2d->material = material;
+        spr2d->transform = transform;
+        return spr2d;
+    }
+
     Model3D* pushModel3D(Render3DBatchCommand* command) {
         command->count += 1;
         return dataArena.push<Model3D>() - 1; // We are always one ahead.
-    }
-
-    void pushCommand(BitEngine::Sprite2DRenderer* renderer) {
-        commandArena.push<RenderCommand>(RenderCommand{ Command::SCENE_2D, Render2DSceneCommand{ renderer } });
-    }
-
-    void pushCommand(const std::vector<BitEngine::Sprite2DBatch>& batch2d, const BitEngine::Mat4& viewProj) {
-        commandArena.push<RenderCommand>(RenderCommand{ Command::SPRITE_BATCH_2D, RenderSpriteBatch2DCommand{ batch2d, viewProj } });
     }
 
     RenderCommand* getCommands() {

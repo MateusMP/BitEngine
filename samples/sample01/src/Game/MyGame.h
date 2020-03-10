@@ -4,7 +4,7 @@
 
 #include <BitEngine/Core/VideoSystem.h>
 #include <BitEngine/Core/Graphics/Sprite2D.h>
-#include <BitEngine/Core/ECS/EntitySystem.h>
+#include <BitEngine/Game/ECS/EntitySystem.h>
 #include "Game/Common/MainMemory.h"
 #include "Game/Common/GameGlobal.h"
 #include "Overworld.h"
@@ -199,7 +199,7 @@ public:
             BitEngine::ComponentRef<BitEngine::SceneTransform2DComponent> sceneComp;
             BitEngine::ComponentRef<BitEngine::GameLogicComponent> logicComp;
             BE_ADD_COMPONENT_ERROR(transformComp = es->addComponent<BitEngine::Transform2DComponent>(h));
-            BE_ADD_COMPONENT_ERROR(spriteComp = es->addComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, es->spr2D.getMaterial(Sprite2DRenderer::EFFECT_SPRITE)));
+            BE_ADD_COMPONENT_ERROR(spriteComp = es->addComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, nullptr)); // es->spr2D.getMaterial(Sprite2DRenderer::EFFECT_SPRITE)
             BE_ADD_COMPONENT_ERROR(sceneComp = es->addComponent<BitEngine::SceneTransform2DComponent>(h));
             BE_ADD_COMPONENT_ERROR(logicComp = es->addComponent<BitEngine::GameLogicComponent>(h));
             BE_ADD_COMPONENT_ERROR(es->addComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
@@ -289,8 +289,7 @@ public:
         gameState->entitySystem->mesh3dSys.setActiveCamera(gameState->m_world->getActiveCamera());
         gameState->entitySystem->mesh3dSys.processEntities(mainMemory->renderQueue);
 
-        gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
-        mainMemory->renderQueue->pushCommand(gameState->entitySystem->spr2D.GenerateRenderData(), gameState->m_userGUI->getCamera()->getMatrix());
+        gameState->entitySystem->spr2D.processEntities(gameState->m_userGUI->getCamera(), mainMemory->renderQueue);
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)
