@@ -71,7 +71,7 @@ public:
     }
 
     void processEntities(BitEngine::ComponentRef<BitEngine::Camera2DComponent>& camera, RenderQueue* queue) {
-        BE_PROFILE_FUNCTION(BitEngine::EngineLog);
+        BE_PROFILE_FUNCTION();
 
         Render2DBatchCommand* batch = queue->initRenderBatch2D();
 
