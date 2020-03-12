@@ -57,10 +57,6 @@ public:
 	virtual void closeWindow(Window *window) override;
 
 protected:
-	/** Helper function
-		* Swap buffers drawing new screen
-		*/
-	bool checkWindowClosed(GLFWwindow *window);
 
 private:
 	bool glFuncsLoaded;

@@ -25,7 +25,7 @@ protected:
 };
 
 template<typename T, ptrsize MaxSize, bool Local = true>
-class TightFixedVector : public _TightFixedVector<T, MaxSize, Local> {
+class BE_API TightFixedVector : public _TightFixedVector<T, MaxSize, Local> {
 public:
     template<bool enabled = Local>
     static void Create(typename std::enable_if<enabled, MemoryArena&>::type a) {

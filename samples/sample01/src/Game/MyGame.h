@@ -12,24 +12,24 @@
 class UserGUI
 {
 public:
-	UserGUI(MyGameEntitySystem* es)
-	{
-		gui = es->createEntity();
+    UserGUI(MyGameEntitySystem* es)
+    {
+        gui = es->createEntity();
 
-		camera = es->addComponent<BitEngine::Camera2DComponent>(gui);
+        camera = es->addComponent<BitEngine::Camera2DComponent>(gui);
 
-		camera->setView(1280, 720);
-		camera->setLookAt(glm::vec3(1280/2, 720/2, 0));
-		camera->setZoom(1.0f);
-	}
+        camera->setView(1280, 720);
+        camera->setLookAt(glm::vec3(1280 / 2, 720 / 2, 0));
+        camera->setZoom(1.0f);
+    }
 
-	BitEngine::ComponentRef<BitEngine::Camera2DComponent>& getCamera() {
-		return camera;
-	}
+    BitEngine::ComponentRef<BitEngine::Camera2DComponent>& getCamera() {
+        return camera;
+    }
 
 private:
-	BitEngine::EntityHandle gui;
-	BitEngine::ComponentRef<BitEngine::Camera2DComponent> camera;
+    BitEngine::EntityHandle gui;
+    BitEngine::ComponentRef<BitEngine::Camera2DComponent> camera;
 };
 
 class UpdateTask : public BitEngine::Task
@@ -82,7 +82,7 @@ public:
     }
 
     ~MyGame() {
-        
+
     }
 
     void onMessage(const BitEngine::ImGuiRenderEvent& ev)
@@ -127,7 +127,7 @@ public:
     {
         BE_PROFILE_FUNCTION();
         using namespace BitEngine;
-        
+
         // Create memory arenas
         gameState->mainArena.init((u8*)mainMemory->memory + sizeof(GameState), mainMemory->memorySize - sizeof(GameState));
         gameState->permanentArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(8)), MEGABYTES(8));
@@ -227,7 +227,8 @@ public:
 
         if (gameState->running) {
             render();
-        } else {
+        }
+        else {
             gameState->entitySystem->~MyGameEntitySystem();
         }
 
