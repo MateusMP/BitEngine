@@ -14,7 +14,6 @@ std::ofstream file("EngineLog.log", std::ios_base::app);
 #endif
 */
 	// By default, the logger will log to the console
-	BE_API Logger* EngineLog = nullptr;
 	LoggerSetup LoggerSetup::loggerSetup;
 
 	bool containsOption(const char* option, int argc, const char* argv[]) {

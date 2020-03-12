@@ -19,8 +19,12 @@ enum MeshLoadState {
 class AssimpMaterial : public BitEngine::Material {
 public:
 
-    RR<Texture> getTexture(int index) {
+    RR<Texture> getTexture(int index) override {
         return textures[index];
+    }
+
+    int getTextureCount() override {
+        return 4;
     }
 
 

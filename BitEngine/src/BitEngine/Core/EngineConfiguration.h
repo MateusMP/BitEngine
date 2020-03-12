@@ -12,7 +12,7 @@
 
 namespace BitEngine
 {
-	class EngineConfiguration
+	class BE_API EngineConfiguration
 	{
 	public:
 		EngineConfiguration();

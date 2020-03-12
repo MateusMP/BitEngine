@@ -63,12 +63,12 @@ project "BitEngine"
 	files
 	{
 		"%{prj.name}/src/BitEngine/**.h",
-		"%{prj.name}/src/BitEngine/**.cpp",
-		"%{prj.name}/BitEngine/dependencies/glm/glm/**.hpp",
-        "%{prj.name}/BitEngine/dependencies/glm/glm/**.inl",
-		"%{prj.name}/BitEngine/dependencies/stb/src/stb_image.h",
+		"%{prj.name}/src/BitEngine/Core/**.cpp",
+		"%{prj.name}/src/BitEngine/dependencies/glm/glm/**.hpp",
+        "%{prj.name}/src/BitEngine/dependencies/glm/glm/**.inl",
+		"%{prj.name}/src/BitEngine/dependencies/stb/src/stb_image.h",
 	}
-
+	
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS"
@@ -90,14 +90,27 @@ project "BitEngine"
 	{ 
 		"GLFW",
 		"ImGui",
-		"opengl32.lib"
 	}
+
+	filter "system:linux"
+		links 
+		{
+			"GL"
+		}
+		buildoptions {
+			"-fPIC", "-shared"
+		}
 
 	filter "system:windows"
 		systemversion "latest"
+		links 
+		{ 
+			"opengl32.lib"
+		}
 
 		defines
 		{
+			"BE_LIBRARY_EXPORTS",
 			"BE_PLATFORM_WINDOWS",
 			"GLFW_INCLUDE_NONE"
 		}
@@ -130,13 +143,16 @@ project "Sample01"
 
 	files
 	{
+		"BitEngine/src/BitEngine/Game/**.cpp",
 		"samples/sample01/src/**.h",
 		"samples/sample01/src/**.cpp",
 		"BitEngine/src/Platform/glfw/**.cpp",
 		"BitEngine/src/Platform/glfw/**.h",
+		"BitEngine/src/Platform/video/**.h",
+		"BitEngine/src/Platform/video/**.cpp",
 		"BitEngine/src/Platform/opengl/**.cpp",
 		"BitEngine/src/Platform/opengl/**.h",
-		"BitEngine/dependencies/glad/src/glad.c",
+		"BitEngine/dependencies/glad/src/glad.c"
 	}
 
 	includedirs
@@ -232,16 +248,18 @@ project "Sample02"
 	{
 		"samples/sample01/src/**.h",
 		"samples/sample01/src/GamePlatform/**.cpp",
-		"samples/sample02/src/main.cpp",
+		"BitEngine/src/Platform/video/**.cpp",
 		"BitEngine/src/Platform/glfw/**.cpp",
 		"BitEngine/src/Platform/glfw/**.h",
 		"BitEngine/src/Platform/opengl/**.cpp",
 		"BitEngine/src/Platform/opengl/**.h",
 		"BitEngine/dependencies/glad/src/glad.c",
 	}
-	
+
 	dependson
 	{
+		"GLFW",
+		"ImGui",
 		"Sample02DLL"
 	}
 
@@ -265,13 +283,33 @@ project "Sample02"
 
 	links
 	{
+		"GLFW",
+		"ImGui",
 		"BitEngine",
 		"assimp"
 	}
 	debugdir "samples/sample02"
+	
+	filter "system:linux"
+	
+  		files { "samples/sample02/src/main_unix.cpp" }
+		
+		links
+		{
+			"dl",
+			"X11",
+			"pthread",
+			"stdc++fs"
+		}
+
+		postbuildcommands {
+			"cp ../bin/" .. outputdir .. "/Sample02/*Sample02* sample02/"
+		}
 
 	filter "system:windows"
 		systemversion "latest"
+		
+		files { "samples/sample02/src/main_win32.cpp" }
 
 		defines
 		{
@@ -282,14 +320,14 @@ project "Sample02"
 			"..\\copyfiles.sh ../bin/" .. outputdir .. "/Sample02/*.exe sample02/"
 		}
 
-	filter "configurations:Debug"
+	filter "configurations:debug"
 		defines "BE_DEBUG"
 		runtime "Debug"
 		symbols "on"
 		debugargs { "--debug" }
 		staticruntime "Off"
 
-	filter "configurations:Release"
+	filter "configurations:release"
 		defines "BE_RELEASE"
 		runtime "Release"
 		optimize "on"
@@ -304,13 +342,14 @@ project "Sample02DLL"
 	kind "SharedLib"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/Sample02")
 	objdir ("bin-tmp/" .. outputdir .. "/Sample02")
 
 	files
 	{
+		"BitEngine/src/BitEngine/Game/**.cpp",
 		"samples/sample01/src/Game/**.h",
 		"samples/sample01/src/Game/**.",
 		"samples/sample02/src/game.cpp",
@@ -335,13 +374,24 @@ project "Sample02DLL"
 	
 	defines
 	{
-		"BE_LIBRARY_EXPORTS"
+		"BE_LIBRARY_IMPORTS"
 	}
 
 	links
 	{
+		"ImGui",
 		"BitEngine"
 	}
+
+	filter "system:linux"
+		buildoptions {
+			"-fPIC", "-shared"
+		}
+
+		postbuildcommands {
+			"cp ../bin/" .. outputdir .. "/Sample02/libSample02* sample02/"
+		}
+
 
 	filter "system:windows"
 		systemversion "latest"

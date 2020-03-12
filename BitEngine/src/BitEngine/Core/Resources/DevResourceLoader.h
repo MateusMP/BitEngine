@@ -2,13 +2,13 @@
 
 // Read json index file
 
+#include <memory>
 #include <nlohmann/json.hpp>
 
 #include "BitEngine/Core/TaskManager.h"
 #include "BitEngine/Core/Memory.h"
 #include "BitEngine/Core/Resources/ResourceManager.h"
 
-#include <memory>
 #include "BitEngine/Core/Math.h"
 #include "BitEngine/Core/IO/File.h"
 #include "BitEngine/Common/ThreadSafeQueue.h"
@@ -234,7 +234,7 @@ private:
  * This loader loads files from the standard file system.
  * All resources are indexed in a json file.
  */
-class DevResourceLoader : public ResourceLoader
+class BE_API DevResourceLoader : public ResourceLoader
 {
     friend class DevPropHolder;
 public:

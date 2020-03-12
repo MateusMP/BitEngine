@@ -4,12 +4,9 @@
 
 #include "BitEngine/Core/Window.h"
 #include "BitEngine/Core/Messenger.h"
-
-#include "BitEngine/Core/Graphics/VideoRenderer.h"
+#include "BitEngine/Core/Graphics/Color.h"
 
 namespace BitEngine {
-
-class Material;
 
 class VideoConfiguration
 {
@@ -33,7 +30,7 @@ public:
     virtual void update() = 0;
     virtual void shutdown() = 0;
 
-    virtual VideoAdapterType getVideoAdapter() = 0;
+    virtual u32 getVideoAdapter() = 0;
 
     virtual Window* createWindow(const BitEngine::WindowConfiguration& wc) = 0;
 

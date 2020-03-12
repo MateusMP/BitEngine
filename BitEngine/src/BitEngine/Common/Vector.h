@@ -25,7 +25,7 @@ protected:
 };
 
 template<typename T, ptrsize MaxSize, bool Local = true>
-class TightFixedVector : public _TightFixedVector<T, MaxSize, Local> {
+class BE_API TightFixedVector : public _TightFixedVector<T, MaxSize, Local> {
 public:
     template<bool enabled = Local>
     static void Create(typename std::enable_if<enabled, MemoryArena&>::type a) {
@@ -77,11 +77,13 @@ public:
     void remove(ptrsize index) {
         if (index < this->count) {
             --this->count;
-            this->data[index] = this->data[this->count];
-            this->data[this->count].~T();
+            if (index != this->count) {
+                this->data[index] = this->data[this->count];
+            }
+            this->data[this->count] = {};
         } else {
             --this->count;
-            this->data[index].~T();
+            this->data[index] = {};
         }
     }
 

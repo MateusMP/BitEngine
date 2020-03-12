@@ -25,13 +25,13 @@
  *
  **/
 
-//#define LOG_PERFORMANCE 1
+ //#define LOG_PERFORMANCE 1
 
-// These values will be used on the file as a log type identifier
-// Ex:
-// TIME LOG_NAME: <1> Log Description			// <1> -> Error log
-// TIME LOG_NAME: <3> Log Description			// <3> -> Warning log
-// The higher the value, more logs will be generated
+ // These values will be used on the file as a log type identifier
+ // Ex:
+ // TIME LOG_NAME: <1> Log Description			// <1> -> Error log
+ // TIME LOG_NAME: <3> Log Description			// <3> -> Warning log
+ // The higher the value, more logs will be generated
 #define BE_LOG_NO_LOGGING 0
 #define BE_LOG_ERROR 1
 #define BE_LOG_WARNING 3
@@ -44,24 +44,24 @@
 // Force to output more information while on development, even for release build
 // TODO: Define this with cmake options
 #ifdef BE_DEBUG
-	#define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
-	#define BE_LOG_SHOW_CALL_PLACE
-	#define BE_LOG_FORCE_OUTPUT_CONSOLE
+#define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
+#define BE_LOG_SHOW_CALL_PLACE
+#define BE_LOG_FORCE_OUTPUT_CONSOLE
 #endif
 //
 
 #ifndef BE_LOG_SHOW_CALL_PLACE
-	#ifdef _DEBUG
-		#define BE_LOG_SHOW_CALL_PLACE
-	#endif
+#ifdef _DEBUG
+#define BE_LOG_SHOW_CALL_PLACE
+#endif
 #endif
 
 #ifndef BE_LOG_LOGGING_THRESHOLD
-	#ifdef _DEBUG
-		#define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
-	#else
-		#define BE_LOG_LOGGING_THRESHOLD BE_LOG_INFO
-	#endif
+#ifdef _DEBUG
+#define BE_LOG_LOGGING_THRESHOLD BE_LOG_ALL
+#else
+#define BE_LOG_LOGGING_THRESHOLD BE_LOG_INFO
+#endif
 #endif
 
 #define LOG_IF_SHOULD_LOG(severity)                 \
@@ -80,18 +80,18 @@
 				return _log;													\
 			}
 
-/**
- * \brief usage:
- * LOG(Logger&, BE_LOG_TYPE) << "your log"
- * \param logger The Logger& to use when saving data
- * \param severity one of the BE_LOG_**** severities
- */
+ /**
+  * \brief usage:
+  * LOG(Logger&, BE_LOG_TYPE) << "your log"
+  * \param logger The Logger& to use when saving data
+  * \param severity one of the BE_LOG_**** severities
+  */
 #ifdef BE_LOG_SHOW_CALL_PLACE
-	#define LOG(logger,severity)						\
+#define LOG(logger,severity)						\
         LOG_IF_SHOULD_LOG(severity)		                \
 			BitEngine::LogLine(logger, severity) << BE_FUNCTION_FULL_NAME << ":" << __LINE__ << " | "
 #else
-	#define LOG(logger,severity)						\
+#define LOG(logger,severity)						\
         LOG_IF_SHOULD_LOG(severity)		                \
 			BitEngine::LogLine(logger, severity)
 #endif
@@ -113,170 +113,169 @@
 	BitEngine::LoggerSetup::Setup(argc, argv)
 
 namespace BitEngine {
-	class Logger;
-	class LogLine;
-	BE_API extern Logger* EngineLog;
+class Logger;
+class LogLine;
+BE_API extern Logger* EngineLog;
 
-	class LoggerSetup {
-		static LoggerSetup loggerSetup;
+class BE_API LoggerSetup {
+    static LoggerSetup loggerSetup;
 
-		bool initialized;
-		std::ofstream file;
+    bool initialized;
+    std::ofstream file;
 
-		LoggerSetup();
-		~LoggerSetup();
+    LoggerSetup();
+    ~LoggerSetup();
 
-	public:
-		static void Setup(int argc, const char* argv[]);
-	};
+public:
+    static void Setup(int argc, const char* argv[]);
+};
 
-	class Logger
-	{
-		private:
-			std::string logName;
+class Logger
+{
+private:
+    std::string logName;
+    std::vector<std::ostream*> outStream;
 
-			std::vector<std::ostream*> outStream;
+public:
+    /*Logger(const std::string& name, std::ostream& output)
+        : logName(name), outStream{output.rdbuf()}
+    {
+        std::ostringstream str;
+        str << header() << " LOG STARTED" << std::endl;
+        output(str.str());
+    }*/
 
-		public:
-			/*Logger(const std::string& name, std::ostream& output)
-				: logName(name), outStream{output.rdbuf()}
-			{
-				std::ostringstream str;
-				str << header() << " LOG STARTED" << std::endl;
-				output(str.str());
-			}*/
+    Logger(const std::string& name, std::initializer_list<std::ostream*> outputStreams)
+        : logName(name)
+    {
+        for (std::ostream* r : outputStreams) {
+            outStream.emplace_back(r);
+        }
+        Begin();
+    }
 
-			Logger(const std::string& name, std::initializer_list<std::ostream*> outputStreams)
-				: logName(name)
-			{
-				for (std::ostream* r : outputStreams) {
-					outStream.emplace_back(r);
-				}
-				Begin();
-			}
+    Logger(const std::string& name, const Logger* outputLogger)
+        : Logger(name, outputLogger->getOutputSink())
+    {}
 
-			Logger(const std::string& name, const Logger* outputLogger)
-				: Logger(name, outputLogger->getOutputSink())
-			{}
+    Logger(const char* name, std::ostream& stream)
+        : Logger(std::string(name), { &stream })
+    {}
 
-			Logger(const char* name, std::ostream& stream)
-				: Logger(std::string(name), {&stream})
-			{}
+    Logger(const std::string& name, std::ostream& stream)
+        : Logger(name, { &stream })
+    {}
 
-			Logger(const std::string& name, std::ostream& stream)
-				: Logger(name, {&stream})
-			{}
+    ~Logger() {
+    }
 
-			~Logger() {
-			}
+    inline void Log(const std::string& line)
+    {
+        std::ostringstream str;
+        str << header() << line;
+        output(str.str());
+    }
 
-			inline void Log(const std::string& line)
-			{
-				std::ostringstream str;
-				str << header() << line;
-				output(str.str());
-			}
+    const std::vector<std::ostream*>& getOutputSink() const {
+        return outStream;
+    }
 
-			const std::vector<std::ostream*>& getOutputSink() const {
-				return outStream;
-			}
+private:
+    Logger(const std::string& name, std::vector<std::ostream*> outputStreams)
+        : logName(name), outStream(outputStreams)
+    {
+        Begin();
+    }
 
-		private:
-			Logger(const std::string& name, std::vector<std::ostream*> outputStreams)
-				: logName(name), outStream(outputStreams)
-			{
-				Begin();
-			}
+    void Begin() {
+        std::ostringstream str;
+        str << header() << " LOG STARTED" << std::endl;
+        output(str.str());
+    }
 
-			void Begin() {
-				std::ostringstream str;
-				str << header() << " LOG STARTED" << std::endl;
-				output(str.str());
-			}
+    void output(const std::string& str) {
+        for (std::ostream* stream : outStream) {
+            (*stream) << str;
+        }
+    }
 
-			void output(const std::string& str) {
-				for (std::ostream* stream : outStream) {
-					(*stream) << str;
-				}
-			}
+    inline std::string header()
+    {
+        std::ostringstream a;
 
-			inline std::string header()
-			{
-				std::ostringstream a;
+        a << timeNowStr() << "(" << std::this_thread::get_id() << ") " << logName << ": ";
 
-				a << timeNowStr() << "(" << std::this_thread::get_id() << ") " << logName << ": ";
+        return a.str();
+    }
 
-				return a.str();
-			}
-
-			inline static std::string timeNowStr()
-			{
-                std::ostringstream a;
-                std::time_t time_now = std::time(nullptr);
+    inline static std::string timeNowStr()
+    {
+        std::ostringstream a;
+        std::time_t time_now = std::time(nullptr);
 #ifdef _WIN32
-                std::tm t;
-                localtime_s(&t, &time_now);
-                a << std::put_time(&t, "%Y-%m-%d %H:%M:%S");
+        std::tm t;
+        localtime_s(&t, &time_now);
+        a << std::put_time(&t, "%Y-%m-%d %H:%M:%S");
 #else
-                auto t = std::localtime(&time_now);
-                a << std::put_time(t, "%Y-%m-%d %H:%M:%S");
+        auto t = std::localtime(&time_now);
+        a << std::put_time(t, "%Y-%m-%d %H:%M:%S");
 #endif
-                return a.str();
-			}
-	};
+        return a.str();
+    }
+};
 
-	class LogLine
-	{
-		public:
-			LogLine(Logger& l, int severity)
-			: log(l)
-			{
-				out << "<" << severity << "> - ";
-			}
+class LogLine
+{
+public:
+    LogLine(Logger& l, int severity)
+        : log(l)
+    {
+        out << "<" << severity << "> - ";
+    }
 
-			LogLine(Logger* l, int severity)
-				: LogLine(*l, severity)
-			{
-			}
+    LogLine(Logger* l, int severity)
+        : LogLine(*l, severity)
+    {
+    }
 
-			~LogLine()
-			{
-				out << std::endl;
-				log.Log(out.str());
-			}
+    ~LogLine()
+    {
+        out << std::endl;
+        log.Log(out.str());
+    }
 
-			template<typename T>
-			inline std::ostringstream& operator << (const T& t)
-			{
-				out << t;
-				return out;
-			}
+    template<typename T>
+    inline std::ostringstream& operator << (const T& t)
+    {
+        out << t;
+        return out;
+    }
 
-		private:
-			std::ostringstream out;
-			Logger& log;
-	};
+private:
+    std::ostringstream out;
+    Logger& log;
+};
 
-	class ScopeLogger
-	{
-		public:
-			ScopeLogger(Logger* l, const std::string& descrp)
-				: log(*l), description(descrp)
-			{
-				timer.setTime();
-			}
+class ScopeLogger
+{
+public:
+    ScopeLogger(Logger* l, const std::string& descrp)
+        : log(*l), description(descrp)
+    {
+        timer.setTime();
+    }
 
-			~ScopeLogger()
-			{
-				double elapsed = timer.timeElapsedMs<double>();
-				BitEngine::LogLine(&log, 9) << description << " took " << elapsed << " ms";
-			}
+    ~ScopeLogger()
+    {
+        double elapsed = timer.timeElapsedMs<double>();
+        BitEngine::LogLine(&log, 9) << description << " took " << elapsed << " ms";
+    }
 
-		private:
-			Logger& log;
-			const std::string description;
+private:
+    Logger& log;
+    const std::string description;
 
-			BitEngine::Timer timer;
-	};
+    BitEngine::Timer timer;
+};
 
 }

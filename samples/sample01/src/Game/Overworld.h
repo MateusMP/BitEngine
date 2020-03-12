@@ -109,8 +109,9 @@ class PlayerController : public BitEngine::GameLogic,
 {
 public:
     PlayerController(MainMemory* m, Player* p, PlayerCamera* cam)
-        : GameLogic(), player(p), camera(cam),
-        BitEngine::Messenger< BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(m->commandSystem->commandSignal, &PlayerController::onMessage, this)
+        : GameLogic(), 
+            BitEngine::Messenger< BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(m->commandSystem->commandSignal, &PlayerController::onMessage, this),
+            player(p), camera(cam)
     {
 
     }
@@ -203,7 +204,7 @@ class GameWorld
 {
 public:
     GameWorld(MainMemory* memory, MyGameEntitySystem* es)
-        : m_ES(es), memory(memory)
+        : memory(memory), m_ES(es)
     {
     }
     ~GameWorld() {
@@ -227,9 +228,9 @@ public:
 
 private:
     MainMemory *memory;
-    std::vector<Player*> m_players;
-
     MyGameEntitySystem * m_ES;
+
+    std::vector<Player*> m_players;
     BitEngine::ComponentRef<BitEngine::Camera3DComponent> activeCamera;
 
 };

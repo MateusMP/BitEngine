@@ -1,12 +1,14 @@
 #pragma once
 
+#include "api.h"
+
 #include <string>
 #include <vector>
 #include <map>
 
 namespace BitEngine
 {
-class ConfigurationItem
+class BE_API ConfigurationItem
 {
 public:
     ConfigurationItem(const std::string& _name,
@@ -67,7 +69,7 @@ private:
     std::string description;
 };
 
-class SystemConfiguration
+class BE_API SystemConfiguration
 {
 public:
     SystemConfiguration(const std::string& name)

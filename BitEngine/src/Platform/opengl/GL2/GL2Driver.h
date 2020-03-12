@@ -1,6 +1,10 @@
 #pragma once
 
+#include <BitEngine/Core/Graphics/Color.h>
+
 #include "Platform/opengl/FrameBuffer.h"
+
+#include "Platform/video/BlendMaterial.h"
 
 namespace BitEngine {
 
@@ -13,7 +17,7 @@ public:
 
     static void setViewPort(int x, int y, int width, int height);
 
-    static void configure(const Material* material);
+    static void configure(const BlendMaterial* material);
 
 };
 

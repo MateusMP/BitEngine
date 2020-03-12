@@ -3,6 +3,7 @@
 #include <vector>
 #include "GLFW_Headers.h"
 #include "BitEngine/Core/VideoSystem.h"
+#include "Platform/video/VideoRenderer.h"
 
 namespace BitEngine
 {
@@ -46,7 +47,7 @@ public:
 	void update() override;
 	void shutdown() override;
 
-	virtual VideoAdapterType getVideoAdapter() override
+	virtual u32 getVideoAdapter() override
 	{
 		return OPENGL_2;
 	}
@@ -56,10 +57,6 @@ public:
 	virtual void closeWindow(Window *window) override;
 
 protected:
-	/** Helper function
-		* Swap buffers drawing new screen
-		*/
-	bool checkWindowClosed(GLFWwindow *window);
 
 private:
 	bool glFuncsLoaded;

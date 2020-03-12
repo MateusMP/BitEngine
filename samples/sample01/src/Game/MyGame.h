@@ -1,13 +1,36 @@
 #pragma once
 
 #include <imgui.h>
-#include <Platform/glfw/GLFW_ImGuiSystem.h>
 
+#include <BitEngine/Core/VideoSystem.h>
+#include <BitEngine/Core/Graphics/Sprite2D.h>
+#include <BitEngine/Game/ECS/EntitySystem.h>
 #include "Game/Common/MainMemory.h"
 #include "Game/Common/GameGlobal.h"
 #include "Overworld.h"
-#include "MyGameSystem.h"
 
+class UserGUI
+{
+public:
+    UserGUI(MyGameEntitySystem* es)
+    {
+        gui = es->createEntity();
+
+        camera = es->addComponent<BitEngine::Camera2DComponent>(gui);
+
+        camera->setView(1280, 720);
+        camera->setLookAt(glm::vec3(1280 / 2, 720 / 2, 0));
+        camera->setZoom(1.0f);
+    }
+
+    BitEngine::ComponentRef<BitEngine::Camera2DComponent>& getCamera() {
+        return camera;
+    }
+
+private:
+    BitEngine::EntityHandle gui;
+    BitEngine::ComponentRef<BitEngine::Camera2DComponent> camera;
+};
 
 class UpdateTask : public BitEngine::Task
 {
@@ -46,10 +69,10 @@ class MyGame :
 {
 public:
     MyGame(MainMemory* gameMemory)
-        : mainMemory(gameMemory),
-        BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this),
+        : BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this),
         BitEngine::Messenger<BitEngine::WindowClosedEvent>::ScopedSubscription(gameMemory->window->windowClosedSignal, &MyGame::onMessage, this),
-        BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription(*gameMemory->imGuiRender, &MyGame::onMessage, this)
+        BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription(*gameMemory->imGuiRender, &MyGame::onMessage, this),
+        mainMemory(gameMemory)
     {
         gameState = (GameState*)gameMemory->memory;
 
@@ -59,7 +82,7 @@ public:
     }
 
     ~MyGame() {
-        
+
     }
 
     void onMessage(const BitEngine::ImGuiRenderEvent& ev)
@@ -104,7 +127,7 @@ public:
     {
         BE_PROFILE_FUNCTION();
         using namespace BitEngine;
-        
+
         // Create memory arenas
         gameState->mainArena.init((u8*)mainMemory->memory + sizeof(GameState), mainMemory->memorySize - sizeof(GameState));
         gameState->permanentArena.init((u8*)gameState->mainArena.alloc(MEGABYTES(8)), MEGABYTES(8));
@@ -176,7 +199,7 @@ public:
             BitEngine::ComponentRef<BitEngine::SceneTransform2DComponent> sceneComp;
             BitEngine::ComponentRef<BitEngine::GameLogicComponent> logicComp;
             BE_ADD_COMPONENT_ERROR(transformComp = es->addComponent<BitEngine::Transform2DComponent>(h));
-            BE_ADD_COMPONENT_ERROR(spriteComp = es->addComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, es->spr2D.getMaterial(Sprite2DRenderer::EFFECT_SPRITE)));
+            BE_ADD_COMPONENT_ERROR(spriteComp = es->addComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, nullptr)); // es->spr2D.getMaterial(Sprite2DRenderer::EFFECT_SPRITE)
             BE_ADD_COMPONENT_ERROR(sceneComp = es->addComponent<BitEngine::SceneTransform2DComponent>(h));
             BE_ADD_COMPONENT_ERROR(logicComp = es->addComponent<BitEngine::GameLogicComponent>(h));
             BE_ADD_COMPONENT_ERROR(es->addComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
@@ -204,7 +227,8 @@ public:
 
         if (gameState->running) {
             render();
-        } else {
+        }
+        else {
             gameState->entitySystem->~MyGameEntitySystem();
         }
 
@@ -261,13 +285,12 @@ public:
     void render()
     {
         BE_PROFILE_FUNCTION();
-        mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0 });
+        mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0, BitEngine::ColorRGBA(0.3f, 0.3f, 0.3f, 0.f) });
 
         gameState->entitySystem->mesh3dSys.setActiveCamera(gameState->m_world->getActiveCamera());
         gameState->entitySystem->mesh3dSys.processEntities(mainMemory->renderQueue);
 
-        gameState->entitySystem->spr2D.setActiveCamera(gameState->m_userGUI->getCamera());
-        mainMemory->renderQueue->pushCommand(gameState->entitySystem->spr2D.GenerateRenderData(), gameState->m_userGUI->getCamera()->getMatrix());
+        gameState->entitySystem->spr2D.processEntities(gameState->m_userGUI->getCamera(), mainMemory->renderQueue);
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)
@@ -279,34 +302,3 @@ private:
     MainMemory* mainMemory;
     GameState* gameState;
 };
-
-
-
-static bool insideScreen(const glm::vec4& screen, const glm::mat3& matrix, const BitEngine::Sprite2DComponent* s)
-{
-    const float radius = s->sprite->getMaxRadius();
-
-    const float kX = matrix[2][0] + radius;
-    const float kX_r = matrix[2][0] - radius;
-    const float kY = matrix[2][1] + radius;
-    const float kY_b = matrix[2][1] - radius;
-
-    if (kX < screen.x) {
-        // printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE left %p - %f | %f\n", t, kX, screen.x);
-        return false;
-    }
-    if (kX_r > screen.z) {
-        //printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE right %p - %f | %f\n", t, kX_r, screen.z);
-        return false;
-    }
-    if (kY < screen.y) {
-        //printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE bot %p - %f | %f\n", t, kY, screen.y);
-        return false;
-    }
-    if (kY_b > screen.w) {
-        //printf(">>>>>>>>>>>>>>>>>>>>>>> HIDE top %p - %f | %f\n", t, kY_b, screen.w);
-        return false;
-    }
-
-    return true;
-}

@@ -11,6 +11,8 @@
 #include "Game/Common/MainMemory.h"
 #include "Game/MyGame.h"
 
+#include <BitEngine/Global/globals.cpp>
+
 static MyGame *game;
 
 BitEngine::Logger* GameLog() {
@@ -18,17 +20,17 @@ BitEngine::Logger* GameLog() {
 }
 
 extern "C" {
-    BE_API bool GAME_SETUP(MainMemory* mainMemory) {
+    BE_EXPORT bool GAME_SETUP(MainMemory* mainMemory) {
         BitEngine::EngineLog = mainMemory->logger;
         BitEngine::Profiling::SetInstance(mainMemory->profiler);
         ImGui::SetCurrentContext((ImGuiContext*)mainMemory->imGuiContext);
         game = new MyGame(mainMemory);
         return game != nullptr;
     }
-    BE_API bool GAME_UPDATE(MainMemory* mainMemory) {
+    BE_EXPORT bool GAME_UPDATE(MainMemory* mainMemory) {
         return game->update();
     }
-    BE_API bool GAME_SHUTDOWN(MainMemory* mainMemory) {
+    BE_EXPORT bool GAME_SHUTDOWN(MainMemory* mainMemory) {
         delete game;
         return true;
     }
