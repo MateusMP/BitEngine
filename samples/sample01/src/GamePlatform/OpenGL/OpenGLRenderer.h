@@ -144,7 +144,7 @@ public:
         // Draw!
         {
             BE_PROFILE_SCOPE("Render calls");
-            Shader3DSimple::BatchRenderer renderer;
+            Shader3DSimple::BatchRenderer renderer = {};
             u32 otherEnd = 0;
             for (u32 i = 0; i < currentIndex; ++i) {
                 u32 end = batchIndices[i];
