@@ -36,7 +36,8 @@ public:
     static const u32 ATTR_VERTEX_POS = 0;	// 3 floats	by vertex
     static const u32 ATTR_VERTEX_TEX = 1;	// 2 floats	by vertex
     static const u32 ATTR_VERTEX_NORMAL = 2;	// 3 floats by vertex
-    static const u32 ATTR_MODEL_MAT = 3;		// 16 floats by instance
+    static const u32 ATTR_VERTEX_TANGENT = 3;   // 3 floats by vertex
+    static const u32 ATTR_MODEL_MAT = 4;		// 16 floats by instance
 
     static const u32 NUM_VBOS = 3;
     static const u32 VBO_INDEX = 0;
@@ -62,7 +63,7 @@ public:
 
     void LoadViewMatrix(const glm::mat4& matrix);
     void LoadProjectionMatrix(const glm::mat4& matrix);
-
+    void LoadLight(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& color);
 
 public:
     // Shader classes
@@ -72,11 +73,19 @@ public:
         BitEngine::RR<BitEngine::Texture> normal;
     };
 
+    struct LightData
+    {
+        glm::vec3 position;
+        glm::vec3 direction;
+        glm::vec3 color;
+    };
+
     struct Vertex
     {
         glm::vec3 pos;
         glm::vec2 uv;
         glm::vec3 normal;
+        glm::vec3 tangent;
     };
 
     struct ShaderMesh
@@ -93,19 +102,26 @@ public:
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize * sizeof(GLuint), indices, GL_STATIC_DRAW);
             numIndices = indexSize;
 
+
+            const u32 chunkSize = 3 + 2 + 3 + 3; //sizeof(Vertex);
+
             // Vertex data
             glBindBuffer(GL_ARRAY_BUFFER, vbo[VBO_VERTEXDATA]);
             glEnableVertexAttribArray(ATTR_VERTEX_POS);
-            glVertexAttribPointer(ATTR_VERTEX_POS, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)0);
+            glVertexAttribPointer(ATTR_VERTEX_POS, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * chunkSize, (void*)0);
             glVertexAttribDivisor(ATTR_VERTEX_POS, 0);
 
             glEnableVertexAttribArray(ATTR_VERTEX_TEX);
-            glVertexAttribPointer(ATTR_VERTEX_TEX, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)(3 * sizeof(GLfloat)));
+            glVertexAttribPointer(ATTR_VERTEX_TEX, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * chunkSize, (void*)(3 * sizeof(GLfloat)));
             glVertexAttribDivisor(ATTR_VERTEX_TEX, 0);
 
             glEnableVertexAttribArray(ATTR_VERTEX_NORMAL);
-            glVertexAttribPointer(ATTR_VERTEX_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)(5 * sizeof(GLfloat)));
+            glVertexAttribPointer(ATTR_VERTEX_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * chunkSize, (void*)((3+2) * sizeof(GLfloat)));
             glVertexAttribDivisor(ATTR_VERTEX_NORMAL, 0);
+
+            glEnableVertexAttribArray(ATTR_VERTEX_TANGENT);
+            glVertexAttribPointer(ATTR_VERTEX_TANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * chunkSize, (void*)((3+2+3) * sizeof(GLfloat)));
+            glVertexAttribDivisor(ATTR_VERTEX_TANGENT, 0);
 
             // Load vertex data
 
@@ -195,8 +211,13 @@ protected:
     s32 u_viewMatrixHDL;
     s32 u_diffuseHDL;
     s32 u_normalHDL;
+    s32 u_light_posHDL;
+    s32 u_light_dirHDL;
+    s32 u_light_colorHDL;
 
     // Data
     glm::mat4 u_projection;
     glm::mat4 u_view;
+
+    LightData u_light;
 };

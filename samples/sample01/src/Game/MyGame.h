@@ -5,6 +5,7 @@
 #include <BitEngine/Core/VideoSystem.h>
 #include <BitEngine/Core/Graphics/Sprite2D.h>
 #include <BitEngine/Game/ECS/EntitySystem.h>
+
 #include "Game/Common/MainMemory.h"
 #include "Game/Common/GameGlobal.h"
 #include "Overworld.h"

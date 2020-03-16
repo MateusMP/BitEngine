@@ -1,13 +1,31 @@
-#version 150
+#version 460
+
+struct Light {
+	vec3 pos;
+	vec3 dir;
+	vec3 color;
+};
 
 uniform sampler2D u_diffuse;
 uniform sampler2D u_normal;
+uniform Light u_light;
 
 // in vec3 v_position;
 in vec2 v_textureUV;
 in vec3 v_normal;
+in vec3 toLight;
+in vec3 toCamera;
 
 out vec4 fragColor;
+
+vec3 normalMap() {
+
+	vec4 normalTexture = 2.0 * texture(u_normal, v_textureUV, -1.0) - 1.0;
+	vec3 normal = normalize(normalTexture.xyz);
+
+	return normal;
+
+}
 
 void main()
 {
@@ -17,8 +35,25 @@ void main()
 	// Show just normals
 	//fragColor = texture(u_normal, v_textureUV);
 	
-	// Show texture and normals
-	fragColor = texture(u_diffuse, v_textureUV) * texture(u_normal, v_textureUV);
+	vec3 normal = normalMap(); // v_normal
+	vec3 unitToCamera = normalize(toCamera);
+
+	vec4 diffuseTexture = texture(u_diffuse, v_textureUV);
+
+	float attenuation = 0.4f;
+
+	float brightness = max(dot(normal, normalize(toLight)), 0.0);
+
+	vec3 reflectedLightDir = reflect(normalize(u_light.dir), normal);
+	float specularFactor = max(dot(reflectedLightDir, unitToCamera), 0.0);
+	float dampFactor = pow(specularFactor, 2);
+
+	vec4 fullDiffuse = diffuseTexture + vec4(brightness * u_light.color * attenuation, 1.0);
+	vec4 fullSpecular = vec4(dampFactor * u_light.color * attenuation, 1.0);
+
+	
+	fragColor = fullDiffuse + fullSpecular;
+
 	// fragColor = vec4(v_position, 1);
 	
 	// TODO: Actual light and normals

@@ -1,27 +1,61 @@
-#version 150
+#version 460
+
+struct Light {
+	vec3 pos;
+	vec3 dir;
+	vec3 color;
+};
 
 uniform mat4 u_projectionMatrix;
 uniform mat4 u_viewMatrix;
+
+uniform Light u_light;
 
 
 in vec3 a_position;
 in vec2 a_textureUV;
 in vec3 a_normal;
+in vec3 a_tangent;
 in mat4 a_modelMatrix;
 
 // out vec3 v_position;
 out vec2 v_textureUV;
 out vec3 v_normal;
+// out vec3 v_tangent;
+out vec3 toLight;
+out vec3 toCamera;
 
 // gl_Position
 
 void main()
 {
+	mat4 modelViewMatrix = u_viewMatrix * a_modelMatrix;
+
 	vec4 worldPos = a_modelMatrix * vec4(a_position, 1);
+	vec4 posRelToCamera = modelViewMatrix * vec4(a_position, 1);
 	
 	gl_Position = u_projectionMatrix * u_viewMatrix * worldPos;
 	// v_position = gl_Position.xyz/512;
+
+
+	vec3 surfaceNormal = (a_modelMatrix * vec4(a_normal, 0.0)).xyz;
+	vec3 normal = normalize(surfaceNormal);
+	vec3 tangent = normalize((modelViewMatrix * vec4(a_tangent, 0.0)).xyz);
+	vec3 bitangent = normalize(cross(normal, tangent));
+	mat3 tangentSpace = mat3(
+		tangent.x, bitangent.x, normal.x,
+		tangent.y, bitangent.y, normal.y,
+		tangent.z, bitangent.z, normal.z
+	);
 	
 	v_textureUV = a_textureUV;
-	v_normal = (transpose(inverse(a_modelMatrix)) * vec4(a_normal, 0.0)).xyz;
+
+	vec3 lightEyePos = (u_viewMatrix * vec4(u_light.pos, 0)).xyz;
+	
+
+	//v_normal = (transpose(inverse(a_modelMatrix)) * vec4(a_normal, 0.0)).xyz;
+	v_normal = normal;
+	
+	toCamera = tangentSpace * (-posRelToCamera.xyz);
+	toLight = tangentSpace * (lightEyePos - posRelToCamera.xyz);
 }

@@ -46,9 +46,12 @@ public:
             return DataArray{ mesh->mTextureCoords[0], mesh->mNumVertices };
         case VertexDataType::Normals:
             return DataArray{ mesh->mNormals, mesh->mNumVertices };
+        case VertexDataType::Tangent:
+            return DataArray{ mesh->mTangents, mesh->mNumVertices };
         }
         return {};
     }
+
     virtual DataArray getIndicesData(int index) override {
         return indices;
     }

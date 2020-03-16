@@ -14,9 +14,6 @@
 //#include <glm/glm.hpp>
 //#include <glm/gtc/matrix_transform.hpp>
 
-// Sprite 2D batch
-
-
 class GLModelRenderer {
 public:
     void init(BitEngine::ResourceLoader* loader) {
@@ -89,11 +86,14 @@ public:
                 BitEngine::Mesh::DataArray verts = mesh->getVertexData(BitEngine::Mesh::VertexDataType::Vertices);
                 BitEngine::Mesh::DataArray texs = mesh->getVertexData(BitEngine::Mesh::VertexDataType::TextureCoord);
                 BitEngine::Mesh::DataArray norms = mesh->getVertexData(BitEngine::Mesh::VertexDataType::Normals);
+                BitEngine::Mesh::DataArray tangents = mesh->getVertexData(BitEngine::Mesh::VertexDataType::Tangent);
                 for (int i = 0; i < indices.size; ++i) {
                     vertexBuffer.push<Shader3DSimple::Vertex>(Shader3DSimple::Vertex{
                         ((glm::vec3*)verts.data)[i],
                         glm::vec2(((glm::vec3*)texs.data)[i]),
-                        ((glm::vec3*)norms.data)[i] });
+                        ((glm::vec3*)norms.data)[i],
+                        ((glm::vec3*)tangents.data)[i]
+                        });
                 }
                 Shader3DSimple::ShaderMesh& newNesh = (m_shaderMesh[mesh] = {});
                 newNesh.setup((Shader3DSimple::Vertex*)vertexBuffer.base, indices.size, (u32*)indices.data, indices.size);
@@ -126,6 +126,7 @@ public:
 
             m_shader.LoadProjectionMatrix(cmd.projection);
             m_shader.LoadViewMatrix(cmd.view);
+            m_shader.LoadLight(cmd.light.position, cmd.light.direction, glm::vec3(cmd.light.color.colors[0], cmd.light.color.colors[1], cmd.light.color.colors[2]));
             m_shader.Bind();
 
 

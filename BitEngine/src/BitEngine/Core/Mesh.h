@@ -21,6 +21,7 @@ public:
         Vertices = 0,
         TextureCoord,
         Normals,
+        Tangent,
     };
     struct DataArray {
         void* data;

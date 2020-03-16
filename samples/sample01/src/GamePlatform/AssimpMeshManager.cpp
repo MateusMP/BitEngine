@@ -34,7 +34,7 @@ public:
     // Load model
     const aiScene* loadModel(void* data, ptrsize size)
     {
-        const aiScene* scene = importer.ReadFileFromMemory(data, size, aiProcess_Triangulate);
+        const aiScene* scene = importer.ReadFileFromMemory(data, size, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
         if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {

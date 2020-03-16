@@ -150,6 +150,12 @@ public:
         batch->projection = activeCamera->getProjection();
         batch->view = activeCamera->getView();
 
+        batch->light.mode = LightMode::SUNLIGHT;
+        batch->light.position = { cos(f)*300, -50.0f, 0 };
+        f += 0.03f;
+        batch->light.direction = { cos(f), 0.5f, -0.2f };
+        batch->light.color = { 1.f, 1.f, 1.f };
+
         getES()->forEach<RenderableMeshComponent, Transform3DComponent>(
             [&](ComponentRef<RenderableMeshComponent>&& renderable, ComponentRef<Transform3DComponent>&& transform)
         {
@@ -179,6 +185,8 @@ public:
 
 private:
     BitEngine::Transform3DProcessor *t3dp;
+    float f;
+
 
     BitEngine::ComponentRef<BitEngine::Camera3DComponent> activeCamera;
 };

@@ -51,11 +51,25 @@ struct Sprite2D {
     BitEngine::Mat3 transform;
 };
 
+enum class LightMode {
+    SUNLIGHT,
+    SPOT_LIGHT,
+};
+
+struct Light {
+    LightMode mode;
+    BitEngine::Vec3 position;
+    BitEngine::ColorRGB color;
+    BitEngine::Vec3 direction;
+};
+
 struct Render3DBatchCommand {
     BitEngine::Mat4 projection;
     BitEngine::Mat4 view;
     Model3D* data;
     u32 count;
+
+    Light light;
 };
 struct Render2DBatchCommand {
     BitEngine::Mat4 view;

@@ -197,26 +197,26 @@ void ShaderProgram::loadFloat(int location, float value){
 }
 
 void ShaderProgram::loadVector3f(int location, int n, const float* vector){
-    glUniform3fv(location, n, vector);
+    GL_CHECK(glUniform3fv(location, n, vector));
 }
 
 void ShaderProgram::loadVector4f(int location, int n, const float* vector){
-    glUniform4fv(location, n, vector);
+	GL_CHECK(glUniform4fv(location, n, vector));
 }
 
 void ShaderProgram::loadBoolean(int location, bool b){
     float toload = 0.0f;
     if (b)
         toload = 1.0f;
-    glUniform1f(location, toload);
+	GL_CHECK(glUniform1f(location, toload));
 }
 
 void ShaderProgram::loadMatrix4f(int location, const float* matrix){
-    glUniformMatrix4fv(location, 1, false, matrix);
+	GL_CHECK(glUniformMatrix4fv(location, 1, false, matrix));
 }
 
 void ShaderProgram::connectTexture(int location, int unitID){
-	glUniform1i(location, unitID);
+	GL_CHECK(glUniform1i(location, unitID));
 }
 
 
