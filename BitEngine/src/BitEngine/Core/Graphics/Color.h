@@ -10,7 +10,7 @@ struct ColorRGBA_
 
 public:
     ColorRGBA_()
-        : ColorRGB_(0, 0, 0, 0)
+        : ColorRGBA_(0, 0, 0, 0)
     {}
 
     ColorRGBA_(float r, float g, float b, float a) {
