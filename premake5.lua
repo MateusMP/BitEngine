@@ -33,7 +33,6 @@ IncludeDir["ImGui"] = "BitEngine/dependencies/imgui"
 IncludeDir["glm"] = "BitEngine/dependencies/glm"
 IncludeDir["json"] = "BitEngine/dependencies/json/include"
 IncludeDir["stb"] = "BitEngine/dependencies/stb"
-IncludeDir["winksignals"] = "BitEngine/dependencies/Wink-Signals"
 IncludeDir["assimp"] = "BitEngine/dependencies/assimp/include"
 
 --configuration "not windows"
@@ -82,7 +81,6 @@ project "BitEngine"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb}",
-		"%{IncludeDir.winksignals}",
 		"%{IncludeDir.json}"
 	}
 

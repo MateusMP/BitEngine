@@ -234,7 +234,7 @@ void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
     }
     nlohmann::json::object_t& data = index->data["data"].get_ref<nlohmann::json::object_t&>();
 
-#if BE_DEBUG
+#ifdef BE_DEBUG
     std::set<std::string> typesWithoutManager;
 #endif
 
@@ -267,7 +267,7 @@ void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
                 byName[resourceName] = &meta;
             }
 
-#if BE_DEBUG
+#ifdef BE_DEBUG
             if (!isManagerForTypeAvailable(resourceType) && typesWithoutManager.find(resourceType) == typesWithoutManager.end()) {
                 typesWithoutManager.emplace(resourceType);
                 LOG(EngineLog, BE_LOG_WARNING) << "No resource manager for type " << resourceType;

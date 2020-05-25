@@ -12,10 +12,14 @@
 		throw BitEngine::AssertFail(msg);		\
 	}
 
+
+#ifdef BE_DEBUG
 #define BE_ASSERT(expr)	\
-	if (BE_DEBUG){		\
 		if (!(expr) ){	\
-			ASSERT_FAIL("Expression failed to validate: <"#expr">");}}
+			ASSERT_FAIL("Expression failed to validate: <"#expr">");}
+#else
+    #define BE_ASSERT(expr)
+#endif
 
 #define BE_INVALID_PATH(msg)    \
     throw BitEngine::AssertFail(msg)

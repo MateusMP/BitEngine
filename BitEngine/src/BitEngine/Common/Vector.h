@@ -70,6 +70,9 @@ public:
     }
 
     void clear() {
+        for (int i = 0; i < this->count; ++i) {
+            this->data[i] = {};
+        }
         this->count = 0;
     }
 

@@ -12,9 +12,13 @@ static void _gl_debug_log(const char* message) {
     }
 }
 
-#define GL_CHECK(call)              \
-	if (BE_DEBUG){ _gl_debug_log("GL ERROR (had unhandled error): "); } \
+#ifdef BE_DEBUG
+#define GL_CHECK(call)        \
+    _gl_debug_log("GL ERROR (had unhandled error): "); \
 	call;		                            \
-	if (BE_DEBUG) {_gl_debug_log("GL ERROR: ");}
+	_gl_debug_log("GL ERROR: ")
+#else
+    #define GL_CHECK(call)        call
+#endif
 
 #define GL_CALL_AVAILABLE(call) ((*call)!=nullptr)
