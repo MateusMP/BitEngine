@@ -25,7 +25,6 @@ bool GAME_SETUP(MainMemory* mainMemory) {
     ImGui::SetCurrentContext((ImGuiContext*)mainMemory->imGuiContext);
     LOG(GameLog(), BE_LOG_INFO) << "Game Setup!";
     game = new MyGame(mainMemory);
-    mainMemory->userdata = game;
     return game != nullptr;
 }
 

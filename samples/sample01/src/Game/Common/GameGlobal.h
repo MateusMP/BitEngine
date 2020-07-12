@@ -11,8 +11,6 @@ struct GameState;
 class MyGame;
 
 class MyGameEntitySystem;
-class Player;
-class PlayerController;
 class PlayerCamera;
 
 class UserGUI;

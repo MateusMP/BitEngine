@@ -185,6 +185,4 @@ struct MainMemory {
     BitEngine::Profiling::ChromeProfiler* profiler;
 
     RenderQueue* renderQueue;
-
-    void* userdata;
 };

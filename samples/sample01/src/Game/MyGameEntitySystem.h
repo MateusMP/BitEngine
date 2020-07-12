@@ -41,7 +41,6 @@ struct GameState {
 
     BitEngine::ComponentRef<PlayerControlComponent> playerControl;
 
-    Player* m_player;
     PlayerCamera* m_camera3d;
 };
 

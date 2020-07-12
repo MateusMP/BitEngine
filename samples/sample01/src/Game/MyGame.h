@@ -134,8 +134,6 @@ public:
         gameState->m_userGUI = permanentArena.push<UserGUI>(gameState->entitySystem);
         gameState->m_world = permanentArena.push<GameWorld>(mainMemory, gameState->entitySystem);
 
-        gameState->m_player = permanentArena.push<Player>("nick_here", 0);
-        gameState->m_world->addPlayer(gameState->m_player);
         gameState->m_camera3d = permanentArena.push<PlayerCamera>(gameState->entitySystem);
         gameState->m_world->setActiveCamera(gameState->m_camera3d->getCamera());
         gameState->m_camera3d->setLookAt({ 0,0,0 });
