@@ -71,6 +71,11 @@ public:
         return nullptr;
     }
 
+    // Should be called once the Update() is finished, after all Processors have 
+    // finished execution for this frame.
+    // Releases all memory used by destroyed components/entities
+    void destroyPending();
+
 protected:
     // Verify if entity has the component type
     bool hasComponent(EntityHandle entity, ComponentType type)
@@ -110,11 +115,6 @@ protected:
     inline bool hasEntity(EntityHandle entity) const {
         return m_entities.size() > entity && m_entities[entity] == entity;
     }
-
-    // Should be called once the Update() is finished, after all Processors have 
-    // finished execution for this frame.
-    // Releases all memory used by destroyed components/entities
-    void frameFinished();
 
     // Member variables
     std::vector< EntityHandle > m_entities;

@@ -55,22 +55,14 @@ struct Mesh3D : BitEngine::Component<Mesh3D> {
 };
 
 
-class BE_API Sprite2DProcessor : public BitEngine::ComponentProcessor
+class BE_API Sprite2DProcessor
 {
 public:
     constexpr static u32 DEFAULT_SPRITE = 0;
     constexpr static u32 TRANSPARENT_SPRITE = 1;
     constexpr static u32 EFFECT_SPRITE = 2;
 
-    Sprite2DProcessor(BitEngine::EntitySystem* es)
-        : ComponentProcessor(es) {
-
-    }
-    ~Sprite2DProcessor() {
-
-    }
-
-    void processEntities(BitEngine::ComponentRef<BitEngine::Camera2DComponent>& camera, RenderQueue* queue) {
+    static void Process(BitEngine::EntitySystem* es, BitEngine::ComponentRef<BitEngine::Camera2DComponent>& camera, RenderQueue* queue) {
         BE_PROFILE_FUNCTION();
 
         Render2DBatchCommand* batch = queue->initRenderBatch2D();
@@ -82,7 +74,7 @@ public:
         // TODO: Make loop append entries to render queue
         // Individual entries should be prepared for rendering
         // by the rendering implementation
-        getES()->forEach<BitEngine::SceneTransform2DComponent, BitEngine::Sprite2DComponent>(
+        es->forEach<BitEngine::SceneTransform2DComponent, BitEngine::Sprite2DComponent>(
             [=](BitEngine::ComponentRef<BitEngine::SceneTransform2DComponent>&& transform, BitEngine::ComponentRef<BitEngine::Sprite2DComponent>&& sprite)
         {
             if (insideScreen(viewScreen, transform->getGlobal(), 64))
@@ -126,20 +118,15 @@ private:
     BitEngine::ResourceLoader* m_resourceLoader;
 };
 
-class Mesh3DProcessor : public BitEngine::ComponentProcessor
+class Mesh3DProcessor
 {
 public:
-    Mesh3DProcessor(BitEngine::EntitySystem* es, BitEngine::Transform3DProcessor *t3dp_)
-        : ComponentProcessor(es), t3dp(t3dp_)
+    Mesh3DProcessor(BitEngine::Transform3DProcessor *t3dp_)
+        : t3dp(t3dp_)
     {
     }
 
-    void setActiveCamera(const BitEngine::ComponentRef<BitEngine::Camera3DComponent>& camera)
-    {
-        activeCamera = camera;
-    }
-
-    void processEntities(RenderQueue* queue)
+    void processEntities(BitEngine::EntitySystem* es, RenderQueue* queue, const BitEngine::ComponentRef<BitEngine::Camera3DComponent>& activeCamera)
     {
         using namespace BitEngine;
 
@@ -156,7 +143,7 @@ public:
         batch->light.direction = { cos(f), 0.5f, -0.2f };
         batch->light.color = { 1.f, 1.f, 1.f };
 
-        getES()->forEach<RenderableMeshComponent, Transform3DComponent>(
+        es->forEach<RenderableMeshComponent, Transform3DComponent>(
             [&](ComponentRef<RenderableMeshComponent>&& renderable, ComponentRef<Transform3DComponent>&& transform)
         {
             RR<Model> model = renderable->getModel();
@@ -167,7 +154,7 @@ public:
                 Model3D *m = queue->pushModel3D(batch);
                 m->mesh = renderable->getMesh().get();
                 m->material = renderable->getMaterial();
-                m->transform = t3dp->getGlobalTransformFor(getComponentHandle(transform));
+                m->transform = t3dp->getGlobalTransformFor(transform.getComponentID());
             } else {
                 for (u32 i = 0; i < model->getMeshCount(); ++i) {
                     Model3D *m = queue->pushModel3D(batch);
@@ -177,7 +164,7 @@ public:
                     } else {
                         m->material = renderable->getMaterial();
                     }
-                    m->transform = t3dp->getGlobalTransformFor(getComponentHandle(transform));
+                    m->transform = t3dp->getGlobalTransformFor(transform.getComponentID());
                 }
             }
         });
@@ -186,35 +173,24 @@ public:
 private:
     BitEngine::Transform3DProcessor *t3dp;
     float f;
-
-
-    BitEngine::ComponentRef<BitEngine::Camera3DComponent> activeCamera;
 };
 
 
-class PlayerControlSystem : public BitEngine::ComponentProcessor
+void PlayerControlSystem(BitEngine::EntitySystem* es)
 {
-public:
-    PlayerControlSystem(BitEngine::EntitySystem* es) : BitEngine::ComponentProcessor(es) {}
+    BE_PROFILE_FUNCTION();
+    es->forAll<PlayerControlComponent>([](BitEngine::ComponentHandle id, PlayerControlComponent& comp) {
+        float vel = 2.0f;
 
-    static BitEngine::EntityHandle CreatePlayerTemplate(BitEngine::ResourceLoader* loader, MyGameEntitySystem* es, BitEngine::CommandSystem* cmdSys);
+        // camT2D->setPosition(x, y);
+        BitEngine::Vec2 pos = comp.transform2d->getLocalPosition();
+        pos.x += comp.movH * vel;
+        pos.y += comp.movV * vel;
 
-    void update()
-    {
-        BE_PROFILE_FUNCTION();
-        getES()->forAll<PlayerControlComponent>([](BitEngine::ComponentHandle id, PlayerControlComponent& comp) {
-            float vel = 2.0f;
-
-            // camT2D->setPosition(x, y);
-            BitEngine::Vec2 pos = comp.transform2d->getLocalPosition();
-            pos.x += comp.movH * vel;
-            pos.y += comp.movV * vel;
-
-            comp.transform2d->setLocalPosition(pos);
-            comp.transform2d->setLocalRotation(comp.transform2d->getLocalRotation() + 0.03f);
-        });
-    }
-};
+        comp.transform2d->setLocalPosition(pos);
+        comp.transform2d->setLocalRotation(comp.transform2d->getLocalRotation() + 0.03f);
+    });
+}
 
 class SpinnerComponent : public BitEngine::Component<SpinnerComponent>
 {
@@ -229,24 +205,15 @@ public:
     float speed;
 };
 
-class SpinnerSystem : public BitEngine::ComponentProcessor
+void SpinnerSystem(BitEngine::EntitySystem *es)
 {
-public:
-    SpinnerSystem(BitEngine::EntitySystem* m) : BitEngine::ComponentProcessor(m) {
-
-    }
-    ~SpinnerSystem() {}
-
-    void FrameMiddle()
+    using namespace BitEngine;
+    es->forEach<Transform2DComponent, SpinnerComponent>(
+        [=](ComponentRef<Transform2DComponent> transform, const ComponentRef<SpinnerComponent> spinner)
     {
-        using namespace BitEngine;
-        getES()->forEach<Transform2DComponent, SpinnerComponent>(
-            [=](ComponentRef<Transform2DComponent> transform, const ComponentRef<SpinnerComponent> spinner)
-        {
-            transform->setLocalRotation(transform->getLocalRotation() + spinner->speed);
-        });
-    }
-};
+        transform->setLocalRotation(transform->getLocalRotation() + spinner->speed*1);
+    });
+}
 
 class MyComponentsRegistry : public BitEngine::EntitySystem {
 public:
@@ -275,39 +242,9 @@ public:
         : MyComponentsRegistry(),
         t2p(this), t3p(this),
         cam2Dprocessor(this, &t2p), cam3Dprocessor(this, &t3p),
-        glp(this),
-        pcs(this),
-        spinnerSys(this),
-        spr2D(this),
-        mesh3dSys(this, &t3p)
+        mesh3dSys(&t3p)
     {
         using namespace BitEngine;
-
-        //t2p = entityMemory->push<Transform2DProcessor>(this);
-        //t3p = entityMemory->push<Transform3DProcessor>(this);
-        //cam2Dprocessor = entityMemory->push<Camera2DProcessor>(this, t2p);
-        //cam3Dprocessor = entityMemory->push<Camera3DProcessor>(this, t3p);
-        //rmp = entityMemory->push<RenderableMeshProcessor>(this);
-        //
-        //glp = entityMemory->push <GameLogicProcessor>(this);
-        //spr2D = entityMemory->push < Sprite2DRenderer>(this, loader);
-        //spinnerSys = entityMemory->push < SpinnerSystem>(this);
-
-        /// Pipeline 0
-        registerComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameStart);
-
-        registerComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameMiddle);
-
-        registerComponentProcessor(0, &spinnerSys, (ComponentProcessor::processFunc)&SpinnerSystem::FrameMiddle);
-
-        registerComponentProcessor(0, &t2p, (ComponentProcessor::processFunc)&Transform2DProcessor::Process);
-        registerComponentProcessor(0, &t3p, (ComponentProcessor::processFunc)&Transform3DProcessor::Process);
-        registerComponentProcessor(0, &cam2Dprocessor, (ComponentProcessor::processFunc)&Camera2DProcessor::Process);
-        registerComponentProcessor(0, &cam3Dprocessor, (ComponentProcessor::processFunc)&Camera3DProcessor::Process);
-        registerComponentProcessor(0, &glp, (ComponentProcessor::processFunc)&GameLogicProcessor::FrameEnd);
-
-        registerComponentProcessor(0, &pcs, (ComponentProcessor::processFunc)&PlayerControlSystem::update);
-        //InitComponentProcessor(spr2D);
     }
 
     // Processors
@@ -315,15 +252,11 @@ public:
     BitEngine::Transform3DProcessor t3p;
     BitEngine::Camera2DProcessor cam2Dprocessor;
     BitEngine::Camera3DProcessor cam3Dprocessor;
-    BitEngine::GameLogicProcessor glp;
-    PlayerControlSystem pcs;
-    SpinnerSystem spinnerSys;
-    Sprite2DProcessor spr2D;
     Mesh3DProcessor mesh3dSys;
 };
 
 
-BitEngine::EntityHandle PlayerControlSystem::CreatePlayerTemplate(BitEngine::ResourceLoader* loader, MyGameEntitySystem* es, BitEngine::CommandSystem* cmdSys)
+BitEngine::EntityHandle CreatePlayerTemplate(BitEngine::ResourceLoader* loader, MyGameEntitySystem* es, BitEngine::CommandSystem* cmdSys)
 {
     using namespace BitEngine;
 

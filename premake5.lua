@@ -34,6 +34,7 @@ IncludeDir["glm"] = "BitEngine/dependencies/glm"
 IncludeDir["json"] = "BitEngine/dependencies/json/include"
 IncludeDir["stb"] = "BitEngine/dependencies/stb"
 IncludeDir["assimp"] = "BitEngine/dependencies/assimp/include"
+IncludeDir["cr"] = "BitEngine/dependencies/cr"
 
 --configuration "not windows"
 --   prebuildcommands { "cp default.config bin/project.config" }
@@ -81,7 +82,8 @@ project "BitEngine"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb}",
-		"%{IncludeDir.json}"
+		"%{IncludeDir.json}",
+		"%{IncludeDir.cr}"
 	}
 
 	links 
@@ -257,8 +259,8 @@ project "Sample02"
 	dependson
 	{
 		"GLFW",
-		"ImGui",
-		"Sample02DLL"
+		"ImGui"
+		--"Sample02DLL"
 	}
 
 	includedirs
@@ -277,6 +279,7 @@ project "Sample02"
 		"%{IncludeDir.winksignals}",
 		"%{IncludeDir.json}",
 		"%{IncludeDir.assimp}",
+		"%{IncludeDir.cr}",
 	}
 
 	links
@@ -368,6 +371,7 @@ project "Sample02DLL"
 		"%{IncludeDir.winksignals}",
 		"%{IncludeDir.json}",
 		"%{IncludeDir.assimp}",
+		"%{IncludeDir.cr}"
 	}
 	
 	defines

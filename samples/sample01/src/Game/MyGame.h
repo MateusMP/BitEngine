@@ -33,22 +33,6 @@ private:
     BitEngine::ComponentRef<BitEngine::Camera2DComponent> camera;
 };
 
-class UpdateTask : public BitEngine::Task
-{
-public:
-    UpdateTask(std::function<void()> s)
-        : Task(Task::TaskMode::REPEAT_ONCE_PER_FRAME_REQUIRED, Task::Affinity::MAIN), f(s) {}
-
-    void run()
-    {
-        f();
-    }
-
-private:
-    std::function<void()> f;
-};
-
-
 void resourceLoaderMenu(const char* name, BitEngine::ResourceLoader* loader) {
     constexpr float TO_MB = 1.0 / (1024 * 1024);
     if (ImGui::TreeNode(name)) {
@@ -143,8 +127,6 @@ public:
         auto loader = mainMemory->loader;
         loader->loadIndex("../data/main.idx");
 
-        mainMemory->taskManager->addTask(std::make_shared<UpdateTask>([loader] {loader->update(); }));
-
         // Init game state stuff
         gameState->entitySystem = permanentArena.push<MyGameEntitySystem>(loader, &gameState->entityArena);
         gameState->entitySystem->init();
@@ -185,7 +167,7 @@ public:
         //BitEngine::SpriteHandle spr3 = sprMng->createSprite(BitEngine::Sprite(texture2, 256, 256, 0.5f, 0.5f, glm::vec4(0, 0, 2.0f, 2.0f), true));
 
         // CREATE PLAYER
-        auto playerEntity = PlayerControlSystem::CreatePlayerTemplate(loader, gameState->entitySystem, mainMemory->commandSystem);
+        auto playerEntity = CreatePlayerTemplate(loader, gameState->entitySystem, mainMemory->commandSystem);
         gameState->playerControl = gameState->entitySystem->getComponentRef<PlayerControlComponent>(playerEntity);
 
 
@@ -220,9 +202,20 @@ public:
             gameState->initialized = true;
         }
 
-        gameState->entitySystem->update();
+        gameState->entitySystem->destroyPending();
+
+        SpinnerSystem(gameState->entitySystem);
+
+        gameState->entitySystem->t2p.Process();
+        gameState->entitySystem->t3p.Process();
+
+        gameState->entitySystem->cam2Dprocessor.Process();
+        gameState->entitySystem->cam3Dprocessor.Process();
+
+        PlayerControlSystem(gameState->entitySystem);
 
         mainMemory->taskManager->update();
+        mainMemory->loader->update();
 
         // Render
 
@@ -278,25 +271,19 @@ public:
         }
     }
 
-    void onMessage(const BitEngine::MsgFrameStart& msg)
-    {
-        //LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Frame Start";
-    }
-
     void render()
     {
         BE_PROFILE_FUNCTION();
         mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0, BitEngine::ColorRGBA(0.3f, 0.3f, 0.3f, 0.f) });
 
-        gameState->entitySystem->mesh3dSys.setActiveCamera(gameState->m_world->getActiveCamera());
-        gameState->entitySystem->mesh3dSys.processEntities(mainMemory->renderQueue);
+        gameState->entitySystem->mesh3dSys.processEntities(gameState->entitySystem, mainMemory->renderQueue, gameState->m_world->getActiveCamera());
 
-        gameState->entitySystem->spr2D.processEntities(gameState->m_userGUI->getCamera(), mainMemory->renderQueue);
+        Sprite2DProcessor::Process(gameState->entitySystem, gameState->m_userGUI->getCamera(), mainMemory->renderQueue);
     }
 
     void onMessage(const BitEngine::WindowResizedEvent& ev)
     {
-        //mainMemory->videoSystem->getDriver()->setViewPort(0, 0, ev.width, ev.height);
+        //mainMemory->videoSystem setViewPort(0, 0, ev.width, ev.height);
     }
 
 private:

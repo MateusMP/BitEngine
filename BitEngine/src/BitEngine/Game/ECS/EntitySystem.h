@@ -42,74 +42,6 @@ public:
         return initOk;
     }
 
-
-    // Register a component processor
-    // pipeline: Which pipeline the processor should be inserted into
-    //			All processors inside a pipeline are executed sequentially.
-    //			Order of execution of processors from different pipelines are not guaranteed
-    // cp: The component processor
-    // func: The function that should be called on the given processor
-    // Return true if the processor was added
-    bool registerComponentProcessor(int pipeline, ComponentProcessor* cp, ComponentProcessor::processFunc func)
-    {
-        if (pipeline >= 4) { // limit pipelines
-            return false;
-        }
-        process_order[pipeline].emplace_back(cp, func);
-
-        // Verify if it was already added
-        bool inside = std::find(m_processors.begin(), m_processors.end(), cp) != m_processors.end();
-
-        if (!inside)
-        {
-            m_processors.emplace_back(cp);
-        }
-        else
-        {
-            LOG(EngineLog, BE_LOG_WARNING) << "Trying to register same component processor more than once!";
-        }
-
-
-        return true;
-    }
-
-    void update()
-    {
-        BE_PROFILE_FUNCTION();
-        int finish = 0;
-        size_t lasts[4] = { 0,0,0,0 };
-        //std::thread run1(std::bind(&EntitySystem::runUpdate, this, std::placeholders::_1), 0);
-        //std::thread run2(std::bind(&EntitySystem::runUpdate, this, std::placeholders::_1), 1);
-        //std::thread run3(std::bind(&EntitySystem::runUpdate, this, std::placeholders::_1), 2);
-        //std::thread run4(std::bind(&EntitySystem::runUpdate, this, std::placeholders::_1), 3);
-
-        // TODO: Use threads
-        while (finish != (0xf))
-        {
-            for (int i = 0; i < 4; ++i)
-            {
-                if (!(finish & (1 << i)))
-                {
-                    if (lasts[i] < process_order[i].size())
-                    {
-                        process_order[i][lasts[i]++].Run();
-                    }
-                    else
-                    {
-                        finish |= (1 << i);
-                    }
-                }
-            }
-
-        }
-        //run1.join();
-        //run2.join();
-        //run3.join();
-        //run4.join();
-
-        frameFinished();
-    }
-
     template<typename CompClass>
     bool registerComponent(ComponentHolder<CompClass>* holder)
     {
@@ -333,13 +265,6 @@ public:
     }
 
 private:
-    void runUpdate(int pipeline)
-    {
-        for (u32 i = 0; i < process_order[pipeline].size(); ++i)
-        {
-            process_order[pipeline][i].Run();
-        }
-    }
 
     template<typename CompClass>
     ComponentRef<CompClass> getComponentRefE(EntityHandle entity)
@@ -353,23 +278,6 @@ private:
         return ComponentRef<CompClass>(entity, compID, comp);
     }
 
-    struct PipelineProcess
-    {
-        PipelineProcess(ComponentProcessor* c, ComponentProcessor::processFunc f) :
-            cs(c), func(f)
-        {}
-
-        ComponentProcessor* cs;
-        ComponentProcessor::processFunc func;
-
-        void Run()
-        {
-            (cs->*func)();
-        }
-    };
-
-    std::array< std::vector<PipelineProcess>, 4 > process_order;
-    std::vector<ComponentProcessor* > m_processors; // Unique component processors
 };
 
 }

@@ -65,8 +65,9 @@ namespace BitEngine {
 		return true;
 	}
 
-	void BaseEntitySystem::frameFinished()
+	void BaseEntitySystem::destroyPending()
 	{
+		BE_PROFILE_FUNCTION();
 		for (EntityHandle entity : m_toBeDestroyed)
 		{
 			for (auto& h : m_holders) 

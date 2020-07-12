@@ -24,6 +24,18 @@ typedef size_t ptrsize;
 #define KILOBYTES(x) (x * 1024)
 #define MEGABYTES(x) (KILOBYTES(x) * 1024)
 
+
+//static void* new_be(size_t size, char* file, int line, char* function) {
+//    return malloc(size);
+//}
+//
+//
+//#define BE_BAN_DYNAMIC_ALLOC
+//#ifdef BE_BAN_DYNAMIC_ALLOC
+//#define malloc #pragma error "No dynamic allocation allowed!!!"
+//#define new new_be (__FILE__, __LINE__, __FUNCTION__)
+//#endif
+
 namespace BitEngine {
 
 class BE_API NonCopyable

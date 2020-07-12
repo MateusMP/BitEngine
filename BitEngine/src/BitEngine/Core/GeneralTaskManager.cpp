@@ -48,20 +48,25 @@ void TaskWorker::process(TaskPtr task)
 
 void TaskWorker::work()
 {
-    do
-    {
-        BE_PROFILE_FUNCTION();
-        TaskPtr task = nextTask();
-        if (task == nullptr)
+    try {
+        do
         {
-            std::this_thread::yield();
-        }
-        else
-        {
-            process(task);
-        }
-    } while (m_working);
-    LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Thread ended";
+            BE_PROFILE_FUNCTION();
+            TaskPtr task = nextTask();
+            if (task == nullptr)
+            {
+                std::this_thread::yield();
+            }
+            else
+            {
+                process(task);
+            }
+        } while (m_working);
+        LOG(BitEngine::EngineLog, BE_LOG_INFO) << "Thread ended";
+    }
+    catch (...) {
+        LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Thread failed!";
+    }
 }
 
 TaskPtr TaskWorker::nextTask()
@@ -134,6 +139,13 @@ void GeneralTaskManager::init()
 void GeneralTaskManager::update()
 {
     BE_PROFILE_FUNCTION();
+    
+    TaskPtr task;
+    workers[0]->m_taskQueue.tryPop(task);
+    if (task != nullptr) {
+        workers[0]->process(task);
+    }
+
     while (finishedRequiredTasks != requiredTasksFrame)
     {
         executeMain();

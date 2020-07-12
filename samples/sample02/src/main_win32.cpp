@@ -1,3 +1,5 @@
+#define CR_HOST // required in the host only and before including cr.h
+#include <cr/cr.h>
 
 #include <string>
 #include <fstream>
@@ -29,32 +31,6 @@
 #include <BitEngine/Global/globals.cpp>
 
 
-inline FILETIME WindowsFileLastWriteTime(const char *FileName) {
-    FILETIME Result = {};
-    WIN32_FILE_ATTRIBUTE_DATA Data;
-
-    if (GetFileAttributesExA(FileName, GetFileExInfoStandard, &Data)) {
-        Result = Data.ftLastWriteTime;
-    }
-
-    return Result;
-}
-
-
-typedef bool(*GAME_CALL)(MainMemory* memory);
-
-struct Game {
-    HINSTANCE dll;
-    GAME_CALL setup;
-    GAME_CALL update;
-    GAME_CALL shutdown;
-    FILETIME time;
-    bool valid;
-    bool change;
-};
-
-
-
 BitEngine::Logger* GameLog()
 {
     static BitEngine::Logger log("GameLog", BitEngine::EngineLog);
@@ -62,41 +38,6 @@ BitEngine::Logger* GameLog()
 }
 
 #include "Game/Common/CommonMain.h"
-
-Game loadGameCode(const char* path, Game &current) {
-    Game game = {};
-
-    std::string actualLoad = std::string(path) + ".tmp.dll";
-    if (current.valid) {
-        actualLoad[actualLoad.size() - 1] = current.change ? '0' : '1';
-    }
-
-    while (true)
-    {
-        std::ifstream  src(path, std::ios::binary);
-        std::ofstream  dst(actualLoad, std::ios::binary);
-        if (!src.is_open() && !dst.is_open()) continue;
-        dst << src.rdbuf();
-        break;
-    }
-
-    HINSTANCE gameDLL = LoadLibraryA(actualLoad.c_str());
-    if (gameDLL) {
-        game.dll = gameDLL;
-        game.setup = (GAME_CALL)GetProcAddress(gameDLL, "GAME_SETUP");
-        game.update = (GAME_CALL)GetProcAddress(gameDLL, "GAME_UPDATE");
-        game.shutdown = (GAME_CALL)GetProcAddress(gameDLL, "GAME_SHUTDOWN");
-        game.valid = game.update != nullptr && game.setup != nullptr && game.shutdown != nullptr;
-        game.time = WindowsFileLastWriteTime(path);
-        game.change = !current.change;
-    }
-    return game;
-}
-
-void unloadGameCode(Game& game) {
-    FreeLibrary(game.dll);
-    game.valid = false;
-}
 
 void game() {
     // Basic infrastructure
@@ -193,48 +134,28 @@ void game() {
     GLRenderer renderer;
 
     // Load game code
-    const char* gameDll = "Sample02DLL.dll";
-    Game game = loadGameCode(gameDll, game);
-    if (!game.valid) {
-        abort();
-    }
-    game.setup(&gameMemory);
+    // the host application should initalize a plugin with a context, a plugin
+    cr_plugin ctx;
+    ctx.userdata = &gameMemory;
+
+    // the full path to the live-reloadable application
+    cr_plugin_open(ctx, "Sample02DLL.dll");
 
     int nticks = 200;
 
     bool rendererReady = false;
 
     bool32 running = true;
+
     while (running) {
         BE_PROFILE_SCOPE("Game Loop");
-        {
-            BE_PROFILE_SCOPE("DLL Reload");
-            FILETIME NewDLLWriteTime = WindowsFileLastWriteTime(gameDll);
-            if (nticks <= 0 && CompareFileTime(&NewDLLWriteTime, &game.time) != 0)
-            {
-                game.shutdown(&gameMemory);
-                unloadGameCode(game);
-                Sleep(10);
-                Game newGame = loadGameCode(gameDll, game);
-                if (newGame.valid) {
-                    printf("Game code reloaded!");
-                    game = newGame;
-                    newGame.setup(&gameMemory);
-                }
-                else {
-                    printf("Failed to reload game code!");
-                }
-                nticks = 200;
-            }
-            nticks--;
-        }
-
+        
         // Game loop logic
         input.update();
 
         main_window->drawBegin();
 
-        running = game.update(&gameMemory);
+        running = cr_plugin_update(ctx);
 
         if (running) {
             if (!rendererReady) {
@@ -252,10 +173,12 @@ void game() {
             main_window->drawEnd();
         }
     }
-    game.shutdown(&gameMemory);
+    
+    // at the end do not forget to cleanup the plugin context
+    cr_plugin_close(ctx);
+
     taskManager.shutdown();
 
-    unloadGameCode(game);
 
     free(renderArena.base);
     free(gameMemory.memory);
@@ -274,3 +197,4 @@ int main(int argc, const char* argv[])
     BitEngine::Profiling::EndSession();
     return 0;
 }
+
