@@ -15,6 +15,11 @@ Debug/vc120.idb
 *.*~
 ./build/
 
+*.make
+*.dll
+*.so
+*.vspx
+
 
 # glew
 glew.pc

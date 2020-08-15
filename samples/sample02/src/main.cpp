@@ -3,7 +3,6 @@
 
 #include <string>
 #include <fstream>
-#include <Windows.h>
 
 #include <BitEngine/bitengine.h>
 #include <BitEngine/Core/Messenger.h>
@@ -65,6 +64,7 @@ void game() {
     windowConfig.m_BlueBits = 8;
     windowConfig.m_AlphaBits = 8;
 
+
     windowConfig.m_DepthBits = 8;
     windowConfig.m_StencilBits = 8;
     main_window = video.createWindow(windowConfig);
@@ -85,16 +85,15 @@ void game() {
     // Setup game memory
     MainMemory gameMemory = {};
     gameMemory.memorySize = MEGABYTES(512);
-    gameMemory.memory = malloc(gameMemory.memorySize);
+    gameMemory.memory = ::operator new(gameMemory.memorySize);
     memset(gameMemory.memory, 0, gameMemory.memorySize);
 
     // Setup Resource loader
 
     const u32 resMemSize = MEGABYTES(64);
-    void* resMem = malloc(resMemSize);
     BitEngine::MemoryArena resourceArena;
-    memset(resMem, 0, resMemSize);
-    resourceArena.init((u8*)resMem, resMemSize);
+    resourceArena.init((u8*) ::operator new(resMemSize), resMemSize);
+    memset(resourceArena.base, 0, resMemSize);
 
     BitEngine::DevResourceLoader loader(&taskManager, resourceArena);
     loader.registerResourceManager("SHADER", &shaderManager);
@@ -105,7 +104,7 @@ void game() {
 
     const u32 renderMemSize = MEGABYTES(8);
     BitEngine::MemoryArena renderArena;
-    renderArena.init((u8*)malloc(renderMemSize), renderMemSize);
+    renderArena.init((u8*) ::operator new(renderMemSize), renderMemSize);
     memset(renderArena.base, 0, renderArena.size);
     RenderQueue renderQueue(renderArena);
 
@@ -179,9 +178,9 @@ void game() {
 
     taskManager.shutdown();
 
-
-    free(renderArena.base);
-    free(gameMemory.memory);
+    ::operator delete((void*)renderArena.base, renderMemSize);
+    ::operator delete((void*)resourceArena.base, resMemSize);
+    ::operator delete(gameMemory.memory, gameMemory.memorySize);
 }
 
 

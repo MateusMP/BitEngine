@@ -17,3 +17,6 @@
 [submodule "dependencies/imgui"]
 	path = BitEngine/dependencies/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "BitEngine/dependencies/cr/cr"]
+	path = BitEngine/dependencies/cr/cr
+	url = https://github.com/fungos/cr.git

@@ -293,7 +293,7 @@ project "Sample02"
 	
 	filter "system:linux"
 	
-  		files { "samples/sample02/src/main_unix.cpp" }
+  		files { "samples/sample02/src/main.cpp" }
 		
 		links
 		{
@@ -310,7 +310,7 @@ project "Sample02"
 	filter "system:windows"
 		systemversion "latest"
 		
-		files { "samples/sample02/src/main_win32.cpp" }
+		files { "samples/sample02/src/main.cpp" }
 
 		defines
 		{

@@ -275,6 +275,6 @@ private:
     BitEngine::RR<BitEngine::Shader> m_shader;
     BitEngine::Lazy<BitEngine::GL2Batch> m_batch;
     std::vector<Sprite2DBatch> m_batches;
-    std::map<Sprite2DBatch::BatchIdentifier, u32> m_batchesMap;
+    std::map<Sprite2DBatch::BatchIdentifier, size_t> m_batchesMap;
     Sprite2D_DD_new m_newRefs;
 };

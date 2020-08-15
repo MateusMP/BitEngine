@@ -47,16 +47,13 @@ void resourceLoaderMenu(const char* name, BitEngine::ResourceLoader* loader) {
     }
 }
 
-class MyGame :
-    BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription,
-    BitEngine::Messenger<BitEngine::WindowClosedEvent>::ScopedSubscription,
-    BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription
+class MyGame
 {
 public:
     MyGame(MainMemory* gameMemory)
-        : BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this),
-        BitEngine::Messenger<BitEngine::WindowClosedEvent>::ScopedSubscription(gameMemory->window->windowClosedSignal, &MyGame::onMessage, this),
-        BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription(*gameMemory->imGuiRender, &MyGame::onMessage, this),
+        : commandListener(gameMemory->commandSystem->commandSignal, &MyGame::onMessage, this),
+        windowClosed(gameMemory->window->windowClosedSignal, &MyGame::onMessage, this),
+        imguiRender(*gameMemory->imGuiRender, &MyGame::onMessage, this),
         mainMemory(gameMemory)
     {
         gameState = (GameState*)gameMemory->memory;
@@ -285,6 +282,10 @@ public:
     }
 
 private:
+    BitEngine::Messenger<BitEngine::CommandSystem::MsgCommandInput>::ScopedSubscription commandListener;
+    BitEngine::Messenger<BitEngine::WindowClosedEvent>::ScopedSubscription windowClosed;
+    BitEngine::Messenger<BitEngine::ImGuiRenderEvent>::ScopedSubscription imguiRender;
+
     MainMemory* mainMemory;
     GameState* gameState;
 };
