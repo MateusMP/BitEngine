@@ -103,6 +103,12 @@ project "BitEngine"
 
 	filter "system:windows"
 		systemversion "latest"
+
+		
+		makesettings [[
+			CC = gcc
+		]]
+
 		links 
 		{ 
 			"opengl32.lib"
@@ -188,8 +194,6 @@ project "Sample01"
 		{
 			"BE_PLATFORM_WINDOWS"
 		}
-		
-		linkoptions { "/VERBOSE:LIB" }
 		
 		postbuildcommands {
 			"..\\copyfiles.sh ../bin/" .. outputdir .. "/Sample01/%{cfg.buildtarget.name} sample01/",
@@ -394,6 +398,19 @@ project "Sample02DLL"
 			"cp ../bin/" .. outputdir .. "/Sample02/libSample02* sample02/"
 		}
 
+	filter "action:vs2019"
+		buildoptions {
+			"/FS"
+		}
+
+		postbuildcommands {
+			"..\\copyfiles.sh ../bin/" .. outputdir .. "/Sample02/*.dll sample02/"
+		}
+
+	filter "action:gmake2"
+		postbuildcommands {
+			"./copyfiles.sh ../bin/" .. outputdir .. "/Sample02/*.dll sample02/"
+		}
 
 	filter "system:windows"
 		systemversion "latest"
@@ -403,9 +420,7 @@ project "Sample02DLL"
 			"BE_PLATFORM_WINDOWS",
 		}
 		
-		postbuildcommands {
-			"..\\copyfiles.sh ../bin/" .. outputdir .. "/Sample02/*.dll sample02/"
-		}
+		
 
 
 	filter "configurations:Debug"

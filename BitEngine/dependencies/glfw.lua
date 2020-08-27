@@ -47,6 +47,10 @@ project "GLFW"
 		systemversion "latest"
 		staticruntime "On"
 
+		makesettings [[
+			CC = gcc
+		]]
+
 		files
 		{
 			"src/win32_init.c",

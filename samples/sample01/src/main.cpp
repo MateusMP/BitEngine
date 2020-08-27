@@ -102,7 +102,7 @@ void gameExecute(MainMemory& gameMemory) {
     gameMemory.engineConfig = &engineConfig;
     gameMemory.taskManager = &taskManager;
     gameMemory.commandSystem = &commandSystem;
-    gameMemory.imGuiRender = &imgui;
+    gameMemory.imGuiRender = &imgui.events;
     gameMemory.logger = GameLog();
     gameMemory.profiler = &BitEngine::Profiling::Get();
     gameMemory.renderQueue = &renderQueue;
@@ -112,7 +112,7 @@ void gameExecute(MainMemory& gameMemory) {
         resourceManagerMenu("Texture Manager", &textureManager);
         resourceManagerMenu("Shader Manager", &shaderManager);
     };
-    imgui.subscribe(imguiMenu);
+    imgui.events.subscribe(imguiMenu);
 
     bool rendererReady = false;
     

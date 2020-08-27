@@ -132,6 +132,10 @@ project "assimp"
 	
 	filter "system:windows"
 		systemversion "latest"
+
+		makesettings [[
+			CC = gcc
+		]]
 	
 	filter "system:linux"
 

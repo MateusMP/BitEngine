@@ -27,6 +27,8 @@ struct GameState {
     bool32 initialized;
     bool32 running;
 
+    BitEngine::ColorRGBA clearColor;
+
     BitEngine::ResourceLoader *resources;
 
     BitEngine::MemoryArena mainArena;
@@ -64,10 +66,11 @@ public:
     static void Process(BitEngine::EntitySystem* es, BitEngine::ComponentRef<BitEngine::Camera2DComponent>& camera, RenderQueue* queue) {
         BE_PROFILE_FUNCTION();
 
-        Render2DBatchCommand* batch = queue->initRenderBatch2D();
+        Render2DBatchCommand* batch = queue->initiateBatchCommand<Render2DBatchCommand>();
 
         const glm::vec4 viewScreen = camera->getWorldViewArea();
         batch->view = camera->getMatrix();
+
 
         // Build batch
         // TODO: Make loop append entries to render queue
@@ -78,7 +81,12 @@ public:
         {
             if (insideScreen(viewScreen, transform->getGlobal(), 64))
             {
-                queue->pushSprite2D(batch, sprite->sprite.get(), sprite->alpha, sprite->layer, sprite->material, transform->getGlobal());
+                Sprite2D* entry = queue->pushBatchEntry(batch);
+                entry->sprite = sprite->sprite.get();
+                entry->alpha = sprite->alpha;
+                entry->layer = sprite->layer;
+                entry->material = sprite->material;
+                entry->transform = transform->getGlobal();
             }
         });
 
@@ -121,7 +129,7 @@ class Mesh3DProcessor
 {
 public:
     Mesh3DProcessor(BitEngine::Transform3DProcessor *t3dp_)
-        : t3dp(t3dp_)
+        : t3dp(t3dp_), f(0)
     {
     }
 
@@ -132,7 +140,7 @@ public:
         // Find out the 2D camera
 
         // printf("3d To render: %d\n", nObjs);
-        Render3DBatchCommand* batch = queue->initRenderBatch3D();
+        Render3DBatchCommand* batch = queue->initiateBatchCommand<Render3DBatchCommand>();
         batch->projection = activeCamera->getProjection();
         batch->view = activeCamera->getView();
 
@@ -150,13 +158,13 @@ public:
                 return;
             }
             if (renderable->getMesh()) {
-                Model3D *m = queue->pushModel3D(batch);
+                Model3D *m = queue->pushBatchEntry(batch);
                 m->mesh = renderable->getMesh().get();
                 m->material = renderable->getMaterial();
                 m->transform = t3dp->getGlobalTransformFor(transform.getComponentID());
             } else {
                 for (u32 i = 0; i < model->getMeshCount(); ++i) {
-                    Model3D *m = queue->pushModel3D(batch);
+                    Model3D *m = queue->pushBatchEntry(batch);
                     m->mesh = model->getMesh(i);
                     if (renderable->getMaterial() == nullptr) {
                         m->material = m->mesh->getMaterial();
@@ -240,7 +248,7 @@ public:
     MyGameEntitySystem(BitEngine::ResourceLoader* loader, BitEngine::MemoryArena* entityMemory)
         : MyComponentsRegistry(),
         t2p(this), t3p(this),
-        cam2Dprocessor(this, &t2p), cam3Dprocessor(this, &t3p),
+        cam2Dprocessor(this), cam3Dprocessor(this, &t3p),
         mesh3dSys(&t3p)
     {
         using namespace BitEngine;
@@ -273,10 +281,10 @@ BitEngine::EntityHandle CreatePlayerTemplate(BitEngine::ResourceLoader* loader, 
     LOG(GameLog(), BE_LOG_VERBOSE) << "ent_player: " << ent_player;
 
     // 2D
-    BE_ADD_COMPONENT_ERROR(playerT2D = es->addComponent<Transform2DComponent>(ent_player));
-    BE_ADD_COMPONENT_ERROR(playerST2D = es->addComponent<SceneTransform2DComponent>(ent_player));
-    BE_ADD_COMPONENT_ERROR(playerSpr2D = es->addComponent<Sprite2DComponent>(ent_player));
-    BE_ADD_COMPONENT_ERROR(playerControl = es->addComponent<PlayerControlComponent>(ent_player));
+    playerT2D = es->addComponent<Transform2DComponent>(ent_player);
+    playerST2D = es->addComponent<SceneTransform2DComponent>(ent_player);
+    playerSpr2D = es->addComponent<Sprite2DComponent>(ent_player);
+    playerControl = es->addComponent<PlayerControlComponent>(ent_player);
 
     playerT2D->setLocalPosition(0, 0);
     playerSpr2D->layer = 5;
@@ -291,9 +299,9 @@ BitEngine::EntityHandle CreatePlayerTemplate(BitEngine::ResourceLoader* loader, 
     ComponentRef<Sprite2DComponent> pcS;
     ComponentRef<SceneTransform2DComponent> pcST;
     EntityHandle playerConnected = es->createEntity();
-    BE_ADD_COMPONENT_ERROR(pcT = es->addComponent<Transform2DComponent>(playerConnected));
-    BE_ADD_COMPONENT_ERROR(pcST = es->addComponent<SceneTransform2DComponent>(playerConnected));
-    BE_ADD_COMPONENT_ERROR(pcS = es->addComponent<Sprite2DComponent>(playerConnected));
+    pcT = es->addComponent<Transform2DComponent>(playerConnected);
+    pcST = es->addComponent<SceneTransform2DComponent>(playerConnected);
+    pcS = es->addComponent<Sprite2DComponent>(playerConnected);
     es->t2p.setParentOf(pcT, playerT2D);
     pcT->setLocalPosition(128, 128);
     pcT->setLocalRotation(45 * 3.1415f / 180.0f);

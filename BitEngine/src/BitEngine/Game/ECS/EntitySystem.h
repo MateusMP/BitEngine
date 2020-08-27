@@ -15,11 +15,6 @@
 
 namespace BitEngine {
 
-#define BE_ADD_COMPONENT_ERROR(x) \
-		if (!(x).isValid()) {		\
-			LOG(GameLog(), BE_LOG_ERROR) << "ADD COMPONENT FAILED FOR: " #x;	\
-		abort();}
-
 /**
 * Entity Handle and Component Handle are fixed and won't change at anytime after creation.
 * Type safe interface

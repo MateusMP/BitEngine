@@ -35,6 +35,10 @@ project "ImGui"
 		cppdialect "C++17"
 		staticruntime "On"
 
+		makesettings [[
+			CC = gcc
+		]]
+
 	filter "system:linux"
 		pic "On"
 		systemversion "latest"

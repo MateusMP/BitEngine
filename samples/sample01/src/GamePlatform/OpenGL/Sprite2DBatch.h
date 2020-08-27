@@ -140,7 +140,7 @@ public:
         m_batch->clear();
 
 
-        if (cmd.count <= 0) {
+        if (cmd.batch.count <= 0) {
             return;
         }
 
@@ -149,16 +149,16 @@ public:
         matrixBuffer.init(_matrixBuffer, sizeof(_matrixBuffer));
 
         // Fix nulls
-        for (u32 i = 0; i < cmd.count; ++i) {
-            if (cmd.data[i].material == nullptr) {
-                cmd.data[i].material = &m_sprite_materials[2];
+        for (u32 i = 0; i < cmd.batch.count; ++i) {
+            if (cmd.batch.data[i].material == nullptr) {
+                cmd.batch.data[i].material = &m_sprite_materials[2];
             }
         }
 
         // Sort for batching
         {
             BE_PROFILE_SCOPE("Sort models");
-            std::sort(cmd.data, cmd.data + cmd.count, [](const Sprite2D& a, const Sprite2D& b) {
+            std::sort(cmd.batch.data, cmd.batch.data + cmd.batch.count, [](const Sprite2D& a, const Sprite2D& b) {
                 if (a.layer != b.layer) {
                     return a.layer < b.layer;
                 }
@@ -179,10 +179,10 @@ public:
         u32 currentIndex = 0;
         {
             BE_PROFILE_SCOPE("Preparing model matrices");
-            const BitEngine::Material* lastMaterial = cmd.data[0].material;
-            const BitEngine::Texture* lastTexture = cmd.data[0].sprite->getTexture().get();
-            for (u32 i = 0; i < cmd.count; ++i) {
-                const Sprite2D& spr = cmd.data[i];
+            const BitEngine::Material* lastMaterial = cmd.batch.data[0].material;
+            const BitEngine::Texture* lastTexture = cmd.batch.data[0].sprite->getTexture().get();
+            for (u32 i = 0; i < cmd.batch.count; ++i) {
+                const Sprite2D& spr = cmd.batch.data[i];
                 currentIndex += spr.sprite->getTexture().get() != lastTexture || spr.material != lastMaterial;
                 BE_ASSERT(currentIndex < 32);
                 batchIndices[currentIndex] = i;

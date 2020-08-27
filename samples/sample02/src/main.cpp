@@ -117,7 +117,7 @@ void game() {
     gameMemory.engineConfig = &engineConfig;
     gameMemory.taskManager = &taskManager;
     gameMemory.commandSystem = &commandSystem;
-    gameMemory.imGuiRender = &imgui;
+    gameMemory.imGuiRender = &imgui.events;
     gameMemory.logger = GameLog();
     gameMemory.profiler = &BitEngine::Profiling::Get();
     gameMemory.imGuiContext = imgui.getContext();
@@ -128,7 +128,46 @@ void game() {
         resourceManagerMenu("Texture Manager", &textureManager);
         resourceManagerMenu("Shader Manager", &shaderManager);
     };
-    imgui.subscribe(imguiMenu);
+    imgui.events.subscribe(imguiMenu);
+
+    auto imguiRenderQueue = [&](const BitEngine::ImGuiRenderEvent& event) {
+        
+        ImGui::Begin("RenderQueue");
+
+        auto queue = gameMemory.renderQueue;
+        ptrsize cmdCount = queue->getCommandsCount();
+
+        for (int cmd = 0; cmd < cmdCount; ++cmd)
+        {
+            RenderCommand& command = queue->getCommands()[cmd];
+            if (ImGui::TreeNodeEx(&command, ImGuiTreeNodeFlags_OpenOnArrow, "%s", GetCommandName(command.command))) {
+                switch (command.command) {
+                    case Command::SCENE_BEGIN: {
+                        SceneBeginCommand* sceneBegin = command.dataAs<SceneBeginCommand>();
+                        ImGui::ColorEdit4("Clear Color", (float*)&sceneBegin->color, ImGuiColorEditFlags_NoOptions);
+                        ImGui::Text("Width %u", sceneBegin->renderWidth);
+                        ImGui::Text("Height %u", sceneBegin->renderHeight);
+                    }
+                        break;
+                    case Command::SPRITE_BATCH_2D:
+                        ImGui::Text("Sprites %d", command.dataAs<Render2DBatchCommand>()->batch.count);
+                        break;
+                    case Command::SCENE_3D_BATCH:
+                        ImGui::Text("Models %d", command.dataAs<Render3DBatchCommand>()->batch.count);
+                        break;
+                }
+
+
+                ImGui::TreePop();
+            }
+        }
+        ImGui::ShowDemoWindow();
+
+        ImGui::End();
+
+    };
+    imgui.events.subscribe(imguiRenderQueue);
+
 
     GLRenderer renderer;
 
@@ -165,9 +204,10 @@ void game() {
             }
 
             renderer.render(gameMemory.renderQueue);
-            renderQueue.clear();
 
             imgui.update();
+
+            renderQueue.clear();
 
             main_window->drawEnd();
         }

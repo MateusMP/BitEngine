@@ -5,7 +5,7 @@
 #define BE_PROFILING_CHROME
 
 
-#if defined(_WIN32) || defined(_MSC_VER)
+#if defined(_MSC_VER)
 #define BE_FUNC_SIG __FUNCSIG__
 #elif defined( __GNUC__ ) || defined( __MINGW__ ) || defined ( __clang__ )
 #define BE_FUNC_SIG __PRETTY_FUNCTION__

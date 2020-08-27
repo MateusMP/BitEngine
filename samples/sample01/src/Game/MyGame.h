@@ -60,6 +60,8 @@ public:
 
         if (gameState->initialized) {
             gameState->entitySystem->registerComponents();
+        } else {
+            gameState->clearColor = BitEngine::ColorRGBA(0.3f, 0.3f, 0.3f, 0.f);
         }
     }
 
@@ -71,6 +73,8 @@ public:
     {
         static bool active = true;
         ImGui::Begin("Overview", &active, ImGuiWindowFlags_MenuBar);
+
+        ImGui::ColorEdit4("Clear Color", (float*)&gameState->clearColor);
 
         if (ImGui::CollapsingHeader("Tasks"))
         {
@@ -176,11 +180,11 @@ public:
             BitEngine::ComponentRef<BitEngine::Sprite2DComponent> spriteComp;
             BitEngine::ComponentRef<BitEngine::SceneTransform2DComponent> sceneComp;
             BitEngine::ComponentRef<BitEngine::GameLogicComponent> logicComp;
-            BE_ADD_COMPONENT_ERROR(transformComp = es->addComponent<BitEngine::Transform2DComponent>(h));
-            BE_ADD_COMPONENT_ERROR(spriteComp = es->addComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, nullptr)); // es->spr2D.getMaterial(Sprite2DRenderer::EFFECT_SPRITE)
-            BE_ADD_COMPONENT_ERROR(sceneComp = es->addComponent<BitEngine::SceneTransform2DComponent>(h));
-            BE_ADD_COMPONENT_ERROR(logicComp = es->addComponent<BitEngine::GameLogicComponent>(h));
-            BE_ADD_COMPONENT_ERROR(es->addComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f));
+            transformComp = es->addComponent<BitEngine::Transform2DComponent>(h);
+            spriteComp = es->addComponent<BitEngine::Sprite2DComponent>(h, 6, spr3, nullptr); // es->spr2D.getMaterial(Sprite2DRenderer::EFFECT_SPRITE)
+            sceneComp = es->addComponent<BitEngine::SceneTransform2DComponent>(h);
+            logicComp = es->addComponent<BitEngine::GameLogicComponent>(h);
+            es->addComponent<SpinnerComponent>(h, (rand() % 10) / 100.0f + 0.02f);
 
             transformComp->setLocalPosition(i * 128 + 125, 500);
             spriteComp->alpha = 1.0;
@@ -269,7 +273,9 @@ public:
     void render()
     {
         BE_PROFILE_FUNCTION();
-        mainMemory->renderQueue->pushCommand(SceneBeginCommand{ 0,0, BitEngine::ColorRGBA(0.3f, 0.3f, 0.3f, 0.f) });
+        SceneBeginCommand* sceneBegin = mainMemory->renderQueue->pushCommand<SceneBeginCommand>();
+        sceneBegin->renderWidth = sceneBegin->renderHeight = 0;
+        sceneBegin->color = gameState->clearColor;
 
         gameState->entitySystem->mesh3dSys.processEntities(gameState->entitySystem, mainMemory->renderQueue, gameState->m_world->getActiveCamera());
 

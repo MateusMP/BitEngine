@@ -31,7 +31,7 @@ public:
 
     void process(const Render3DBatchCommand& cmd) {
         BE_PROFILE_FUNCTION();
-        if (cmd.count <= 0) {
+        if (cmd.batch.count <= 0) {
             return;
         }
 
@@ -42,7 +42,7 @@ public:
         // Sort for batching
         {
             BE_PROFILE_SCOPE("Sort models");
-            std::sort(cmd.data, cmd.data + cmd.count, [](const Model3D& a, const Model3D& b) {
+            std::sort(cmd.batch.data, cmd.batch.data + cmd.batch.count, [](const Model3D& a, const Model3D& b) {
                 if (a.material != b.material) {
                     return a.material < b.material;
                 }
@@ -55,10 +55,10 @@ public:
         u32 currentIndex = 0;
         {
             BE_PROFILE_SCOPE("Preparing model matrices");
-            BitEngine::Material* lastMaterial = cmd.data[0].material;
-            BitEngine::Mesh* lastMesh = cmd.data[0].mesh;
-            for (u32 i = 0; i < cmd.count; ++i) {
-                const Model3D& model = cmd.data[i];
+            BitEngine::Material* lastMaterial = cmd.batch.data[0].material;
+            BitEngine::Mesh* lastMesh = cmd.batch.data[0].mesh;
+            for (u32 i = 0; i < cmd.batch.count; ++i) {
+                const Model3D& model = cmd.batch.data[i];
                 currentIndex += model.mesh != lastMesh || model.material != lastMaterial;
                 BE_ASSERT(currentIndex < 32);
                 batchIndices[currentIndex] = i;
@@ -78,7 +78,7 @@ public:
         for (u32 i = 0; i < currentIndex; ++i) {
             u32 end = batchIndices[i];
 
-            BitEngine::Mesh* mesh = cmd.data[end].mesh;
+            BitEngine::Mesh* mesh = cmd.batch.data[end].mesh;
             if (m_shaderMesh.find(mesh) == m_shaderMesh.end()) {
                 vertexBuffer.init(_vertexBuffer, sizeof(_vertexBuffer));
 
@@ -99,7 +99,7 @@ public:
                 newNesh.setup((Shader3DSimple::Vertex*)vertexBuffer.base, indices.size, (u32*)indices.data, indices.size);
             }
 
-            BitEngine::Material* material = cmd.data[end].material;
+            BitEngine::Material* material = cmd.batch.data[end].material;
             if (m_shaderMaterials.find(material) == m_shaderMaterials.end()) {
                 Shader3DSimple::Material3D& newMat = (m_shaderMaterials[material] = {});
                 newMat.diffuse = material->getTexture(0);
@@ -150,8 +150,8 @@ public:
                 u32 end = batchIndices[i];
 
                 // Not sure where these will come from yet
-                const Shader3DSimple::ShaderMesh& smesh = m_shaderMesh[cmd.data[end].mesh];
-                const Shader3DSimple::Material3D& smat = m_shaderMaterials[cmd.data[end].material];
+                const Shader3DSimple::ShaderMesh& smesh = m_shaderMesh[cmd.batch.data[end].mesh];
+                const Shader3DSimple::Material3D& smat = m_shaderMaterials[cmd.batch.data[end].material];
 
                 renderer.draw(smesh, smat, (glm::mat4*) &matrixBuffer.base[otherEnd], end - otherEnd + 1);
                 otherEnd = end;
@@ -186,24 +186,22 @@ public:
             case Command::SCENE_BEGIN:
             {
                 BE_PROFILE_SCOPE("Render SCENE_BEGIN");
-                SceneBeginCommand& cmd = commands[i].data.sceneBegin;
+                SceneBeginCommand* cmd = static_cast<SceneBeginCommand *>(commands[i].data);
                 // driver->clearBufferColor(nullptr, BitEngine::ColorRGBA(0.7f, 0.2f, 0.3f, 0.f));
-                BitEngine::GLVideoDriver::clearBufferColor(nullptr, cmd.color);
+                BitEngine::GLVideoDriver::clearBufferColor(nullptr, cmd->color);
                 BitEngine::GLVideoDriver::clearBuffer(nullptr, BitEngine::BufferClearBitMask::COLOR_DEPTH);
             }
             break;
             case Command::SPRITE_BATCH_2D:
             {
                 BE_PROFILE_SCOPE("Render SPRITE_BATCH_2D");
-                spriteRenderer.process(commands[i].data.batch2d);
+                spriteRenderer.process(*static_cast<Render2DBatchCommand*>(commands[i].data));
             }
             break;
-            case SCENE_2D:
-                break;
             case Command::SCENE_3D_BATCH:
                 BE_PROFILE_SCOPE("Render SCENE_3D_BATCH");
-                Render3DBatchCommand& cmd = commands[i].data.batch3d;
-                modelsRenderer.process(cmd);
+                Render3DBatchCommand* cmd = static_cast<Render3DBatchCommand*>(commands[i].data);
+                modelsRenderer.process(*cmd);
                 break;
             }
 
