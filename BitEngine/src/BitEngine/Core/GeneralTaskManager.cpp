@@ -4,7 +4,10 @@
 namespace BitEngine {
 
 TaskWorker::TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity, u32 id)
-    : m_working(true), m_affinity(_affinity), m_manager(_manager), m_threadId(id)
+    : m_working(true)
+    , m_affinity(_affinity)
+    , m_manager(_manager)
+    , m_threadId(id)
 {
 }
 
@@ -17,8 +20,7 @@ void TaskWorker::start()
 void TaskWorker::process(TaskPtr task)
 {
     BE_PROFILE_FUNCTION();
-    if (task->isReady())
-    {
+    if (task->isReady()) {
         //LOG(EngineLog, BE_LOG_VERBOSE) << " processing task " << task;
 
         task->execute();
@@ -27,21 +29,17 @@ void TaskWorker::process(TaskPtr task)
             m_manager->incFinishedFrameRequired();
         }
 
-        if (task->isRepeating())
-        {
-            if (task->isOncePerFrame())
-            {
+        if (task->isRepeating()) {
+            if (task->isOncePerFrame()) {
                 m_manager->scheduleToNextFrame(task);
             }
-            else
-            {
+            else {
                 m_manager->addTask(task);
             }
         }
         // Task done
     }
-    else
-    {
+    else {
         m_manager->addTask(task);
     }
 }
@@ -49,16 +47,13 @@ void TaskWorker::process(TaskPtr task)
 void TaskWorker::work()
 {
     try {
-        do
-        {
+        do {
             BE_PROFILE_FUNCTION();
             TaskPtr task = nextTask();
-            if (task == nullptr)
-            {
+            if (task == nullptr) {
                 std::this_thread::yield();
             }
-            else
-            {
+            else {
                 process(task);
             }
         } while (m_working);
@@ -73,8 +68,7 @@ TaskPtr TaskWorker::nextTask()
 {
     BE_PROFILE_FUNCTION();
     TaskPtr newTask;
-    if (!m_taskQueue.tryPop(newTask))
-    {
+    if (!m_taskQueue.tryPop(newTask)) {
         if (m_affinity == Task::Affinity::BACKGROUND) {
             u32 threadTest = m_threadId++;
             while (threadTest != m_threadId) {
@@ -91,8 +85,7 @@ TaskPtr TaskWorker::nextTask()
             m_taskQueue.pop(newTask);
         }
     }
-    else
-    {
+    else {
         //LOG(EngineLog, BE_LOG_VERBOSE) << "poped: " << newTask << " from " << this;
     }
 
@@ -101,14 +94,14 @@ TaskPtr TaskWorker::nextTask()
 
 void TaskWorker::wait()
 {
-    if (m_thread.joinable())
-    {
+    if (m_thread.joinable()) {
         m_thread.join();
     }
 }
 
 GeneralTaskManager::GeneralTaskManager()
-    : TaskManager(), mainThread(std::this_thread::get_id())
+    : TaskManager()
+    , mainThread(std::this_thread::get_id())
 {
     LOG(EngineLog, BE_LOG_INFO) << "Main thread: " << mainThread;
     requiredTasksFrame = 0;
@@ -118,20 +111,18 @@ GeneralTaskManager::GeneralTaskManager()
 
 void GeneralTaskManager::init()
 {
-    const int nThreads = 4;//std::thread::hardware_concurrency() + 1;
+    const int nThreads = 4; //std::thread::hardware_concurrency() + 1;
     m_totalWorkers = nThreads;
 
     workers.resize(m_totalWorkers);
     LOG(EngineLog, BE_LOG_INFO) << "Task manager initializing " << nThreads << " threads";
 
-    for (int i = 0; i < nThreads; ++i)
-    {
+    for (int i = 0; i < nThreads; ++i) {
         workers[i] = new TaskWorker(this, Task::Affinity::BACKGROUND, i);
     }
 
     // Worker 0 is used for main tasks only
-    for (int i = 1; i < nThreads; ++i)
-    {
+    for (int i = 1; i < nThreads; ++i) {
         workers[i]->start();
     }
 }
@@ -139,15 +130,14 @@ void GeneralTaskManager::init()
 void GeneralTaskManager::update()
 {
     BE_PROFILE_FUNCTION();
-    
+
     TaskPtr task;
     workers[0]->m_taskQueue.tryPop(task);
     if (task != nullptr) {
         workers[0]->process(task);
     }
 
-    while (finishedRequiredTasks != requiredTasksFrame)
-    {
+    while (finishedRequiredTasks != requiredTasksFrame) {
         executeMain();
     }
 
@@ -156,7 +146,7 @@ void GeneralTaskManager::update()
 
 void GeneralTaskManager::prepareNextFrame()
 {
-    std::vector<TaskPtr > swaped;
+    std::vector<TaskPtr> swaped;
     {
         std::lock_guard<std::mutex> lock(nextFrameTasksMutex);
         swaped.swap(scheduledTasks);
@@ -166,21 +156,18 @@ void GeneralTaskManager::prepareNextFrame()
         requiredTasksFrame = 0;
         addTaskMutex.unlock();
     }
-    for (TaskPtr& task : swaped)
-    {
+    for (TaskPtr& task : swaped) {
         addTask(task);
     }
 }
 
 void GeneralTaskManager::shutdown()
 {
-    for (TaskWorker* tw : workers)
-    {
+    for (TaskWorker* tw : workers) {
         tw->stop();
     }
 
-    for (TaskWorker* tw : workers)
-    {
+    for (TaskWorker* tw : workers) {
         tw->wait();
         delete tw;
     }
@@ -193,8 +180,7 @@ void GeneralTaskManager::addTask(TaskPtr task)
     { // lock
         std::lock_guard<std::mutex> lock(addTaskMutex);
 
-        if (task->isFrameRequired())
-        {
+        if (task->isFrameRequired()) {
             ++requiredTasksFrame;
         }
     } // unlock
@@ -203,7 +189,7 @@ void GeneralTaskManager::addTask(TaskPtr task)
         workers[0]->m_taskQueue.push(task);
     }
     else {
-        m_pushCycle = ((m_pushCycle + 1) % (m_totalWorkers-1));
+        m_pushCycle = ((m_pushCycle + 1) % (m_totalWorkers - 1));
         u32 at = 1 + m_pushCycle;
         BE_ASSERT(at > 0 && at < m_totalWorkers);
         workers[at]->m_taskQueue.push(task);
@@ -219,14 +205,12 @@ void GeneralTaskManager::scheduleToNextFrame(TaskPtr task)
 
 void GeneralTaskManager::waitTask(TaskPtr& task)
 {
-    if (std::this_thread::get_id() != mainThread)
-    {
+    if (std::this_thread::get_id() != mainThread) {
         throw std::domain_error("Only the main thread may wait for a task!");
     }
 
     int k = 1;
-    while (!task->isFinished())
-    {
+    while (!task->isFinished()) {
         executeWorkersWork(k++);
     }
 }
@@ -249,7 +233,9 @@ void GeneralTaskManager::executeWorkersWork(int i)
     i = clampToWorkers(i);
     do {
         task = workers[i]->nextTask();
-        if (task != nullptr) { break; }
+        if (task != nullptr) {
+            break;
+        }
         i = clampToWorkers(i++);
     } while (i != startedAt);
 
@@ -274,6 +260,7 @@ void GeneralTaskManager::incFinishedFrameRequired()
 
 u32 GeneralTaskManager::clampToWorkers(u32 value)
 {
-    return value = 1 + (value % (workers.size() - 1));;
+    return value = 1 + (value % (workers.size() - 1));
+    ;
 }
 }

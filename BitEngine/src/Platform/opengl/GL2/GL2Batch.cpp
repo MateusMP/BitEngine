@@ -3,8 +3,7 @@
 
 #include "Platform/opengl/GL2/GL2Shader.h"
 
-namespace BitEngine
-{
+namespace BitEngine {
 static void includeToMap(ShaderDataMap& map, const UniformHolder& holder, u32 instance)
 {
     for (const UniformContainer& it : holder.containers) {
@@ -13,7 +12,8 @@ static void includeToMap(ShaderDataMap& map, const UniformHolder& holder, u32 in
 }
 
 GL2Batch::GL2Batch(VAOContainer&& vC, const UniformHolder& uC)
-    : vaoContainer(vC), uniformContainer(uC)
+    : vaoContainer(vC)
+    , uniformContainer(uC)
 {
     // Setup vbo data buffers
     for (VBOContainer& vbc : vaoContainer.vbos) {
@@ -32,8 +32,7 @@ GL2Batch::~GL2Batch()
 
 void GL2Batch::clearVAO()
 {
-    for (VBOContainer& container : vaoContainer.vbos)
-    {
+    for (VBOContainer& container : vaoContainer.vbos) {
         GL_CHECK(glDeleteBuffers(1, &container.vbo));
     }
     GL2::deleteVaos(1, &vaoContainer.vao);
@@ -53,10 +52,8 @@ void GL2Batch::prepare(u32 numInstances)
 void GL2Batch::load()
 {
     BE_PROFILE_FUNCTION();
-    for (const auto& it : shaderData)
-    {
-        if (it.first.mode.value == DataUseMode::Vertex)
-        {
+    for (const auto& it : shaderData) {
+        if (it.first.mode.value == DataUseMode::Vertex) {
             GL2::bindVbo(it.second.definition.vbo->vbo);
             GL2::loadBufferRange(it.second.data.data(), 0, it.second.data.size(), GL_STREAM_DRAW);
             GL2::unbindVbo();
@@ -66,8 +63,7 @@ void GL2Batch::load()
 
 void GL2Batch::setVertexRenderMode(VertexRenderMode mode)
 {
-    switch (mode)
-    {
+    switch (mode) {
     case VertexRenderMode::TRIANGLES:
         renderMode = GL_TRIANGLES;
         break;
@@ -83,16 +79,13 @@ void GL2Batch::setVertexRenderMode(VertexRenderMode mode)
 void GL2Batch::render(Shader* shader)
 {
     BE_PROFILE_FUNCTION();
-    GL2Shader *glShader = static_cast<GL2Shader*>(shader);
+    GL2Shader* glShader = static_cast<GL2Shader*>(shader);
     glShader->bind();
 
-    for (const auto& it : shaderData)
-    {
-        if (it.first.mode.value == DataUseMode::Uniform)
-        {
+    for (const auto& it : shaderData) {
+        if (it.first.mode.value == DataUseMode::Uniform) {
             const char* addr = static_cast<const char*>(it.second.data.data());
-            for (const UniformDefinition* def : it.second.definition.unif->defs)
-            {
+            for (const UniformDefinition* def : it.second.definition.unif->defs) {
                 glShader->loadConfig(def, static_cast<const void*>(addr + def->dataOffset));
             }
         }
@@ -118,18 +111,15 @@ void GL2Batch::render(Shader* shader)
     glShader->Unbind();
 }
 
-
 void* GL2Batch::getShaderData(const ShaderDataReference& ref)
 {
     auto it = shaderData.find(ref);
-    if (it == shaderData.end())
-    {
+    if (it == shaderData.end()) {
         // [container].strideSize != strideSize
         LOG(EngineLog, BE_LOG_ERROR) << "Invalid ref or stride size!";
         throw "Invalid Shader Data Reference";
     }
-    else
-    {
+    else {
         return it->second.data.data();
     }
 }

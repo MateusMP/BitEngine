@@ -25,14 +25,11 @@ void Camera2DProcessor::Process()
     //ComponentHandle handle, GameLogicComponent& l
     // ComponentRef<Camera2DComponent>& camera
     getES()->forAll<Camera2DComponent>(
-        [](ComponentHandle handle, Camera2DComponent& camera)
-    {
-        if (camera.changed)
-        {
-            recalculateMatrix(camera);
-            camera.changed = false;
-        }
-    });
+        [](ComponentHandle handle, Camera2DComponent& camera) {
+            if (camera.changed) {
+                recalculateMatrix(camera);
+                camera.changed = false;
+            }
+        });
 }
-
 }

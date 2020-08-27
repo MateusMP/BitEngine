@@ -4,8 +4,5 @@
 #include <Windows.h>
 #endif
 
-namespace BitEngine
-{
-
-
+namespace BitEngine {
 }

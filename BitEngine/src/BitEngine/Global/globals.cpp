@@ -10,20 +10,19 @@
 
 namespace BitEngine {
 
-    BE_API Logger* EngineLog = nullptr;
+BE_API Logger* EngineLog = nullptr;
 
-    namespace Profiling 
-    {        
-        BE_API ChromeProfiler* _instance = nullptr;
+namespace Profiling {
+    BE_API ChromeProfiler* _instance = nullptr;
 
-        BE_API ChromeProfiler& Get()
-        {
-            return *_instance;
-        }
-
-        BE_API void SetInstance(ChromeProfiler* obj)
-        {
-            _instance = obj;
-        }
+    BE_API ChromeProfiler& Get()
+    {
+        return *_instance;
     }
+
+    BE_API void SetInstance(ChromeProfiler* obj)
+    {
+        _instance = obj;
+    }
+}
 }

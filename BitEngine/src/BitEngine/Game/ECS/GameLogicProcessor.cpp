@@ -3,9 +3,9 @@
 namespace BitEngine {
 
 GameLogicProcessor::GameLogicProcessor(EntitySystem* m)
-    : ComponentProcessor(m),
-    Messenger< MsgComponentCreated<GameLogicComponent>>::ScopedSubscription(m->getHolder<GameLogicComponent>()->componentCreatedSignal, &GameLogicProcessor::onMessage, this),
-    Messenger< MsgComponentDestroyed<GameLogicComponent>>::ScopedSubscription(m->getHolder<GameLogicComponent>()->componentDestroyedSignal, &GameLogicProcessor::onMessage, this)
+    : ComponentProcessor(m)
+    , Messenger<MsgComponentCreated<GameLogicComponent> >::ScopedSubscription(m->getHolder<GameLogicComponent>()->componentCreatedSignal, &GameLogicProcessor::onMessage, this)
+    , Messenger<MsgComponentDestroyed<GameLogicComponent> >::ScopedSubscription(m->getHolder<GameLogicComponent>()->componentDestroyedSignal, &GameLogicProcessor::onMessage, this)
 {
     gameLogicHolder = getES()->getHolder<GameLogicComponent>();
 }
@@ -14,14 +14,12 @@ GameLogicProcessor::~GameLogicProcessor()
 {
     BE_PROFILE_FUNCTION();
     getES()->forAll<GameLogicComponent>(
-        [](ComponentHandle handle, GameLogicComponent& l)
-    {
-        auto& pieces = l.m_gamelogics;
-        for (GameLogic* logic : pieces) {
-            logic->end();
-        }
-    }
-    );
+        [](ComponentHandle handle, GameLogicComponent& l) {
+            auto& pieces = l.m_gamelogics;
+            for (GameLogic* logic : pieces) {
+                logic->end();
+            }
+        });
 }
 
 void GameLogicProcessor::FrameStart()
@@ -30,11 +28,9 @@ void GameLogicProcessor::FrameStart()
     // LOG(EngineLog, BE_LOG_VERBOSE) << "GameLogicProcessor::FrameStart\n";
 
     // Initialize all components not yet initialized
-    for (ComponentHandle hdl : m_notInitialized)
-    {
+    for (ComponentHandle hdl : m_notInitialized) {
         auto& pieces = gameLogicHolder->getComponent(hdl)->m_gamelogics;
-        for (size_t i = 0; i < pieces.size(); ++i)
-        {
+        for (size_t i = 0; i < pieces.size(); ++i) {
             GameLogic* logic = pieces[i];
             GameLogic::RunEvents ev = logic->getRunEvents();
             if (ev & GameLogic::RunEvents::EFrameStart) {
@@ -95,8 +91,7 @@ void GameLogicProcessor::onMessage(const MsgComponentDestroyed<GameLogicComponen
     BE_PROFILE_FUNCTION();
     GameLogicComponent* comp = gameLogicHolder->getComponent(msg.component);
     auto& pieces = comp->m_gamelogics;
-    for (size_t i = 0; i < pieces.size(); ++i)
-    {
+    for (size_t i = 0; i < pieces.size(); ++i) {
         GameLogic* logic = pieces[i];
         GameLogic::RunEvents ev = logic->getRunEvents();
         if (ev & GameLogic::RunEvents::EFrameStart) {
@@ -117,15 +112,12 @@ void GameLogicProcessor::onMessage(const MsgComponentDestroyed<GameLogicComponen
 
 void GameLogicProcessor::removeFrom(GameLogic* l, std::vector<GameLogic*>& vec)
 {
-    for (size_t i = 0; i < vec.size(); ++i)
-    {
-        if (vec[i] == l)
-        {
+    for (size_t i = 0; i < vec.size(); ++i) {
+        if (vec[i] == l) {
             vec[i] = vec.back();
             vec.pop_back();
             return;
         }
     }
 }
-
 }

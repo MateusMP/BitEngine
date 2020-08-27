@@ -34,31 +34,25 @@ void GLVideoDriver::configure(const BlendMaterial* material)
 {
     BE_PROFILE_FUNCTION();
     // BLEND
-    if (material->getState(RenderConfig::BLEND) != BlendConfig::BLEND_NONE)
-    {
+    if (material->getState(RenderConfig::BLEND) != BlendConfig::BLEND_NONE) {
         GL2::enableState(GL2::getGLState(RenderConfig::BLEND), true);
-        if (material->getState(RenderConfig::BLEND) == BlendConfig::BLEND_ALL)
-        {
+        if (material->getState(RenderConfig::BLEND) == BlendConfig::BLEND_ALL) {
             GL_CHECK(glBlendFunc(GL2::getBlendMode(material->srcColorBlendMode), GL2::getBlendMode(material->dstColorBlendMode)));
         }
-        else
-        {
+        else {
             GL_CHECK(glBlendFuncSeparate(GL2::getBlendMode(material->srcColorBlendMode), GL2::getBlendMode(material->dstColorBlendMode),
                 GL2::getBlendMode(material->srcAlphaBlendMode), GL2::getBlendMode(material->dstAlphaBlendMode)));
         }
         GL_CHECK(glBlendEquation(GL2::getBlendEquation(material->blendEquation)));
     }
-    else
-    {
+    else {
         GL2::enableState(GL2::getGLState(RenderConfig::BLEND), false);
     }
 
     // FACE CULL
-    if (material->getState(RenderConfig::CULL_FACE) != CULL_FACE_NONE)
-    {
+    if (material->getState(RenderConfig::CULL_FACE) != CULL_FACE_NONE) {
         GL2::enableState(GL2::getGLState(RenderConfig::CULL_FACE), true);
-        switch (material->getState(RenderConfig::CULL_FACE))
-        {
+        switch (material->getState(RenderConfig::CULL_FACE)) {
         case CullFaceConfig::BACK_FACE:
             GL_CHECK(glCullFace(GL_BACK));
             break;
@@ -70,19 +64,18 @@ void GLVideoDriver::configure(const BlendMaterial* material)
             break;
         }
     }
-    else
-    {
+    else {
         GL2::enableState(GL2::getGLState(RenderConfig::CULL_FACE), false);
     }
 
     u8 depthMode = GL2::getGLState(RenderConfig::DEPTH_TEST);
-    if (depthMode &  DepthConfig::DEPTH_TEST_DISABLED) {
+    if (depthMode & DepthConfig::DEPTH_TEST_DISABLED) {
         GL2::enableState(GL_DEPTH_TEST, false);
     }
-    else if (depthMode &  DepthConfig::DEPTH_TEST_ENABLED) {
+    else if (depthMode & DepthConfig::DEPTH_TEST_ENABLED) {
         GL2::enableState(GL_DEPTH_TEST, true);
     }
-    if (depthMode &  DepthConfig::DEPTH_TEST_WRITE_ENABLED) {
+    if (depthMode & DepthConfig::DEPTH_TEST_WRITE_ENABLED) {
         GL_CHECK(glDepthMask(true));
     }
     else {
@@ -96,6 +89,4 @@ void GLVideoDriver::configure(const BlendMaterial* material)
     GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_3D), material->getState(RenderConfig::TEXTURE_3D) == 0);
     GL2::enableState(GL2::getGLState(RenderConfig::TEXTURE_CUBE), material->getState(RenderConfig::TEXTURE_CUBE) == 0);
 }
-
-
 }

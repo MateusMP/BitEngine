@@ -29,8 +29,8 @@ BitEngine::Logger* GameLog()
     return &log;
 }
 
-
-void gameExecute(MainMemory& gameMemory) {
+void gameExecute(MainMemory& gameMemory)
+{
 
     // Basic infrastructure
     BitEngine::EngineConfigurationFileLoader configurations("config.ini");
@@ -43,7 +43,7 @@ void gameExecute(MainMemory& gameMemory) {
     BitEngine::GLFW_ImGuiSystem imgui;
     video.init();
 
-    BitEngine::Window *main_window;
+    BitEngine::Window* main_window;
 
     BitEngine::WindowConfiguration windowConfig;
     windowConfig.m_Title = "WINDOW";
@@ -64,7 +64,6 @@ void gameExecute(MainMemory& gameMemory) {
 
     BitEngine::GLFW_InputSystem input;
     input.registerWindow(main_window);
-
 
     // Game Specific stuff
     BitEngine::CommandSystem commandSystem(main_window);
@@ -115,7 +114,7 @@ void gameExecute(MainMemory& gameMemory) {
     imgui.events.subscribe(imguiMenu);
 
     bool rendererReady = false;
-    
+
     {
         MyGame* game = new MyGame(&gameMemory);
 
@@ -129,7 +128,7 @@ void gameExecute(MainMemory& gameMemory) {
             main_window->drawBegin();
 
             running = game->update();
-            
+
             if (running) {
                 {
                     BE_PROFILE_SCOPE("Game Render Queue");

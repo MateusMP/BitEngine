@@ -13,53 +13,55 @@ std::ofstream file("EngineLog.log", std::ios_base::app);
 	Logger EngineLog("EngineLog", file);
 #endif
 */
-	// By default, the logger will log to the console
-	LoggerSetup LoggerSetup::loggerSetup;
+// By default, the logger will log to the console
+LoggerSetup LoggerSetup::loggerSetup;
 
-	bool containsOption(const char* option, int argc, const char* argv[]) {
-		for (int i = 0; i < argc; ++i) {
-			if (strcmp(option, argv[i]) == 0) {
-				return true;
-			}
-		}
-		return false;
-	}
+bool containsOption(const char* option, int argc, const char* argv[])
+{
+    for (int i = 0; i < argc; ++i) {
+        if (strcmp(option, argv[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
 
-	void LoggerSetup::Setup(int argc, const char* argv[]) {
+void LoggerSetup::Setup(int argc, const char* argv[])
+{
 
-		if (loggerSetup.initialized) {
-			throw std::runtime_error("Logger already initiliazed");
-		}
-		else
-		{
-			if (EngineLog != nullptr) {
-				delete EngineLog;
-				EngineLog = nullptr;
-			}
+    if (loggerSetup.initialized) {
+        throw std::runtime_error("Logger already initiliazed");
+    }
+    else {
+        if (EngineLog != nullptr) {
+            delete EngineLog;
+            EngineLog = nullptr;
+        }
 
-			loggerSetup.file.open("EngineLog.log", std::ios_base::app);
+        loggerSetup.file.open("EngineLog.log", std::ios_base::app);
 
-			if (containsOption("--debug", argc, argv)
-			&& !containsOption("--debug-file-only", argc, argv)) {
-				BitEngine::EngineLog = new Logger("EngineLog", {&loggerSetup.file, &std::cout});
-			} else {
-				BitEngine::EngineLog = new Logger("EngineLog", {&loggerSetup.file});
-			}
+        if (containsOption("--debug", argc, argv)
+            && !containsOption("--debug-file-only", argc, argv)) {
+            BitEngine::EngineLog = new Logger("EngineLog", { &loggerSetup.file, &std::cout });
+        }
+        else {
+            BitEngine::EngineLog = new Logger("EngineLog", { &loggerSetup.file });
+        }
 
-			loggerSetup.initialized = true;
-		}
-	}
+        loggerSetup.initialized = true;
+    }
+}
 
-	LoggerSetup::LoggerSetup()
-	{
-	}
+LoggerSetup::LoggerSetup()
+{
+}
 
-	LoggerSetup::~LoggerSetup() {
-		if (initialized) {
-			delete EngineLog;
-			EngineLog = nullptr;
-			initialized = false;
-		}
-	}
-
+LoggerSetup::~LoggerSetup()
+{
+    if (initialized) {
+        delete EngineLog;
+        EngineLog = nullptr;
+        initialized = false;
+    }
+}
 }

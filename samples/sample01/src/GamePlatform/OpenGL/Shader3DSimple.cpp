@@ -7,7 +7,6 @@
 
 Shader3DSimple::Shader3DSimple()
 {
-
 }
 
 Shader3DSimple::~Shader3DSimple()
@@ -16,14 +15,12 @@ Shader3DSimple::~Shader3DSimple()
 
 int Shader3DSimple::Init()
 {
-    if (!BatchRenderer::CheckFunctions())
-    {
+    if (!BatchRenderer::CheckFunctions()) {
         return SHADER_INIT_ERROR_NO_FUNCTIONS;
     }
 
     return BuildProgramFromFile(GL_VERTEX_SHADER, "../data/shaders/shader3Dsimple.vtx",
         GL_FRAGMENT_SHADER, "../data/shaders/shader3Dsimple.fgt");
-
 }
 
 void Shader3DSimple::LoadViewMatrix(const glm::mat4& matrix)
@@ -43,7 +40,8 @@ void Shader3DSimple::LoadLight(const glm::vec3& position, const glm::vec3& direc
     u_light.color = color;
 }
 
-void Shader3DSimple::BindAttributes() {
+void Shader3DSimple::BindAttributes()
+{
     BindAttribute(ATTR_VERTEX_POS, "a_position");
     BindAttribute(ATTR_VERTEX_TEX, "a_textureUV");
     BindAttribute(ATTR_VERTEX_NORMAL, "a_normal");
@@ -53,7 +51,8 @@ void Shader3DSimple::BindAttributes() {
     //check_gl_error();
 }
 
-void Shader3DSimple::RegisterUniforms() {
+void Shader3DSimple::RegisterUniforms()
+{
     LOAD_UNIFORM(u_projectionMatrixHDL, "u_projectionMatrix");
     LOAD_UNIFORM(u_viewMatrixHDL, "u_viewMatrix");
     LOAD_UNIFORM(u_diffuseHDL, "u_diffuse");
@@ -63,7 +62,8 @@ void Shader3DSimple::RegisterUniforms() {
     LOAD_UNIFORM(u_light_colorHDL, "u_light.color");
 }
 
-void Shader3DSimple::OnBind() {
+void Shader3DSimple::OnBind()
+{
     connectTexture(u_diffuseHDL, DIFFUSE_TEXTURE_SLOT);
     connectTexture(u_normalHDL, NORMAL_TEXTURE_SLOT);
 

@@ -1,7 +1,7 @@
 
 project "assimp"
 	kind "StaticLib"
-    language "C++"
+	language "C++"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-tmp/" .. outputdir .. "/%{prj.name}")

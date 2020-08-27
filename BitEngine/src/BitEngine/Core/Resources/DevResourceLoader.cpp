@@ -10,7 +10,6 @@
 
 namespace BitEngine {
 
-
 std::string getPackagePath(const std::string& package, const std::string& resourceName)
 {
     return "data/" + package + "/" + resourceName;
@@ -23,8 +22,9 @@ std::string getPackagePath(const DevResourceMeta* meta)
 
 //
 
-DevResourceLoader::DevResourceLoader(TaskManager* tm, MemoryArena &arena)
-    : taskManager(tm), folderFileManager(tm, arena)
+DevResourceLoader::DevResourceLoader(TaskManager* tm, MemoryArena& arena)
+    : taskManager(tm)
+    , folderFileManager(tm, arena)
 {
     resourceMetaIndexes.reserve(8);
 }
@@ -38,8 +38,7 @@ bool DevResourceLoader::init()
 {
     taskManager->verifyMainThread();
     registerResourceManager("FILE", &folderFileManager);
-    for (ResourceManager* it : managers)
-    {
+    for (ResourceManager* it : managers) {
         it->init();
     }
     return true;
@@ -48,8 +47,7 @@ bool DevResourceLoader::init()
 void DevResourceLoader::update()
 {
     taskManager->verifyMainThread();
-    for (ResourceManager* it : managers)
-    {
+    for (ResourceManager* it : managers) {
         it->update();
     }
 }
@@ -65,17 +63,15 @@ void DevResourceLoader::shutdown()
     byName.clear();
 }
 
-
-bool DevResourceLoader::hasManagerForType(const std::string& resourceType) {
+bool DevResourceLoader::hasManagerForType(const std::string& resourceType)
+{
     return managersMap.find(resourceType) != managersMap.end();
 }
 
 DevResourceLoader::LoadedIndex* DevResourceLoader::findIndexByName(const std::string& string)
 {
-    for (u32 i = 0; i < resourceMetaIndexes.size(); ++i)
-    {
-        if (resourceMetaIndexes[i].name == string)
-        {
+    for (u32 i = 0; i < resourceMetaIndexes.size(); ++i) {
+        if (resourceMetaIndexes[i].name == string) {
             return &resourceMetaIndexes[i];
         }
     }
@@ -87,11 +83,9 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
     LoadedIndex* index = findIndexByName(indexFilename);
 
     std::ifstream file(indexFilename);
-    if (file.is_open())
-    {
+    if (file.is_open()) {
         bool allowOverride = false;
-        if (index == nullptr)
-        {
+        if (index == nullptr) {
             ptrsize indexId = resourceMetaIndexes.size();
             resourceMetaIndexes.push_back(LoadedIndex());
             index = &resourceMetaIndexes[indexId];
@@ -100,8 +94,7 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
             index->name = indexFilename;
             index->basefilepath = std::filesystem::path(indexFilename).parent_path().string();
         }
-        else
-        {
+        else {
             allowOverride = true;
             index->metas.clear();
         }
@@ -115,20 +108,15 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
         u8 buffer[256];
         MemoryArena arena;
 
-        if (allowOverride)
-        {
+        if (allowOverride) {
             // Reload all resources in order of manager
-            for (ResourceManager* m : managers)
-            {
-                for (DevResourceMeta& meta : index->metas)
-                {
+            for (ResourceManager* m : managers) {
+                for (DevResourceMeta& meta : index->metas) {
                     const ManagerInfo& info = managersMap[meta.type];
-                    if (m == info.mngr)
-                    {
+                    if (m == info.mngr) {
                         // Check if the resource is loaded
                         // and the ask to realod it
-                        if (meta.getReferences() > 0)
-                        {
+                        if (meta.getReferences() > 0) {
                             // Clear arena memory
                             arena.init(buffer, 256);
 
@@ -142,16 +130,14 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
             }
         }
     }
-    else
-    {
+    else {
         LOG(EngineLog, BE_LOG_ERROR) << "Failed to read file:\n" << indexFilename;
         return false;
     }
 
     // Show meta readed from file
     std::string log;
-    for (ResourceMeta& meta : index->metas)
-    {
+    for (ResourceMeta& meta : index->metas) {
         log += meta.toString();
     }
     LOG(EngineLog, BE_LOG_VERBOSE) << "Loaded Resource Metas:\n" << log;
@@ -159,35 +145,35 @@ bool DevResourceLoader::loadIndex(const std::string& indexFilename)
     return true;
 }
 
-
-
-
 struct ByteSerializer {
     std::ofstream& ptr;
 
-    template<typename T>
-    void write(const char* name, T data) {
+    template <typename T>
+    void write(const char* name, T data)
+    {
         ptr.write((const char*)&data, sizeof(T));
     }
 
-    template<typename T>
-    void write(const char* name, RR<T> data) {
+    template <typename T>
+    void write(const char* name, RR<T> data)
+    {
         u32 id = data->getResourceId();
         this->write(name, id);
     }
-
 };
 
 struct SerializerTypeSize {
-    template<typename T>
-    void write(const char* name, T data) {
+    template <typename T>
+    void write(const char* name, T data)
+    {
         size += sizeof(T);
     }
 
     u32 size = 0;
 };
 
-void DevResourceLoader::convertIndexesToProd() {
+void DevResourceLoader::convertIndexesToProd()
+{
     using namespace BitEngine;
 
     std::vector<DevResourceMeta*> sprites;
@@ -202,10 +188,10 @@ void DevResourceLoader::convertIndexesToProd() {
     SerializerTypeSize spriteSerializerInfo;
     Sprite tmp;
     Sprite::serialize(&spriteSerializerInfo, &tmp);
-    
+
     std::ofstream out("prod-index.data", std::ios::binary | std::ios::out);
-    
-    ByteSerializer byteSerializer { out };
+
+    ByteSerializer byteSerializer{ out };
     for (DevResourceMeta* meta : sprites) {
         RR<Sprite> sprite = getResource<Sprite>(meta->id);
         Sprite::serialize(&byteSerializer, sprite.get());
@@ -216,20 +202,17 @@ void DevResourceLoader::convertIndexesToProd() {
 DevResourceMeta* DevResourceLoader::findMeta(const std::string& name)
 {
     const auto& it = byName.find(name);
-    if (it == byName.end())
-    {
+    if (it == byName.end()) {
         return nullptr;
     }
-    else
-    {
+    else {
         return it->second;
     }
 }
 
 void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
 {
-    if (index->data["data"].empty())
-    {
+    if (index->data["data"].empty()) {
         return;
     }
     nlohmann::json::object_t& data = index->data["data"].get_ref<nlohmann::json::object_t&>();
@@ -238,23 +221,22 @@ void DevResourceLoader::loadPackages(LoadedIndex* index, bool allowOverride)
     std::set<std::string> typesWithoutManager;
 #endif
 
-    for (auto &package : data)
-    {
-        for (auto &resource : package.second)
-        {
+    for (auto& package : data) {
+        for (auto& resource : package.second) {
             const std::string& packageName = package.first;
 
             const std::string& resourceName = resource["name"];
             const std::string& resourceType = resource["type"];
 
             std::string name = getPackagePath(packageName, resourceName);
-            
+
             auto found = byName.find(name);
             if (found != byName.end()) {
                 found->second->properties = resource;
                 std::string props = package.second.dump();
                 printf("%s", props.c_str());
-            } else {
+            }
+            else {
                 index->metas.emplace_back(packageName, resourceName);
                 DevResourceMeta& meta = index->metas.back();
                 meta.type = resourceType;
@@ -282,7 +264,7 @@ BaseResource* DevResourceLoader::loadResource(ResourceMeta* meta)
     DevResourceMeta* dmeta = static_cast<DevResourceMeta*>(meta);
 
     const ManagerInfo& info = managersMap[dmeta->type];
-    
+
     // TODO: Make a proper arena
     u8 buffer[512];
     MemoryArena arena;
@@ -297,18 +279,17 @@ BaseResource* DevResourceLoader::loadResource(ResourceMeta* meta)
 BaseResource* DevResourceLoader::loadResource(const u32 idx)
 {
     DevResourceMeta* meta = byId[idx];
-    if (meta == nullptr)
-    {
+    if (meta == nullptr) {
         LOG(EngineLog, BE_LOG_ERROR) << "Couldn't find resource: '" << idx << "'";
         return nullptr;
     }
-    else
-    {
+    else {
         return loadResource(meta);
     }
 }
 
-BaseResource* DevResourceLoader::loadResource(const std::string& meta) {
+BaseResource* DevResourceLoader::loadResource(const std::string& meta)
+{
     const auto& found = byName.find(meta);
     if (found != byName.end()) {
         DevResourceMeta* meta = found->second;
@@ -321,7 +302,7 @@ void DevResourceLoader::reloadResource(BaseResource* resource)
 {
     // TODO: Force reload properties from file
     DevResourceMeta* meta = static_cast<DevResourceMeta*>(resource->getMeta());
-    
+
     const ManagerInfo& info = managersMap[meta->type];
 
     info.mngr->reloadResource(resource);
@@ -349,6 +330,4 @@ bool DevResourceLoader::isManagerForTypeAvailable(const std::string& type)
 {
     return managersMap.find(type) != managersMap.end();
 }
-
-
 }

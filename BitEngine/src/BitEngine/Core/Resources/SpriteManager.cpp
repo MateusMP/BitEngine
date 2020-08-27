@@ -27,15 +27,13 @@ Sprite* SpriteManager::createSprite(const std::string& name, const Sprite& spr)
 {
     dynamicSprites.emplace_back(ResourceMeta());
     ResourceMeta* meta = &dynamicSprites[dynamicSprites.size()];
-    if (meta != nullptr)
-    {
+    if (meta != nullptr) {
         u16 id = sprites.addResource(meta);
         Sprite* sprite = sprites.getResourceAddress(id);
-        new(sprite)Sprite(spr);
+        new (sprite) Sprite(spr);
         return sprite;
     }
-    else
-    {
+    else {
         return nullptr;
     }
 }
@@ -54,8 +52,7 @@ void SpriteManager::update()
 BaseResource* SpriteManager::loadResource(ResourceMeta* meta, PropertyHolder* props)
 {
     Sprite* sprite = sprites.findResource(meta);
-    if (sprite == nullptr)
-    {
+    if (sprite == nullptr) {
         u16 id = sprites.addResource(meta);
         sprite = sprites.getResourceAddress(id);
         new (sprite) Sprite(meta);
@@ -79,6 +76,4 @@ u32 SpriteManager::getCurrentGPUMemoryUsage() const
 {
     return u32(0);
 }
-
-
 }

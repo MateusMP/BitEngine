@@ -13,12 +13,16 @@ Assimp::Importer importer;
 class AssimpModelLoader : public Task {
 public:
     AssimpModelLoader(AssimpMeshManager* mm, DevResourceLoader* loader, AssimpModel* model, ResourceLoader::RawResourceTask dataTask)
-        : Task(Task::TaskMode::NONE, Task::Affinity::MAIN), m_meshManager(mm), m_loader(loader), m_model(model), rawDataTask(dataTask)
+        : Task(Task::TaskMode::NONE, Task::Affinity::MAIN)
+        , m_meshManager(mm)
+        , m_loader(loader)
+        , m_model(model)
+        , rawDataTask(dataTask)
     {
-
     }
 
-    void run() override {
+    void run() override
+    {
         BE_PROFILE_FUNCTION();
 
         const ResourceLoader::DataRequest& dr = rawDataTask->getData();
@@ -28,7 +32,6 @@ public:
             process(scene);
             m_model->m_loaded = MeshLoadState::LOADED;
         }
-
     }
 
     // Load model
@@ -36,8 +39,7 @@ public:
     {
         const aiScene* scene = importer.ReadFileFromMemory(data, size, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
-        if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-        {
+        if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "ERROR::ASSIMP::" << importer.GetErrorString();
             return nullptr;
         }
@@ -45,7 +47,8 @@ public:
         return scene;
     }
 
-    void process(const aiScene* scene) {
+    void process(const aiScene* scene)
+    {
         BE_PROFILE_FUNCTION();
 
         for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
@@ -63,9 +66,8 @@ public:
         // Process all the node's meshes (if any)
         // Only support 8 sub meshes per model
         BE_ASSERT(scene->mNumMeshes <= 8);
-        
-        for (u32 i = 0; i < node->mNumMeshes; i++)
-        {
+
+        for (u32 i = 0; i < node->mNumMeshes; i++) {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
             AssimpMesh* aMesh = m_meshManager->setupMesh(scene, mesh);
             m_model->meshes[i] = aMesh;
@@ -76,10 +78,10 @@ public:
         }
     }
 
-    void loadTextures(const aiMaterial* material, aiTextureType type) {
+    void loadTextures(const aiMaterial* material, aiTextureType type)
+    {
         BE_PROFILE_FUNCTION();
-        for (u32 i = 0; i < material->GetTextureCount(type); ++i)
-        {
+        for (u32 i = 0; i < material->GetTextureCount(type); ++i) {
             aiString path;
             material->GetTexture(type, i, &path);
 
@@ -87,15 +89,15 @@ public:
             DevResourceMeta* meta = m_loader->findMeta(strpath);
             if (meta == nullptr) {
                 DevResourceMeta* modelMeta = ((DevResourceMeta*)m_model->getMeta());
-                std::string filepath = modelMeta->filePath.substr(0, modelMeta->filePath.find_last_of('/')+1) + strpath;
+                std::string filepath = modelMeta->filePath.substr(0, modelMeta->filePath.find_last_of('/') + 1) + strpath;
                 DevResourceMeta* textureMeta = m_loader->createMeta(modelMeta->index, modelMeta->package, strpath, "TEXTURE", filepath, {});
                 m_loader->getResource<Texture>(textureMeta);
-            } else {
+            }
+            else {
                 m_loader->getResource<Texture>(meta);
             }
         }
     }
-
 
 private:
     AssimpModel* m_model;
@@ -104,32 +106,34 @@ private:
     ResourceLoader::RawResourceTask rawDataTask;
 };
 
-
 ///
 
-bool AssimpMeshManager::init() {
+bool AssimpMeshManager::init()
+{
     return true;
 }
-void AssimpMeshManager::update() {
-
+void AssimpMeshManager::update()
+{
 }
 
 // Should release ALL resources
-void AssimpMeshManager::shutdown() {
+void AssimpMeshManager::shutdown()
+{
     m_meshIndices.clear();
     m_materials.clear();
 }
 
-void AssimpMeshManager::setResourceLoader(ResourceLoader* loader) {
+void AssimpMeshManager::setResourceLoader(ResourceLoader* loader)
+{
     m_loader = (DevResourceLoader*)loader;
 }
 
-BaseResource* AssimpMeshManager::loadResource(ResourceMeta* meta, PropertyHolder* props) {
+BaseResource* AssimpMeshManager::loadResource(ResourceMeta* meta, PropertyHolder* props)
+{
 
     AssimpModel* model = m_models.findResource(meta);
 
-    if (model == nullptr)
-    {
+    if (model == nullptr) {
         u16 id = m_models.addResource(meta);
         model = m_models.getResourceAddress(id);
 
@@ -137,11 +141,9 @@ BaseResource* AssimpMeshManager::loadResource(ResourceMeta* meta, PropertyHolder
         {
             scheduleLoadingTasks(meta, model);
         }
-
     }
 
     return model;
-
 }
 
 void AssimpMeshManager::scheduleLoadingTasks(ResourceMeta* meta, AssimpModel* model)
@@ -158,27 +160,29 @@ void AssimpMeshManager::scheduleLoadingTasks(ResourceMeta* meta, AssimpModel* mo
 // This will only be called after a previous call to loadResource() was made
 // Release the resource or not is up to the implementation
 // Usually cheap resources are kept in memory (may be released from drivers)
-void AssimpMeshManager::resourceNotInUse(ResourceMeta* meta) {
-
+void AssimpMeshManager::resourceNotInUse(ResourceMeta* meta)
+{
 }
 
-void AssimpMeshManager::reloadResource(BaseResource* resource) {
-
+void AssimpMeshManager::reloadResource(BaseResource* resource)
+{
 }
 
 // Called after a while when the resource is not being used for some time.
 // After this call it's expected that most memory used by the resource is freed.
 // All resource references must still be valid, since we're just requesting the memory
 // for the resource to be released.
-void AssimpMeshManager::resourceRelease(ResourceMeta* meta) {
-
+void AssimpMeshManager::resourceRelease(ResourceMeta* meta)
+{
 }
 
 // in bytes
-ptrsize AssimpMeshManager::getCurrentRamUsage() const {
+ptrsize AssimpMeshManager::getCurrentRamUsage() const
+{
     return 0;
 }
 
-u32 AssimpMeshManager::getCurrentGPUMemoryUsage() const {
+u32 AssimpMeshManager::getCurrentGPUMemoryUsage() const
+{
     return 0;
 }

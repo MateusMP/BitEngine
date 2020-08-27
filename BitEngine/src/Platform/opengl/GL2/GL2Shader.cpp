@@ -7,15 +7,12 @@
 #include "BitEngine/Common/ErrorCodes.h"
 #include "BitEngine/Core/Assert.h"
 
-
-namespace BitEngine
-{
+namespace BitEngine {
 u32 sizeofDataType(DataType dt)
 {
     BE_ASSERT((dt.value != DataType::INVALID_DATA_TYPE) && "Unexpected data type.");
 
-    switch (dt.value)
-    {
+    switch (dt.value) {
     case DataType::FLOAT:
         return sizeof(float);
     case DataType::LONG:
@@ -52,10 +49,8 @@ u32 sizeofDataType(DataType dt)
 UniformDefinition* GL2Shader::findUniformConfigByName(const std::string& str)
 {
     const std::string u_str = "u_" + str;
-    for (UniformDefinition& gc : m_uniforms)
-    {
-        if (gc.name == u_str)
-        {
+    for (UniformDefinition& gc : m_uniforms) {
+        if (gc.name == u_str) {
             return &gc;
         }
     }
@@ -66,10 +61,8 @@ UniformDefinition* GL2Shader::findUniformConfigByName(const std::string& str)
 VBOAttrib* GL2Shader::findAttributeConfigByName(const std::string& str)
 {
     const std::string a_str = "a_" + str;
-    for (VBOAttrib& ac : m_attributes)
-    {
-        if (ac.name == a_str)
-        {
+    for (VBOAttrib& ac : m_attributes) {
+        if (ac.name == a_str) {
             return &ac;
         }
     }
@@ -78,9 +71,10 @@ VBOAttrib* GL2Shader::findAttributeConfigByName(const std::string& str)
 }
 
 GL2Shader::GL2Shader(ResourceMeta* meta)
-    : Shader(meta), m_programID(0), npieces(0)
+    : Shader(meta)
+    , m_programID(0)
+    , npieces(0)
 {
-
 }
 
 GL2Shader::~GL2Shader()
@@ -100,7 +94,7 @@ IGraphicBatch* GL2Shader::createBatch()
     //  def.addContainer(DataUseMode::Vertex, 0)
     //  	.addVertexData("position", DataType::VEC3, 1)
     //  	.addVertexData("textureUV", DataType::VEC4, 1);
-    //  
+    //
     //  def.addContainer(DataUseMode::Vertex, 1)
     //  	.addVertexData("modelMatrix", DataType::MAT4, 1);
     // GIVES:
@@ -108,12 +102,13 @@ IGraphicBatch* GL2Shader::createBatch()
     //  |-> VBO 0 { vec3, vec4 }			 at attrId 0 .. 1, divisor = 0
     //  |-> VBO 1 { vec4, vec4, vec4, vec4 } at attrId 2 .. 5, divisor = 1
 
-    GL2Batch *batch = new GL2Batch(genVAOArrays(baseVaoContainer), uniformHolder);
-    
+    GL2Batch* batch = new GL2Batch(genVAOArrays(baseVaoContainer), uniformHolder);
+
     return batch;
 }
 
-void GL2Shader::setupBatch(Lazy<GL2Batch>& batch) {
+void GL2Shader::setupBatch(Lazy<GL2Batch>& batch)
+{
 
     // VAO contains all containers from ShaderDataDefinition
     // Each VBO is one container.
@@ -122,7 +117,7 @@ void GL2Shader::setupBatch(Lazy<GL2Batch>& batch) {
     //  def.addContainer(DataUseMode::Vertex, 0)
     //  	.addVertexData("position", DataType::VEC3, 1)
     //  	.addVertexData("textureUV", DataType::VEC4, 1);
-    //  
+    //
     //  def.addContainer(DataUseMode::Vertex, 1)
     //  	.addVertexData("modelMatrix", DataType::MAT4, 1);
     // GIVES:
@@ -137,7 +132,6 @@ void GL2Shader::setupBatch(Lazy<GL2Batch>& batch) {
     }
 }
 
-
 /// Init the shader
 /// Normally calls BuildProgramFromFile/Memory
 int GL2Shader::init()
@@ -146,12 +140,10 @@ int GL2Shader::init()
     LOG(EngineLog, BE_LOG_INFO) << "Building shader...";
 
     int error = buildFinalProgram();
-    if (error == BE_NO_ERROR)
-    {
+    if (error == BE_NO_ERROR) {
         LOG(EngineLog, BE_LOG_INFO) << "Shader ready!";
     }
-    else
-    {
+    else {
         LOG(EngineLog, BE_LOG_INFO) << "Shader initialization failed " << error;
     }
 
@@ -173,8 +165,7 @@ void GL2Shader::Unbind()
 
 void GL2Shader::releaseShader()
 {
-    if (m_programID != 0)
-    {
+    if (m_programID != 0) {
         Unbind();
         GL_CHECK(glDeleteProgram(m_programID));
         m_programID = 0;
@@ -194,8 +185,7 @@ void GL2Shader::introspect()
     GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &nameReadSize));
     BE_ASSERT(nameReadSize < sizeof(nameBuffer));
 
-    for (int i = 0; i < nAttrs; ++i)
-    {
+    for (int i = 0; i < nAttrs; ++i) {
         VBOAttrib attr;
 
         // TODO: Handle big attributes like matrices
@@ -217,7 +207,7 @@ void GL2Shader::introspect()
         }
 
         LOG(EngineLog, BE_LOG_INFO) << "Attr" << i << " at " << attr.id
-            << " '" << nameBuffer << "' is of type: " << attr.type << " size: " << attr.size;
+                                    << " '" << nameBuffer << "' is of type: " << attr.type << " size: " << attr.size;
 
         m_attributes.emplace_back(attr);
     }
@@ -230,17 +220,17 @@ void GL2Shader::introspect()
     GL_CHECK(glGetProgramiv(m_programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameReadSize));
     BE_ASSERT(nameReadSize < sizeof(nameBuffer));
 
-    for (int i = 0; i < nUnif; ++i)
-    {
+    for (int i = 0; i < nUnif; ++i) {
         UniformDefinition unif;
 
         GL_CHECK(glGetActiveUniform(m_programID, i, sizeof(nameBuffer), &nameReadSize, &unif.size, &unif.type, nameBuffer));
         std::string_view tmpName(nameBuffer, nameReadSize);
 
-        unif.location = glGetUniformLocation(m_programID, tmpName.data()); GL_CHECK(;);
+        unif.location = glGetUniformLocation(m_programID, tmpName.data());
+        GL_CHECK(;);
         unif.name = tmpName;
         LOG(EngineLog, BE_LOG_INFO) << "Uniform" << i << " at " << unif.location
-            << " '" << nameBuffer << "' is of type: " << unif.type << " size: " << unif.size;
+                                    << " '" << nameBuffer << "' is of type: " << unif.type << " size: " << unif.size;
         m_uniforms.emplace_back(unif);
     }
     genUniformContainer(uniformHolder);
@@ -251,8 +241,7 @@ void GL2Shader::genVBOAttributes(VAOContainer& vaoContainer)
     BE_PROFILE_FUNCTION();
     const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Vertex);
 
-    for (const ShaderDataDefinition::DefinitionContainer& dc : containers)
-    {
+    for (const ShaderDataDefinition::DefinitionContainer& dc : containers) {
         int strideSize = 0;
         for (const ShaderDataDefinition::DefinitionData& dd : dc.definitionData) {
             strideSize += sizeofDataType(dd.type) * dd.size;
@@ -261,11 +250,9 @@ void GL2Shader::genVBOAttributes(VAOContainer& vaoContainer)
         VBOContainer vboc;
 
         u32 offsetAccum = 0;
-        for (const ShaderDataDefinition::DefinitionData& dd : dc.definitionData)
-        {
+        for (const ShaderDataDefinition::DefinitionData& dd : dc.definitionData) {
             VBOAttrib* ac = findAttributeConfigByName(dd.name);
-            if (ac != nullptr)
-            {
+            if (ac != nullptr) {
                 BE_ASSERT(GL2::toGLType(dd.type) == ac->type);
                 ac->normalized = 0; // TODO: get this from dd
                 ac->stride = strideSize;
@@ -275,8 +262,7 @@ void GL2Shader::genVBOAttributes(VAOContainer& vaoContainer)
 
                 vboc.attrs.emplace_back(ac);
             }
-            else
-            {
+            else {
                 LOG(BitEngine::EngineLog, BE_LOG_ERROR) << "Couldn't find shader related attribute " << dd.name;
             }
         }
@@ -295,8 +281,7 @@ VAOContainer GL2Shader::genVAOArrays(const VAOContainer& base)
     GL2::genVao(1, &container.vao);
     GL2::bindVao(container.vao);
 
-    for (VBOContainer vboc : base.vbos)
-    {
+    for (VBOContainer vboc : base.vbos) {
         GL2::genVbo(1, &vboc.vbo);
         if (vboc.vbo == 0) {
             LOG(EngineLog, BE_LOG_ERROR) << "VertexBuffer: Could not create VBO.";
@@ -305,8 +290,7 @@ VAOContainer GL2Shader::genVAOArrays(const VAOContainer& base)
             return container;
         }
 
-        for (const VBOAttrib* c : vboc.attrs)
-        {
+        for (const VBOAttrib* c : vboc.attrs) {
             GL2::setupVbo(c->id, vboc.vbo, c->dataSize, c->dataType, c->normalized, c->stride, c->offset, vboc.divisor);
         }
 
@@ -322,16 +306,13 @@ void GL2Shader::genUniformContainer(UniformHolder& unifContainer)
     BE_PROFILE_FUNCTION();
     const std::vector<ShaderDataDefinition::DefinitionContainer>& containers = m_shaderDefinition.getContainers(DataUseMode::Uniform);
 
-    for (const ShaderDataDefinition::DefinitionContainer& def : containers)
-    {
+    for (const ShaderDataDefinition::DefinitionContainer& def : containers) {
         unifContainer.containers.emplace_back(ShaderDataReference(DataUseMode::Uniform, def.container, 0), def.instanced);
         UniformContainer& container = unifContainer.containers.back();
         u32 fullSize = 0;
-        for (const ShaderDataDefinition::DefinitionData& dd : def.definitionData)
-        {
+        for (const ShaderDataDefinition::DefinitionData& dd : def.definitionData) {
             UniformDefinition* ud = findUniformConfigByName(dd.name);
-            if (ud != nullptr)
-            {
+            if (ud != nullptr) {
                 u32 partialSize = sizeofDataType(dd.type) * dd.size;
                 ud->instanced = def.instanced;
                 ud->byteSize = partialSize;
@@ -386,9 +367,8 @@ int GL2Shader::linkShaders()
 
     // Note the different functions here: glGetProgram* instead of glGetShader*.
     GLint isLinked = 0;
-    GL_CHECK(glGetProgramiv(m_programID, GL_LINK_STATUS, (int *)&isLinked));
-    if (isLinked == GL_FALSE)
-    {
+    GL_CHECK(glGetProgramiv(m_programID, GL_LINK_STATUS, (int*)&isLinked));
+    if (isLinked == GL_FALSE) {
         GLint maxLength = 0;
         GL_CHECK(glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &maxLength));
 
@@ -428,7 +408,7 @@ int GL2Shader::linkShaders()
 }
 
 // \param hdl Where to save the gl id for the shader
-int GL2Shader::compile(GLenum type, const void* data, GLint size, GLuint &hdl, std::string& errorLog)
+int GL2Shader::compile(GLenum type, const void* data, GLint size, GLuint& hdl, std::string& errorLog)
 {
     BE_PROFILE_FUNCTION();
     GLuint shdhdl = glCreateShader(type);
@@ -463,48 +443,53 @@ int GL2Shader::compile(GLenum type, const void* data, GLint size, GLuint &hdl, s
     return BE_NO_ERROR;
 }
 
-void GL2Shader::loadInt(int location, int value) {
+void GL2Shader::loadInt(int location, int value)
+{
     GL_CHECK(glUniform1i(location, value));
 }
 
-void GL2Shader::loadFloat(int location, float value) {
+void GL2Shader::loadFloat(int location, float value)
+{
     GL_CHECK(glUniform1f(location, value));
 }
 
-void GL2Shader::loadVector3f(int location, int n, const float* vector) {
+void GL2Shader::loadVector3f(int location, int n, const float* vector)
+{
     GL_CHECK(glUniform3fv(location, n, vector));
 }
 
-void GL2Shader::loadVector4f(int location, int n, const float* vector) {
+void GL2Shader::loadVector4f(int location, int n, const float* vector)
+{
     GL_CHECK(glUniform4fv(location, n, vector));
 }
 
-void GL2Shader::loadBoolean(int location, bool b) {
+void GL2Shader::loadBoolean(int location, bool b)
+{
     float toload = 0.0f;
     if (b)
         toload = 1.0f;
     GL_CHECK(glUniform1f(location, toload));
 }
 
-void GL2Shader::loadMatrix4f(int location, const float* matrix) {
+void GL2Shader::loadMatrix4f(int location, const float* matrix)
+{
     GL_CHECK(glUniformMatrix4fv(location, 1, false, matrix));
 }
 
-void GL2Shader::connectTexture(int location, int unitID) {
+void GL2Shader::connectTexture(int location, int unitID)
+{
     GL_CHECK(glUniform1i(location, unitID));
 }
 
 void GL2Shader::loadConfig(const UniformDefinition* ud, const void* data)
 {
-    switch (ud->type)
-    {
+    switch (ud->type) {
     case GL_SAMPLER_2D: {
         const GL2Texture* texture = *static_cast<const GL2Texture* const*>(data);
         glActiveTexture(GL_TEXTURE0 + ud->location);
         glBindTexture(GL_TEXTURE_2D, texture->getTextureID());
         connectTexture(ud->location, ud->location);
-    }
-                        break;
+    } break;
 
     case GL_FLOAT_VEC2:
         GL_CHECK(glUniform2fv(ud->location, ud->size, static_cast<const GLfloat*>(data)));
@@ -532,15 +517,15 @@ void GL2Shader::loadConfig(const UniformDefinition* ud, const void* data)
     }
 }
 
-GLuint GL2Shader::attachSource(GLint type, const void* data, GLint size) {
+GLuint GL2Shader::attachSource(GLint type, const void* data, GLint size)
+{
     std::string error;
     int err = BE_NO_ERROR;
 
     GLuint out;
     err = compile(type, data, size, out, error);
 
-    if (err != BE_NO_ERROR)
-    {
+    if (err != BE_NO_ERROR) {
         LOG(EngineLog, BE_LOG_ERROR) << "Shader (" << type << ") error: " << err << " - " << error;
     }
 

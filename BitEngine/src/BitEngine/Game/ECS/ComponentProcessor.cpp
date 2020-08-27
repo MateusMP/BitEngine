@@ -4,15 +4,21 @@
 namespace BitEngine {
 
 BaseComponentHolder::BaseComponentHolder(u32 componentSize, u32 nCompPerPool /*= 100*/)
-    : m_componentSize(componentSize), m_nComponentsPerPool(nCompPerPool), m_IDcapacity(nCompPerPool),
-    m_byComponent(nCompPerPool),
-    m_IDcurrent(1), m_workingComponents(0), m_pools(), m_byEntity(128, 0)
+    : m_componentSize(componentSize)
+    , m_nComponentsPerPool(nCompPerPool)
+    , m_IDcapacity(nCompPerPool)
+    , m_byComponent(nCompPerPool)
+    , m_IDcurrent(1)
+    , m_workingComponents(0)
+    , m_pools()
+    , m_byEntity(128, 0)
 {
-    m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]); // init first pool
+    m_pools.emplace_back(new char[m_componentSize * m_nComponentsPerPool]); // init first pool
     m_freeSorted = true;
 }
 
-BaseComponentHolder::~BaseComponentHolder() {
+BaseComponentHolder::~BaseComponentHolder()
+{
     BE_PROFILE_FUNCTION();
     for (auto& pool : m_pools) {
         delete[] pool;
@@ -31,7 +37,7 @@ void BaseComponentHolder::releaseComponentForEntity(EntityHandle entity)
 
 void* BaseComponentHolder::getComponent(ComponentHandle componentID)
 {
-    char *ptr = m_pools[componentID / m_nComponentsPerPool];
+    char* ptr = m_pools[componentID / m_nComponentsPerPool];
     return ptr + (componentID % m_nComponentsPerPool) * m_componentSize;
 }
 
@@ -58,14 +64,12 @@ const std::vector<ComponentHandle>& BaseComponentHolder::getFreeIDs()
 void BaseComponentHolder::resize(u32 componentId)
 {
     BE_PROFILE_FUNCTION();
-    while (m_IDcapacity <= componentId)
-    {
-        m_pools.emplace_back(new char[m_componentSize*m_nComponentsPerPool]);
+    while (m_IDcapacity <= componentId) {
+        m_pools.emplace_back(new char[m_componentSize * m_nComponentsPerPool]);
         m_byComponent.resize(m_byComponent.size() + m_nComponentsPerPool, 0);
         m_IDcapacity += m_nComponentsPerPool;
     }
 }
-
 
 u32 BaseComponentHolder::newComponentID(EntityHandle entity)
 {
@@ -78,17 +82,14 @@ u32 BaseComponentHolder::newComponentID(EntityHandle entity)
     }
 
     // find the new ID
-    if (m_freeIDs.empty())
-    {
+    if (m_freeIDs.empty()) {
         if (m_IDcurrent >= m_IDcapacity) {
             resize(m_IDcapacity * 2);
         }
 
         id = m_IDcurrent++;
-
     }
-    else
-    {
+    else {
         id = m_freeIDs.back();
         m_freeIDs.pop_back();
     }
@@ -100,6 +101,4 @@ u32 BaseComponentHolder::newComponentID(EntityHandle entity)
 
     return id;
 }
-
-
 }

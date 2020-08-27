@@ -12,9 +12,9 @@
 
 #define GL2_API
 #ifdef GL2_API
-    #include <Platform/opengl/GL2/GL2Driver.h>
-    #include <Platform/opengl/GL2/GL2ShaderManager.h>
-    #include <Platform/opengl/GL2/GL2TextureManager.h>
+#include <Platform/opengl/GL2/GL2Driver.h>
+#include <Platform/opengl/GL2/GL2ShaderManager.h>
+#include <Platform/opengl/GL2/GL2TextureManager.h>
 #endif
 
 #include <Platform/glfw/GLFW_VideoSystem.h>
@@ -29,7 +29,6 @@
 
 #include <BitEngine/Global/globals.cpp>
 
-
 BitEngine::Logger* GameLog()
 {
     static BitEngine::Logger log("GameLog", BitEngine::EngineLog);
@@ -38,7 +37,8 @@ BitEngine::Logger* GameLog()
 
 #include "Game/Common/CommonMain.h"
 
-void game() {
+void game()
+{
     // Basic infrastructure
     BitEngine::EngineConfigurationFileLoader configurations("config.ini");
     BitEngine::GeneralTaskManager taskManager;
@@ -50,7 +50,7 @@ void game() {
     BitEngine::GLFW_ImGuiSystem imgui;
     video.init();
 
-    BitEngine::Window *main_window;
+    BitEngine::Window* main_window;
 
     BitEngine::WindowConfiguration windowConfig;
     windowConfig.m_Title = "WINDOW";
@@ -64,12 +64,10 @@ void game() {
     windowConfig.m_BlueBits = 8;
     windowConfig.m_AlphaBits = 8;
 
-
     windowConfig.m_DepthBits = 8;
     windowConfig.m_StencilBits = 8;
     main_window = video.createWindow(windowConfig);
     imgui.setup(main_window);
-
 
     BitEngine::GLFW_InputSystem input;
     input.registerWindow(main_window);
@@ -92,7 +90,7 @@ void game() {
 
     const u32 resMemSize = MEGABYTES(64);
     BitEngine::MemoryArena resourceArena;
-    resourceArena.init((u8*) ::operator new(resMemSize), resMemSize);
+    resourceArena.init((u8*)::operator new(resMemSize), resMemSize);
     memset(resourceArena.base, 0, resMemSize);
 
     BitEngine::DevResourceLoader loader(&taskManager, resourceArena);
@@ -104,7 +102,7 @@ void game() {
 
     const u32 renderMemSize = MEGABYTES(8);
     BitEngine::MemoryArena renderArena;
-    renderArena.init((u8*) ::operator new(renderMemSize), renderMemSize);
+    renderArena.init((u8*)::operator new(renderMemSize), renderMemSize);
     memset(renderArena.base, 0, renderArena.size);
     RenderQueue renderQueue(renderArena);
 
@@ -131,32 +129,29 @@ void game() {
     imgui.events.subscribe(imguiMenu);
 
     auto imguiRenderQueue = [&](const BitEngine::ImGuiRenderEvent& event) {
-        
+
         ImGui::Begin("RenderQueue");
 
         auto queue = gameMemory.renderQueue;
         ptrsize cmdCount = queue->getCommandsCount();
 
-        for (int cmd = 0; cmd < cmdCount; ++cmd)
-        {
+        for (int cmd = 0; cmd < cmdCount; ++cmd) {
             RenderCommand& command = queue->getCommands()[cmd];
             if (ImGui::TreeNodeEx(&command, ImGuiTreeNodeFlags_OpenOnArrow, "%s", GetCommandName(command.command))) {
                 switch (command.command) {
-                    case Command::SCENE_BEGIN: {
-                        SceneBeginCommand* sceneBegin = command.dataAs<SceneBeginCommand>();
-                        ImGui::ColorEdit4("Clear Color", (float*)&sceneBegin->color, ImGuiColorEditFlags_NoOptions);
-                        ImGui::Text("Width %u", sceneBegin->renderWidth);
-                        ImGui::Text("Height %u", sceneBegin->renderHeight);
-                    }
-                        break;
-                    case Command::SPRITE_BATCH_2D:
-                        ImGui::Text("Sprites %d", command.dataAs<Render2DBatchCommand>()->batch.count);
-                        break;
-                    case Command::SCENE_3D_BATCH:
-                        ImGui::Text("Models %d", command.dataAs<Render3DBatchCommand>()->batch.count);
-                        break;
+                case Command::SCENE_BEGIN: {
+                    SceneBeginCommand* sceneBegin = command.dataAs<SceneBeginCommand>();
+                    ImGui::ColorEdit4("Clear Color", (float*)&sceneBegin->color, ImGuiColorEditFlags_NoOptions);
+                    ImGui::Text("Width %u", sceneBegin->renderWidth);
+                    ImGui::Text("Height %u", sceneBegin->renderHeight);
+                } break;
+                case Command::SPRITE_BATCH_2D:
+                    ImGui::Text("Sprites %d", command.dataAs<Render2DBatchCommand>()->batch.count);
+                    break;
+                case Command::SCENE_3D_BATCH:
+                    ImGui::Text("Models %d", command.dataAs<Render3DBatchCommand>()->batch.count);
+                    break;
                 }
-
 
                 ImGui::TreePop();
             }
@@ -167,7 +162,6 @@ void game() {
 
     };
     imgui.events.subscribe(imguiRenderQueue);
-
 
     GLRenderer renderer;
 
@@ -187,7 +181,7 @@ void game() {
 
     while (running) {
         BE_PROFILE_SCOPE("Game Loop");
-        
+
         // Game loop logic
         input.update();
 
@@ -212,7 +206,7 @@ void game() {
             main_window->drawEnd();
         }
     }
-    
+
     // at the end do not forget to cleanup the plugin context
     cr_plugin_close(ctx);
 
@@ -222,7 +216,6 @@ void game() {
     ::operator delete((void*)resourceArena.base, resMemSize);
     ::operator delete(gameMemory.memory, gameMemory.memorySize);
 }
-
 
 int main(int argc, const char* argv[])
 {
@@ -236,4 +229,3 @@ int main(int argc, const char* argv[])
     BitEngine::Profiling::EndSession();
     return 0;
 }
-

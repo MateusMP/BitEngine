@@ -3,7 +3,8 @@
 namespace BitEngine {
 
 Camera3DProcessor::Camera3DProcessor(EntitySystem* es, Transform3DProcessor* t3dp)
-    : ComponentProcessor(es), transform3DProcessor(t3dp)
+    : ComponentProcessor(es)
+    , transform3DProcessor(t3dp)
 {
 }
 
@@ -18,11 +19,8 @@ void Camera3DProcessor::Process()
 {
     BE_PROFILE_FUNCTION();
     getES()->forEach<Camera3DComponent, Transform3DComponent>(
-        [this](ComponentRef<Camera3DComponent>&& camera, ComponentRef<Transform3DComponent>&& transform)
-    {
-        recalculateViewMatrix(*camera, transform3DProcessor->getGlobalTransformFor(getComponentHandle(transform)));
-    });
-
+        [this](ComponentRef<Camera3DComponent>&& camera, ComponentRef<Transform3DComponent>&& transform) {
+            recalculateViewMatrix(*camera, transform3DProcessor->getGlobalTransformFor(getComponentHandle(transform)));
+        });
 }
-
 }

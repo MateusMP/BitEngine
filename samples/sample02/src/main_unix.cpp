@@ -10,9 +10,9 @@
 
 #define GL2_API
 #ifdef GL2_API
-    #include <Platform/opengl/GL2/GL2Driver.h>
-    #include <Platform/opengl/GL2/GL2ShaderManager.h>
-    #include <Platform/opengl/GL2/GL2TextureManager.h>
+#include <Platform/opengl/GL2/GL2Driver.h>
+#include <Platform/opengl/GL2/GL2ShaderManager.h>
+#include <Platform/opengl/GL2/GL2TextureManager.h>
 #endif
 
 #include <Platform/glfw/GLFW_VideoSystem.h>
@@ -32,7 +32,8 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
-inline __time_t WindowsFileLastWriteTime(const char *FileName) {
+inline __time_t WindowsFileLastWriteTime(const char* FileName)
+{
     struct stat attrib;
     stat(FileName, &attrib);
     // char date[10];
@@ -43,8 +44,7 @@ inline __time_t WindowsFileLastWriteTime(const char *FileName) {
     return attrib.st_ctime;
 }
 
-
-typedef bool(*GAME_CALL)(MainMemory* memory);
+typedef bool (*GAME_CALL)(MainMemory* memory);
 
 struct Game {
     void* dll;
@@ -57,8 +57,6 @@ struct Game {
     std::string fname;
 };
 
-
-
 BitEngine::Logger* GameLog()
 {
     static BitEngine::Logger log("GameLog", BitEngine::EngineLog);
@@ -67,19 +65,20 @@ BitEngine::Logger* GameLog()
 
 #include "Game/Common/CommonMain.h"
 
-Game loadGameCode(const char* path, Game &current) {
+Game loadGameCode(const char* path, Game& current)
+{
     Game game = {};
 
     std::string actualLoad = std::string(path) + ".tmp.so";
     actualLoad[actualLoad.size() - 5] = current.change ? '0' : '1';
 
-    while (true)
-    {
+    while (true) {
         printf("Creating file copy %s -> %s\n", path, actualLoad.c_str());
         fflush(stdout);
-        std::ifstream  src(path, std::ios::binary);
-        std::ofstream  dst(actualLoad, std::ios::binary);
-        if (!src.is_open() && !dst.is_open()) continue;
+        std::ifstream src(path, std::ios::binary);
+        std::ofstream dst(actualLoad, std::ios::binary);
+        if (!src.is_open() && !dst.is_open())
+            continue;
         dst << src.rdbuf();
         printf("Creating file copy DONE\n");
         fflush(stdout);
@@ -96,14 +95,16 @@ Game loadGameCode(const char* path, Game &current) {
         game.time = WindowsFileLastWriteTime(path);
         game.change = !current.change;
         game.fname = actualLoad;
-    } else {
+    }
+    else {
         char* e = dlerror();
         printf("ERROR: %s\n", e);
     }
     return game;
 }
 
-void unloadGameCode(Game& game) {
+void unloadGameCode(Game& game)
+{
     dlclose(game.dll);
     game.valid = false;
     if (0 != remove(game.fname.c_str())) {
@@ -111,7 +112,8 @@ void unloadGameCode(Game& game) {
     }
 }
 
-void game() {
+void game()
+{
     printf("Starting...\n");
     fflush(stdout);
     // Basic infrastructure
@@ -129,7 +131,7 @@ void game() {
     BitEngine::GLFW_ImGuiSystem imgui;
     video.init();
 
-    BitEngine::Window *main_window;
+    BitEngine::Window* main_window;
 
     BitEngine::WindowConfiguration windowConfig;
     windowConfig.m_Title = "WINDOW";
@@ -150,7 +152,6 @@ void game() {
 
     printf("Window ready...\n");
     fflush(stdout);
-
 
     BitEngine::GLFW_InputSystem input;
     input.registerWindow(main_window);
@@ -236,8 +237,7 @@ void game() {
         {
             BE_PROFILE_SCOPE("DLL Reload");
             __time_t NewDLLWriteTime = WindowsFileLastWriteTime(gameDll);
-            if (nticks <= 0 && (NewDLLWriteTime - game.time) != 0)
-            {
+            if (nticks <= 0 && (NewDLLWriteTime - game.time) != 0) {
                 game.shutdown(&gameMemory);
                 unloadGameCode(game);
                 sleep(1);
@@ -258,16 +258,20 @@ void game() {
 
         // Game loop logic
         input.update();
-        printf("Input done!\n"); fflush(stdout);
+        printf("Input done!\n");
+        fflush(stdout);
 
         main_window->drawBegin();
 
-        printf("Draw begin!\n"); fflush(stdout);
+        printf("Draw begin!\n");
+        fflush(stdout);
         running = game.update(&gameMemory);
-        printf("Game update!\n"); fflush(stdout);
+        printf("Game update!\n");
+        fflush(stdout);
 
         if (running) {
-            printf("Loop!\n"); fflush(stdout);
+            printf("Loop!\n");
+            fflush(stdout);
             if (!rendererReady) {
                 // TODO: Clean this up, maybe have a platform index loaded previously so we can
                 // TODO: call init right after?
@@ -291,7 +295,6 @@ void game() {
     free(renderArena.base);
     free(gameMemory.memory);
 }
-
 
 int main(int argc, const char* argv[])
 {
