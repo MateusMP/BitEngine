@@ -28,7 +28,7 @@ public:
 
     virtual const std::vector<TaskPtr>& getTasks() const = 0;
 
-    virtual const void verifyMainThread() const = 0;
+    virtual void verifyMainThread() const = 0;
 
 private:
 };

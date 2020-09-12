@@ -3,10 +3,11 @@
 #include <bitset>
 #include <random>
 
-#include "bitengine/Common/TypeDefinition.h"
-#include "bitengine/Common/BitFieldVector.h"
+#include <gtest/gtest.h>
 
-#include "gtest/gtest.h"
+#include <BitEngine/Common/TypeDefinition.h>
+#include <BitEngine/Common/BitFieldVector.h>
+
 
 using namespace BitEngine;
 
@@ -53,7 +54,7 @@ bool checkIfAllZeros(const ObjBitField& obf, const std::string& idf)
 
 void testBitCase(u16 nBits)
 {
-    const u32 nObjs = 10000;
+    const u32 nObjs = 777;
     u64 seed = std::chrono::system_clock::now().time_since_epoch().count();
     LOG(BitEngine::EngineLog, BE_LOG_INFO) << "TEST SEED: " << seed;
 

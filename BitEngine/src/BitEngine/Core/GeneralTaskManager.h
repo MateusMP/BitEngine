@@ -61,7 +61,7 @@ public:
 
     const std::vector<TaskPtr>& getTasks() const override { return scheduledTasks; }
 
-    const void verifyMainThread() const override {
+    void verifyMainThread() const override {
         BE_ASSERT(std::this_thread::get_id() == mainThread);
     }
 

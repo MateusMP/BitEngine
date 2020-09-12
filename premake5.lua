@@ -1,4 +1,3 @@
-
 os.execute("cp BitEngine/dependencies/glfw.lua BitEngine/dependencies/glfw/premake5.lua")
 os.execute("cp BitEngine/dependencies/json.lua BitEngine/dependencies/json/premake5.lua")
 os.execute("cp BitEngine/dependencies/assimp.lua BitEngine/dependencies/assimp/premake5.lua")
@@ -35,6 +34,8 @@ IncludeDir["json"] = "BitEngine/dependencies/json/include"
 IncludeDir["stb"] = "BitEngine/dependencies/stb"
 IncludeDir["assimp"] = "BitEngine/dependencies/assimp/include"
 IncludeDir["cr"] = "BitEngine/dependencies/cr"
+IncludeDir["gtest"] = "BitEngine/dependencies/googletest/googletest/include"
+IncludeDir["gmock"] = "BitEngine/dependencies/googletest/googlemock/include"
 
 --configuration "not windows"
 --   prebuildcommands { "cp default.config bin/project.config" }
@@ -44,6 +45,7 @@ group "Dependencies"
 	include "BitEngine/dependencies/imgui/"
 	include "BitEngine/dependencies/json/"
 	include "BitEngine/dependencies/assimp/"
+	include "BitEngine/dependencies/gtest.lua"
 
 group ""
 
@@ -136,6 +138,45 @@ project "BitEngine"
 		defines "BE_DIST"
 		runtime "Release"
 		optimize "on"
+
+
+project "Tests"
+	location "tests"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++17"
+	staticruntime "off"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-tmp/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"tests/Common/**.cpp",
+		"tests/Core/**.cpp",
+		"tests/*.cpp",
+	}
+
+	includedirs
+	{
+		"BitEngine/src",
+		"%{IncludeDir.gtest}",
+		"%{IncludeDir.gmock}",
+		"%{IncludeDir.json}",
+		"%{IncludeDir.glm}"
+	}
+
+	links
+	{
+		"googletest",
+		"BitEngine"
+	}
+
+	filter "configurations:Debug"
+		defines "BE_DEBUG"
+		runtime "Debug"
+		symbols "on"
+		staticruntime "Off"
 
 project "Sample01"
 	location "samples"

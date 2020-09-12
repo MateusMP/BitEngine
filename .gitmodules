@@ -20,3 +20,6 @@
 [submodule "BitEngine/dependencies/cr/cr"]
 	path = BitEngine/dependencies/cr/cr
 	url = https://github.com/fungos/cr.git
+[submodule "BitEngine/dependencies/googletest"]
+	path = BitEngine/dependencies/googletest
+	url = https://github.com/google/googletest.git

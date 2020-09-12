@@ -1,5 +1,5 @@
 
-#include "bitengine/Common/MacroHelpers.h"
+#include "BitEngine/Common/MacroHelpers.h"
 
 #include "gtest/gtest.h"
 
