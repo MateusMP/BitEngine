@@ -2,8 +2,7 @@
 
 #include "GL2Batch.h"
 
-namespace BitEngine
-{
+namespace BitEngine {
 
 enum ShaderSourceTypes : u8 {
     SourceNone = 0,
@@ -11,18 +10,25 @@ enum ShaderSourceTypes : u8 {
     SourceFragment = 2,
     SourceGeometry = 4,
 };
-inline ShaderSourceTypes operator|(ShaderSourceTypes a, ShaderSourceTypes b) {
+inline ShaderSourceTypes operator|(ShaderSourceTypes a, ShaderSourceTypes b)
+{
     return static_cast<ShaderSourceTypes>(static_cast<int>(a) | static_cast<int>(b));
 }
-inline bool operator&(ShaderSourceTypes a, ShaderSourceTypes b) {
+inline bool operator&(ShaderSourceTypes a, ShaderSourceTypes b)
+{
     return (static_cast<int>(a) & static_cast<int>(b)) != 0;
 }
 
-class GL2Shader : public Shader
-{
+class GL2Shader : public Shader {
     friend class GL2ShaderManager;
+
 public:
-    GL2Shader() : Shader(nullptr), m_programID(0), npieces(0){}
+    GL2Shader()
+        : Shader(nullptr)
+        , m_programID(0)
+        , npieces(0)
+    {
+    }
     GL2Shader(ResourceMeta* meta);
     virtual ~GL2Shader();
 
@@ -58,7 +64,6 @@ protected:
     /// Get uniform location on shader
     /// Usually called inside RegisterUniforms implementation
     s32 getUniformLocation(const std::string& name) const;
-
 
     // Loading uniform data functions
     // They are normally used on OnBind() implmentation
@@ -96,7 +101,7 @@ private:
     /// \param errorLog If any error is encountered during shader compilation
     /// 	A log will be generated inside errorLog
     ///
-    int compile(GLenum type, const void* data, GLint size, GLuint &hdl, std::string& errorLog);
+    int compile(GLenum type, const void* data, GLint size, GLuint& hdl, std::string& errorLog);
 
     int linkShaders();
 
@@ -129,5 +134,4 @@ private:
 
     std::function<void()> reload;
 };
-
 }

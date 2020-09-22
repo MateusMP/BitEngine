@@ -9,14 +9,15 @@
 #include "BitEngine/Game/ECS/Transform2DProcessor.h"
 #include "BitEngine/Game/ECS/Camera2DComponent.h"
 
-namespace BitEngine
-{
+namespace BitEngine {
 
-class Sprite2DComponent : public Component<Sprite2DComponent>
-{
+class Sprite2DComponent : public Component<Sprite2DComponent> {
 public:
     Sprite2DComponent(u32 _layer, RR<Sprite> spr, const Material* mat)
-        : layer(_layer), alpha(1.0f), sprite(spr), material(mat)
+        : layer(_layer)
+        , alpha(1.0f)
+        , sprite(spr)
+        , material(mat)
     {
     }
 
@@ -26,43 +27,43 @@ public:
     const Material* material;
 };
 
-template<>
-class BE_API ComponentHolder<Sprite2DComponent> : public BaseComponentHolder
-{
+template <>
+class BE_API ComponentHolder<Sprite2DComponent> : public BaseComponentHolder {
 public:
     ComponentHolder()
         : BaseComponentHolder(sizeof(Sprite2DComponent))
     {
-
     }
 
-    Messenger<MsgComponentCreated<Sprite2DComponent>> componentCreatedSignal;
-    Messenger<MsgComponentDestroyed<Sprite2DComponent>> componentDestroyedSignal;
+    Messenger<MsgComponentCreated<Sprite2DComponent> > componentCreatedSignal;
+    Messenger<MsgComponentDestroyed<Sprite2DComponent> > componentDestroyedSignal;
 
-    bool init() override {
+    bool init() override
+    {
         return true;
     }
 
-    void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override {
-        componentDestroyedSignal.emit(MsgComponentDestroyed<Sprite2DComponent>{entity, component});
+    void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override
+    {
+        componentDestroyedSignal.emit(MsgComponentDestroyed<Sprite2DComponent>{ entity, component });
     }
 
-    template<typename ... Args>
-    void initializeComponent(Sprite2DComponent* outPtr, Args ...args) {
+    template <typename... Args>
+    void initializeComponent(Sprite2DComponent* outPtr, Args... args)
+    {
         initComponent(outPtr, args...);
     }
 
-
 private:
-    template<typename ... Args>
-    void initComponent(Sprite2DComponent* outPtr, Args ...args) {
+    template <typename... Args>
+    void initComponent(Sprite2DComponent* outPtr, Args... args)
+    {
         new (outPtr) Sprite2DComponent(args...);
     }
 
-    void initComponent(Sprite2DComponent* outPtr) {
+    void initComponent(Sprite2DComponent* outPtr)
+    {
         new (outPtr) Sprite2DComponent(0, RR<Sprite>::invalid(), nullptr);
     }
 };
-
-
 }

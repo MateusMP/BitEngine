@@ -7,27 +7,25 @@
 
 #define BE_ASSERT_THROW_ON_FAIL true
 
-#define ASSERT_FAIL(msg) \
-	if (BE_ASSERT_THROW_ON_FAIL) { \
-		throw BitEngine::AssertFail(msg);		\
-	}
-
+#define ASSERT_FAIL(msg)                  \
+    if (BE_ASSERT_THROW_ON_FAIL) {        \
+        throw BitEngine::AssertFail(msg); \
+    }
 
 #ifdef BE_DEBUG
-#define BE_ASSERT(expr)	\
-		if (!(expr) ){	\
-			ASSERT_FAIL("Expression failed to validate: <"#expr">");}
+#define BE_ASSERT(expr)                                            \
+    if (!(expr)) {                                                 \
+        ASSERT_FAIL("Expression failed to validate: <" #expr ">"); \
+    }
 #else
-    #define BE_ASSERT(expr)
+#define BE_ASSERT(expr)
 #endif
 
-#define BE_INVALID_PATH(msg)    \
+#define BE_INVALID_PATH(msg) \
     throw BitEngine::AssertFail(msg)
 
-namespace BitEngine
-{
-class AssertFail : std::exception
-{
+namespace BitEngine {
+class AssertFail : std::exception {
 public:
     AssertFail(const std::string& msg)
         : message(msg)

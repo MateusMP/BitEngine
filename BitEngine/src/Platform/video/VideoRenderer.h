@@ -20,9 +20,7 @@ enum VideoAdapterType {
     VULKAN_ANY = VULKAN_1,
 };
 
-
-struct DataType : public EnumStruct
-{
+struct DataType : public EnumStruct {
     enum Types : u32 {
         INVALID_DATA_TYPE,
         TEXTURE_1D,
@@ -45,11 +43,13 @@ struct DataType : public EnumStruct
         TOTAL_DATA_TYPES
     };
 
-    DataType(Types x = Types::INVALID_DATA_TYPE) {
+    DataType(Types x = Types::INVALID_DATA_TYPE)
+    {
         value = x;
     }
 
-    static void read(const char* name, PropertyHolder* prop, DataType* into) {
+    static void read(const char* name, PropertyHolder* prop, DataType* into)
+    {
         std::string str;
         prop->read(name, &str);
         into->value = fromString(str);
@@ -57,7 +57,6 @@ struct DataType : public EnumStruct
 
     static DataType fromString(const std::string& str);
 };
-
 
 struct DataUseMode : public EnumStruct {
     enum Types : u32 {
@@ -67,11 +66,13 @@ struct DataUseMode : public EnumStruct {
         TotalModes
     };
 
-    DataUseMode(Types x = Types::Vertex) {
+    DataUseMode(Types x = Types::Vertex)
+    {
         value = x;
     }
 
-    static void read(const char* name, PropertyHolder* prop, DataUseMode* into) {
+    static void read(const char* name, PropertyHolder* prop, DataUseMode* into)
+    {
         std::string str;
         prop->read(name, &str);
         into->value = fromString(str);
@@ -80,14 +81,12 @@ struct DataUseMode : public EnumStruct {
     static DataUseMode fromString(const std::string& str);
 };
 
-enum BufferClearBitMask
-{
+enum BufferClearBitMask {
     COLOR = 1,
     DEPTH = 2,
 
     COLOR_DEPTH = COLOR | DEPTH
 };
-
 
 enum BlendEquation {
     ADD,
@@ -139,7 +138,7 @@ enum class RenderConfig : u8 {
 
 enum BlendConfig {
     BLEND_NONE,
-    BLEND_ALL, // color and alpha 
+    BLEND_ALL, // color and alpha
     BLEND_SEPARATE, // color separated from alpha
 };
 
@@ -159,8 +158,7 @@ enum DepthConfig {
     DEPTH_WITH_WRITE = DEPTH_TEST_ENABLED & DEPTH_TEST_WRITE_ENABLED,
 };
 
-class RenderBuffer
-{
+class RenderBuffer {
 public:
     virtual ~RenderBuffer() {}
     virtual void unbind() = 0;

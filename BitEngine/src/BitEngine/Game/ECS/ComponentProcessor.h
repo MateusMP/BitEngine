@@ -12,57 +12,57 @@
 namespace BitEngine {
 
 class EntitySystem;
-template<typename CompClass> class ComponentRef;
+template <typename CompClass>
+class ComponentRef;
 
-template<typename CompClass>
-struct MsgComponentCreated
-{
+template <typename CompClass>
+struct MsgComponentCreated {
     EntityHandle entity;
     ComponentHandle component;
 };
 
-template<typename CompClass>
-struct MsgComponentDestroyed
-{
+template <typename CompClass>
+struct MsgComponentDestroyed {
     EntityHandle entity;
     ComponentHandle component;
 };
 
-struct MsgEntityCreated
-{
+struct MsgEntityCreated {
     EntityHandle entity;
 };
 
-struct MsgEntityDestroyed
-{
+struct MsgEntityDestroyed {
     EntityHandle entity;
 };
 
-class ComponentProcessor
-{
+class ComponentProcessor {
     friend class EntitySystem;
-public:
-    ComponentProcessor(EntitySystem* m) : m_es(m) {}
 
-    typedef void (ComponentProcessor::* processFunc)(void);
+public:
+    ComponentProcessor(EntitySystem* m)
+        : m_es(m)
+    {
+    }
+
+    typedef void (ComponentProcessor::*processFunc)(void);
     virtual ~ComponentProcessor() {}
 
 protected:
     EntitySystem* getES() { return m_es; }
 
-    template<typename CompClass>
-    inline static ComponentHandle getComponentHandle(const ComponentRef<CompClass>& ref) {
+    template <typename CompClass>
+    inline static ComponentHandle getComponentHandle(const ComponentRef<CompClass>& ref)
+    {
         return ref.m_componentID;
     }
 
 private:
     EntitySystem* m_es;
-
 };
 
-class BaseComponentHolder
-{
+class BaseComponentHolder {
     friend class BaseEntitySystem;
+
 public:
     BaseComponentHolder(u32 componentSize, u32 nCompPerPool = 128);
     virtual ~BaseComponentHolder();
@@ -79,7 +79,8 @@ public:
     // BE_NO_COMPONENT_HANDLE if there is no such entity/component
     ComponentHandle getComponentForEntity(EntityHandle entity);
 
-    inline EntityHandle getEntityForComponent(ComponentHandle component) {
+    inline EntityHandle getEntityForComponent(ComponentHandle component)
+    {
         return m_byComponent[component];
     }
 
@@ -87,19 +88,21 @@ public:
     const std::vector<ComponentHandle>& getFreeIDs();
 
     // Get all valid component handles
-    inline const std::vector<EntityHandle>& getAllComponents() {
+    inline const std::vector<EntityHandle>& getAllComponents()
+    {
         return m_byComponent;
     }
 
     // Return the number of valid components
-    inline u32 getNumValidComponents() const {
+    inline u32 getNumValidComponents() const
+    {
         return m_workingComponents;
     }
 
     // Resize to be able to contain up to given component id
     void resize(u32 id);
 
-    template<typename CompClass>
+    template <typename CompClass>
     ComponentHandle createComponent(EntityHandle entity, CompClass*& outPtr)
     {
         u32 id = newComponentID(entity);
@@ -115,8 +118,7 @@ protected:
 private:
     inline void releaseComponentID(ComponentHandle componentID)
     {
-        if (!m_freeIDs.empty())
-        {
+        if (!m_freeIDs.empty()) {
             if (m_freeIDs.back() > componentID)
                 m_freeSorted = false;
         }
@@ -127,7 +129,6 @@ private:
         m_byComponent[componentID] = 0;
 
         --m_workingComponents;
-
     }
 
 protected:
@@ -145,13 +146,14 @@ protected:
 };
 
 template <typename CompClass>
-class ComponentHolder : public BaseComponentHolder
-{
+class ComponentHolder : public BaseComponentHolder {
     friend class EntitySystem;
+
 public:
     ComponentHolder(u32 componentSize = sizeof(CompClass))
         : BaseComponentHolder(componentSize)
-    {}
+    {
+    }
 
     virtual bool init() override { return true; }
 
@@ -160,72 +162,93 @@ public:
         return static_cast<CompClass*>(BaseComponentHolder::getComponent(componentID));
     }
 
-    Messenger<MsgComponentCreated<CompClass>> componentCreatedSignal;
-    Messenger<MsgComponentDestroyed<CompClass>> componentDestroyedSignal;
+    Messenger<MsgComponentCreated<CompClass> > componentCreatedSignal;
+    Messenger<MsgComponentDestroyed<CompClass> > componentDestroyedSignal;
 
 protected:
-    template<typename ... Args>
-    void initializeComponent(CompClass* outPtr, Args ...args) {
+    template <typename... Args>
+    void initializeComponent(CompClass* outPtr, Args... args)
+    {
         new (outPtr) CompClass(args...);
     }
 
-    void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override {
-        componentDestroyedSignal.emit(MsgComponentDestroyed<CompClass>{entity, component});
+    void sendDestroyMessage(EntityHandle entity, ComponentHandle component) override
+    {
+        componentDestroyedSignal.emit(MsgComponentDestroyed<CompClass>{ entity, component });
     }
 };
 
-template<typename CompClass>
-class BE_API ComponentRef
-{
+template <typename CompClass>
+class BE_API ComponentRef {
     // Let processors access internal data from Component References
     friend class ComponentProcessor;
 
 public:
     ComponentRef()
-        : m_entity(0), m_componentID(0), m_component(nullptr)
-    {}
+        : m_entity(0)
+        , m_componentID(0)
+        , m_component(nullptr)
+    {
+    }
     ComponentRef(const ComponentRef& h)
-        : m_entity(h.m_entity), m_componentID(h.m_componentID), m_component(h.m_component)
-    {}
+        : m_entity(h.m_entity)
+        , m_componentID(h.m_componentID)
+        , m_component(h.m_component)
+    {
+    }
     ComponentRef(ComponentRef&& h) noexcept
-        : m_entity(h.m_entity), m_componentID(h.m_componentID), m_component(h.m_component)
-    {}
+        : m_entity(h.m_entity),
+          m_componentID(h.m_componentID),
+          m_component(h.m_component)
+    {
+    }
     ComponentRef(EntityHandle entity, ComponentHandle componentID, CompClass* component) noexcept
-        : m_entity(entity), m_componentID(componentID), m_component(component)
-    {}
+        : m_entity(entity),
+          m_componentID(componentID),
+          m_component(component)
+    {
+    }
 
-    ComponentRef& operator =(const ComponentRef& h) {
+    ComponentRef& operator=(const ComponentRef& h)
+    {
         m_entity = h.m_entity;
         m_componentID = h.m_componentID;
         m_component = h.m_component;
         return *this;
     }
 
-    operator CompClass*() {
+    operator CompClass*()
+    {
         return m_component;
     }
 
-    CompClass* operator->() {
+    CompClass* operator->()
+    {
         return m_component;
     }
 
-    const CompClass* operator ->() const {
+    const CompClass* operator->() const
+    {
         return m_component;
     }
 
-    bool isValid() const {
+    bool isValid() const
+    {
         return m_entity != 0 && m_componentID != 0 && m_component != nullptr;
     }
 
-    ComponentHandle getComponentID() const {
+    ComponentHandle getComponentID() const
+    {
         return m_componentID;
     }
 
-    CompClass& ref() {
+    CompClass& ref()
+    {
         return *m_component;
     }
 
-    const CompClass& ref() const {
+    const CompClass& ref() const
+    {
         return *m_component;
     }
 
@@ -234,6 +257,4 @@ private:
     ComponentHandle m_componentID;
     CompClass* m_component;
 };
-
-
 }

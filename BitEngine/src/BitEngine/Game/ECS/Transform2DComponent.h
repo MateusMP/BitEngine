@@ -5,16 +5,14 @@
 
 namespace BitEngine {
 
-class BE_API Transform2DComponent :
-    public Component<Transform2DComponent>
-{
+class BE_API Transform2DComponent : public Component<Transform2DComponent> {
 public:
     Transform2DComponent();
     ~Transform2DComponent();
 
     // Position
     const Vec2& getLocalPosition() const; // returns LOCAL position
-    template<typename T>
+    template <typename T>
     void setLocalPosition(T x, T y) // sets LOCAL position
     {
         position.x = (float)x;
@@ -49,30 +47,35 @@ public:
 };
 
 class BE_API SceneTransform2DComponent
-    : public Component<SceneTransform2DComponent>
-{
+    : public Component<SceneTransform2DComponent> {
 public:
-    const ComponentHandle getParent() const {
+    const ComponentHandle getParent() const
+    {
         return m_parent;
     }
 
-    void setParent(ComponentHandle p) {
+    void setParent(ComponentHandle p)
+    {
         m_parent = p;
     }
 
-    const glm::mat3& getLocal() const {
+    const glm::mat3& getLocal() const
+    {
         return m_local;
     }
 
-    glm::mat3& getLocal() {
+    glm::mat3& getLocal()
+    {
         return m_local;
     }
 
-    const glm::mat3& getGlobal() const {
+    const glm::mat3& getGlobal() const
+    {
         return m_global;
     }
 
-    void setGlobal(const glm::mat3& m) {
+    void setGlobal(const glm::mat3& m)
+    {
         m_global = m;
     }
 

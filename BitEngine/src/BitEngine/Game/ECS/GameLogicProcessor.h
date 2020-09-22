@@ -6,13 +6,12 @@
 namespace BitEngine {
 
 class BE_API GameLogicProcessor : public ComponentProcessor,
-    public Messenger< MsgComponentCreated<GameLogicComponent>>::ScopedSubscription,
-    public Messenger< MsgComponentDestroyed<GameLogicComponent>>::ScopedSubscription
-{
+                                  public Messenger<MsgComponentCreated<GameLogicComponent> >::ScopedSubscription,
+                                  public Messenger<MsgComponentDestroyed<GameLogicComponent> >::ScopedSubscription {
 public:
     GameLogicProcessor(EntitySystem* m);
     virtual ~GameLogicProcessor();
-    
+
     void FrameStart();
     void FrameMiddle();
     void FrameEnd();
@@ -35,5 +34,4 @@ private:
     std::vector<GameLogic*> m_onFrameMiddle;
     std::vector<GameLogic*> m_onFrameEnd;
 };
-
 }

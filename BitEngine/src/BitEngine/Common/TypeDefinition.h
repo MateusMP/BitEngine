@@ -24,7 +24,6 @@ typedef size_t ptrsize;
 #define KILOBYTES(x) (x * 1024)
 #define MEGABYTES(x) (KILOBYTES(x) * 1024)
 
-
 //static void* new_be(size_t size, char* file, int line, char* function) {
 //    return malloc(size);
 //}
@@ -38,8 +37,7 @@ typedef size_t ptrsize;
 
 namespace BitEngine {
 
-class BE_API NonCopyable
-{
+class BE_API NonCopyable {
 protected:
     NonCopyable() {}
     ~NonCopyable() {}
@@ -47,8 +45,7 @@ private:
     NonCopyable(const NonCopyable&) {}
 };
 
-class BE_API NonAssignable
-{
+class BE_API NonAssignable {
 protected:
     NonAssignable() {}
     ~NonAssignable() {}
@@ -56,55 +53,65 @@ private:
     const NonAssignable& operator=(const NonAssignable&) = delete;
 };
 
-
-template<typename T>
+template <typename T>
 class Lazy {
 public:
-    template<typename ...Args>
-    Lazy(Args&&... args) {
+    template <typename... Args>
+    Lazy(Args&&... args)
+    {
         new (object) T(std::forward<Args>(args)...);
         ready = true;
     }
-    Lazy(Lazy&& other) {
+    Lazy(Lazy&& other)
+    {
         this->ready = other.ready;
         memcpy(this->object, other.object, sizeof(object));
     }
-    Lazy() {
+    Lazy()
+    {
         ready = false;
     }
-    ~Lazy() {
+    ~Lazy()
+    {
         destroy();
     }
 
-    T* operator->() {
+    T* operator->()
+    {
         return obj();
     }
 
-    Lazy& operator=(Lazy<T>&& other) {
+    Lazy& operator=(Lazy<T>&& other)
+    {
         this->ready = other.ready;
         memcpy(this->object, other.object, sizeof(object));
         other.ready = false;
         return *this;
     }
 
-    T* obj() {
+    T* obj()
+    {
         return (T*)object;
     }
 
-    void initialized() {
+    void initialized()
+    {
         ready = true;
     }
 
-    void destroy() {
+    void destroy()
+    {
         if (ready) {
             obj()->~T();
             ready = false;
         }
     }
-    bool isReady() const {
+    bool isReady() const
+    {
         return ready;
     }
-    operator bool() {
+    operator bool()
+    {
         return ready;
     }
 
@@ -112,5 +119,4 @@ private:
     char object[sizeof(T)];
     bool ready = false;
 };
-
 }

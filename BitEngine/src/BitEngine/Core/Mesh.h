@@ -9,13 +9,11 @@ namespace BitEngine {
 
 class ShaderProgram;
 
-class Skeleton
-{
+class Skeleton {
 public:
 };
 
-class Mesh : public BaseResource
-{
+class Mesh : public BaseResource {
 public:
     enum VertexDataType {
         Vertices = 0,
@@ -29,7 +27,9 @@ public:
     };
 
     Mesh(ResourceMeta* _meta)
-        : BaseResource(_meta) {}
+        : BaseResource(_meta)
+    {
+    }
 
     virtual ~Mesh() {}
 
@@ -47,12 +47,12 @@ private:
 class Model : public BaseResource {
 public:
     Model(ResourceMeta* _meta)
-        : BaseResource(_meta) {}
+        : BaseResource(_meta)
+    {
+    }
 
     virtual u32 getMeshCount() = 0;
 
     virtual Mesh* getMesh(int index) = 0;
 };
-
-
 }

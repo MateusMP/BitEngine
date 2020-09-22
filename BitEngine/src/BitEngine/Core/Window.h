@@ -10,7 +10,6 @@ namespace BitEngine {
 class Window;
 
 struct ImGuiRenderEvent {
-
 };
 
 struct BE_API WindowClosedEvent {
@@ -44,19 +43,19 @@ enum class BE_API KeyMod : unsigned char {
     CTRL_ALT_SHIFT = CTRL | ALT | SHIFT,
     CTRL_ALT_SUPER = CTRL | ALT | SUPER,
 
-    KTRUE = 0x0080  // Used to find out the current state of the key_press/release/ispressed events
+    KTRUE = 0x0080 // Used to find out the current state of the key_press/release/ispressed events
 
-                    // Example: KeyPress/Release with no modifiers
-                    // 1000 0000 => x = KTRUE
-                    // Example: KeyPress/Release with CTRL+ALT
-                    // 1000 0110 => x = KTRUE | CTRL | ALT
+    // Example: KeyPress/Release with no modifiers
+    // 1000 0000 => x = KTRUE
+    // Example: KeyPress/Release with CTRL+ALT
+    // 1000 0110 => x = KTRUE | CTRL | ALT
 
-                    // Receiving the value:
-                    // Ex1:
-                    // if (x & KeyMod::KTRUE) --> Doesn't care for modifiers
-                    //
-                    // Ex2:
-                    // if (x & (KeyMod::KTRUE | KeyMod::CTRL | KeyMod::ALT) ) --> Check for key + CTRL + ALT
+    // Receiving the value:
+    // Ex1:
+    // if (x & KeyMod::KTRUE) --> Doesn't care for modifiers
+    //
+    // Ex2:
+    // if (x & (KeyMod::KTRUE | KeyMod::CTRL | KeyMod::ALT) ) --> Check for key + CTRL + ALT
 };
 
 enum class BE_API KeyAction {
@@ -78,27 +77,50 @@ enum class BE_API MouseAction {
 };
 
 // Message
-struct BE_API MsgKeyboardInput
-{
+struct BE_API MsgKeyboardInput {
     MsgKeyboardInput()
-        : key(0), keyAction(KeyAction::NONE), keyMod(KeyMod::KFALSE) {}
+        : key(0)
+        , keyAction(KeyAction::NONE)
+        , keyMod(KeyMod::KFALSE)
+    {
+    }
     MsgKeyboardInput(int k, KeyAction ka, KeyMod km)
-        : key(k), keyAction(ka), keyMod(km) {}
+        : key(k)
+        , keyAction(ka)
+        , keyMod(km)
+    {
+    }
 
     int key;
     KeyAction keyAction;
     KeyMod keyMod;
 };
 
-struct BE_API MsgMouseInput
-{
+struct BE_API MsgMouseInput {
     MsgMouseInput()
-        : button(0), action(MouseAction::NONE), keyMod(KeyMod::KFALSE), x(0), y(0) {}
+        : button(0)
+        , action(MouseAction::NONE)
+        , keyMod(KeyMod::KFALSE)
+        , x(0)
+        , y(0)
+    {
+    }
     MsgMouseInput(double _x, double _y)
-        : button(0), action(MouseAction::MOVE), keyMod(KeyMod::KFALSE), x(_x), y(_y) {}
+        : button(0)
+        , action(MouseAction::MOVE)
+        , keyMod(KeyMod::KFALSE)
+        , x(_x)
+        , y(_y)
+    {
+    }
     MsgMouseInput(int b, MouseAction ma, KeyMod km, double _x, double _y)
-        : button(b), action(ma), keyMod(km), x(_x), y(_y) {}
-
+        : button(b)
+        , action(ma)
+        , keyMod(km)
+        , x(_x)
+        , y(_y)
+    {
+    }
 
     int button;
     MouseAction action;
@@ -110,7 +132,7 @@ struct BE_API MsgMouseInput
 
 class Window {
 public:
-    virtual ~Window() {};
+    virtual ~Window(){};
 
     virtual void drawBegin() = 0;
     virtual void drawEnd() = 0;
@@ -122,9 +144,7 @@ public:
     Messenger<MsgMouseInput> mouseInputSignal;
 };
 
-
-class WindowConfiguration
-{
+class WindowConfiguration {
 public:
     bool m_Resizable;
     bool m_FullScreen;
@@ -143,5 +163,3 @@ public:
     std::string m_Title;
 };
 }
-
-

@@ -6,13 +6,11 @@
 #include "BitEngine/Core/Resources/ResourceManager.h"
 #include "BitEngine/Core/Graphics/Sprite.h"
 
-
 namespace BitEngine {
 
 class DevResourceLoader;
 
-class SpriteManager : public  ResourceManager
-{
+class SpriteManager : public ResourceManager {
 public:
     SpriteManager();
 
@@ -26,9 +24,9 @@ public:
      */
     Sprite* createSprite(const std::string& name, const Sprite& spr);
 
-    template<typename Serializer>
-    static void jsonPropertiesToProd(Serializer*, ResourceManager*, nlohmann::json& props, BaseResource*) {
-
+    template <typename Serializer>
+    static void jsonPropertiesToProd(Serializer*, ResourceManager*, nlohmann::json& props, BaseResource*)
+    {
     }
 
 private:
@@ -43,11 +41,12 @@ private:
 
     virtual void shutdown() override;
 
-    void setResourceLoader(ResourceLoader* loader) override {
+    void setResourceLoader(ResourceLoader* loader) override
+    {
         resourceLoader = loader;
     }
 
-    virtual BaseResource * loadResource(ResourceMeta* meta, PropertyHolder* props) override;
+    virtual BaseResource* loadResource(ResourceMeta* meta, PropertyHolder* props) override;
     void resourceNotInUse(ResourceMeta* meta) override {}
     void reloadResource(BaseResource* resource) override;
     void resourceRelease(ResourceMeta* meta) override {}
@@ -56,11 +55,8 @@ private:
 
     virtual u32 getCurrentGPUMemoryUsage() const override;
 
-
     ResourceLoader* resourceLoader;
     ResourceIndexer<Sprite, 2048> sprites;
     std::vector<ResourceMeta> dynamicSprites;
 };
-
-
 }

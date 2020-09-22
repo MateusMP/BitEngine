@@ -15,8 +15,7 @@ typedef u16* GlobalComponentID;
 const u32 BE_NO_COMPONENT_HANDLE = 0;
 const u32 BE_NO_COMPONENT_TYPE = ~0;
 
-class BE_API BaseComponent
-{
+class BE_API BaseComponent {
     friend class BaseComponentHolder;
 
 public:
@@ -26,9 +25,8 @@ protected:
     static ComponentType componentTypeCounter;
 };
 
-template<typename T>
-class BE_API Component : public BaseComponent
-{
+template <typename T>
+class BE_API Component : public BaseComponent {
 public:
     static GlobalComponentID getGlobalComponentID()
     {
@@ -36,9 +34,9 @@ public:
         return &type;
     }
 
-    static ComponentType getComponentType() {
+    static ComponentType getComponentType()
+    {
         return *getGlobalComponentID();
     }
 };
-
 }

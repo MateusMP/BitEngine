@@ -10,7 +10,6 @@
 
 namespace BitEngine {
 
-
 class BE_API BlendMaterial : public Material {
 public:
     BlendMaterial()
@@ -19,24 +18,29 @@ public:
         memset(states, 0, sizeof(states));
     }
 
-    void setState(RenderConfig config, u8 mode) {
+    void setState(RenderConfig config, u8 mode)
+    {
         states[(u8)config] = mode;
     }
-    void setBlendMode(BlendFunc src, BlendFunc dst) {
+    void setBlendMode(BlendFunc src, BlendFunc dst)
+    {
         srcColorBlendMode = src;
         dstColorBlendMode = dst;
     }
-    void setBlendModeSeparate(BlendFunc srcColor, BlendFunc dstColor, BlendFunc srcAlpha, BlendFunc dstAlpha) {
+    void setBlendModeSeparate(BlendFunc srcColor, BlendFunc dstColor, BlendFunc srcAlpha, BlendFunc dstAlpha)
+    {
         srcColorBlendMode = srcColor;
         dstColorBlendMode = dstColor;
         srcAlphaBlendMode = srcAlpha;
         dstAlphaBlendMode = dstAlpha;
     }
-    void setBlendEquation(BlendEquation eq) {
+    void setBlendEquation(BlendEquation eq)
+    {
         blendEquation = eq;
     }
 
-    u8 getState(RenderConfig config) const {
+    u8 getState(RenderConfig config) const
+    {
         return states[(u8)config];
     }
 
@@ -50,5 +54,4 @@ public:
     BlendFunc dstAlphaBlendMode;
     BlendEquation blendEquation;
 };
-
 }

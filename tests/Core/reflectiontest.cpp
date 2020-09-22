@@ -14,9 +14,10 @@ public:
         int* ptr;
 };
 
-class Type2
+struct Type2
 {
-
+    MyClass nested;
+    int x;
 };
 
 class OtherClass
@@ -47,16 +48,28 @@ DefineToStringFor(int, {
     return s.str(); 
 })
 
+// Example os possible attributes
+enum FieldAttributes {
+    Serialize = 1,
+    ShowOnEditor,
+    // ...
+};
+
 // Reflection code
 REFLECT_START(MyClass)
-	ADD_MEMBER_VARIABLE(x);
-	ADD_MEMBER_VARIABLE(y);
+    ADD_MEMBER_FIELD(x).WithAttributes({ FieldAttributes::Serialize });
+    ADD_MEMBER_FIELD(y).WithMetadata({ { "help", "This field holds Y data." }, {"order", -1 } });
 REFLECT_END(MyClass)
 
+REFLECT_START(Type2)
+    ADD_MEMBER_FIELD(nested);
+    ADD_MEMBER_FIELD(x);
+REFLECT_END(Type2)
+
 REFLECT_START(OtherClass)
-	ADD_MEMBER_VARIABLE(k);
-	ADD_MEMBER_VARIABLE(c);
-	ADD_MEMBER_VARIABLE(m);
+	ADD_MEMBER_FIELD(k);
+	ADD_MEMBER_FIELD(c);
+	ADD_MEMBER_FIELD(m);
 REFLECT_END(OtherClass)
 
 // Test
@@ -65,6 +78,39 @@ TEST(ReflectionTest, ReflectedClassNameProperlyDefined)
     ASSERT_EQ("MyClass", BitEngine::ClassName<MyClass>::Get());
     ASSERT_EQ("OtherClass", BitEngine::ClassName<OtherClass>::Get());
 }
+
+
+TEST(ReflectionTest, HasMembers)
+{
+    const BitEngine::Reflection::ReflectionData& classInfo = BitEngine::Reflection::Class::Info<MyClass>();
+    ASSERT_TRUE(classInfo.members.find("x") != classInfo.members.end());
+    ASSERT_TRUE(classInfo.members.find("y") != classInfo.members.end());
+}
+
+TEST(ReflectionTest, MembersHaveAttributes)
+{
+    const BitEngine::Reflection::ReflectionData& classInfo = BitEngine::Reflection::Class::Info<MyClass>();
+    ASSERT_TRUE(classInfo.members.find("x")->second.hasAttribute(FieldAttributes::Serialize));
+    ASSERT_TRUE(classInfo.members.find("y")->second.getAttributes().empty());
+}
+
+TEST(ReflectionTest, MembersHaveMetadata)
+{
+    const BitEngine::Reflection::ReflectionData& classInfo = BitEngine::Reflection::Class::Info<MyClass>();
+    ASSERT_TRUE(classInfo.members.find("x")->second.getMetadata().empty());
+    const auto& yMeta = classInfo.members.find("y")->second.getMetadata();
+    ASSERT_TRUE(std::any_cast<const char*>(yMeta.find("help")->second) == "This field holds Y data.");
+    ASSERT_TRUE(std::any_cast<int>(yMeta.find("order")->second) == -1);
+}
+
+
+TEST(ReflectionTest, EnterNestedClass)
+{
+    const BitEngine::Reflection::ReflectionData& classInfo = BitEngine::Reflection::Class::Info<Type2>();
+    auto nestedType = classInfo.members.find("nested")->second.getType();
+    ASSERT_EQ(BitEngine::Reflection::GetReflectedClasses()[nestedType]->className, "MyClass");
+}
+
 
 TEST(ReflectionTest, CustomToString)
 {

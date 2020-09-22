@@ -13,14 +13,14 @@ namespace BitEngine {
 
 class DevResourceLoader;
 
-
 struct GL2ShaderInfo {
     ShaderDataDefinition* definition;
     RR<File> vertex;
     RR<File> fragment;
     RR<File> geometry;
 
-    static void read(PropertyHolder* prop, GL2ShaderInfo* obj) {
+    static void read(PropertyHolder* prop, GL2ShaderInfo* obj)
+    {
         prop->read("vertex", &obj->vertex);
         prop->read("fragment", &obj->fragment);
         prop->read("geometry", &obj->geometry);
@@ -28,8 +28,7 @@ struct GL2ShaderInfo {
     }
 };
 
-class GL2ShaderManager : public ResourceManager
-{
+class GL2ShaderManager : public ResourceManager {
 public:
     GL2ShaderManager(TaskManager* taskManager);
     ~GL2ShaderManager();
@@ -41,7 +40,8 @@ public:
 
     void shutdown() override;
 
-    void setResourceLoader(ResourceLoader* loader) override {
+    void setResourceLoader(ResourceLoader* loader) override
+    {
         this->loader = loader;
     }
 
@@ -55,19 +55,20 @@ public:
     //void Update() override;
 
     // in bytes
-    virtual ptrsize getCurrentRamUsage() const override {
+    virtual ptrsize getCurrentRamUsage() const override
+    {
         return ramInUse;
     }
-    virtual u32 getCurrentGPUMemoryUsage() const override {
+    virtual u32 getCurrentGPUMemoryUsage() const override
+    {
         return gpuMemInUse;
     }
-    
+
     struct ShaderData {
         const char* vertexData;
         const char* fragmentData;
         // ...
     };
-
 
 private:
     ResourceLoader::RawResourceTask loadShaderSource(ResourceLoader* loader, RR<File> file, GL2Shader* shader);
@@ -82,8 +83,7 @@ private:
     ResourceLoader* loader;
     ResourceIndexer<GL2Shader, 32> shaders;
 
-
-    struct ToLoad{
+    struct ToLoad {
         GL2Shader* shader;
         GL2ShaderInfo info;
     };
@@ -99,5 +99,4 @@ private:
 
     TaskManager* taskManager;
 };
-
 }

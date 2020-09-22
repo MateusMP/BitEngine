@@ -13,18 +13,17 @@
 #include "BitEngine/Core/IO/File.h"
 #include "BitEngine/Common/ThreadSafeQueue.h"
 
-
-namespace BitEngine
-{
+namespace BitEngine {
 class BaseResource;
 class ResourceLoader;
-
 
 struct BE_API DevResourceMeta : public ResourceMeta {
 
     DevResourceMeta(const std::string& pack, const std::string& resName)
-        : package(pack), resourceName(resName)
-    {}
+        : package(pack)
+        , resourceName(resName)
+    {
+    }
 
     std::string package;
     std::string resourceName;
@@ -36,13 +35,14 @@ struct BE_API DevResourceMeta : public ResourceMeta {
     u32 index;
 };
 
-
-class FileLoaderTask : public ResourceLoader::RawResourceLoaderTask
-{
+class FileLoaderTask : public ResourceLoader::RawResourceLoaderTask {
 public:
     FileLoaderTask(File* f, MemoryArena* arena, const std::string& filePath)
-        : RawResourceLoaderTask(arena), path(filePath), file(f)
-    {}
+        : RawResourceLoaderTask(arena)
+        , path(filePath)
+        , file(f)
+    {
+    }
 
     void run() override
     {
@@ -56,22 +56,19 @@ public:
             throw "EMPTY PATH FOR RESOURCE";
         }
 
-        if (loadFileToMemory(path, &dr))
-        {
+        if (loadFileToMemory(path, &dr)) {
             file->data = dr.data;
             file->size = dr.size;
             file->ready = true;
             dr.loadState = ResourceLoader::DataRequest::LoadState::LS_LOADED;
         }
-        else
-        {
+        else {
             LOG(EngineLog, BE_LOG_ERROR) << "Failed to open file: " << path;
             file->size = -1;
             file->ready = false;
             dr.loadState = ResourceLoader::DataRequest::LoadState::LS_ERROR;
         }
     }
-
 
     /**
      * Load file to memory
@@ -83,8 +80,7 @@ public:
     {
         LOG(EngineLog, BE_LOG_VERBOSE) << "Loading resource index " << fname;
         std::ifstream file(fname, std::ios::in | std::ios::binary | std::ios::ate);
-        if (!file.is_open())
-        {
+        if (!file.is_open()) {
             return false;
         }
         std::streamsize size = file.tellg();
@@ -106,28 +102,31 @@ private:
 
 using FileLoadTask = std::shared_ptr<FileLoaderTask>;
 
-class FolderFileManager : public ResourceManager
-{
+class FolderFileManager : public ResourceManager {
 public:
-    FolderFileManager(TaskManager* tm, MemoryArena& _arena) : taskManager(tm), arena(_arena) {
-
+    FolderFileManager(TaskManager* tm, MemoryArena& _arena)
+        : taskManager(tm)
+        , arena(_arena)
+    {
     }
-    ~FolderFileManager() {
-
+    ~FolderFileManager()
+    {
     }
 
     // Load textures that are ready to be sent to the GPU
-    void update() override {
+    void update() override
+    {
         BE_PROFILE_FUNCTION();
         std::pair<File*, FileLoadTask> task;
 
-        std::vector< std::pair<File*, FileLoadTask> > retry;
+        std::vector<std::pair<File*, FileLoadTask> > retry;
 
         if (loadingFiles.tryPop(task)) {
             auto& dr = task.second->getData();
             if (dr.loadState == ResourceLoader::DataRequest::LoadState::LS_LOADING) {
                 retry.emplace_back(task);
-            } else {
+            }
+            else {
                 finishedLoading(task.first->getMeta());
             }
         }
@@ -137,18 +136,20 @@ public:
         }
     }
 
-    void shutdown() override {
-
+    void shutdown() override
+    {
     }
 
-    const std::map<ResourceMeta*, FileLoadTask> getPendingToLoad() {
+    const std::map<ResourceMeta*, FileLoadTask> getPendingToLoad()
+    {
         waitingTasksMutex.lock();
         auto copy = waitingData;
         waitingTasksMutex.unlock();
         return copy;
     }
 
-    void finishedLoading(ResourceMeta* meta) {
+    void finishedLoading(ResourceMeta* meta)
+    {
         std::lock_guard<std::mutex> lock(waitingTasksMutex);
         waitingData.erase(meta);
     }
@@ -157,8 +158,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(waitingTasksMutex);
         auto it = waitingData.emplace(meta, nullptr);
-        if (it.second)
-        {
+        if (it.second) {
             File* found = files.findResource(meta);
 
             if (found == nullptr) {
@@ -177,17 +177,18 @@ public:
             else {
                 BE_ASSERT(false); // invalid code path
             }
-
         }
         std::shared_ptr<FileLoaderTask> ptr = it.first->second;
         return { std::static_pointer_cast<ResourceLoader::RawResourceLoaderTask, FileLoaderTask>(ptr), files.findResource(meta) };
     }
 
-    BaseResource* loadResource(ResourceMeta* meta, PropertyHolder* props) override {
+    BaseResource* loadResource(ResourceMeta* meta, PropertyHolder* props) override
+    {
         return doload((DevResourceMeta*)meta).second;
     }
 
-    ResourceLoader::RawResourceTask loadResource(DevResourceMeta* meta) {
+    ResourceLoader::RawResourceTask loadResource(DevResourceMeta* meta)
+    {
         return doload((DevResourceMeta*)meta).first;
     }
 
@@ -214,31 +215,27 @@ public:
     virtual u32 getCurrentGPUMemoryUsage() const override { return 0; }
 
 private:
-
     // Members
     MemoryArena& arena;
     TaskManager* taskManager;
 
     ResourceIndexer<File, 1024> files;
-    ThreadSafeQueue<std::pair<File*, FileLoadTask>> loadingFiles;
+    ThreadSafeQueue<std::pair<File*, FileLoadTask> > loadingFiles;
 
     std::mutex waitingTasksMutex;
     std::map<ResourceMeta*, FileLoadTask> waitingData; // the resources that are waiting the raw data to be loaded
 };
-
-
-
 
 /**
  * Resource Loader implementation
  * This loader loads files from the standard file system.
  * All resources are indexed in a json file.
  */
-class BE_API DevResourceLoader : public ResourceLoader
-{
+class BE_API DevResourceLoader : public ResourceLoader {
     friend class DevPropHolder;
+
 public:
-    DevResourceLoader(TaskManager* taskManager, MemoryArena &arena);
+    DevResourceLoader(TaskManager* taskManager, MemoryArena& arena);
     ~DevResourceLoader();
 
     bool init() override;
@@ -247,7 +244,8 @@ public:
     // Inherited via ResourceLoader
     virtual void shutdown() override;
 
-    void registerResourceManager(const std::string& resourceType, ResourceManager* manager) {
+    void registerResourceManager(const std::string& resourceType, ResourceManager* manager)
+    {
         taskManager->verifyMainThread();
         BE_ASSERT(manager != nullptr);
         manager->setResourceLoader(this);
@@ -261,8 +259,9 @@ public:
 
     DevResourceMeta* findMeta(const std::string& name);
 
-    DevResourceMeta* createMeta(u32 index, const std::string& package, const std::string& resource, const std::string& type, std::string filePath, nlohmann::json properties) {
-        
+    DevResourceMeta* createMeta(u32 index, const std::string& package, const std::string& resource, const std::string& type, std::string filePath, nlohmann::json properties)
+    {
+
         if (this->byName.find(resource) != this->byName.end()) {
             BE_ASSERT(false); // Overriding existing resource
         }
@@ -273,8 +272,8 @@ public:
         meta.properties = properties;
 
         resourceMetaIndexes[index].data["dynamic_data"][package] = {
-            {"name", filePath},
-            {"type", type},
+            { "name", filePath },
+            { "type", type },
             properties
         };
         resourceMetaIndexes[index].metas.push_back(meta);
@@ -282,21 +281,23 @@ public:
         this->byName[resource] = devMetaAddr;
         return devMetaAddr;
     }
-    
+
     virtual bool hasManagerForType(const std::string& resourceType) override;
 
-    const std::map<ResourceMeta*, ResourceLoader::RawResourceTask> getPendingToLoad() override {
+    const std::map<ResourceMeta*, ResourceLoader::RawResourceTask> getPendingToLoad() override
+    {
         // return folderFileManager->getPendingToLoad();
         return {};
     }
 
-    ResourceLoader::RawResourceTask requestResourceData(ResourceMeta* meta) override {
+    ResourceLoader::RawResourceTask requestResourceData(ResourceMeta* meta) override
+    {
         DevResourceMeta* dmeta = static_cast<DevResourceMeta*>(meta);
         return folderFileManager.loadResource(dmeta);
     }
 
 protected:
-    // Retrieve 
+    // Retrieve
     virtual BaseResource* loadResource(const u32 rid) override;
     virtual BaseResource* loadResource(ResourceMeta* meta) override;
     virtual BaseResource* loadResource(const std::string& meta) override;
@@ -311,7 +312,6 @@ protected:
     // Returns nullptr if meta conflicts and allowOverride == false
     DevResourceMeta* addResourceMeta(const DevResourceMeta& meta, bool allowOverride);
 
-    
     friend class DevLoaderTask;
 
 private:
@@ -324,7 +324,7 @@ private:
     };
 
     using ResourceType = std::string;
-    
+
     bool isManagerForTypeAvailable(const std::string& type);
 
     void loadPackages(LoadedIndex* index, bool allowOverride);
@@ -341,7 +341,7 @@ private:
     std::vector<LoadedIndex> resourceMetaIndexes;
     std::unordered_map<std::string, DevResourceMeta*> byName;
     std::unordered_map<u32, DevResourceMeta*> byId;
-    
+
     TaskManager* taskManager;
     FolderFileManager folderFileManager;
 };
@@ -351,20 +351,25 @@ public:
     /// MemoryArena required for loading complex objects, because we need to allocate
     /// temporary DevPropHolders. The arena should be temporary and is expected to be
     /// freed once DevPropHolder goes out of scope.
-    DevPropHolder(DevResourceLoader* l, const nlohmann::json& p, MemoryArena& tmpMem) 
-        : loader(l), properties(p), tempArena(tmpMem) {
-
+    DevPropHolder(DevResourceLoader* l, const nlohmann::json& p, MemoryArena& tmpMem)
+        : loader(l)
+        , properties(p)
+        , tempArena(tmpMem)
+    {
     }
-    DevResourceLoader* getLoader() override {
+    DevResourceLoader* getLoader() override
+    {
         return loader;
     }
 
-    ptrsize getPropertyListSize(const char* name) override {
+    ptrsize getPropertyListSize(const char* name) override
+    {
         return properties[name].size();
     }
 
-    template<typename T>
-    T valueOrDefault(const char* name, T def) {
+    template <typename T>
+    T valueOrDefault(const char* name, T def)
+    {
         const auto& it = properties.find(name);
         if (it != properties.end()) {
             return it->get<T>();
@@ -372,22 +377,28 @@ public:
         return def;
     }
 
-    void _read(const char* name, u32* into) override {
+    void _read(const char* name, u32* into) override
+    {
         *into = valueOrDefault<u32>(name, 0);
     }
-    void _read(const char* name, s32* into) override {
+    void _read(const char* name, s32* into) override
+    {
         *into = valueOrDefault<s32>(name, 0);
     }
-    void _read(const char* name, float* into) override {
+    void _read(const char* name, float* into) override
+    {
         *into = valueOrDefault<float>(name, 0);
     }
-    void _read(const char* name, double* into) override {
+    void _read(const char* name, double* into) override
+    {
         *into = valueOrDefault<double>(name, 0);
     }
-    void _read(const char* name, std::string* into) override {
+    void _read(const char* name, std::string* into) override
+    {
         *into = valueOrDefault<std::string>(name, "");
     }
-    void _read(const char* name, ResourceMeta** into) override {
+    void _read(const char* name, ResourceMeta** into) override
+    {
         if (properties.contains(name)) {
             const std::string& res = properties[name].get_ref<const std::string&>();
             *into = loader->findMeta(res);
@@ -396,7 +407,8 @@ public:
             *into = nullptr;
         }
     }
-    void _read(const char* name, BaseResource** into) override {
+    void _read(const char* name, BaseResource** into) override
+    {
         const auto& it = properties.find(name);
         if (it != properties.end()) {
             const std::string& res = it->get_ref<const std::string&>();
@@ -404,24 +416,29 @@ public:
             *into = loader->loadResource(meta);
         }
     }
-    void _read(const char* name, Vec3* into) override {
+    void _read(const char* name, Vec3* into) override
+    {
         const nlohmann::json& props = properties[name];
         (*into)[0] = props[0].get<float>();
         (*into)[1] = props[1].get<float>();
         (*into)[2] = props[2].get<float>();
     }
-    void _read(const char* name, Vec4* into) override {
+    void _read(const char* name, Vec4* into) override
+    {
         const nlohmann::json& props = properties[name];
         (*into)[0] = props[0].get<float>();
         (*into)[1] = props[1].get<float>();
         (*into)[2] = props[2].get<float>();
         (*into)[3] = props[3].get<float>();
     }
+
 protected:
-    PropertyHolder* getReaderObject(const char* name) override {
+    PropertyHolder* getReaderObject(const char* name) override
+    {
         return tempArena.push<DevPropHolder>(loader, properties[name], tempArena);
     }
-    PropertyHolder* getReaderObjectFromList(const char* name, ptrsize index) override {
+    PropertyHolder* getReaderObjectFromList(const char* name, ptrsize index) override
+    {
         return tempArena.push<DevPropHolder>(loader, properties[name][index], tempArena);
     }
 
@@ -429,5 +446,4 @@ protected:
     const nlohmann::json& properties;
     MemoryArena& tempArena;
 };
-
 }

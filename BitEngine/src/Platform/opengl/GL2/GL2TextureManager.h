@@ -10,23 +10,24 @@
 
 #include "Platform/opengl/GL2/OpenGL2.h"
 
-namespace BitEngine
-{
+namespace BitEngine {
 class DevResourceLoader;
 
-class GL2Texture : public BitEngine::Texture
-{
+class GL2Texture : public BitEngine::Texture {
     friend class GL2TextureManager;
     friend class RawTextureLoader;
     friend class TextureUploadToGPU;
 
 public:
     GL2Texture()
-        : Texture(nullptr), m_loaded(TextureLoadState::NOT_LOADED)
-    {}
+        : Texture(nullptr)
+        , m_loaded(TextureLoadState::NOT_LOADED)
+    {
+    }
 
     GL2Texture(ResourceMeta* meta)
-        : Texture(meta), m_loaded(TextureLoadState::NOT_LOADED)
+        : Texture(meta)
+        , m_loaded(TextureLoadState::NOT_LOADED)
     {
         m_textureID = 0;
         m_textureType = 0;
@@ -34,7 +35,6 @@ public:
 
     inline u32 getTextureID() const override { return m_textureID; }
     inline u32 getTextureType() const override { return m_textureType; }
-
 
 protected:
     GLuint m_textureID;
@@ -47,11 +47,9 @@ protected:
     };
 
     TextureLoadState m_loaded; // true if the texture is in an usable state (loaded in the gpu)
-
 };
 
-class GL2TextureManager : public BitEngine::ResourceManager
-{
+class GL2TextureManager : public BitEngine::ResourceManager {
 public:
     GL2TextureManager(TaskManager* taskManager);
     ~GL2TextureManager();
@@ -63,32 +61,39 @@ public:
 
     void shutdown() override;
 
-    void setResourceLoader(ResourceLoader* loader) override {
+    void setResourceLoader(ResourceLoader* loader) override
+    {
         this->loader = loader;
     }
 
     BaseResource* loadResource(ResourceMeta* base, PropertyHolder* props) override;
 
-    ptrsize getCurrentRamUsage() const override {
+    ptrsize getCurrentRamUsage() const override
+    {
         return ramInUse;
     }
 
-    u32 getCurrentGPUMemoryUsage() const override {
+    u32 getCurrentGPUMemoryUsage() const override
+    {
         return gpuMemInUse;
     }
 
-    TaskManager* getTaskManager() {
+    TaskManager* getTaskManager()
+    {
         return taskManager;
     }
 
-    void addGpuUsage(s32 s) {
+    void addGpuUsage(s32 s)
+    {
         gpuMemInUse += s;
     }
-    void addRamUsage(s32 s) {
+    void addRamUsage(s32 s)
+    {
         ramInUse += s;
     }
 
-    GL2Texture* getErrorTexture() {
+    GL2Texture* getErrorTexture()
+    {
         return errorTexture;
     }
 
@@ -114,5 +119,4 @@ private:
     ptrsize ramInUse;
     u32 gpuMemInUse;
 };
-
 }

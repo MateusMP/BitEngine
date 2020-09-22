@@ -8,16 +8,14 @@
 
 namespace BitEngine {
 
-class VideoConfiguration
-{
+class VideoConfiguration {
 };
 
 /** Default class for Video configuration
  * Basic video initialization
  * Uses just one window
  */
-class VideoSystem
-{
+class VideoSystem {
 public:
     VideoSystem()
     {
@@ -35,9 +33,5 @@ public:
     virtual Window* createWindow(const BitEngine::WindowConfiguration& wc) = 0;
 
     virtual void closeWindow(Window* window) = 0;
-
 };
-
 }
-
-

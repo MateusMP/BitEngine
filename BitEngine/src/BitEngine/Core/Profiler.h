@@ -4,19 +4,17 @@
 
 #define BE_PROFILING_CHROME
 
-
 #if defined(_MSC_VER)
 #define BE_FUNC_SIG __FUNCSIG__
-#elif defined( __GNUC__ ) || defined( __MINGW__ ) || defined ( __clang__ )
+#elif defined(__GNUC__) || defined(__MINGW__) || defined(__clang__)
 #define BE_FUNC_SIG __PRETTY_FUNCTION__
 #endif
 
-
 #ifndef BE_LOG_ENABLE_PERFORMANCE
-#define BE_PROFILE_SCOPE(name)		\
-		BitEngine::Profiling::PrecisionTimer _profiling##__LINE__(name)
-#define BE_PROFILE_FUNCTION()				\
-		BE_PROFILE_SCOPE(BE_FUNC_SIG)
+#define BE_PROFILE_SCOPE(name) \
+    BitEngine::Profiling::PrecisionTimer _profiling##__LINE__(name)
+#define BE_PROFILE_FUNCTION() \
+    BE_PROFILE_SCOPE(BE_FUNC_SIG)
 #else
 #define BE_PROFILE_SCOPE(logto, description)
 #define BE_PROFILE_FUNCTION(logto)
@@ -37,18 +35,19 @@ namespace Profiling {
     class ChromeProfiler;
 
     // Adapted from https://gist.github.com/TheCherno/31f135eea6ee729ab5f26a6908eb3a5e
-    struct ProfileResult
-    {
+    struct ProfileResult {
         std::string name;
         uint32_t threadID;
         long long start, end;
     };
 
-
     class ChromeProfilerWriter {
     public:
         ChromeProfilerWriter(ThreadSafeQueue<ProfileResult>* dataQueue, const std::string& filepath = "profiling.json")
-            : queue(dataQueue), m_profileCount(0), active(1) {
+            : queue(dataQueue)
+            , m_profileCount(0)
+            , active(1)
+        {
 
             m_outputStream.open(filepath);
         }
@@ -79,10 +78,11 @@ namespace Profiling {
             // m_outputStream.flush();
         }
 
-        void work() {
+        void work()
+        {
             ProfileResult data;
             WriteHeader();
-            
+
             int cacheFlush = 0;
             while (active) {
                 while (active && queue->pop(data)) {
@@ -104,7 +104,8 @@ namespace Profiling {
             m_profileCount = 0;
         }
 
-        void stop() {
+        void stop()
+        {
             active = false;
         }
 
@@ -127,14 +128,14 @@ namespace Profiling {
         volatile bool active = true;
     };
 
-    class ChromeProfiler
-    {
+    class ChromeProfiler {
     public:
         ChromeProfiler()
         {
         }
 
-        void writeProfile(const ProfileResult& result) {
+        void writeProfile(const ProfileResult& result)
+        {
             queue.push(result);
         }
 
@@ -153,11 +154,10 @@ namespace Profiling {
             delete writer;
         }
 
-
         bool enable_profiling = true;
+
     private:
-        struct ProfilingSession
-        {
+        struct ProfilingSession {
             std::string name;
         };
 
@@ -165,18 +165,17 @@ namespace Profiling {
         ProfilingSession m_session;
         std::thread thread;
         ChromeProfilerWriter* writer;
-
     };
 
     extern ChromeProfiler& Get();
     extern void SetInstance(ChromeProfiler* obj);
 
     // static thread_local long long profiling_timer_last_start = 0;
-    class PrecisionTimer
-    {
+    class PrecisionTimer {
     public:
         PrecisionTimer(const char* name)
-            : m_name(name), m_stopped(false)
+            : m_name(name)
+            , m_stopped(false)
         {
             auto spoint = std::chrono::high_resolution_clock::now();
             m_start = std::chrono::time_point_cast<std::chrono::microseconds>(spoint).time_since_epoch().count();
@@ -216,23 +215,25 @@ namespace Profiling {
         bool m_stopped;
     };
 
-    static void SetProfiling(bool enabled) {
+    static void SetProfiling(bool enabled)
+    {
         Profiling::Get().enable_profiling = enabled;
     }
 
-    static void BeginSession(const char* name) {
+    static void BeginSession(const char* name)
+    {
 #ifdef BE_PROFILING_CHROME
         Profiling::Get().BeginSession(name);
 #else
 #endif
     }
 
-    static void EndSession() {
+    static void EndSession()
+    {
 #ifdef BE_PROFILING_CHROME
         Profiling::Get().EndSession();
 #else
 #endif
     }
-
 }
 }

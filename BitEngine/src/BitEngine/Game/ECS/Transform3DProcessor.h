@@ -9,9 +9,8 @@ namespace BitEngine {
  * TODO: Fix parents on childs when a parent Transform is destroyed
  */
 class BE_API Transform3DProcessor : public ComponentProcessor,
-    public Messenger< MsgComponentCreated<Transform3DComponent>>::ScopedSubscription,
-    public Messenger< MsgComponentDestroyed<Transform3DComponent>>::ScopedSubscription
-{
+                                    public Messenger<MsgComponentCreated<Transform3DComponent> >::ScopedSubscription,
+                                    public Messenger<MsgComponentDestroyed<Transform3DComponent> >::ScopedSubscription {
 public:
     Transform3DProcessor(EntitySystem* m);
     ~Transform3DProcessor();
@@ -20,10 +19,12 @@ public:
     void Process();
 
     // Processor result outputs
-    const std::vector<glm::mat4>& getGlobalTransforms() const {
+    const std::vector<glm::mat4>& getGlobalTransforms() const
+    {
         return globalTransform;
     }
-    const glm::mat4& getGlobalTransformFor(ComponentHandle hdl) const {
+    const glm::mat4& getGlobalTransformFor(ComponentHandle hdl) const
+    {
         return globalTransform[hdl];
     }
 
@@ -41,20 +42,21 @@ private: // Functions
     struct Hierarchy;
     static void CalculateLocalModelMatrix(const Transform3DComponent& component, glm::mat4& mat);
 
-
     // TODO: Make iterative version
-    void recalcGlobalTransform(ComponentHandle handle, Hierarchy &t);
+    void recalcGlobalTransform(ComponentHandle handle, Hierarchy& t);
 
     void setParentOf(ComponentHandle a, ComponentHandle parent);
 
     struct Hierarchy {
-        Hierarchy() : dirty(true) {
+        Hierarchy()
+            : dirty(true)
+        {
             parent = 0;
         }
 
-        void removeChild(ComponentHandle a) {
-            for (ComponentHandle& h : childs)
-            {
+        void removeChild(ComponentHandle a)
+        {
+            for (ComponentHandle& h : childs) {
                 if (h == a) {
                     h = childs.back();
                     childs.pop_back();
@@ -63,7 +65,8 @@ private: // Functions
             }
         }
 
-        void addChild(ComponentHandle a) {
+        void addChild(ComponentHandle a)
+        {
             childs.push_back(a);
         }
 
@@ -73,12 +76,9 @@ private: // Functions
     };
 
 private: // Attributes
-
     // Processor
     std::vector<Hierarchy> hierarchy;
     std::vector<glm::mat4> localTransform; // used only to calculate globalTransform
     std::vector<glm::mat4> globalTransform; // information used by external systems
-
 };
-
 }

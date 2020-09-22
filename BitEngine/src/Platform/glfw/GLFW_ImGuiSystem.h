@@ -7,8 +7,7 @@
 
 namespace BitEngine {
 
-class GLFW_ImGuiSystem
-{
+class GLFW_ImGuiSystem {
 public:
     GLFW_ImGuiSystem() = default;
     ~GLFW_ImGuiSystem() = default;
@@ -20,13 +19,14 @@ public:
     bool setup(BitEngine::Window* window);
     void update();
 
-    void* getContext() {
+    void* getContext()
+    {
         return context;
     }
 
     Messenger<ImGuiRenderEvent> events;
+
 private:
     void* context = nullptr;
 };
-
 }

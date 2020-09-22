@@ -13,13 +13,14 @@ namespace BitEngine {
 
 class GeneralTaskManager;
 
-class TaskWorker
-{
+class TaskWorker {
     friend class GeneralTaskManager;
+
 public:
     TaskWorker(GeneralTaskManager* _manager, Task::Affinity _affinity, u32 id);
 
-    void stop() {
+    void stop()
+    {
         m_working = false;
         m_taskQueue.clear();
     }
@@ -38,14 +39,13 @@ private:
     bool m_working;
     u32 m_threadId;
     Task::Affinity m_affinity;
-    GeneralTaskManager *m_manager;
+    GeneralTaskManager* m_manager;
 
     std::thread m_thread;
-    ThreadSafeQueue< TaskPtr > m_taskQueue;
+    ThreadSafeQueue<TaskPtr> m_taskQueue;
 };
 
-class BE_API GeneralTaskManager : public TaskManager
-{
+class BE_API GeneralTaskManager : public TaskManager {
 public:
     GeneralTaskManager();
     ~GeneralTaskManager() { shutdown(); }
@@ -54,14 +54,14 @@ public:
     void update() override;
     void shutdown() override;
 
-
     void addTask(TaskPtr task) override;
     void scheduleToNextFrame(TaskPtr task) override;
     void waitTask(TaskPtr& task) override;
 
     const std::vector<TaskPtr>& getTasks() const override { return scheduledTasks; }
 
-    void verifyMainThread() const override {
+    void verifyMainThread() const override
+    {
         BE_ASSERT(std::this_thread::get_id() == mainThread);
     }
 
@@ -76,7 +76,6 @@ private:
     void incFinishedFrameRequired();
 
     u32 clampToWorkers(u32 value);
-
 
     std::vector<TaskWorker*> workers;
 

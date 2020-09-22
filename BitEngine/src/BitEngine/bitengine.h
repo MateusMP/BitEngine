@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "BitEngine/Common/TypeDefinition.h"
 
 #include "BitEngine/Core/Window.h"
@@ -16,4 +15,3 @@
 
 #include "BitEngine/Core/Mesh.h"
 #include "BitEngine/Core/Graphics/Texture.h"
-

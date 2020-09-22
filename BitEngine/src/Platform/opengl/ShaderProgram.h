@@ -9,25 +9,21 @@
 #include "BitEngine/Common/ErrorCodes.h"
 #include "BitEngine/Core/Logger.h"
 
+namespace BitEngine {
 
-namespace BitEngine
-{
-
-#define GLSL(version, shader)  "#version " #version "\n" shader
-#define GLSL_(version, shader)  "#version " #version "\n" #shader
-
-
+#define GLSL(version, shader) "#version " #version "\n" shader
+#define GLSL_(version, shader) "#version " #version "\n" #shader
 
 #ifdef _DEBUG
-#define LOAD_UNIFORM(var, name)                                                                                        \
-                var = getUniformLocation(name);                                                                        \
-                if (var < 0)                                                                                        \
-                    LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Shader: Failed to load "#var" ["#name"] uniform.";    \
-                else                                                                                                \
-                    LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "Uniform "#var" loaded with id: "<< var << "."
+#define LOAD_UNIFORM(var, name)                                                                              \
+    var = getUniformLocation(name);                                                                          \
+    if (var < 0)                                                                                             \
+        LOG(BitEngine::EngineLog, BE_LOG_WARNING) << "Shader: Failed to load " #var " [" #name "] uniform."; \
+    else                                                                                                     \
+    LOG(BitEngine::EngineLog, BE_LOG_VERBOSE) << "Uniform " #var " loaded with id: " << var << "."
 #else
-#define LOAD_UNIFORM(var, name)    \
-                    var = getUniformLocation(name)
+#define LOAD_UNIFORM(var, name) \
+    var = getUniformLocation(name)
 #endif
 
 #define ARRAY_OFFSET(x) ((void*)(x))
@@ -36,8 +32,7 @@ namespace BitEngine
 #define VERTEX_MATRIX3_ATTIBUTE_SIZE 3
 #define VERTEX_MATRIX4_ATTIBUTE_SIZE 4
 
-class ShaderProgram
-{
+class ShaderProgram {
 public:
     ShaderProgram();
     virtual ~ShaderProgram();
@@ -66,32 +61,30 @@ public:
         glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTES, &nAttrs);
         //m_attributes.resize(nAttrs);
 
-        for (int i = 0; i < nAttrs; ++i)
-        {
+        for (int i = 0; i < nAttrs; ++i) {
             GLint nameRead;
-            Attribute attr;// = m_attributes[i];
+            Attribute attr; // = m_attributes[i];
             attr.name.resize(128);
 
             glGetActiveAttrib(m_programID, i, 128, &nameRead, &attr.size, &attr.type, &attr.name[0]);
             attr.name.resize(nameRead);
             attr.location = glGetAttribLocation(m_programID, attr.name.data());
             LOG(EngineLog, BE_LOG_INFO) << "Attr" << i << " at " << attr.location
-                << " '" << attr.name << "' is of type: " << attr.type << " size: " << attr.size;
+                                        << " '" << attr.name << "' is of type: " << attr.type << " size: " << attr.size;
         }
 
         GLint nUnif;
         glGetProgramiv(m_programID, GL_ACTIVE_UNIFORMS, &nUnif);
-        for (int i = 0; i < nUnif; ++i)
-        {
+        for (int i = 0; i < nUnif; ++i) {
             GLint nameRead;
-            Attribute unif;// = m_uniforms[i];
+            Attribute unif; // = m_uniforms[i];
             unif.name.resize(128);
 
             glGetActiveUniform(m_programID, i, 128, &nameRead, &unif.size, &unif.type, &unif.name[0]);
             unif.name.resize(nameRead);
             unif.location = glGetUniformLocation(m_programID, unif.name.data());
             LOG(EngineLog, BE_LOG_INFO) << "Unif" << i << " at " << unif.location
-                << " '" << unif.name << "' is of type: " << unif.type << " size: " << unif.size;
+                                        << " '" << unif.name << "' is of type: " << unif.type << " size: " << unif.size;
         }
     }
 
@@ -102,8 +95,9 @@ protected:
 
     /// \brief Build and link a set of sources from file to create a final Shader Program
     /// \return Returns BE_NO_ERROR in case of success
-    template <typename ...Args>
-    int BuildProgramFromFile(GLint type, const std::string& file, Args... args) {
+    template <typename... Args>
+    int BuildProgramFromFile(GLint type, const std::string& file, Args... args)
+    {
         std::vector<GLuint> shaders;
 
         if (CompileFromFile(shaders, type, file, args...) == BE_NO_ERROR) {
@@ -115,8 +109,9 @@ protected:
 
     /// \brief Build and link a set of sources from memory to create a final Shader Program
     /// \return Returns BE_NO_ERROR in case of success
-    template <typename ...Args>
-    int BuildProgramFromMemory(GLint type, const char* source, Args... args) {
+    template <typename... Args>
+    int BuildProgramFromMemory(GLint type, const char* source, Args... args)
+    {
         std::vector<GLuint> shaders;
 
         if (CompileFromMemory(shaders, type, source, args...) == BE_NO_ERROR) {
@@ -125,7 +120,6 @@ protected:
 
         return FAILED_TO_COMPILE;
     }
-
 
     // ATTRIBUTE/UNIFORM FUNCTIONS
 
@@ -136,7 +130,6 @@ protected:
     /// Get uniform location on shader
     /// Usually called inside RegisterUniforms implementation
     s32 getUniformLocation(const std::string& name) const;
-
 
     // Loading uniform data functions
     // They are normally used on OnBind() implmentation
@@ -184,7 +177,6 @@ private:
     /// Normally using 'loadX' functions (or wrappers for those functions)
     virtual void OnBind() = 0;
 
-
     /// SHADER COMPILATION AND LINKAGE
 
     /// \param errorLog If any error is encountered during shader compilation
@@ -196,14 +188,14 @@ private:
     int linkShaders(std::vector<GLuint>& shaders);
 
     //
-    template <typename ...Args>
+    template <typename... Args>
     int CompileFromFile(std::vector<GLuint>& shaders) { return BE_NO_ERROR; }
-    template <typename ...Args>
+    template <typename... Args>
     int CompileFromMemory(std::vector<GLuint>& shaders) { return BE_NO_ERROR; }
 
     int BuildFinalProgram(std::vector<GLuint>& shaders);
 
-    template <typename ...Args>
+    template <typename... Args>
     int CompileFromFile(std::vector<GLuint>& shaders, GLint type, const std::string& file, Args... args)
     {
         LOG(EngineLog, BE_LOG_VERBOSE) << "Compiling shader (type: " << type << ") file " << file;
@@ -220,7 +212,7 @@ private:
         return CompileFromFile(shaders, args...);
     }
 
-    template <typename ...Args>
+    template <typename... Args>
     int CompileFromMemory(std::vector<GLuint>& shaders, GLint type, const char* source, Args... args)
     {
         if (CompileFromMemory(shaders, type, source) != BE_NO_ERROR) {
@@ -234,7 +226,6 @@ private:
 
     /// Destroy shaders
     void FreeShaders();
-
 };
 
 } // namespace BitEngine

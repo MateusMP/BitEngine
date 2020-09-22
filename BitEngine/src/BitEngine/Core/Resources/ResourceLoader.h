@@ -16,39 +16,43 @@ namespace BitEngine {
 class ResourceLoader;
 class BaseResource;
 
-template<typename T>
+template <typename T>
 class RR;
-
 
 /**
  * Resource Loader interface
  * Used by the application to retrieve the final resource.
  */
-class BE_API ResourceLoader
-{
+class BE_API ResourceLoader {
 public:
-    struct DataRequest
-    {
+    struct DataRequest {
         enum LoadState {
             LS_LOADING,
             LS_LOADED,
             LS_ERROR,
         };
         DataRequest(DataRequest&& dr) noexcept
-            : loadState(dr.loadState), data(std::move(dr.data)), arena(dr.arena)
-        {}
+            : loadState(dr.loadState),
+              data(std::move(dr.data)),
+              arena(dr.arena)
+        {
+        }
 
         DataRequest(MemoryArena* _arena)
-            : arena(_arena), loadState(LS_LOADING)
-        {}
-        DataRequest& operator=(DataRequest&& other) {
+            : arena(_arena)
+            , loadState(LS_LOADING)
+        {
+        }
+        DataRequest& operator=(DataRequest&& other)
+        {
             loadState = other.loadState;
             data = std::move(other.data);
             arena = other.arena;
             return *this;
         }
 
-        bool isLoaded() const {
+        bool isLoaded() const
+        {
             return loadState == LS_LOADED;
         }
 
@@ -69,17 +73,19 @@ public:
      * This task is used when we need to load
      * file data from the file system.
      */
-    class RawResourceLoaderTask : public Task
-    {
+    class RawResourceLoaderTask : public Task {
     public:
-        RawResourceLoaderTask(MemoryArena* arena, TaskMode _flags = TaskMode::NONE, Affinity _affinity=Affinity::BACKGROUND)
-            : Task(_flags, _affinity), dr(arena)
-        {}
+        RawResourceLoaderTask(MemoryArena* arena, TaskMode _flags = TaskMode::NONE, Affinity _affinity = Affinity::BACKGROUND)
+            : Task(_flags, _affinity)
+            , dr(arena)
+        {
+        }
 
         // Inherited via Task
         virtual void run() = 0;
 
-        DataRequest& getData() {
+        DataRequest& getData()
+        {
             return dr;
         }
 
@@ -87,6 +93,7 @@ public:
         DataRequest dr;
     };
     typedef std::shared_ptr<RawResourceLoaderTask> RawResourceTask;
+
 public:
     ResourceLoader() {}
     virtual ~ResourceLoader() {}
@@ -106,20 +113,23 @@ public:
      */
     virtual bool loadIndex(const std::string& index) = 0;
 
-    template<typename T>
-    RR<T> getResource(const u32& rid) {
+    template <typename T>
+    RR<T> getResource(const u32& rid)
+    {
         T* resource = static_cast<T*>(loadResource(rid));
         return RR<T>(resource, this);
     }
 
-    template<typename T>
-    RR<T> getResource(ResourceMeta* meta) {
+    template <typename T>
+    RR<T> getResource(ResourceMeta* meta)
+    {
         T* resource = static_cast<T*>(loadResource(meta));
         return RR<T>(resource, this);
     }
 
-    template<typename T>
-    RR<T> getResource(const std::string& name) {
+    template <typename T>
+    RR<T> getResource(const std::string& name)
+    {
         T* resource = static_cast<T*>(loadResource(name));
         return RR<T>(resource, this);
     }
@@ -129,8 +139,9 @@ public:
      * @param resource the resource reference
      * @param wait if waiting the resource to be fully loaded is required (blocking call).
      */
-    template<typename T>
-    void reloadResource(RR<T>& resource, bool wait = false) {
+    template <typename T>
+    void reloadResource(RR<T>& resource, bool wait = false)
+    {
         reloadResource(resource.get());
         if (wait) {
             waitForResource(resource.get());
@@ -175,16 +186,19 @@ public:
     // This will create a background task to load the resource.
     // The task shall be sent to the TaskManager before this function returns.
     virtual RawResourceTask requestResourceData(ResourceMeta* meta) = 0;
-    
+
 protected:
     friend class ResourceManager;
-    template<typename T> friend class RR;
+    template <typename T>
+    friend class RR;
 
-    void incReference(BaseResource* r) {
+    void incReference(BaseResource* r)
+    {
         ++(r->getMeta()->references);
     }
 
-    void decReference(BaseResource* r) {
+    void decReference(BaseResource* r)
+    {
         ResourceMeta* meta = r->getMeta();
         if (--(meta->references) == 0) {
             resourceNotInUse(meta); // TODO: Delegate this to be done by a task? Or later?
@@ -215,38 +229,41 @@ protected:
 
     // Will force a resource to be reloaded.
     virtual void reloadResource(BaseResource* resource) = 0;
-
 };
-
-
 
 /**
  * Resource Reference class.
  * This is a Reference Counted reference to a given resource.
  */
-template<typename T>
-class BE_API RR
-{
+template <typename T>
+class BE_API RR {
     static_assert(std::is_base_of<BaseResource, T>::value, "Not a resource class");
 
 public:
-    static RR<T> invalid() {
+    static RR<T> invalid()
+    {
         return RR();
     }
 
     RR()
-        : resource(nullptr), loader(nullptr)
-    {}
+        : resource(nullptr)
+        , loader(nullptr)
+    {
+    }
     RR(T* r, ResourceLoader* l)
-        : resource(r), loader(l)
+        : resource(r)
+        , loader(l)
     {
         incRef();
     }
     RR(RR&& r)
-        : resource(r.resource), loader(r.loader)
-    {}
+        : resource(r.resource)
+        , loader(r.loader)
+    {
+    }
     RR(const RR& r)
-        : resource(r.resource), loader(r.loader)
+        : resource(r.resource)
+        , loader(r.loader)
     {
         incRef();
     }
@@ -267,14 +284,16 @@ public:
         incRef();
         return *this;
     }
-    T* operator->() {
+    T* operator->()
+    {
         return resource;
     }
-    const T* operator->() const {
+    const T* operator->() const
+    {
         return resource;
     }
 
-    bool operator !=(const RR& r) const
+    bool operator!=(const RR& r) const
     {
         return resource == r.resource && loader == r.loader;
     }
@@ -284,38 +303,44 @@ public:
         return isValid();
     }
 
-    bool isValid() const {
+    bool isValid() const
+    {
         return resource != nullptr && loader != nullptr;
     }
 
-    T* get() {
+    T* get()
+    {
         return resource;
     }
 
-    const T* get() const {
+    const T* get() const
+    {
         return resource;
     }
 
-    void invalidate() {
+    void invalidate()
+    {
         decRef();
         resource = nullptr;
         loader = nullptr;
     }
 
 private:
-    void incRef() {
-        if (resource == nullptr) return;
+    void incRef()
+    {
+        if (resource == nullptr)
+            return;
         loader->incReference(resource);
     }
 
-    void decRef() {
-        if (resource == nullptr) return;
+    void decRef()
+    {
+        if (resource == nullptr)
+            return;
         loader->decReference(resource);
     }
 
     T* resource;
     ResourceLoader* loader;
 };
-
-
 }

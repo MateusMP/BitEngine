@@ -10,13 +10,12 @@
 
 #include "BitEngine/Core/Math.h"
 
-
-namespace BitEngine
-{
+namespace BitEngine {
 struct BE_API ProdResourceMeta : public ResourceMeta {
     ProdResourceMeta()
         : ResourceMeta()
-    {}
+    {
+    }
 };
 
 /**
@@ -24,30 +23,30 @@ struct BE_API ProdResourceMeta : public ResourceMeta {
  * This loader loads files from the standard file system.
  * All resources are indexed in a json file.
  */
-class ProdResourceLoader : public ResourceLoader
-{
+class ProdResourceLoader : public ResourceLoader {
 public:
-
-
     struct Serializer {
-        template<typename T>
+        template <typename T>
         void write(const char* name, const T value) {}
     };
 
     struct Deserializer {
-        template<typename T>
-        void read(const char* name, T* value) {
+        template <typename T>
+        void read(const char* name, T* value)
+        {
             *value = properties[name].get<T>();
         }
 
-        template<typename T>
-        void read(const char* name, RR<T>* value) {
+        template <typename T>
+        void read(const char* name, RR<T>* value)
+        {
             u32 resourceId = properties[name].get<u32>();
             *value = loader->getResource<T>(resourceId);
         }
 
-        template<u32 K, typename P, glm::qualifier X>
-        void read(const char* name, glm::vec<K, P, X>* value) {
+        template <u32 K, typename P, glm::qualifier X>
+        void read(const char* name, glm::vec<K, P, X>* value)
+        {
             const std::vector<P>& values = properties[name];
             for (u32 i = 0; i < K; ++i) {
                 (*value)[i] = values[i];
@@ -58,8 +57,8 @@ public:
         const nlohmann::json& properties;
     };
 
-    using SerializerCall = void(*)(Serializer*, const BaseResource*);
-    using DeserializerCall = void(*)(Deserializer*, BaseResource*);
+    using SerializerCall = void (*)(Serializer*, const BaseResource*);
+    using DeserializerCall = void (*)(Deserializer*, BaseResource*);
 
     ProdResourceLoader(TaskManager* taskManager);
     ~ProdResourceLoader();
@@ -70,13 +69,15 @@ public:
     // Inherited via ResourceLoader
     virtual void shutdown() override;
 
-    template<typename T, typename Manager>
-    void registerResourceManager(const std::string& resourceType, Manager* manager) {
+    template <typename T, typename Manager>
+    void registerResourceManager(const std::string& resourceType, Manager* manager)
+    {
         taskManager->verifyMainThread();
         BE_ASSERT(manager != nullptr);
         manager->setResourceLoader(this);
         managers.emplace_back(manager);
-        managersMap[resourceType] = ManagerInfo{ manager,
+        managersMap[resourceType] = ManagerInfo{
+            manager,
             T::serialize,
             T::deserialize,
         };
@@ -86,7 +87,8 @@ public:
 
     DevResourceMeta* findMeta(const std::string& name);
 
-    const std::map<ResourceMeta*, ResourceLoader::RawResourceTask> getPendingToLoad() override {
+    const std::map<ResourceMeta*, ResourceLoader::RawResourceTask> getPendingToLoad() override
+    {
         waitingTasksMutex.lock();
         auto copy = waitingData;
         waitingTasksMutex.unlock();
@@ -94,10 +96,10 @@ public:
     }
 
 protected:
-    // Retrieve 
+    // Retrieve
     virtual BaseResource* loadResource(const std::string& name) override {}
-    virtual BaseResource* loadResource(const u32 rid) override {
-
+    virtual BaseResource* loadResource(const u32 rid) override
+    {
     }
 
     virtual void reloadResource(BaseResource* resource) override;
@@ -111,7 +113,8 @@ protected:
     // Returns nullptr if meta conflicts and allowOverride == false
     DevResourceMeta* addResourceMeta(const DevResourceMeta& meta, bool allowOverride);
 
-    ResourceLoader::RawResourceTask loadRawData(ResourceMeta* meta) override {
+    ResourceLoader::RawResourceTask loadRawData(ResourceMeta* meta) override
+    {
         std::lock_guard<std::mutex> lock(waitingTasksMutex);
         auto it = waitingData.emplace(meta, nullptr);
         if (it.second) {
@@ -121,7 +124,8 @@ protected:
     }
 
     friend class DevLoaderTask;
-    void finishedLoading(ResourceMeta* meta) {
+    void finishedLoading(ResourceMeta* meta)
+    {
         std::lock_guard<std::mutex> lock(waitingTasksMutex);
         waitingData.erase(meta);
     }
@@ -157,5 +161,4 @@ private:
 
     TaskManager* taskManager;
 };
-
 }

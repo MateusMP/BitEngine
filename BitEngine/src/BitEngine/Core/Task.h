@@ -13,14 +13,15 @@ typedef std::shared_ptr<Task> TaskPtr;
 
 // Task Message
 struct MsgTaskCompleted {
-    MsgTaskCompleted(TaskPtr t) : m_task(t) {}
+    MsgTaskCompleted(TaskPtr t)
+        : m_task(t)
+    {
+    }
     std::shared_ptr<Task> m_task;
 };
 
-
 class Task {
 public:
-
     enum class TaskMode {
         NONE = 0x0,
         REPEATING = 0x1 << 1, // Task repeats multiple times.
@@ -38,15 +39,19 @@ public:
         BACKGROUND = 1,
     };
 
-
     Task(TaskMode _flags, Affinity _affinity)
-        : flags(_flags), affinity(_affinity), remainingWork(1) {}
+        : flags(_flags)
+        , affinity(_affinity)
+        , remainingWork(1)
+    {
+    }
     virtual ~Task() {}
 
     TaskMode getFlags() const { return flags; }
     Affinity getAffinity() const { return affinity; }
 
-    void execute() {
+    void execute()
+    {
         run();
         if (isRepeating()) {
             remainingWork = 1;
@@ -56,13 +61,14 @@ public:
         }
     }
 
-    bool isFinished() {
+    bool isFinished()
+    {
         return remainingWork == 0;
     }
 
-    bool isReady() {
-        if (remainingWork > 1)
-        {
+    bool isReady()
+    {
+        if (remainingWork > 1) {
             int remaining = 0;
             for (TaskPtr& t : waitingTasks) {
                 if (!t->isFinished()) {
@@ -75,33 +81,40 @@ public:
         return remainingWork <= 1;
     }
 
-    void addDependency(TaskPtr task) {
+    void addDependency(TaskPtr task)
+    {
         ++remainingWork;
         waitingTasks.emplace_back(task);
     }
 
-    bool isRepeating() {
+    bool isRepeating()
+    {
         return (enum_value(flags) & enum_value(TaskMode::REPEATING)) > 0;
     }
 
-    bool isFrameRequired() {
+    bool isFrameRequired()
+    {
         return (enum_value(flags) & enum_value(TaskMode::FRAME_REQUIRED)) > 0;
     }
 
-    bool isOncePerFrame() {
+    bool isOncePerFrame()
+    {
         return (enum_value(flags) & enum_value(TaskMode::ONCE_PER_FRAME)) > 0;
     }
 
-    const std::vector<TaskPtr>& getDependencies() const {
+    const std::vector<TaskPtr>& getDependencies() const
+    {
         return waitingTasks;
     }
 
-    void stopRepeating() {
+    void stopRepeating()
+    {
         flags = TaskMode(enum_value(flags) & !enum_value(TaskMode::REPEATING));
     }
 
 protected:
-    void setAffinity(Affinity a) {
+    void setAffinity(Affinity a)
+    {
         affinity = a;
     }
 
@@ -114,11 +127,9 @@ private:
     std::atomic<u32> remainingWork;
 
     template <typename T>
-    static constexpr typename std::underlying_type<T>::type enum_value(T val) {
+    static constexpr typename std::underlying_type<T>::type enum_value(T val)
+    {
         return static_cast<typename std::underlying_type<T>::type>(val);
     }
 };
-
-
 }
-

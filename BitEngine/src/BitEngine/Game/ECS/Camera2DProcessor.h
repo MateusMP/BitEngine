@@ -10,8 +10,7 @@
 
 namespace BitEngine {
 
-class BE_API Camera2DProcessor : public ComponentProcessor
-{
+class BE_API Camera2DProcessor : public ComponentProcessor {
 public: // Methods
     Camera2DProcessor(EntitySystem* es);
 
@@ -19,11 +18,9 @@ public: // Methods
     void Process();
 
 private: // Methods
-
     /// Processor
     static void recalculateMatrix(Camera2DComponent& c);
 
 private:
 };
-
 }

@@ -11,68 +11,88 @@ namespace BitEngine {
 
 typedef unsigned short SpriteHandle;
 
-class Sprite final : public BaseResource
-{
+class Sprite final : public BaseResource {
 public:
-
     Sprite()
-        : BaseResource(nullptr),
-        m_width(16), m_height(16),
-        m_offsetX(0), m_offsetY(0), m_uvrect(0.0f, 0.0f, 1.0f, 1.0f), m_transparent(false)
+        : BaseResource(nullptr)
+        , m_width(16)
+        , m_height(16)
+        , m_offsetX(0)
+        , m_offsetY(0)
+        , m_uvrect(0.0f, 0.0f, 1.0f, 1.0f)
+        , m_transparent(false)
     {
         calculateMaxRadius();
     }
 
-    Sprite(ResourceMeta* meta) : BaseResource(meta) {
-
+    Sprite(ResourceMeta* meta)
+        : BaseResource(meta)
+    {
     }
 
     Sprite(ResourceMeta* meta, const RR<Texture>& texture, int w, int h, float oX, float oY, const glm::vec4& _uvrect, bool _transparent = false)
-        : BaseResource(meta), m_textureID(texture), m_width(w), m_height(h), m_offsetX(oX), m_offsetY(oY), m_uvrect(_uvrect), m_transparent(_transparent)
+        : BaseResource(meta)
+        , m_textureID(texture)
+        , m_width(w)
+        , m_height(h)
+        , m_offsetX(oX)
+        , m_offsetY(oY)
+        , m_uvrect(_uvrect)
+        , m_transparent(_transparent)
     {
         calculateMaxRadius();
     }
 
-    void release() {
+    void release()
+    {
         m_textureID.invalidate();
     }
 
-    float getMaxRadius() const {
+    float getMaxRadius() const
+    {
         return m_maxRadius;
     }
 
-    const RR<Texture>& getTexture() const {
+    const RR<Texture>& getTexture() const
+    {
         return m_textureID;
     }
 
-    int getWidth() const {
+    int getWidth() const
+    {
         return m_width;
     }
 
-    int getHeight() const {
+    int getHeight() const
+    {
         return m_height;
     }
 
-    float getOffsetX() const {
+    float getOffsetX() const
+    {
         return m_offsetX;
     }
 
-    float getOffsetY() const {
+    float getOffsetY() const
+    {
         return m_offsetY;
     }
 
-    bool isTransparent() const {
+    bool isTransparent() const
+    {
         return m_transparent;
     }
 
-    const glm::vec4& getUV() const {
+    const glm::vec4& getUV() const
+    {
         return m_uvrect;
     }
 
-    const Sprite& operator =(const Sprite& spr);
+    const Sprite& operator=(const Sprite& spr);
 
-    template<typename Serializer>
-    static void serialize(Serializer* s, const BaseResource* obj) {
+    template <typename Serializer>
+    static void serialize(Serializer* s, const BaseResource* obj)
+    {
         const Sprite* sprite = static_cast<const Sprite*>(obj);
         s->write("texture", sprite->m_textureID);
         s->write("width", sprite->m_width);
@@ -83,7 +103,8 @@ public:
         s->write("transparent", (u8)sprite->m_transparent);
     }
 
-    static void read(PropertyHolder* s, BaseResource* obj) {
+    static void read(PropertyHolder* s, BaseResource* obj)
+    {
         Sprite* sprite = static_cast<Sprite*>(obj);
         s->read("texture", &sprite->m_textureID);
         s->read("width", &sprite->m_width);
@@ -119,7 +140,8 @@ using RSprite = RR<Sprite>;
 
 // INL
 
-inline const Sprite& Sprite::operator =(const Sprite& spr) {
+inline const Sprite& Sprite::operator=(const Sprite& spr)
+{
     m_textureID = spr.m_textureID;
     m_width = spr.m_width;
     m_height = spr.m_height;
@@ -150,7 +172,6 @@ inline void Sprite::calculateMaxRadius()
         maxH *= std::max(1.0f - m_offsetY, m_offsetY);
     }
 
-    m_maxRadius = std::sqrt(maxW*maxW + maxH * maxH);
+    m_maxRadius = std::sqrt(maxW * maxW + maxH * maxH);
 }
-
 }

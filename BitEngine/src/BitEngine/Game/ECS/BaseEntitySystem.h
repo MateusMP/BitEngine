@@ -9,9 +9,7 @@
 
 namespace BitEngine {
 
-class BE_API BaseEntitySystem : 
-        public Messenger<MsgEntityCreated>, public Messenger<MsgEntityDestroyed>
-{
+class BE_API BaseEntitySystem : public Messenger<MsgEntityCreated>, public Messenger<MsgEntityDestroyed> {
 public:
     BaseEntitySystem()
     {
@@ -48,7 +46,8 @@ public:
     // Check if given component type is valid inside this BaseEntitySystem
     // @param type The type to check
     // @return true if it is valid
-    bool isComponentOfTypeValid(ComponentType type) const {
+    bool isComponentOfTypeValid(ComponentType type) const
+    {
         return m_holders.find(type) != m_holders.end();
     }
 
@@ -56,7 +55,8 @@ public:
     // Assumes a valid type is given @see isComponentOfTypeValid()
     // @param The component type
     // @return A raw pointer for the component holder
-    inline BaseComponentHolder* getHolder(ComponentType type) {
+    inline BaseComponentHolder* getHolder(ComponentType type)
+    {
         return m_holders[type];
     }
 
@@ -71,7 +71,7 @@ public:
         return nullptr;
     }
 
-    // Should be called once the Update() is finished, after all Processors have 
+    // Should be called once the Update() is finished, after all Processors have
     // finished execution for this frame.
     // Releases all memory used by destroyed components/entities
     void destroyPending();
@@ -86,8 +86,7 @@ protected:
     // Shut down entity system
     void shutdown()
     {
-        for (auto& h : m_holders)
-        {
+        for (auto& h : m_holders) {
             delete h.second;
         }
 
@@ -112,20 +111,20 @@ protected:
     }
 
     // TODO: Make this a DebugAssert?
-    inline bool hasEntity(EntityHandle entity) const {
+    inline bool hasEntity(EntityHandle entity) const
+    {
         return m_entities.size() > entity && m_entities[entity] == entity;
     }
 
     // Member variables
-    std::vector< EntityHandle > m_entities;
-    std::vector< EntityHandle > m_freeEntities;
-    std::vector< EntityHandle > m_toBeDestroyed;
-    ObjBitField *m_objBitField;
+    std::vector<EntityHandle> m_entities;
+    std::vector<EntityHandle> m_freeEntities;
+    std::vector<EntityHandle> m_toBeDestroyed;
+    ObjBitField* m_objBitField;
 
 private:
-    std::unordered_map< ComponentType, BaseComponentHolder* > m_holders;
+    std::unordered_map<ComponentType, BaseComponentHolder*> m_holders;
 
     bool m_initialized;
 };
-
 }

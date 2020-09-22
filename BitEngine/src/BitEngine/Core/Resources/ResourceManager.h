@@ -21,8 +21,7 @@ namespace BitEngine {
  * It's possible that a ResourceManager will ask for resources from different managers.
  * e.g: The ModelManager asks for Textures which the TextureManager loaded.
  */
-class BE_API ResourceManager
-{
+class BE_API ResourceManager {
 public:
     virtual ~ResourceManager() {}
 
@@ -33,7 +32,6 @@ public:
     virtual void shutdown() = 0;
 
     virtual void setResourceLoader(ResourceLoader* loader) = 0;
-
 
     virtual BaseResource* loadResource(ResourceMeta* meta, PropertyHolder* props) = 0;
 
@@ -54,7 +52,5 @@ public:
     // in bytes
     virtual ptrsize getCurrentRamUsage() const = 0;
     virtual u32 getCurrentGPUMemoryUsage() const = 0;
-
 };
-
 }

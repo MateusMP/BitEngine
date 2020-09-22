@@ -7,18 +7,25 @@
 
 namespace BitEngine {
 
-class File : public BaseResource
-{
+class File : public BaseResource {
 public:
-    File() : BaseResource(nullptr), data(nullptr), size(0), ready(false)
-    {}
-    File(ResourceMeta* meta) : BaseResource(meta),
-        data(nullptr), size(0), ready(false)
-    {}
+    File()
+        : BaseResource(nullptr)
+        , data(nullptr)
+        , size(0)
+        , ready(false)
+    {
+    }
+    File(ResourceMeta* meta)
+        : BaseResource(meta)
+        , data(nullptr)
+        , size(0)
+        , ready(false)
+    {
+    }
 
     void* data;
     ptrsize size;
     bool ready;
 };
-
 }

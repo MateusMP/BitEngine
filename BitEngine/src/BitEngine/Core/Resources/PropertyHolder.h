@@ -8,12 +8,12 @@
 namespace BitEngine {
 class ResourceLoader;
 
-template<typename T>
+template <typename T>
 class RR;
 
-
 struct EnumStruct {
-    operator u32() {
+    operator u32()
+    {
         return value;
     }
 
@@ -23,22 +23,26 @@ struct EnumStruct {
 /***
  * Stores resource meta data.
  */
-class BE_API ResourceMeta
-{
+class BE_API ResourceMeta {
 public:
     ResourceMeta()
-        : id(~0), references(0)
-    {}
+        : id(~0)
+        , references(0)
+    {
+    }
 
-    const std::string toString() const {
+    const std::string toString() const
+    {
         return "Resource: " + std::to_string(id);
     }
 
-    u32 getReferences() const {
+    u32 getReferences() const
+    {
         return references;
     }
 
-    std::string getNameId() const {
+    std::string getNameId() const
+    {
         return std::to_string(id);
     }
 
@@ -52,24 +56,27 @@ private:
 /**
  * All resources types should come from this
  */
-class BE_API BaseResource
-{
+class BE_API BaseResource {
 public:
     // Base resource
     // d Owns the data from this vector
     BaseResource(ResourceMeta* _meta)
         : meta(_meta)
-    {}
+    {
+    }
 
-    u32 getResourceId() const {
+    u32 getResourceId() const
+    {
         return meta->id;
     }
 
-    ResourceMeta* getMeta() const {
+    ResourceMeta* getMeta() const
+    {
         return meta;
     }
 
-    void setMeta(ResourceMeta* m) {
+    void setMeta(ResourceMeta* m)
+    {
         meta = m;
     }
 
@@ -79,25 +86,29 @@ protected:
 
 class PropertyHolder {
 public:
-    template<typename T>
-    void readObject(const char *name, T* into) {
+    template <typename T>
+    void readObject(const char* name, T* into)
+    {
         PropertyHolder* props = getReaderObject(name);
         T::read(props, into);
     }
 
-    template<typename T>
-    void readCustom(const char* field, T* into) {
+    template <typename T>
+    void readCustom(const char* field, T* into)
+    {
         T::read(field, this, into);
     }
 
-    template<typename T>
-    void readObjectFromList(const char* name, ptrsize index, T* into) {
+    template <typename T>
+    void readObjectFromList(const char* name, ptrsize index, T* into)
+    {
         PropertyHolder* props = getReaderObjectFromList(name, index);
         T::read(props, into);
     }
 
-    template<typename T>
-    void readObjectList(const char* name, std::vector<T>* into) {
+    template <typename T>
+    void readObjectList(const char* name, std::vector<T>* into)
+    {
         ptrsize size = getPropertyListSize(name);
         into->resize(size);
         for (ptrsize i = 0; i < size; ++i) {
@@ -105,17 +116,20 @@ public:
         }
     }
 
-    template<typename T>
-    void read(const char* name, T* type) {
+    template <typename T>
+    void read(const char* name, T* type)
+    {
         _read(name, type);
     }
 
-    void read(const char* name, EnumStruct* type) {
+    void read(const char* name, EnumStruct* type)
+    {
         _read(name, &type->value);
     }
 
-    template<typename T>
-    void read(const char* name, RR<T>* into) {
+    template <typename T>
+    void read(const char* name, RR<T>* into)
+    {
         BaseResource* res = nullptr;
         _read(name, &res);
         if (res) {
@@ -142,11 +156,8 @@ protected:
     virtual void _read(const char* name, ResourceMeta** into) = 0;
     virtual void _read(const char* name, Vec3* into) = 0;
     virtual void _read(const char* name, Vec4* into) = 0;
-
 };
 
-
-template<>
+template <>
 void PropertyHolder::read<u8>(const char* name, u8* type);
-
 }

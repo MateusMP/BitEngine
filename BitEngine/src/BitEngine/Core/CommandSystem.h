@@ -11,14 +11,12 @@ namespace BitEngine {
  * Command System is a default system used to define commands for inputs.
  * The inputs should be registered to a command, that will be triggered by an event.
  */
-class BE_API CommandSystem
-{
+class BE_API CommandSystem {
 public:
     /**
      * The body for command events.
      */
-    struct BE_API MsgCommandInput
-    {
+    struct BE_API MsgCommandInput {
     public:
         MsgCommandInput() { action.other = 0; }
         MsgCommandInput(int _id, float _intensity, int _other);
@@ -98,7 +96,8 @@ public:
      * @param mod
      * @return
      */
-    bool RegisterMouseMove(int commandID, int commandState, KeyMod mod = KeyMod::NONE) {
+    bool RegisterMouseMove(int commandID, int commandState, KeyMod mod = KeyMod::NONE)
+    {
         return RegisterMouseCommand(commandID, commandState, 0, MouseAction::MOVE, mod);
     }
 
@@ -122,14 +121,24 @@ private:
 
     struct CommandIdentifier {
         CommandIdentifier()
-            : commandState(0), msgCommandInputType(InputType::other)
-        {}
+            : commandState(0)
+            , msgCommandInputType(InputType::other)
+        {
+        }
 
         CommandIdentifier(int s, const MsgKeyboardInput& k)
-            : commandState(s), msgCommandInputType(InputType::keyboard), keyboard(k) {}
+            : commandState(s)
+            , msgCommandInputType(InputType::keyboard)
+            , keyboard(k)
+        {
+        }
 
         CommandIdentifier(int s, const MsgMouseInput& m)
-            : commandState(s), msgCommandInputType(InputType::mouse), mouse(m) {}
+            : commandState(s)
+            , msgCommandInputType(InputType::mouse)
+            , mouse(m)
+        {
+        }
 
         int commandState;
         InputType msgCommandInputType;
@@ -145,7 +154,7 @@ private:
     };
     class CIEqual {
     public:
-        bool operator() (const CommandIdentifier& t1, const CommandIdentifier& t2) const;
+        bool operator()(const CommandIdentifier& t1, const CommandIdentifier& t2) const;
     };
 
     std::unordered_map<CommandIdentifier, int, CIHash, CIEqual> m_commands;
@@ -154,5 +163,4 @@ private:
     Messenger<MsgKeyboardInput>::ScopedSubscription subKeyboard;
     Messenger<MsgMouseInput>::ScopedSubscription subMouse;
 };
-
 }

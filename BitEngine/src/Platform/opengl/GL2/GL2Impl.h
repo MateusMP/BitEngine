@@ -3,55 +3,64 @@
 #include "Platform/opengl/GL2/OpenGL2.h"
 
 namespace BitEngine {
-class GL2
-{
+class GL2 {
 public:
-
-    static void bindVbo(GLuint vbo) {
+    static void bindVbo(GLuint vbo)
+    {
         GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vbo));
     }
-    static void unbindVbo() {
+    static void unbindVbo()
+    {
         GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
     }
 
-    static void loadBufferRange(const void* data, u32 offset, u32 len, GLenum mode) {
+    static void loadBufferRange(const void* data, u32 offset, u32 len, GLenum mode)
+    {
         const char* d = static_cast<const char*>(data);
         GL_CHECK(glBufferData(GL_ARRAY_BUFFER, len, nullptr, mode));
         GL_CHECK(glBufferData(GL_ARRAY_BUFFER, len, d + offset, mode));
     }
 
-    static void bindVao(GLuint vao) {
+    static void bindVao(GLuint vao)
+    {
         GL_CHECK(glBindVertexArray(vao));
     }
 
-    static void unbindVao() {
+    static void unbindVao()
+    {
         GL_CHECK(glBindVertexArray(0));
     }
 
-    static void genVao(GLsizei num, GLuint* _array) {
+    static void genVao(GLsizei num, GLuint* _array)
+    {
         GL_CHECK(glGenVertexArrays(num, _array));
     }
 
-    static void genVbo(GLsizei num, GLuint* _array) {
+    static void genVbo(GLsizei num, GLuint* _array)
+    {
         GL_CHECK(glGenBuffers(num, _array));
     }
 
-    static void setupVbo(GLuint attrIndex, GLuint vbo, GLint size, GLenum dataType, GLboolean normalized, GLsizei stride, u64 offset, GLuint divisor) {
+    static void setupVbo(GLuint attrIndex, GLuint vbo, GLint size, GLenum dataType, GLboolean normalized, GLsizei stride, u64 offset, GLuint divisor)
+    {
         bindVbo(vbo);
         GL_CHECK(glVertexAttribPointer(attrIndex, size, dataType, normalized, stride, (const GLvoid*)offset));
         // GL_CHECK(glVertexAttribDivisor(attrIndex, divisor));
         GL_CHECK(glEnableVertexAttribArray(attrIndex));
     }
 
-    static void deleteVaos(u32 num, GLuint* _array) {
+    static void deleteVaos(u32 num, GLuint* _array)
+    {
         GL_CHECK(glDeleteVertexArrays(num, _array));
     }
 
-    static void bindShaderProgram(GLuint program) {
+    static void bindShaderProgram(GLuint program)
+    {
         GL_CHECK(glUseProgram(program));
     }
 
-    static void enableState(GLenum state, bool enable) {
+    static void enableState(GLenum state, bool enable)
+    {
         if (enable) {
             GL_CHECK(glEnable(state));
         }
@@ -86,8 +95,7 @@ public:
 
     static GLenum fromGLTypeToGLDataType(GLenum e)
     {
-        switch (e)
-        {
+        switch (e) {
         case GL_SAMPLER_1D:
         case GL_SAMPLER_2D:
         case GL_SAMPLER_3D:
@@ -109,8 +117,7 @@ public:
 
     static GLenum fromGLTypeToGLDataTypeSize(GLenum e)
     {
-        switch (e)
-        {
+        switch (e) {
         case GL_FLOAT:
         case GL_SAMPLER_1D:
         case GL_SAMPLER_2D:
@@ -133,8 +140,7 @@ public:
 
     static u32 sizeOfGlType(GLenum type)
     {
-        switch (type)
-        {
+        switch (type) {
         case GL_FLOAT:
             return sizeof(GLfloat);
 

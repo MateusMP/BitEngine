@@ -8,11 +8,12 @@
 
 namespace BitEngine {
 
-struct MsgFrameStart {};
-struct MsgFrameEnd {};
+struct MsgFrameStart {
+};
+struct MsgFrameEnd {
+};
 
-class TaskManager
-{
+class TaskManager {
 public:
     TaskManager() {}
     virtual ~TaskManager() {}
@@ -32,8 +33,4 @@ public:
 
 private:
 };
-
-
-
 }
-

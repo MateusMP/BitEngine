@@ -6,8 +6,7 @@
 namespace BitEngine {
 
 class BE_API Camera2DComponent
-    : public Component<Camera2DComponent>
-{
+    : public Component<Camera2DComponent> {
 public:
     Camera2DComponent();
 
@@ -46,8 +45,5 @@ public:
     glm::mat4 m_orthoMatrix;
 
     bool changed;
-
 };
-
-
 }

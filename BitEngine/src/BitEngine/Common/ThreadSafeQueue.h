@@ -6,24 +6,20 @@
 
 namespace BitEngine {
 
-template<typename T>
-class ThreadSafeQueue
-{
+template <typename T>
+class ThreadSafeQueue {
 public:
     bool tryPop(T& out)
     {
-        if (m_mutex.try_lock())
-        {
-            if (!m_queue.empty())
-            {
+        if (m_mutex.try_lock()) {
+            if (!m_queue.empty()) {
                 out = std::move(m_queue.front());
                 m_queue.pop();
                 m_mutex.unlock();
 
                 return true;
             }
-            else
-            {
+            else {
                 m_mutex.unlock();
             }
         }
@@ -47,7 +43,8 @@ public:
         }
     }
 
-    void clear() {
+    void clear()
+    {
         std::unique_lock<std::mutex> lock(m_mutex);
         std::queue<T> empty;
         std::swap(m_queue, empty);
@@ -63,8 +60,8 @@ public:
         m_cond.notify_one();
     }
 
-    template<typename ...Args>
-    void push(Args&& ...value)
+    template <typename... Args>
+    void push(Args&&... value)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         m_queue.emplace(std::forward<Args>(value)...);
@@ -85,7 +82,8 @@ public:
         m_queue.swap(queue.m_queue);
     }
 
-    void notify() {
+    void notify()
+    {
         m_cond.notify_all();
     }
 

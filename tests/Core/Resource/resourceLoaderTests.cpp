@@ -72,7 +72,6 @@ TEST(ResourceLoader, LoadMultipleResources)
 	ASSERT_EQ(metaR1->properties.size(), 4);
 
 	MockResourceType1 r1(metaR1);
-	//EXPECT_CALL(manager1, loadResource(metaR1)).WillRepeatedly(Return(&r1));
     EXPECT_CALL(manager1, loadResource(((ResourceMeta*)(metaR1)), _)).WillOnce(Return(&r1));
 
 	RR<MockResourceType1> refR1 = devResourceLoader.getResource<MockResourceType1>(std::string("data/someGroup/A piece of data"));

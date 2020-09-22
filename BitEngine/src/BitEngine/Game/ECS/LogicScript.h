@@ -9,18 +9,18 @@
 
 namespace BitEngine {
 
-class CollisionLogic
-{
+class CollisionLogic {
     virtual ~CollisionLogic() {}
     virtual void OnCollision() = 0;
 };
 
-class BE_API GameLogic
-{
+class BE_API GameLogic {
 public:
     GameLogic()
-        : m_myEntity(0), e_sys(nullptr)
-    {}
+        : m_myEntity(0)
+        , e_sys(nullptr)
+    {
+    }
     virtual ~GameLogic() {}
 
     enum RunEvents : u16 {
@@ -41,8 +41,9 @@ public:
 
     virtual void end() {}
 
-    template<typename CompClass>
-    ComponentRef<CompClass> getComponent() {
+    template <typename CompClass>
+    ComponentRef<CompClass> getComponent()
+    {
         return e_sys->getComponentRef<CompClass>(m_myEntity);
     }
 
@@ -52,25 +53,32 @@ private:
     EntitySystem* e_sys;
 };
 
-class GameLogicComponent : public Component<GameLogicComponent>
-{
+class GameLogicComponent : public Component<GameLogicComponent> {
 public:
     GameLogicComponent()
-        : m_entity(0), e_sys(nullptr) {}
+        : m_entity(0)
+        , e_sys(nullptr)
+    {
+    }
     GameLogicComponent(EntityHandle ent)
-        : m_entity(ent), e_sys(nullptr) {
+        : m_entity(ent)
+        , e_sys(nullptr)
+    {
     }
 
-    ~GameLogicComponent() {
+    ~GameLogicComponent()
+    {
     }
 
-    void addLogicPiece(GameLogic* logic) {
+    void addLogicPiece(GameLogic* logic)
+    {
         m_gamelogics.emplace_back(logic);
         logic->m_myEntity = m_entity;
         logic->e_sys = e_sys;
     }
 
-    EntityHandle getEntity() const {
+    EntityHandle getEntity() const
+    {
         return m_entity;
     }
 
@@ -82,5 +90,4 @@ private:
     EntitySystem* e_sys;
     std::vector<GameLogic*> m_gamelogics;
 };
-
 }

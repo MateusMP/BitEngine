@@ -9,5 +9,4 @@ public:
     virtual int getTextureCount() = 0;
     virtual RR<Texture> getTexture(int index) = 0;
 };
-
 }

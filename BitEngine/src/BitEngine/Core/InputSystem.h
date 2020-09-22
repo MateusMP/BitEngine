@@ -7,8 +7,7 @@
 
 namespace BitEngine {
 
-class InputSystem
-{
+class InputSystem {
 public:
     InputSystem() {}
     virtual ~InputSystem() {}
@@ -22,6 +21,5 @@ public:
 
     virtual double getMouseX() const = 0;
     virtual double getMouseY() const = 0;
-
 };
 }
