@@ -3,7 +3,10 @@
 namespace BitEngine {
 namespace Reflection {
 
-    u32 globalUniqueValue = 0;
+    u32 GetNextUniqueId() {
+        static u32 uniqueId = 0;
+        return ++uniqueId;
+    }
 
     std::string ToStringForTypeId(TypeId typeId, void* value, StrGenFunc func)
     {
@@ -30,19 +33,20 @@ namespace Reflection {
         return reflected;
     }
 
+
     //
     // Reflected
     //
 
-    Reflected::Reflected(char* instance, ReflectionData* reflectionData)
+    Reflected::Reflected(void* instance, ReflectionData* reflectionData)
         : classData(reflectionData)
     {
-        const std::map<std::string, MemberType>& members = reflectionData->m_members;
+        const std::map<std::string, MemberType>& members = reflectionData->members;
         for (const auto& it : members) {
             const MemberType& m = it.second;
             m_members.emplace(std::piecewise_construct,
                 std::forward_as_tuple(it.first),
-                std::forward_as_tuple(&m, (instance + m.offset)));
+                std::forward_as_tuple(&m, (((char*)instance) + m.offset)));
         }
     }
 
